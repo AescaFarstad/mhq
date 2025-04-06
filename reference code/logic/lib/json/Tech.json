@@ -1,0 +1,73 @@
+{
+    "science":{
+        "coords":{"x":0, "y":0},
+        "probability":0.5,
+        "improvement":4,
+        "onSuccess":[
+            {"key":"giveMaxResource", "resource":"science", "amount":100}            
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    },
+    "salting":{
+        "coords":{"x":1, "y":0},
+        "probability":0.8,
+        "improvement":2,
+        "onSuccess":[
+            {"key":"giveMaxResource", "resource":"food", "amount":100}            
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    },
+    "exploration":{
+        "coords":{"x":-1, "y":0},
+        "probability":0.3,
+        "improvement":2,
+        "onSuccess":[
+            {"key":"discoverBuilding", "name":"scoutLodge"},         
+            {"key":"discoverTab", "name":"exploration"},            
+            {"key":"description", "name":"unlockExplorationEffect"}            
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    },
+    "construction":{
+        "coords":{"x":-1, "y":1},
+        "probability":0.3,
+        "improvement":3,
+        "onSuccess":[
+            {"key":"giveMaxBuilding", "name":"hut", "amount":5},          
+            {"key":"giveMaxBuilding", "name":"barn", "amount":5}
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    },
+    "construction2":{
+        "coords":{"x":-2, "y":1},
+        "probability":0.3,
+        "improvement":3,
+        "onSuccess":[
+            {"key":"giveMaxBuilding", "name":"hut", "amount":5},          
+            {"key":"giveMaxBuilding", "name":"barn", "amount":5}
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    },
+    "construction3":{
+        "coords":{"x":-3, "y":1},
+        "probability":0.3,
+        "improvement":3,
+        "onSuccess":[
+            {"key":"giveMaxBuilding", "name":"hut", "amount":5},          
+            {"key":"giveMaxBuilding", "name":"barn", "amount":5}
+        ],      
+        "onFailure":[
+            {"key":"giveResource", "resource":"food", "amount":100}            
+        ]        
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "startGame": {
+        "triggerOnce": true,
+        "conditions": [
+            { "key": "alwaysTrue" } 
+        ],
+        "effects": [
+            { "key": "giveMaxResource", "params": { "resource": "gold", "amount": 1000 } },
+            { "key": "giveResource", "params": { "resource": "gold", "amount": 50 } },
+            { "key": "discoverResource", "params": { "target": "gold" } },
+            { "key": "discoverTab", "params": { "target": "resources" } },
+            { "key": "discoverTab", "params": { "target": "buildings" } }
+        ]
+    },
+    "grantInitialGoldIncome": {
+        "triggerOnce": true,
+        "conditions": [
+            { "key": "alwaysTrue" } 
+        ],
+        "effects": [
+            { "key": "addResourceIncome", "params": { "resource": "gold", "amount": 10, "source": "Council Funding" } }
+        ]
+    }
+} 

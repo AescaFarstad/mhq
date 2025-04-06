@@ -1,0 +1,42 @@
+{
+    "food":
+    {
+        "effectMulti":100,
+        "price":[
+            {"resource":"food", "formula":{"name":"poly", "a":100}}
+        ],
+        "volume":100
+    },
+    "weapons":
+    {
+        "effectMulti":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":100}}
+        ],
+        "volume":1000
+    },
+    "tools":
+    {
+        "effectMulti":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":100}}
+        ],
+        "volume":1000
+    },
+    "traps":
+    {
+        "effectMulti":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":100}}
+        ],
+        "volume":1000
+    },
+    "carts":
+    {
+        "effectMulti":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":100}}
+        ],
+        "volume":2000
+    }
+}

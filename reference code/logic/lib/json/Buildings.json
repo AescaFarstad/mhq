@@ -1,0 +1,81 @@
+{
+    "hut":{
+        "effects":[
+            {"key":"giveResource", "resource":"housing", "amount":4}
+        ],
+        "max":10,
+        "price":[
+            {"resource":"wood", "formula":{"name":"exp", "a":5, "b":1.4}},
+            {"resource":"food", "formula":{"name":"poly", "a":40, "b":20}}
+        ]
+    },
+    "barn":{
+        "effects":[
+            {"key":"giveMaxResource", "resource":"food", "amount":100},
+            {"key":"giveMaxResource", "resource":"wood", "amount":100},
+            {"key":"giveMaxResource", "resource":"stone", "amount":100}
+        ],
+        "max":10,
+        "price":[
+            {"resource":"wood", "formula":{"name":"exp", "a":30, "b":1.5}}
+        ]
+    },
+    "shed":{
+        "effects":[
+            {"key":"addYield", "job":"bushes", "resource":"food", "amount":1}
+        ],
+        "max":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":250}}
+        ]
+    },
+    "cart":{
+        "effects":[
+            {"key":"addYield", "job":"forest", "resource":"wood", "amount":1}
+        ],
+        "max":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":120}}
+        ]
+    },
+    "forestCamp":{
+        "effects":[
+            {"key":"addYield", "job":"forest", "resource":"food", "amount":1}
+        ],
+        "max":1,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":90}},
+            {"resource":"food", "formula":{"name":"poly", "a":90}}
+        ]
+    },
+    "shamanHut":{
+        "effects":[
+            {"key":"addWorkplace", "job":"totem", "amount":1},
+            {"key":"giveResource", "resource":"housing", "amount":1}
+        ],
+        "max":10,
+        "price":[
+            {"resource":"wood", "formula":{"name":"poly", "a":90, "b":40, "c":10}},
+            {"resource":"food", "formula":{"name":"poly", "a":90, "b":40, "c":10}}
+        ]
+    },
+    "totem":{
+        "effects":[
+            {"key":"addYield", "job":"totem", "resource":"science", "amount":1}
+        ],
+        "max":10,
+        "price":[
+            {"resource":"wood", "formula":{"name":"exp", "a":40, "b":1.4}},
+            {"resource":"science", "formula":{"name":"poly", "a":10, "b":10}}
+        ]
+    },
+    "scoutLodge":{
+        "effects":[
+            {"key":"giveMaxPartyMembers", "amount":1}
+        ],
+        "max":10,
+        "price":[
+            {"resource":"wood", "formula":{"name":"exp", "a":280, "b":1.3}}
+        ]
+    }
+}
