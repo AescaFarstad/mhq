@@ -7,18 +7,14 @@
         "effects": [
             { "key": "giveMaxResource", "params": { "resource": "gold", "amount": 1000 } },
             { "key": "giveResource", "params": { "resource": "gold", "amount": 50 } },
+            { "key": "giveMaxResource", "params": { "resource": "mana", "amount": 100 } },
             { "key": "discoverResource", "params": { "target": "gold" } },
             { "key": "discoverTab", "params": { "target": "resources" } },
-            { "key": "discoverTab", "params": { "target": "buildings" } }
-        ]
-    },
-    "grantInitialGoldIncome": {
-        "triggerOnce": true,
-        "conditions": [
-            { "key": "alwaysTrue" } 
-        ],
-        "effects": [
-            { "key": "addResourceIncome", "params": { "resource": "gold", "amount": 10, "source": "Council Funding" } }
+            { "key": "discoverTab", "params": { "target": "buildings" } },
+            { "key": "addResourceIncome", "params": { "resource": "gold", "amount": 10, "source": "Council Funding" } },
+            { "key": "addResourceIncome", "params": { "resource": "mana", "amount": 1, "source": "Innate" } },
+            { "key": "addCharacterByName", "params": { "characterId": "you_char" } },
+            { "key": "addCharacterByName", "params": { "characterId": "worker_01" } }
         ]
     }
 } 

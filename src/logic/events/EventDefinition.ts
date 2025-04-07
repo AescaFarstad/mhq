@@ -25,6 +25,11 @@ export interface StartDialogParams {
     dialogId: string;
 }
 
+/** Represents parameters for adding a character by name */
+export interface AddCharacterParams {
+    characterId: string; // The ID of the character definition in CharacterLib
+}
+
 /**
  * Represents a condition that must be met for an event to trigger.
  * Specific condition types will implement this interface.

@@ -1,15 +1,28 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevent potential scrollbars on body */
+}
+
 body {
   font-family: sans-serif;
-  margin: 0;
-  padding: 2em;
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; // Let App.vue control its background */
 }
 
 #app {
-  max-width: 800px;
-  margin: auto;
-  background-color: white;
-  padding: 2em;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: 100%; /* Ensure #app takes full height */
+  width: 100%; /* Ensure #app takes full width */
+  /* Remove previous constraints */
+  /* max-width: 800px; */
+  /* margin: auto; */
+  /* background-color: white; // App.vue handles this now */
+  /* padding: 2em; */
+  /* border-radius: 8px; */
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
 } 

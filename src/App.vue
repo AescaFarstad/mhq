@@ -1,76 +1,187 @@
 <script setup lang="ts">
-import { ref, inject, computed, onMounted, onUnmounted } from 'vue';
+import { ref, inject, onMounted, onUnmounted, reactive } from 'vue';
 import { GameState } from './logic/GameState';
-import { Resource } from './logic/core/Resource';
+// Import the new components
+import ResourceDisplay from './components/ResourceDisplay.vue';
+import CastleView from './components/CastleView.vue';
+import CrewView from './components/CrewView.vue';
+import QuestsView from './components/QuestsView.vue';
+import DebugView from './components/DebugView.vue'; // Import the Debug view
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
 
-// Reactive references for display
-const goldDisplay = ref("0");
-const maxGoldDisplay = ref("0");
-const goldIncomeDisplay = ref("0");
+// Tab management
+const activeTab = ref('Castle'); // Default tab
+const tabs = ['Castle', 'Crew', 'Quests', 'Debug']; // Add 'Debug' to list of tabs
 
-let intervalId: number | undefined;
-
-// Function to update the display values from gameState
-const updateDisplay = () => {
+// Notify GameState when tab changes
+const setActiveTab = (tabName: string) => {
+  activeTab.value = tabName;
   if (gameState) {
-    const goldResource = gameState.resourceManager.getResource('gold');
-    if (goldResource) {
-      goldDisplay.value = goldResource.current.value.toFixed(1);
-      maxGoldDisplay.value = goldResource.max.value.toFixed(0);
-      goldIncomeDisplay.value = goldResource.income.value.toFixed(2);
-    } else {
-        // Handle case where resource might not exist yet
-        goldDisplay.value = "N/A";
-        maxGoldDisplay.value = "N/A";
-        goldIncomeDisplay.value = "N/A";
-    }
-  } else {
-    console.error("GameState not injected!");
+    gameState.setActiveTab(tabName);
   }
 };
 
-// Update the display periodically (e.g., 10 times per second)
-// We don't need to update *every* frame, just often enough for the UI
-onMounted(() => {
-  updateDisplay(); // Initial update
-  intervalId = window.setInterval(updateDisplay, 100); // Update 10 times/sec
-});
+// Dialog visibility
+const showDialog = ref(false); // Initially hidden
 
-// Clean up the interval when the component is unmounted
-onUnmounted(() => {
-  if (intervalId) {
-    window.clearInterval(intervalId);
+onMounted(() => {
+  if (!gameState) {
+    console.error("GameState not injected or provided!");
+    // Handle error appropriately - maybe show an error message or disable UI
+    return; // Stop setup if no game state
+  }
+
+  console.log("App mounted. Game loop is managed externally (e.g., in main.ts).");
+
+  // Example: Show dialog after 30 seconds (moved inside onMounted)
+  setTimeout(() => {
+      showDialog.value = true;
+  }, 30000);
+
+  // Set initial active tab in GameState
+  if (gameState) {
+    gameState.setActiveTab(activeTab.value);
   }
 });
 
 </script>
 
 <template>
-  <div>
-    <h1>Resource Monitor</h1>
-    <div class="resource-display">
-      <span>Gold:</span>
-      <span>{{ goldDisplay }} / {{ maxGoldDisplay }}</span>
-      <span>(+{{ goldIncomeDisplay }}/sec)</span>
+  <div class="app-container">
+    <!-- Left Sidebar for Resources -->
+    <div class="sidebar">
+      <!-- Use the ResourceDisplay component -->
+      <ResourceDisplay />
     </div>
-    <!-- You can add more UI elements here -->
+
+    <!-- Right Main Content Area with Tabs -->
+    <div class="main-content">
+      <div class="tabs">
+        <button
+          v-for="tab in tabs"
+          :key="tab"
+          @click="setActiveTab(tab)"
+          :class="{ active: activeTab === tab }"
+        >
+          {{ tab }}
+        </button>
+        <!-- Original static buttons removed in favor of v-for -->
+        <!-- <button @click="activeTab = 'Castle'" :class="{ active: activeTab === 'Castle' }">Castle</button>
+        <button @click="activeTab = 'Crew'" :class="{ active: activeTab === 'Crew' }">Crew</button>
+        <button @click="activeTab = 'Quests'" :class="{ active: activeTab === 'Quests' }">Quests</button>
+        <button @click="activeTab = 'Debug'" :class="{ active: activeTab === 'Debug' }">Debug</button> --> <!-- Added Debug button -->
+      </div>
+      <div class="tab-content">
+        <!-- Use the Tab components -->
+        <CastleView v-if="activeTab === 'Castle'" />
+        <CrewView v-if="activeTab === 'Crew'" />
+        <QuestsView v-if="activeTab === 'Quests'" />
+        <!-- Add the DebugView component, passing the stats -->
+        <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
+      </div>
+    </div>
+
+    <!-- Overlay Dialog -->
+    <div v-if="showDialog" class="dialog-overlay">
+      <div class="dialog-content">
+        <h2>Dialog Title</h2>
+        <p>This is the dialog content. It appears on top of everything.</p>
+        <button @click="showDialog = false">Close</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <style scoped>
-.resource-display {
-  font-family: monospace;
-  font-size: 1.2em;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
-  display: inline-block;
+.app-container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  position: relative; /* Needed for absolute positioning of the dialog */
 }
 
-.resource-display span {
-  margin: 0 5px;
+.sidebar {
+  width: 300px; /* Increased width */
+  background-color: #f0f0f0;
+  /* padding: 15px; // Padding is now handled by ResourceDisplay */
+  border-right: 1px solid #ccc;
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+/* Removed sidebar h2 and resource-display styles as they are in ResourceDisplay.vue */
+
+.main-content {
+  flex-grow: 1; /* Takes up remaining space */
+  padding: 15px;
+  display: flex;
+  flex-direction: column; /* Stack tabs and content vertically */
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+}
+
+.tabs button {
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1em;
+  border-bottom: 3px solid transparent; /* Placeholder for active indicator */
+  margin-bottom: -1px; /* Align with the content border */
+}
+
+.tabs button.active {
+  border-bottom-color: #007bff; /* Active tab indicator color */
+  font-weight: bold;
+}
+
+.tabs button:hover {
+  background-color: #eee;
+}
+
+.tab-content {
+  flex-grow: 1; /* Takes up remaining space in main-content */
+}
+
+/* Removed tab-content h3 style */
+
+/* Dialog Styles */
+.dialog-overlay {
+  position: absolute; /* Position relative to .app-container */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+}
+
+.dialog-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+  text-align: center;
+}
+
+.dialog-content h2 {
+    margin-top: 0;
+}
+
+.dialog-content button {
+    margin-top: 15px;
+    padding: 8px 15px;
+    cursor: pointer;
 }
 </style> 

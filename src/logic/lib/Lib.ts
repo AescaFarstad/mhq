@@ -1,6 +1,12 @@
 import { LibItem } from './LibDefinitions';
 import { EventDefinition } from '../events/EventDefinition'; // Import specific definition type
+import { CharacterLib } from './CharacterLib'; // Added import
+import { CharacterDefinition } from '../characters/CharacterDefinition'; // Added import
+import { AttributeLib } from './AttributeLib'; // Added import for AttributeLib
+
 import eventJsonData from '../data/events.json'; // Import the JSON data directly
+import characterJsonData from '../data/characters.json'; // Added import
+// Note: Attribute data is imported directly within AttributeLib.ts
 
 /**
  * Manages collections of game entity definitions loaded from external sources (like JSON).
@@ -9,6 +15,12 @@ import eventJsonData from '../data/events.json'; // Import the JSON data directl
 export class Lib {
     /** Collection of event definitions. */
     public events: Map<string, EventDefinition> = new Map<string, EventDefinition>();
+
+    /** Library for character definitions. */
+    public characters: CharacterLib = new CharacterLib(); // Added
+
+    /** Library for attribute definitions. */ // Added
+    public attributes: AttributeLib = new AttributeLib(); // Added
 
     /** Collection of building definitions. */
     public buildings: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be BuildingDefinition
@@ -38,6 +50,13 @@ export class Lib {
             // Process events from imported JSON
             this.events = this.processImportedJson<EventDefinition>(eventJsonData);
             console.log(`Processed ${this.events.size} events.`);
+
+            // Process characters
+            this.characters.loadCharacters(characterJsonData); // Added
+            console.log(`CharacterLib loaded via Lib.`); // Added
+
+            // AttributeLib is already loading its data in its constructor
+            console.log(`AttributeLib initialized via Lib.`); // Added logging
 
             // Process other definitions similarly if they were imported
             // this.buildings = this.processImportedJson<BuildingDefinition>(buildingJsonData);
@@ -100,6 +119,24 @@ export class Lib {
     public getTech(id: string): LibItem | undefined { // Should return specific TechDefinition
         return this.techs.get(id);
     }
+
+    /**
+     * Retrieves a specific character definition by its ID.
+     *
+     * @param id The unique ID of the character.
+     * @returns The character definition or undefined if not found.
+     */
+    public getCharacter(id: string): CharacterDefinition | undefined { // Added
+        return this.characters.getCharacter(id); // Added
+    } // Added
+
+    /** // Added block
+     * Retrieves the AttributeLib instance. // Added
+     * @returns The AttributeLib instance. // Added
+     */ // Added
+    public getAttributeLib(): AttributeLib { // Added
+        return this.attributes; // Added
+    } // Added
 }
 
 // Placeholder for file reading function if needed (adjust for environment)

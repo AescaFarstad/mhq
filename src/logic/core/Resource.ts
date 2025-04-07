@@ -113,6 +113,16 @@ export class ResourceManager {
     }
 
     /**
+     * Gets the map of all managed resources.
+     * Useful for iterating over all resources in the UI.
+     *
+     * @returns A Map containing all resources, keyed by name.
+     */
+    public getAllResources(): Map<string, Resource> {
+        return this.resources;
+    }
+
+    /**
      * Updates all managed resources based on elapsed time.
      *
      * @param deltaTime Time elapsed since the last update, in seconds.

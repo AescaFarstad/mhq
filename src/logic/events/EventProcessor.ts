@@ -1,6 +1,6 @@
 import { GameState } from '../GameState';
 import { Lib } from '../lib/Lib';
-import { EventDefinition, Condition, Effect, ModifyResourceParams, DiscoverParams, StartDialogParams, ModifyResourceIncomeParams } from './EventDefinition';
+import { EventDefinition, Condition, Effect, ModifyResourceParams, DiscoverParams, StartDialogParams, ModifyResourceIncomeParams, AddCharacterParams } from './EventDefinition';
 import { Stats } from '../core/Stats'; // Needed for effects
 import { Parameter } from '../core/Stat'; // Needed for effects
 
@@ -146,6 +146,16 @@ export class EventProcessor {
                      const params = effect.params as StartDialogParams;
                      console.log(`Dialog started: ${params.dialogId}`);
                      // Example: state.activeDialog = { id: params.dialogId, currentNode: 'start' };
+                    break;
+                }
+                case 'addCharacterByName': {
+                    const params = effect.params as AddCharacterParams;
+                    const charDef = this.lib.getCharacter(params.characterId);
+                    if (charDef) {
+                        state.addCharacter(charDef);
+                    } else {
+                        console.warn(`Effect 'addCharacterByName': Character definition "${params.characterId}" not found in Lib.`);
+                    }
                     break;
                 }
                 // --- Add other effect implementations here ---
