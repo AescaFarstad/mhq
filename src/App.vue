@@ -3,10 +3,10 @@ import { ref, inject, onMounted, onUnmounted, reactive } from 'vue';
 import { GameState } from './logic/GameState';
 // Import the new components
 import ResourceDisplay from './components/ResourceDisplay.vue';
-import CastleView from './components/CastleView.vue';
-import CrewView from './components/CrewView.vue';
-import QuestsView from './components/QuestsView.vue';
-import DebugView from './components/DebugView.vue'; // Import the Debug view
+import CastleView from './components/tabs/CastleView.vue';
+import CrewView from './components/tabs/CrewView.vue';
+import QuestsView from './components/tabs/QuestsView.vue';
+import DebugView from './components/tabs/DebugView.vue'; // Import the Debug view
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
@@ -29,16 +29,8 @@ const showDialog = ref(false); // Initially hidden
 onMounted(() => {
   if (!gameState) {
     console.error("GameState not injected or provided!");
-    // Handle error appropriately - maybe show an error message or disable UI
     return; // Stop setup if no game state
   }
-
-  console.log("App mounted. Game loop is managed externally (e.g., in main.ts).");
-
-  // Example: Show dialog after 30 seconds (moved inside onMounted)
-  setTimeout(() => {
-      showDialog.value = true;
-  }, 30000);
 
   // Set initial active tab in GameState
   if (gameState) {
@@ -67,11 +59,6 @@ onMounted(() => {
         >
           {{ tab }}
         </button>
-        <!-- Original static buttons removed in favor of v-for -->
-        <!-- <button @click="activeTab = 'Castle'" :class="{ active: activeTab === 'Castle' }">Castle</button>
-        <button @click="activeTab = 'Crew'" :class="{ active: activeTab === 'Crew' }">Crew</button>
-        <button @click="activeTab = 'Quests'" :class="{ active: activeTab === 'Quests' }">Quests</button>
-        <button @click="activeTab = 'Debug'" :class="{ active: activeTab === 'Debug' }">Debug</button> --> <!-- Added Debug button -->
       </div>
       <div class="tab-content">
         <!-- Use the Tab components -->
@@ -104,14 +91,11 @@ onMounted(() => {
 }
 
 .sidebar {
-  width: 300px; /* Increased width */
+  width: 240px; /* Increased width */
   background-color: #f0f0f0;
-  /* padding: 15px; // Padding is now handled by ResourceDisplay */
   border-right: 1px solid #ccc;
   overflow-y: auto; /* Add scroll if content overflows */
 }
-
-/* Removed sidebar h2 and resource-display styles as they are in ResourceDisplay.vue */
 
 .main-content {
   flex-grow: 1; /* Takes up remaining space */
@@ -149,8 +133,6 @@ onMounted(() => {
 .tab-content {
   flex-grow: 1; /* Takes up remaining space in main-content */
 }
-
-/* Removed tab-content h3 style */
 
 /* Dialog Styles */
 .dialog-overlay {

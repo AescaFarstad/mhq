@@ -6,11 +6,23 @@ export interface CharacterDefinition {
     name: string;        // Display name
     initialLevel: number; // Starting level (will become an IndependentStat)
     baseUpkeep: number;  // Base gold upkeep (will become an IndependentStat)
-    // Add other static properties like class, etc. later
     bio: string; // Bio text
 
     // Initial attribute values for this character type (flat structure)
     initialAttributes: Record<string, number>; // Changed to flat structure
+    
+    // Initial skills with nested specializations
+    initialSkills?: Record<string, CharacterSkill>;
+
+    triggerOnCreated?: string[]; // Optional array of event IDs
+}
+
+/**
+ * Represents a character's skill with level and specializations
+ */
+export interface CharacterSkill {
+    level: number;
+    specializations?: Record<string, number>; // specialization ID to level mapping
 }
 
 // The Character class will now represent the instance with dynamic stats.

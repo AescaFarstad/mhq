@@ -55,7 +55,7 @@ const resourceEntries = computed(() => {
   justify-content: space-between;
   font-family: monospace;
   font-size: 1.0em;
-  padding: 5px 8px;
+  padding: 4px 6px;
   border: 1px solid #ddd;
   background-color: #fff;
   margin-bottom: 5px;
@@ -67,7 +67,7 @@ const resourceEntries = computed(() => {
   margin-right: 10px;
   text-align: left;
   flex-shrink: 0;
-  min-width: 80px;
+  min-width: 40px;
 }
 
 .resource-amount-group {
@@ -76,7 +76,7 @@ const resourceEntries = computed(() => {
   align-items: baseline;
   flex-grow: 1;
   text-align: center;
-  margin: 0 10px;
+  margin: 0 5px;
 }
 
 .resource-current {
@@ -97,7 +97,7 @@ const resourceEntries = computed(() => {
   color: #3a8a3a;
   text-align: right;
   flex-shrink: 0;
-  min-width: 60px;
+  min-width: 30px;
 }
 
 </style> 

@@ -13,11 +13,8 @@
 
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { SimpleCharacterInfo } from '../../types/uiTypes'; // Import shared type
+import { SimpleCharacterInfo } from '../../types/uiTypes';
 
-// Removed local interface definition
-
-// Define props
 defineProps({
   character: {
     type: Object as PropType<SimpleCharacterInfo>,
@@ -29,7 +26,6 @@ defineProps({
   },
 });
 
-// Define emits
 defineEmits(['select']);
 </script>
 

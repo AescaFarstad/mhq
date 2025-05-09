@@ -1,37 +1,33 @@
-import { CharacterDefinition } from "../characters/CharacterDefinition";
+import { CharacterDefinition } from "./definitions/CharacterDefinition";
+
+// Define a type for character data that matches our TypeScript file
+type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;
 
 export class CharacterLib {
     private characters: Map<string, CharacterDefinition> = new Map();
     public isLoaded: boolean = false;
 
     /**
-     * Loads character definitions from raw JSON data.
-     * @param jsonData The raw JSON object, expected to be a dictionary where keys are character IDs.
+     * Loads character definitions from TypeScript data
+     * @param characterData The character data with proper typing
      */
-    public loadCharacters(jsonData: any): void {
+    public loadCharacters(characterData: CharacterData): void {
         this.characters.clear();
-        for (const id in jsonData) {
-            if (Object.prototype.hasOwnProperty.call(jsonData, id)) {
-                const data = jsonData[id];
-                // Basic validation (add more robust validation as needed)
-                if (typeof data.name === 'string' && 
-                    typeof data.initialLevel === 'number' && 
-                    typeof data.baseUpkeep === 'number' &&
-                    typeof data.initialAttributes === 'object' && // Add check for initialAttributes
-                    data.initialAttributes !== null) { 
-                    const charDef: CharacterDefinition = {
-                        id: id,
-                        name: data.name,
-                        initialLevel: data.initialLevel,
-                        baseUpkeep: data.baseUpkeep,
-                        bio: data.bio || '',
-                        initialAttributes: data.initialAttributes // Load initialAttributes
-                    };
-                    this.characters.set(id, charDef);
-                    console.log(`Loaded character def: ${charDef.name} (ID: ${id}) with attributes.`);
-                } else {
-                    console.warn(`Invalid data format for character ID "${id}". Skipping. Check for name, initialLevel, baseUpkeep, and initialAttributes (as object).`);
-                }
+        for (const id in characterData) {
+            if (Object.prototype.hasOwnProperty.call(characterData, id)) {
+                const data = characterData[id];
+                // We no longer need extensive validation as TypeScript ensures correct types
+                const charDef: CharacterDefinition = {
+                    id: id,
+                    name: data.name,
+                    initialLevel: data.initialLevel,
+                    baseUpkeep: data.baseUpkeep,
+                    bio: data.bio || '',
+                    initialAttributes: data.initialAttributes,
+                    initialSkills: data.initialSkills || {},
+                    triggerOnCreated: data.triggerOnCreated
+                };
+                this.characters.set(id, charDef);
             }
         }
         this.isLoaded = true;

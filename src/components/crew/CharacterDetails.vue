@@ -19,7 +19,7 @@
       <p v-else class="hint-placeholder">No description available.</p>
     </div>
 
-    <!-- Attributes Section (using the new component) -->
+    <!-- Attributes Section -->
     <CharacterAttributes
       v-if="selectedCharacter.attributes"
       :attributes="selectedCharacter.attributes"
@@ -29,6 +29,15 @@
     <div v-else class="no-attributes">
       No attribute data available.
     </div>
+    
+    <!-- Skills Section -->
+    <CharacterSkills
+      v-if="selectedCharacter.skills && selectedCharacter.skills.length > 0"
+      :skills="selectedCharacter.skills"
+    />
+    <div v-else class="no-skills">
+      No skills data available.
+    </div>
 
   </div>
 </template>
@@ -36,7 +45,8 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import CharacterAttributes from './CharacterAttributes.vue';
-import { SelectedCharacterInfo, AttributeCategoryUIInfo } from '../../types/uiTypes'; // Import shared types
+import CharacterSkills from './CharacterSkills.vue';
+import { SelectedCharacterInfo } from '../../types/uiTypes';
 
 defineProps({
   selectedCharacter: {
@@ -67,7 +77,6 @@ defineEmits(['set-hint']);
 }
 
 .character-info {
-  /* Container for all details */
 }
 
 /* Character Header Styles */
@@ -125,14 +134,16 @@ defineEmits(['set-hint']);
   font-style: italic;
 }
 
-.no-attributes {
+.no-attributes,
+.no-skills {
     color: #888;
     font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
     margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px dashed #eee;
 }
 
-/* Styles for CharacterAttributes component will be in its own file */
-
+/* Remove the .character-info > * + * spacing since the component has its own margin */
 </style>

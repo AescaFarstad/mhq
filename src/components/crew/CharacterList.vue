@@ -16,9 +16,8 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import CharacterListItem from './CharacterListItem.vue';
-import { SimpleCharacterInfo } from '../../types/uiTypes'; // Import shared type
+import { SimpleCharacterInfo } from '../../types/uiTypes';
 
-// Define props
 defineProps({
   characters: {
     type: Array as PropType<SimpleCharacterInfo[]>, // Use imported type
@@ -30,7 +29,6 @@ defineProps({
   },
 });
 
-// Define emits
 defineEmits(['select-character']);
 </script>
 
@@ -39,7 +37,7 @@ defineEmits(['select-character']);
   display: flex;
   flex-direction: column;
   gap: 8px; /* Space between items */
-  overflow-y: auto; /* Allows scrolling if needed */
+  overflow-y: auto;
   padding-right: 5px; /* Avoid scrollbar overlapping content */
 }
 

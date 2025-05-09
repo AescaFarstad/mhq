@@ -1,5 +1,9 @@
-import { GameState } from '../GameState';
-import { Stat } from '../core/Stat';
+import { GameState } from '../../GameState';
+import { Stat } from '../../core/Stat';
+import { Character } from '../../Character';
+
+// Define the EventContext type
+export type EventContext = Character | undefined; // Start with Character, can be extended
 
 /** Represents parameters for modifying a resource amount or capacity */
 export interface ModifyResourceParams {

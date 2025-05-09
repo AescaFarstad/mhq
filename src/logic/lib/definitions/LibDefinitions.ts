@@ -9,6 +9,4 @@ export interface LibItem {
     name?: string;
     /** Optional description. */
     description?: string;
-
-    // Add other common properties if needed
 } 

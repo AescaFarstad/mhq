@@ -121,7 +121,6 @@ export namespace Stats {
         if (stat.value === newValue) {
             return;
         }
-        // console.log(`${stat.name} ${stat.value} -> ${newValue}`); // Optional debug log
         const oldValue = stat.value;
         stat.value = newValue;
         applyConnections(stat, oldValue, newValue, connections);

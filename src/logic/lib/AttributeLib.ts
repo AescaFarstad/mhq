@@ -1,5 +1,5 @@
-import type { AttributeDefinitions, AttributeDefinition, AttributeCategoryDefinition } from "../attributes/AttributeDefinition";
-import attributesData from "../data/attributes.json"; // Direct import for Vite
+import type { AttributeDefinitions, AttributeDefinition, AttributeCategoryDefinition } from "./definitions/AttributeDefinition";
+import attributes from "../data/attributes"; // Import TypeScript file instead of JSON
 
 export class AttributeLib {
   private attributes: AttributeDefinitions = {};
@@ -9,9 +9,8 @@ export class AttributeLib {
   }
 
   private loadAttributes(): void {
-    // Type assertion: Assume the JSON structure matches AttributeDefinitions
-    this.attributes = attributesData as AttributeDefinitions;
-    console.log("Attribute definitions loaded:", this.attributes);
+    // No type assertion needed as the TypeScript file is already properly typed
+    this.attributes = attributes;
   }
 
   public getAttributeDefinitions(): AttributeDefinitions {
@@ -30,7 +29,4 @@ export class AttributeLib {
   ): AttributeCategoryDefinition | undefined {
     return this.attributes[categoryKey];
   }
-}
-
-// Optional: Export a singleton instance if preferred
-// export const attributeLibInstance = new AttributeLib(); 
+} 

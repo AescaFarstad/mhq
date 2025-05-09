@@ -40,17 +40,17 @@
 
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { AttributeCategoryUIInfo, AttributeUIInfo } from '../../types/uiTypes'; // Import shared types
+import { AttributeCategoryUIInfo } from '../../types/uiTypes';
 
 defineProps({
   attributes: {
     type: Array as PropType<AttributeCategoryUIInfo[]>,
-    required: true,
+    required: true
   },
   currentHint: {
     type: String as PropType<string | null>,
-    default: null,
-  },
+    default: null
+  }
 });
 
 defineEmits(['set-hint']);
@@ -61,9 +61,8 @@ const formatValue = (value: number | string): string => {
     // Example: Format numbers to 1 decimal place if they have decimals
     return Number.isInteger(value) ? value.toString() : value.toFixed(1);
   }
-  return value;
+  return value.toString();
 };
-
 </script>
 
 <style scoped>
@@ -87,17 +86,19 @@ const formatValue = (value: number | string): string => {
 
 .attribute-categories {
   display: flex;
-  flex-direction: column;
-  gap: 15px; /* Space between categories */
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .attribute-category {
   border: 1px solid #e0e0e0;
   border-radius: 5px; /* Slightly more rounded */
-  padding: 12px 15px; /* More padding */
   background-color: #fdfdfd;
   transition: all 0.2s ease;
   position: relative; /* For hover effects/tooltips if added later */
+  flex-grow: 1; /* Allow category to grow */
+  min-width: 180px; /* Prevent becoming too narrow */
 }
 
 .attribute-category:hover {
@@ -108,43 +109,45 @@ const formatValue = (value: number | string): string => {
 
 .category-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center; /* Align items vertically */
+  align-items: center;
   font-weight: bold;
+  padding-top: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
   padding-bottom: 8px;
-  margin-bottom: 8px; /* Space below header */
   border-bottom: 1px dashed #eee;
   cursor: default; /* Indicate it provides info on hover */
 }
 
 .category-name {
     color: #2c3e50; /* Darker blue/grey */
+    flex-grow: 1;
 }
 
 .category-value {
     color: #0056b3; /* Blue for primary value */
     font-size: 1.05em;
+    margin-left: 10px;
+    text-align: right;
+    white-space: nowrap;
 }
 
 .secondary-attributes {
-  padding-left: 5px; /* Slight indent */
-  /* Remove negative margins if they cause issues */
+  padding-bottom: 12px;
 }
 
 .attribute-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center; /* Align items vertically */
+  align-items: center;
   font-size: 0.9em;
-  margin-bottom: 4px;
-  padding: 5px 8px; /* Adjusted padding */
+  padding: 5px 15px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
   cursor: default; /* Indicate it provides info on hover */
 }
 
 .attribute-row:last-child {
-  margin-bottom: 0;
+  /* margin-bottom: 0; */ /* No longer needed */
 }
 
 .attribute-row.highlighted {
@@ -158,14 +161,16 @@ const formatValue = (value: number | string): string => {
   /* font-weight: 500; */ /* Optional: subtle bolding */
 }
 
-
 .attribute-name {
   color: #444; /* Slightly darker text */
+  flex-grow: 1;
 }
 
 .attribute-value {
   color: #333; /* Standard text color for secondary values */
   font-weight: 500; /* Medium weight */
+  margin-left: 10px;
+  text-align: right;
+  white-space: nowrap;
 }
-
 </style>

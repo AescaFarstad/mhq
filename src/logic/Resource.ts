@@ -1,5 +1,6 @@
-import { IndependentStat, Parameter, Connections } from './Stat';
-import { Stats } from './Stats';
+import { IndependentStat, Parameter, Connections } from './core/Stat';
+import { Stats } from './core/Stats';
+import { RESOURCE_STAT_PREFIX } from './core/statPrefixes';
 
 /**
  * Represents a game resource with current value, income rate, and maximum capacity.
@@ -15,9 +16,6 @@ export class Resource {
     /** Parameter representing the maximum storage capacity. */
     public max: Parameter;
 
-    /** Prefix used for internal stat names to avoid collisions. */
-    private static readonly STAT_PREFIX = "res_";
-
     /**
      * Creates a new Resource instance and its associated stats.
      *
@@ -29,9 +27,9 @@ export class Resource {
     constructor(name: string, initialValue: number, initialMax: number, connections: Connections) {
         this.name = name;
 
-        const currentStatName = `${Resource.STAT_PREFIX}${name}_current`;
-        const incomeStatName = `${Resource.STAT_PREFIX}${name}_income`;
-        const maxStatName = `${Resource.STAT_PREFIX}${name}_max`;
+        const currentStatName = `${RESOURCE_STAT_PREFIX}${name}_current`;
+        const incomeStatName = `${RESOURCE_STAT_PREFIX}${name}_income`;
+        const maxStatName = `${RESOURCE_STAT_PREFIX}${name}_max`;
 
         this.current = Stats.createStat(currentStatName, initialValue, connections);
         this.income = Stats.createParameter(incomeStatName, connections);

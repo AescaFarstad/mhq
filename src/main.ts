@@ -5,7 +5,6 @@ import { GameState } from './logic/GameState';
 
 // --- Synchronous Initialization ---
 function initializeGame() {
-    console.log("Initializing game...");
 
     // Create the game state instance
     // This will also synchronously load the Lib definitions
@@ -19,7 +18,6 @@ function initializeGame() {
     }
 
     // Lib is loaded, proceed
-    console.log("Game state and Lib initialized.");
 
     // Create the Vue app instance
     const app = createApp(App);
@@ -46,7 +44,6 @@ function initializeGame() {
     }
 
     // Start the game loop
-    console.log("Starting game loop...");
     requestAnimationFrame(gameLoop);
 }
 
