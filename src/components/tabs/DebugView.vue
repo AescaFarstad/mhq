@@ -9,6 +9,8 @@
         <button @click="copyAllSkillNames($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNames' }">Skill Names</button>
         <button @click="copySkillKeywordStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillKeywords' }">Skill Keyword Stats</button>
         <button @click="copySkillNamesAndDescriptions($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNameDesc' }">Skill Names & Descriptions</button>
+        <button @click="copySkillIds($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillIds' }">Skill IDs</button>
+        <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
       </div>
       <div v-if="hasStats" class="stats-container">
         <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
@@ -44,6 +46,7 @@ import { Skill, SkillSpecialization } from '../../logic/lib/definitions/SkillDef
 import type { DebugStatInfo } from '../../types/uiTypes'; // Import centralized type
 import { Stats } from '../../logic/core/Stats';
 import { IndependentStat } from '../../logic/core/Stat'; // Import IndependentStat for type assertion
+import * as UIStateManager from '../../logic/UIStateManager'; // Added import
 
 const props = defineProps({
   // Make stats potentially null or undefined if gameState might not be ready
@@ -121,7 +124,7 @@ const setStatValue = (name: string) => {
     const numericValue = Number(statInputValues[name]);
     if (gameState && gameState.connections) {
         Stats.setIndependentStat(stat as IndependentStat, numericValue, gameState.connections);
-        gameState.uiStateManager.updateDebugView(); 
+        UIStateManager.updateDebugView(gameState); 
     }
   }
 };
@@ -420,6 +423,80 @@ const copySkillNamesAndDescriptions = (_event?: Event) => {
     .catch(err => {
       console.error('Failed to copy skill names and descriptions to clipboard:', err);
     });
+};
+
+const copySkillIds = (_event?: Event) => {
+  if (!gameState || !gameState.lib?.getSkillLib) {
+    console.error("GameState or SkillLib not available for skill IDs.");
+    return;
+  }
+
+  const skillLib = gameState.lib.getSkillLib();
+  const skillsData = skillLib.skills;
+  let clipboardText = "";
+
+  Object.entries(skillsData).forEach(([skillId, skill]) => {
+    clipboardText += `${skillId}\n`; // Add skill ID
+    if (skill.specializations) {
+      Object.keys(skill.specializations).forEach((specId) => {
+        clipboardText += `${specId}\n`; // Add specialization ID
+      });
+    }
+  });
+
+  navigator.clipboard.writeText(clipboardText.trim())
+    .then(() => {
+      triggerCopyAnimation('skillIds');
+    })
+    .catch(err => {
+      console.error('Failed to copy skill IDs to clipboard:', err);
+    });
+};
+
+const copyGameStateToClipboard = (_event?: Event) => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+
+  // Create a shallow copy of the gameState to avoid modifying the original
+  const gameStateCopy = { ...gameState };
+
+  // Define keys to remove
+  const keysToRemove: (keyof GameState)[] = [
+    'connections',
+    'lib',
+    'eventProcessor',
+    'resourceManager',
+    'uiState'
+  ];
+
+  // Remove the specified keys from the copy
+  for (const key of keysToRemove) {
+    if (key in gameStateCopy) {
+      delete (gameStateCopy as any)[key];
+    }
+  }
+
+  try {
+    // Attempt to serialize the modified gameState copy
+    // No complex replacer needed now, but pretty-printing is good.
+    const gameStateJson = JSON.stringify(gameStateCopy, null, 2);
+
+    navigator.clipboard.writeText(gameStateJson)
+      .then(() => {
+        triggerCopyAnimation('gameState');
+      })
+      .catch(err => {
+        console.error('Failed to copy game state to clipboard:', err);
+      });
+  } catch (error) {
+    console.error('Error serializing game state:', error);
+    // Optionally, inform the user via UI or a simpler clipboard message
+    navigator.clipboard.writeText("Error serializing game state. Check console for details.")
+      .then(() => triggerCopyAnimation('gameStateError')) // Use a different animation key for error
+      .catch(err => console.error('Failed to copy error message to clipboard:', err));
+  }
 };
 </script>
 

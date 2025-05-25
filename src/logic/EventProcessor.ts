@@ -128,16 +128,18 @@ export class EventProcessor {
                     break;
                 }
                 case 'giveAllSkillsAndSpecsEffect': {
-                    if (!context || !('definition' in context) || !('skills' in context) || !('specializations' in context)) {
-                        console.warn("[giveAllSkillsAndSpecsEffect]: Invalid character context provided:");
+                    if (!context || !('characterId' in context) || !('skills' in context) || !('specializations' in context)) {
+                        console.warn("[giveAllSkillsAndSpecsEffect]: Invalid character context provided (must be a Character object):");
                         console.log(context);
                         return;
                     }
-                    const character = context as Character;
+                    const character = context as Character; // context is expected to be Character here
+                    const charDef = state.lib.characters.getCharacter(character.characterId)!; // Assume charDef exists
+
                     const allSkillDefs = state.lib.skills.getAllSkills() as Record<string, LibSkillDefinition>;
 
                     if (Object.keys(allSkillDefs).length === 0) {
-                        console.warn(`[giveAllSkillsAndSpecsEffect] For ${character.definition.name}: No skill definitions found in state.lib.skills.getAllSkills(). Cannot give skills.`);
+                        console.warn(`[giveAllSkillsAndSpecsEffect] For ${charDef.name}: No skill definitions found in state.lib.skills.getAllSkills(). Cannot give skills.`);
                         return;
                     }
 

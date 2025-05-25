@@ -7,13 +7,14 @@ import CastleView from './components/tabs/CastleView.vue';
 import CrewView from './components/tabs/CrewView.vue';
 import QuestsView from './components/tabs/QuestsView.vue';
 import DebugView from './components/tabs/DebugView.vue'; // Import the Debug view
+import TasksView from './components/tabs/TasksView.vue'; // Import the Tasks view
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
 
 // Tab management
 const activeTab = ref('Castle'); // Default tab
-const tabs = ['Castle', 'Crew', 'Quests', 'Debug']; // Add 'Debug' to list of tabs
+const tabs = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug']; // Add 'Tasks' to list of tabs
 
 // Notify GameState when tab changes
 const setActiveTab = (tabName: string) => {
@@ -65,6 +66,7 @@ onMounted(() => {
         <CastleView v-if="activeTab === 'Castle'" />
         <CrewView v-if="activeTab === 'Crew'" />
         <QuestsView v-if="activeTab === 'Quests'" />
+        <TasksView v-if="activeTab === 'Tasks'" />
         <!-- Add the DebugView component, passing the stats -->
         <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
       </div>
@@ -91,15 +93,16 @@ onMounted(() => {
 }
 
 .sidebar {
-  width: 240px; /* Increased width */
+  width: 250px; /* Increased width */
   background-color: #f0f0f0;
   border-right: 1px solid #ccc;
   overflow-y: auto; /* Add scroll if content overflows */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .main-content {
   flex-grow: 1; /* Takes up remaining space */
-  padding: 15px;
+  padding: 0px;
   display: flex;
   flex-direction: column; /* Stack tabs and content vertically */
   overflow-y: auto; /* Add scroll if content overflows */
@@ -107,7 +110,7 @@ onMounted(() => {
 
 .tabs {
   display: flex;
-  margin-bottom: 15px;
+  margin-bottom: 0px;
   border-bottom: 1px solid #ccc;
 }
 

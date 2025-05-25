@@ -7,7 +7,7 @@ import { CHARACTER_STAT_PREFIX } from './core/statPrefixes';
  * Represents an active character instance in the game with dynamic stats.
  */
 export interface Character {
-    definition: CharacterDefinition;
+    characterId: string;
     level: IndependentStat;
     baseUpkeep: IndependentStat;
     upkeep: Parameter;
@@ -114,7 +114,7 @@ export namespace CharacterOps {
         level: number,
         connections: Connections
     ): void {
-        const idPrefix = `${CHARACTER_STAT_PREFIX}${character.definition.id}__`;
+        const idPrefix = `${CHARACTER_STAT_PREFIX}${character.characterId}__`;
         let skillStat = character.skills[skillId];
         if (skillStat) {
             Stats.setIndependentStat(skillStat, level, connections);

@@ -2,7 +2,6 @@
   <div class="crew-container">
     <!-- Character List Panel (right side) -->
     <div class="character-list">
-      <h3>Characters</h3>
       <CharacterList
         :characters="characters"
         :selected-character-id="selectedCharacterId"
@@ -74,7 +73,7 @@ const setHint = (hint: string | null) => {
   max-width: 30%;
   border-left: 1px solid #ccc;
   background-color: #f9f9f9;
-  padding: 15px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -92,7 +91,7 @@ const setHint = (hint: string | null) => {
 
 .character-details {
   flex-grow: 1;
-  padding: 20px;
+  padding: 10px;
   overflow-y: auto;
   background-color: #ffffff;
 }

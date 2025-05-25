@@ -40,6 +40,7 @@ const resourceEntries = computed(() => {
 <style scoped>
 .resource-panel {
   padding: 2px;
+  width: 250px;
 }
 
 .resource-panel h2 {

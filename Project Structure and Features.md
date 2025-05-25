@@ -5,7 +5,7 @@
 *   Basic project structure using Vite, Vue 3, and TypeScript.
 *   Component-based UI structure:
     *   Left sidebar for resource display (`ResourceDisplay.vue`).
-    *   Main content area with tabs (`CastleView.vue`, `CrewView.vue` (refactored), `QuestsView.vue`, `DebugView.vue`).
+    *   Main content area with tabs (`CastleView.vue`, `CrewView.vue` (refactored), `QuestsView.vue`, `TasksView.vue`, `DebugView.vue`).
     *   Refactored `CrewView` into smaller, focused components (`crew/CharacterList.vue`, `crew/CharacterListItem.vue`, `crew/CharacterDetails.vue`, `crew/CharacterAttributes.vue`, `crew/CharacterSkills.vue`) for better maintainability.
 *   Core game logic separated from UI:
     *   Central `GameState` managing resources, stats, characters, events, and game time.
@@ -38,6 +38,7 @@
             *   `CastleView.vue`: Placeholder component for the Castle tab.
             *   `CrewView.vue`: Container component for the Crew tab. Manages selection state and orchestrates child components.
             *   `QuestsView.vue`: Placeholder component for the Quests tab.
+            *   `TasksView.vue`: Placeholder component for the Tasks tab.
             *   `DebugView.vue`: Displays internal game stats for debugging (listens to `uiState.debugStats`).
         *   **`crew/`**: Components specific to the Crew tab UI.
             *   `CharacterList.vue`: Displays the list of available characters using `CharacterListItem`.
@@ -79,6 +80,9 @@
             *   `keywordParser.ts`: Contains the `parseKeywordsFromString` function for processing raw keyword file content.
     *   **`types/`**: Contains shared TypeScript type definitions.
         *   `uiTypes.ts`: Defines interfaces for common UI data structures (e.g., `SimpleCharacterInfo`, `AttributeCategoryUIInfo`, `SkillUIInfo`, `SkillSpecializationUIInfo`) used across components.
+    *   **`Shared Utilities and Components/`**: Components and utilities used across different parts of the application.
+        *   `ImageHolder.vue` (`src/components/common/ImageHolder.vue`): A Vue component responsible for displaying a specific image from a texture atlas. It takes an atlas name, image name, and display dimensions as props. It uses a canvas element to draw the specified portion of the atlas, centering the image within the given dimensions. It interacts with the `AtlasManager` singleton to retrieve image data.
+        *   `AtlasManager.ts` (`src/utils/AtlasManager.ts`): A singleton class that manages loading and accessing texture atlases. It takes a configuration of atlas names, image paths, and JSON description paths. It loads atlas images and their corresponding JSON files (which define the coordinates and dimensions of individual images within the atlas) asynchronously. It provides a method `getAtlasImage` to retrieve a specific image and its rectangle data from a loaded atlas.
 
 ## Reference Code Details
 *   **Stats System (`src/logic/core/`):** Manages numerical values (`Stat`, `IndependentStat`, `Parameter`, `FormulaStat`) with automatic propagation of changes through connections (`Connections`, `ConnectionType`). Utility functions in `Stats` namespace. Used for resources, character level/upkeep, attributes, skills, and specializations.
@@ -87,3 +91,19 @@
 *   **Attribute System (`src/logic/data/attributes.ts`, `src/logic/lib/AttributeLib.ts`, `src/logic/lib/definitions/AttributeDefinition.ts`, `src/logic/GameState.ts`):** Defines hierarchical attributes in TypeScript. `AttributeLib` loads this data using structures from `AttributeDefinition.ts`. `GameState` processes character stats against these definitions to create structured UI data (defined in `src/types/uiTypes.ts` as `AttributeUIInfo`, `AttributeCategoryUIInfo`) used by components within `src/components/crew/`. Note: Character attributes are created as `IndependentStat` objects in `Character.ts` based on `initialAttributes` from `characters.ts` and processed by `GameState` for hierarchical UI display.
 *   **Skill System (`src/logic/data/skills.ts`, `src/logic/lib/SkillLib.ts`, `src/logic/lib/definitions/SkillDefinition.ts`, `src/logic/data/*keywords*.ts`):** Base skills/specializations defined in `skills.ts`. Keywords defined in separate text files (`physique`, `spirit`, `mind`, `social`) are loaded via `skillKeywordsLoader.ts` (using Vite `?raw`) and parsed by `keywordParser.ts`. `SkillLib.ts` merges base skills with keywords and creates a reverse keyword lookup map. `SkillDefinition.ts` includes the optional `keywords` array. Characters have skills and specializations implemented as `IndependentStat` objects in `Character.ts` with a nested structure in the `CharacterDefinition` for better organization, where each skill contains its level and related specializations.
 *   **Character Skills Implementation (`src/logic/Character.ts`, `src/logic/lib/definitions/CharacterDefinition.ts`):** Character skills and specializations use a convenient nested structure where each character skill is represented by a `CharacterSkill` object containing a level and optional specializations. This data is loaded from `characters.ts` and converted into `IndependentStat` objects for runtime manipulation. UI components display these skills in a vertical list format with indented specializations.
+*   **Input System (`src/logic/input/`, `src/logic/GameState.ts`):** Handles player input by translating it into concrete game actions. 
+    *   **Core Idea:** Player intentions are represented as `CmdInput` objects, which are simple structures containing a `name` (string identifier for the command type) and command-specific parameters.
+    *   **Command Definitions (`src/logic/input/InputCommands.ts`):
+        *   `CmdInput`: Base interface with only a `name: string`.
+        *   Specific Commands (e.g., `CmdCheatSkillUp`): Interfaces extending `CmdInput`. They define their `name` as a string literal type (e.g., `name: "CmdCheatSkillUp"`) for potential type discrimination and add their unique parameters.
+    *   **Input Accumulation (`src/logic/GameState.ts`):
+        *   `globalInputQueue: CmdInput[]` (in `src/logic/GameState.ts`): An exported global array where `CmdInput` objects are collected. UI components or other game systems import and push commands directly to this queue.
+    *   **Input Processing (`src/logic/input/InputProcessor.ts`):
+        *   This is a stateless module, not a class. It exports a `processInputs` function.
+        *   `processInputs(gameState: GameState, deltaTime: number)`: Called by `GameState.update()` at the start of each game tick. It imports and iterates through `globalInputQueue` from `src/logic/GameState.ts`.
+        *   `handlersByName` (internal map): A `Map` that associates command names (strings) with their corresponding handler functions.
+        *   Handler Functions (e.g., `handleCheatSkillUp`): Private functions within the module. Each handler is responsible for:
+            *   Casting the generic `CmdInput` object it receives to its specific command type (e.g., `command as CmdCheatSkillUp`) to access the parameters.
+            *   Executing the game logic for that command (e.g., modifying character skills, using the passed `gameState` for context).
+        *   Queue Clearing: `globalInputQueue` is cleared after all commands in it have been processed by `InputProcessor.processInputs()`.
+    *   **Workflow Summary:** UI/Game System -> Creates Specific Command Object -> Imports `globalInputQueue` from `GameState.ts` and adds command to it -> `GameState.update()` calls `InputProcessor.processInputs()` -> `processInputs()` iterates `globalInputQueue`, uses `command.name` to find handler in `handlersByName` -> Handler is invoked with command data and `gameState` -> Handler executes logic -> `globalInputQueue` is cleared.

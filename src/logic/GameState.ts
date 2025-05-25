@@ -6,10 +6,16 @@ import { Stats } from './core/Stats';
 import { reactive } from 'vue';
 import type { Character } from './Character';
 import { CharacterOps, LibAttributeDefinitions, LibSkillDefinition } from './Character';
+import type { CharacterDefinition } from './lib/definitions/CharacterDefinition';
 import { SelectedCharacterInfo } from '../types/uiTypes';
-import { UIStateManager } from './UIStateManager';
+import * as UIStateManager from './UIStateManager';
 import { CHARACTER_STAT_PREFIX } from './core/statPrefixes';
 import type { DebugStatInfo } from '../types/uiTypes';
+import type { CmdInput } from './input/InputCommands';
+import { processInputs as processAllInputs } from './input/InputProcessor';
+
+// Export a global input queue
+export const globalInputQueue: CmdInput[] = [];
 
 // Define a type for the resource data structure expected by the UI
 interface ResourceUIData {
@@ -42,7 +48,9 @@ export class GameState {
 
     private activeTabName: string = '';
 
-    public uiStateManager: UIStateManager;
+    public dateStarted: number = Date.now();
+    public dateModified: number = Date.now();
+    public gameTime: number = 0;
 
     /** Reactive state specifically for UI consumption. */
     public uiState: {
@@ -51,10 +59,6 @@ export class GameState {
         characters: SelectedCharacterInfo[]; // Using imported type from uiTypes.ts
         selectedCharacterId: string | null;
     };
-
-    public dateStarted: number = Date.now();
-    public dateModified: number = Date.now();
-    public gameTime: number = 0;
 
     constructor() {
         this.resourceManager = new ResourceManager(this.connections);
@@ -66,8 +70,6 @@ export class GameState {
             characters: [],
             selectedCharacterId: null
         });
-
-        this.uiStateManager = new UIStateManager(this);
 
         if (this.lib.isLoaded) {
             // Process the startGame event
@@ -82,7 +84,7 @@ export class GameState {
         }
 
         this.setupTotalUpkeepStat();
-        this.uiStateManager.syncUiResources();
+        UIStateManager.syncUiResources(this);
     }
 
     /**
@@ -103,19 +105,21 @@ export class GameState {
      * @param deltaTime The time elapsed since the last update (in seconds).
      */
     public update(deltaTime: number): void {
+        processAllInputs(this, deltaTime);
+
         this.gameTime += deltaTime;
 
         this.resourceManager.updateAll(deltaTime);
-        this.uiStateManager.syncUiResources();
+        UIStateManager.syncUiResources(this);
 
         this.dateModified = Date.now();
 
         if (this.activeTabName === 'Crew') {
-            this.uiStateManager.updateCharacterUIData();
+            UIStateManager.updateCharacterUIData(this);
         }
 
         if (this.activeTabName === 'Debug') {
-            this.uiStateManager.updateDebugView();
+            UIStateManager.updateDebugView(this);
         }
     }
 
@@ -127,9 +131,9 @@ export class GameState {
             return undefined;
         }
 
-        if (this.characters.find(c => c.definition.id === characterId)) {
+        if (this.characters.find(c => c.characterId === characterId)) {
             console.warn(`GameState.addCharacter: Character with ID ${characterId} already exists.`);
-            return this.characters.find(c => c.definition.id === characterId);
+            return this.characters.find(c => c.characterId === characterId);
         }
 
         const attributeDefs = this.lib.attributes.getAttributeDefinitions() as LibAttributeDefinitions;
@@ -137,7 +141,7 @@ export class GameState {
         const idPrefix = `${CHARACTER_STAT_PREFIX}${charDef.id}__`;
 
         const newChar: Character = {
-            definition: charDef,
+            characterId: charDef.id,
             level: undefined as unknown as IndependentStat,
             baseUpkeep: undefined as unknown as IndependentStat,
             upkeep: undefined as unknown as Parameter,
@@ -164,13 +168,14 @@ export class GameState {
 
         if (charDef.triggerOnCreated) {
             try {
-                this.processEventsForCharacter(charDef.triggerOnCreated, newChar);
+                this.processEventsForCharacter(charDef.triggerOnCreated, newChar, charDef);
             } catch (error) {
-                console.error(`GS.addCharacter: ${charDef.name} - Error processing triggerOnCreated events:`, error);
+                const charDefinition = this.lib.characters.getCharacter(newChar.characterId);
+                console.error(`GS.addCharacter: ${charDefinition ? charDefinition.name : newChar.characterId} - Error processing triggerOnCreated events:`, error);
             }
         }
 
-        this.uiStateManager.updateCharacterUIData();
+        UIStateManager.updateCharacterUIData(this);
         return newChar;
     }
 
@@ -178,8 +183,11 @@ export class GameState {
      * Processes a list of event IDs specifically for a character.
      * @param eventIds Array of event IDs to process.
      * @param character The character instance for context.
+     * @param charDef The character definition for context (optional, but good for performance).
      */
-    public processEventsForCharacter(eventIds: string[], character: Character): void {
+    public processEventsForCharacter(eventIds: string[], character: Character, charDef?: CharacterDefinition): void {
+        const characterDefinition = charDef || this.lib.characters.getCharacter(character.characterId)!;
+
         for (const eventId of eventIds) {
             const eventDefinition = this.lib.events.get(eventId);
             
@@ -200,7 +208,7 @@ export class GameState {
         this.activeTabName = tabName;
         
         if (tabName === 'Crew') {
-            this.uiStateManager.updateCharacterUIData();
+            UIStateManager.updateCharacterUIData(this);
         }
     }
 
@@ -213,7 +221,7 @@ export class GameState {
         const stat = this.connections.connectablesByName.get(statName);
         if (stat && 'independent' in stat && stat.independent) {
             Stats.modifyStat(stat as IndependentStat, delta, this.connections);
-            this.uiStateManager.updateDebugView();
+            UIStateManager.updateDebugView(this);
         } else {
             console.warn(`Cannot set stat ${statName}: not found or not independent`);
         }
