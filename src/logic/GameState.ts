@@ -1,56 +1,58 @@
 import { Connections, Parameter, IndependentStat, ConnectionType } from './core/Stat';
 import { Lib } from './lib/Lib';
-import { EventProcessor } from './EventProcessor';
-import { ResourceManager } from './Resource';
+import { EventProcessor } from './Event';
+import { Resource, updateAllResources, addResource } from './Resource';
 import { Stats } from './core/Stats';
 import { reactive } from 'vue';
 import type { Character } from './Character';
-import { CharacterOps, LibAttributeDefinitions, LibSkillDefinition } from './Character';
+import type { Building } from './Building';
+import { Building as BuildingOps } from './Building';
 import type { CharacterDefinition } from './lib/definitions/CharacterDefinition';
 import { SelectedCharacterInfo } from '../types/uiTypes';
 import * as UIStateManager from './UIStateManager';
-import { CHARACTER_STAT_PREFIX } from './core/statPrefixes';
 import type { DebugStatInfo } from '../types/uiTypes';
 import type { CmdInput } from './input/InputCommands';
-import { processInputs as processAllInputs } from './input/InputProcessor';
+import { processTasks } from './Task';
+import type { GameTask } from './TaskTypes';
+import { SlowTick } from './utils/SlowTick';
+import type { ResourceUIData } from './UIStateManager';
 
-// Export a global input queue
+export const DEFAULT_MIN_DELTA_TIME = 0.05;
+export const maintenanceSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 5, "maintenance_task_gen");
+export const assignmentSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 1.5, "task_assignment_process");
+
 export const globalInputQueue: CmdInput[] = [];
 
-// Define a type for the resource data structure expected by the UI
-interface ResourceUIData {
-    current: number;
-    max: number;
-    income: number;
-}
-
-/**
- * Represents the overall state of the game.
- */
 export class GameState {
-    /** Manages all stat connections and holds stat objects. */
     public connections: Connections = new Connections();
-
-    /** Holds loaded definitions for game entities (buildings, techs, events, etc.). */
     public lib: Lib = new Lib();
-
-    /** Processes events based on conditions and applies effects. */
-    public eventProcessor: EventProcessor = new EventProcessor(this.lib);
-
-    /** Manages game resources. */
-    public resourceManager: ResourceManager;
-
-    /** List of currently owned character instances. */
+    public resources: Map<string, Resource> = new Map<string, Resource>();
     public characters: Character[] = [];
+    public buildings: Building[] = [];
+    public discoveredItems: Record<string, boolean> = {};
 
-    /** Total upkeep cost of all characters (Parameter that automatically updates). */
-    private totalCharacterUpkeep: Parameter;
+    public gold! : Resource;
+    public clutter! : Resource;
 
-    private activeTabName: string = '';
+    public totalCharacterUpkeep: Parameter;
+    public totalBuildingsClutter: Parameter;
+    public taskUidCounter: IndependentStat;
+    public workSpeed: Parameter;
+    public clutterRatio: Parameter;
 
     public dateStarted: number = Date.now();
     public dateModified: number = Date.now();
     public gameTime: number = 0;
+    public tick: number = 0;
+
+    public minDeltaTime: number = DEFAULT_MIN_DELTA_TIME;
+    public timeScale: { current: number; previous: number } = { current: 1.0, previous: 1.0 };
+    public allowedUpdates: number = 0; // Added for single tick updates
+
+    public availableTasks: GameTask[] = [];
+    public queuedTasks: GameTask[] = [];
+    public processingTasks: GameTask[] = [];
+    public completedTasks: GameTask[] = [];
 
     /** Reactive state specifically for UI consumption. */
     public uiState: {
@@ -58,24 +60,58 @@ export class GameState {
         debugStats: Record<string, DebugStatInfo>;
         characters: SelectedCharacterInfo[]; // Using imported type from uiTypes.ts
         selectedCharacterId: string | null;
+        activeTabName: string;
+        constructedBuildingIds: Set<string>; // Added for reactive building updates
+        // Task lists for TasksView
+        uiCompletedTasks: GameTask[];
+        uiActiveTasks: GameTask[];
+        uiQueuedTasks: GameTask[];
+        uiMaintenanceTasks: GameTask[];
+        uiOpportunityTasks: GameTask[];
+        uiEndeavourTasks: GameTask[];
+        uiQuestTasks: GameTask[];
+        currentTimeScale: number; // Added for reactive time scale UI
+        uiWorkSpeed: number; // Added for BuffBar
+        uiClutterRatio: number; // Added for BuffBar
+        discoveredItemsCount: number; // Added for discovery system reactivity
     };
 
     constructor() {
-        this.resourceManager = new ResourceManager(this.connections);
         this.totalCharacterUpkeep = Stats.createParameter("total_character_upkeep", this.connections);
+        this.totalBuildingsClutter = Stats.createParameter("total_buildings_clutter", this.connections);
+        this.taskUidCounter = Stats.createStat("task_uid_counter", 0, this.connections);
+
+        this.workSpeed = Stats.createParameter("workSpeed", this.connections);
+        Stats.modifyParameterADD(this.workSpeed, 1, this.connections);
+
+        this.clutterRatio = Stats.createParameter("clutterRatio", this.connections);
 
         this.uiState = reactive({
             resources: {},
             debugStats: {},
             characters: [],
-            selectedCharacterId: null
+            selectedCharacterId: null,
+            activeTabName: '',
+            constructedBuildingIds: new Set<string>(),
+            uiCompletedTasks: [],
+            uiActiveTasks: [],
+            uiQueuedTasks: [],
+            uiMaintenanceTasks: [],
+            uiOpportunityTasks: [],
+            uiEndeavourTasks: [],
+            uiQuestTasks: [],
+            currentTimeScale: this.timeScale.current,
+            uiWorkSpeed: 0, // Initialize uiWorkSpeed
+            uiClutterRatio: 0, // Initialize uiClutterRatio
+            discoveredItemsCount: 0, // Initialize discoveredItemsCount
         });
 
+        this.setupInitialResources();
+
         if (this.lib.isLoaded) {
-            // Process the startGame event
             const startGameEvent = this.lib.events.get("startGame");
             if (startGameEvent) {
-                this.eventProcessor.processSingleEvent(startGameEvent, this);
+                EventProcessor.processSingleEvent(startGameEvent, this);
             } else {
                 console.error("GameState Constructor: 'startGame' event not found in Lib.");
             }
@@ -83,117 +119,49 @@ export class GameState {
             console.error("Cannot run initial event processing: Lib failed to load.");
         }
 
-        this.setupTotalUpkeepStat();
-        UIStateManager.syncUiResources(this);
+        UIStateManager.sync(this);
     }
 
-    /**
-     * Sets up the connection between total character upkeep and gold income.
-     */
-    private setupTotalUpkeepStat(): void {
-        const gold = this.resourceManager.getResource("gold");
-        if (gold && gold.income instanceof Parameter) {
-            Stats.connectStat(this.totalCharacterUpkeep, gold.income, ConnectionType.SUB, this.connections);
-        } else {
-            console.warn("Could not connect total character upkeep: Gold resource or its income Parameter not found.");
-        }
-    }
-
-    /**
-     * Updates the game state based on elapsed time.
-     *
-     * @param deltaTime The time elapsed since the last update (in seconds).
-     */
     public update(deltaTime: number): void {
-        processAllInputs(this, deltaTime);
-
         this.gameTime += deltaTime;
+        const newTick = Math.floor(this.gameTime / this.minDeltaTime);
+        if (newTick != this.tick)
+            this.tick = newTick;
+        else
+            this.tick = 0;
 
-        this.resourceManager.updateAll(deltaTime);
-        UIStateManager.syncUiResources(this);
+        updateAllResources(this.resources, deltaTime, this.connections);
+        processTasks(this, deltaTime);
+        
+        UIStateManager.sync(this);
 
         this.dateModified = Date.now();
-
-        if (this.activeTabName === 'Crew') {
-            UIStateManager.updateCharacterUIData(this);
-        }
-
-        if (this.activeTabName === 'Debug') {
-            UIStateManager.updateDebugView(this);
-        }
+        this.tick = newTick;
     }
 
-    /** Adds a character to the game state and updates upkeep. */
-    public addCharacter(characterId: string): Character | undefined {
-        const charDef = this.lib.characters.getCharacter(characterId);
-        if (!charDef) {
-            console.warn(`GameState.addCharacter: Character definition not found for ID: ${characterId}`);
-            return undefined;
-        }
-
-        if (this.characters.find(c => c.characterId === characterId)) {
-            console.warn(`GameState.addCharacter: Character with ID ${characterId} already exists.`);
-            return this.characters.find(c => c.characterId === characterId);
-        }
-
-        const attributeDefs = this.lib.attributes.getAttributeDefinitions() as LibAttributeDefinitions;
-        const allSkillDefs = this.lib.skills.getAllSkills() as Record<string, LibSkillDefinition>;
-        const idPrefix = `${CHARACTER_STAT_PREFIX}${charDef.id}__`;
-
-        const newChar: Character = {
-            characterId: charDef.id,
-            level: undefined as unknown as IndependentStat,
-            baseUpkeep: undefined as unknown as IndependentStat,
-            upkeep: undefined as unknown as Parameter,
-            attributes: {},
-            skills: {},
-            specializations: {}
-        };
-
-        CharacterOps.initializeBaseStats(newChar, charDef, idPrefix, this.connections);
-        CharacterOps.addInitialAttributes(newChar, charDef, attributeDefs, idPrefix, this.connections);
-
-        if (charDef.initialSkills) {
-            for (const skillId in charDef.initialSkills) {
-                if (Object.prototype.hasOwnProperty.call(charDef.initialSkills, skillId) && allSkillDefs[skillId]) {
-                    const skillData = charDef.initialSkills[skillId];
-                    const skillDef = allSkillDefs[skillId];
-                    CharacterOps.addInitialSkillWithSpecializations(newChar, skillId, skillData, skillDef, idPrefix, this.connections);
-                }
-            }
-        }
+    private setupInitialResources(): void {
+        this.gold = addResource(this.resources, "gold", 0, 0, this.connections);
+        this.clutter = addResource(this.resources, "clutter", 0, 100, this.connections);
         
-        this.characters.push(newChar);
-        Stats.connectStat(newChar.upkeep, this.totalCharacterUpkeep, ConnectionType.ADD, this.connections);
+        Stats.connectStat(this.totalCharacterUpkeep, this.gold.income, ConnectionType.SUB, this.connections);
+        Stats.connectStat(this.totalBuildingsClutter, this.clutter.income, ConnectionType.ADD, this.connections);
 
-        if (charDef.triggerOnCreated) {
-            try {
-                this.processEventsForCharacter(charDef.triggerOnCreated, newChar, charDef);
-            } catch (error) {
-                const charDefinition = this.lib.characters.getCharacter(newChar.characterId);
-                console.error(`GS.addCharacter: ${charDefinition ? charDefinition.name : newChar.characterId} - Error processing triggerOnCreated events:`, error);
-            }
-        }
+        Stats.connectStat(this.clutterRatio, this.clutter.income, ConnectionType.MULTY, this.connections);
 
-        UIStateManager.updateCharacterUIData(this);
-        return newChar;
+        Stats.connectStat(this.clutter.max, this.clutterRatio, ConnectionType.ADD, this.connections);
+        Stats.connectStat(this.clutter.current, this.clutterRatio, ConnectionType.SUB, this.connections);
+        Stats.connectStat(this.clutter.max, this.clutterRatio, ConnectionType.DIV, this.connections);
+
+        Stats.connectStat(this.clutterRatio, this.workSpeed, ConnectionType.MULTY, this.connections);
     }
 
-    /**
-     * Processes a list of event IDs specifically for a character.
-     * @param eventIds Array of event IDs to process.
-     * @param character The character instance for context.
-     * @param charDef The character definition for context (optional, but good for performance).
-     */
-    public processEventsForCharacter(eventIds: string[], character: Character, charDef?: CharacterDefinition): void {
-        const characterDefinition = charDef || this.lib.characters.getCharacter(character.characterId)!;
-
+    public processEventsForCharacter(eventIds: string[], character: Character, _charDef?: CharacterDefinition): void {
         for (const eventId of eventIds) {
             const eventDefinition = this.lib.events.get(eventId);
             
             if (eventDefinition) {
                 try {
-                    this.eventProcessor.processSingleEvent(eventDefinition, this, character);
+                    EventProcessor.processSingleEvent(eventDefinition, this, character);
                 } catch (error) {
                     console.error(`GS-PROC-EVENTS-FOR-CHAR: Error calling processSingleEvent for '${eventId}':`, error);
                 }
@@ -203,27 +171,46 @@ export class GameState {
         }
     }
 
-    /** Sets the currently active tab name. */
-    public setActiveTab(tabName: string): void {
-        this.activeTabName = tabName;
-        
-        if (tabName === 'Crew') {
-            UIStateManager.updateCharacterUIData(this);
-        }
+    public addBuilding(buildingId: string): Building | undefined {
+        return BuildingOps.addBuilding(this, buildingId);
     }
 
-    /**
-     * Modifies an independent stat by a delta value
-     * @param statName The name of the stat to modify
-     * @param delta The amount to change the stat by
-     */
+    public getAndIncrementTaskUidValue(): number {
+        const currentValue = this.taskUidCounter.value;
+        Stats.modifyStat(this.taskUidCounter, 1, this.connections);
+        return currentValue;
+    }
+
+    public swapTimeScale(): void {
+        const temp = this.timeScale.current;
+        this.timeScale.current = this.timeScale.previous;
+        this.timeScale.previous = temp;
+    }
+
+    public setTimeScale(newScale: number): void {
+        this.timeScale.previous = this.timeScale.current;
+        this.timeScale.current = newScale;
+    }
+
+    public setActiveTab(tabName: string): void { this.uiState.activeTabName = tabName; }
+
     public modifyIndependentStat(statName: string, delta: number): void {
         const stat = this.connections.connectablesByName.get(statName);
         if (stat && 'independent' in stat && stat.independent) {
             Stats.modifyStat(stat as IndependentStat, delta, this.connections);
-            UIStateManager.updateDebugView(this);
         } else {
             console.warn(`Cannot set stat ${statName}: not found or not independent`);
         }
+    }
+
+    public markAsDiscovered(itemId: string): void {
+        if (!this.discoveredItems[itemId]) {
+            this.discoveredItems[itemId] = true;
+            this.uiState.discoveredItemsCount = Object.keys(this.discoveredItems).length;
+        }
+    }
+
+    public isDiscovered(itemId: string): boolean {
+        return !!this.discoveredItems[itemId];
     }
 }

@@ -18,7 +18,7 @@
           @mouseenter="$emit('set-hint', category.description || null)" 
           @mouseleave="$emit('set-hint', null)" 
         >
-          <span class="category-name">{{ category.displayName }}</span>
+          <span class="category-name">{{ gameState && gameState.isDiscovered(category.key) ? category.displayName : obfuscateString(category.displayName) }}</span>
           <span class="category-value">{{ category.value }}</span>
         </div>
         <div class="secondary-attributes">
@@ -30,7 +30,7 @@
             @mouseenter="$emit('set-hint', attribute.description || null)"
             @mouseleave="$emit('set-hint', null)"
           >
-            <span class="attribute-name">{{ attribute.displayName }}</span>
+            <span class="attribute-name">{{ gameState && gameState.isDiscovered(attribute.key) ? attribute.displayName : obfuscateString(attribute.displayName) }}</span>
             <span class="attribute-value">{{ attribute.value }}</span>
           </div>
         </div>
@@ -40,8 +40,12 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { PropType, inject } from 'vue';
 import { AttributeCategoryUIInfo } from '../../types/uiTypes';
+import { obfuscateString } from '../../utils/stringUtils';
+import { GameState } from '../../logic/GameState';
+
+const gameState = inject<GameState>('gameState');
 
 defineProps({
   attributes: {
@@ -155,7 +159,7 @@ defineEmits(['set-hint']);
 }
 
 .secondary-attributes {
-  padding-bottom: 2px;
+  padding-bottom: 4px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;

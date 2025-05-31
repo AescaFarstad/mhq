@@ -2,11 +2,16 @@ import { LibItem } from './definitions/LibDefinitions';
 import { EventDefinition } from './definitions/EventDefinition';
 import { CharacterLib } from './CharacterLib';
 import { CharacterDefinition } from './definitions/CharacterDefinition';
+import { BuildingDefinition } from './definitions/BuildingDefinition';
 import { AttributeLib } from './AttributeLib';
 import { SkillLib } from './SkillLib';
+import { TaskLib } from './TaskLib';
+import { BuildingLib } from './BuildingLib';
 
 import eventsData from '../data/events';
 import charactersData from '../data/characters';
+import { taskDefinitions } from '../data/tasks';
+import { buildingDefinitions } from '../data/buildings';
 // Note: Attribute data is imported directly within AttributeLib.ts
 // Note: Skills data is imported directly within SkillLib.ts
 
@@ -20,8 +25,8 @@ export class Lib {
     public characters: CharacterLib = new CharacterLib();
     public attributes: AttributeLib = new AttributeLib();
     public skills: SkillLib;
-
-    public buildings: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be BuildingDefinition
+    public tasks: TaskLib = new TaskLib();
+    public buildings: BuildingLib = new BuildingLib();
     public techs: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be TechDefinition
     public isLoaded: boolean = false;
 
@@ -44,6 +49,13 @@ export class Lib {
             // Process events from imported JSON
             this.events = this._processDataDefinitions<EventDefinition>(eventsData);
             this.characters.loadCharacters(charactersData);
+            // AttributeLib loads its data in its constructor or a dedicated load method
+            // SkillLib loads its data in its constructor or a dedicated load method
+            this.buildings.loadBuildings(buildingDefinitions);
+            this.tasks.loadTasks(taskDefinitions);
+
+            // After all relevant libraries are loaded, verify tasks
+            this.tasks.verifyAllTasks(this.skills, this.buildings);
 
             // Process other definitions similarly if they were imported
 
@@ -91,8 +103,8 @@ export class Lib {
      * @param id The unique ID of the building.
      * @returns The building definition or undefined if not found.
      */
-    public getBuilding(id: string): LibItem | undefined { // Should return specific BuildingDefinition
-        return this.buildings.get(id);
+    public getBuilding(id: string): BuildingDefinition | undefined {
+        return this.buildings.getBuilding(id);
     }
 
     /**
@@ -120,5 +132,21 @@ export class Lib {
      */
     public getSkillLib(): SkillLib {
         return this.skills;
+    }
+
+    /**
+     * Retrieves the TaskLib instance.
+     * @returns The TaskLib instance.
+     */
+    public getTaskLib(): TaskLib {
+        return this.tasks;
+    }
+
+    /**
+     * Retrieves the BuildingLib instance.
+     * @returns The BuildingLib instance.
+     */
+    public getBuildingLib(): BuildingLib {
+        return this.buildings;
     }
 }

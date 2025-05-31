@@ -1,5 +1,5 @@
 import { GameState } from '../../GameState';
-import { Stat } from '../../core/Stat';
+// import { Stat } from '../../core/Stat';
 import { Character } from '../../Character';
 
 // Define the EventContext type
@@ -32,6 +32,11 @@ export interface StartDialogParams {
 /** Represents parameters for adding a character by name */
 export interface AddCharacterParams {
     characterId: string; // The ID of the character definition in CharacterLib
+}
+
+/** Represents parameters for the new 'discover' effect */
+export interface DiscoverEffectParams {
+    key: string; // The item ID to mark as discovered
 }
 
 /**

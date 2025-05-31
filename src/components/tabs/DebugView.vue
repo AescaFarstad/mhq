@@ -11,6 +11,13 @@
         <button @click="copySkillNamesAndDescriptions($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNameDesc' }">Skill Names & Descriptions</button>
         <button @click="copySkillIds($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillIds' }">Skill IDs</button>
         <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
+        <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
+        <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
+      </div>
+      <div class="filter-inputs">
+        <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
+        <input type="text" v-model="excludeFilter" placeholder="Exclude Regex (e.g., Mana$)" class="filter-input" :class="{ 'invalid-regex': !isExcludeRegexValid }" />
+        <button @click="clearAllFilters" class="clear-btn clear-all-btn">Clear Filters</button>
       </div>
       <div v-if="hasStats" class="stats-container">
         <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
@@ -62,6 +69,12 @@ const gameState = inject<GameState>('gameState');
 // Store input values for setting stat values
 const statInputValues = reactive<Record<string, string>>({});
 
+// New reactive properties for include/exclude filters
+const includeFilter = ref('');
+const excludeFilter = ref('');
+const isIncludeRegexValid = ref(true);
+const isExcludeRegexValid = ref(true);
+
 // Check if there are any stats to display
 const hasStats = computed(() => {
   return props.stats && Object.keys(props.stats).length > 0;
@@ -72,8 +85,37 @@ const sortedStats = computed(() => {
   if (!props.stats) {
     return {};
   }
+
+  let filteredKeys = Object.keys(props.stats);
+  isIncludeRegexValid.value = true; // Reset validity before check
+  isExcludeRegexValid.value = true; // Reset validity before check
+
+  // Apply include filter
+  if (includeFilter.value.trim() !== '') {
+    try {
+      const includeRegex = new RegExp(includeFilter.value.trim(), 'i');
+      filteredKeys = filteredKeys.filter(key => includeRegex.test(key));
+    } catch (e) {
+      console.warn("Invalid include regex:", e);
+      isIncludeRegexValid.value = false; // Mark as invalid
+      // Do not filter if regex is invalid
+    }
+  }
+
+  // Apply exclude filter
+  if (excludeFilter.value.trim() !== '') {
+    try {
+      const excludeRegex = new RegExp(excludeFilter.value.trim(), 'i');
+      filteredKeys = filteredKeys.filter(key => !excludeRegex.test(key));
+    } catch (e) {
+      console.warn("Invalid exclude regex:", e);
+      isExcludeRegexValid.value = false; // Mark as invalid
+      // Do not filter if regex is invalid
+    }
+  }
+
   // Sort keys alphabetically for consistent display
-  const sortedKeys = Object.keys(props.stats).sort();
+  const sortedKeys = filteredKeys.sort();
   const result: Record<string, DebugStatInfo> = {};
   sortedKeys.forEach(key => {
     result[key] = props.stats![key];
@@ -149,7 +191,7 @@ const copySkillsToClipboard = (includeAttributes: boolean, _event?: Event) => {
   let clipboardText = '';
   const skillLib = gameState.lib.getSkillLib();
   const attributeLib = gameState.lib.getAttributeLib();
-  const skillsData = skillLib.skills;
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   const attributeDefinitions = attributeLib.getAttributeDefinitions();
 
   const findAttributeDisplayName = (attrKey: string): string => {
@@ -161,7 +203,7 @@ const copySkillsToClipboard = (includeAttributes: boolean, _event?: Event) => {
     return attrKey; 
   };
 
-  Object.values(skillsData).forEach((skill: Skill) => {
+  Object.values(skillsData).forEach((skill: Skill) => { // skillsData is Record<string, Skill>, so value is Skill
     clipboardText += `${skill.displayName}: ${skill.description}\n`;
 
     if (includeAttributes) {
@@ -171,9 +213,12 @@ const copySkillsToClipboard = (includeAttributes: boolean, _event?: Event) => {
       clipboardText += `Assisted by: ${assistedBy}\n`;
     }
 
-    if (skill.specializations) {
-      Object.values(skill.specializations).forEach((spec: SkillSpecialization) => {
-        clipboardText += `* ${spec.displayName}: ${spec.description}\n`;
+    if (skill.specializations && skill.specializations.length > 0) {
+      skill.specializations.forEach((specId: string) => { // skill.specializations is string[]
+        const spec = skillLib.getSpecialization(specId);
+        if (spec) {
+          clipboardText += `* ${spec.displayName}: ${spec.description}\n`;
+        }
       });
     }
 
@@ -223,9 +268,9 @@ const copyAttributeSkillStats = (_event?: Event) => {
     console.error("GameState, SkillLib, or AttributeLib not available via getters");
     return;
   }
-  const skillsData = gameState.lib.getSkillLib().skills;
+  const skillLib = gameState.lib.getSkillLib(); // get skillLib instance
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   const attributeDefinitions = gameState.lib.getAttributeLib().getAttributeDefinitions();
-  // const attributeLib = gameState.lib.getAttributeLib(); // Unused
 
   const attributeStats: Record<string, { governs: number; assists: number }> = {};
 
@@ -237,7 +282,7 @@ const copyAttributeSkillStats = (_event?: Event) => {
 
   const skillsByAttribute: Record<string, string[]> = {};
 
-  Object.values(skillsData).forEach((skill: Skill) => {
+  Object.values(skillsData).forEach((skill: Skill) => { // skillsData is Record<string, Skill>, so value is Skill
     if (skill.governedBy) {
       skill.governedBy.forEach(attrKey => {
         if (attributeStats[attrKey]) {
@@ -297,14 +342,17 @@ const copyAllSkillNames = (_event?: Event) => {
     return;
   }
   const skillLib = gameState.lib.getSkillLib();
-  const skillsData = skillLib.skills;
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   let clipboardText = '';
 
-  Object.values(skillsData).forEach((skill: Skill) => {
+  Object.values(skillsData).forEach((skill: Skill) => { // skillsData is Record<string, Skill>, so value is Skill
     clipboardText += `${skill.displayName}\n`;
-    if (skill.specializations) {
-      Object.values(skill.specializations).forEach((spec: SkillSpecialization) => {
-        clipboardText += `* ${spec.displayName}\n`;
+    if (skill.specializations && skill.specializations.length > 0) {
+      skill.specializations.forEach((specId: string) => { // skill.specializations is string[]
+        const spec = skillLib.getSpecialization(specId);
+        if (spec) {
+          clipboardText += `* ${spec.displayName}\n`;
+        }
       });
     }
   });
@@ -325,16 +373,15 @@ const copySkillKeywordStats = (_event?: Event) => {
   }
 
   const skillLib = gameState.lib.getSkillLib();
-  const skillsData = skillLib.skills; 
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   const keywordLookup = skillLib.keywordLookup;
 
   let clipboardText = "Skill Keyword Statistics:\n\n";
   
-  // Count keyword occurrences
   const keywordCounts: Record<string, number> = {};
   const keywordToSkills: Record<string, string[]> = {};
 
-  Object.entries(skillsData).forEach(([, skill]) => {
+  Object.values(skillsData).forEach((skill: Skill) => { // Iterate over Skill objects
     const processKeywords = (item: Skill | SkillSpecialization, itemName: string) => {
       if (item.keywords && Array.isArray(item.keywords)) {
         item.keywords.flat().forEach(keyword => {
@@ -351,9 +398,12 @@ const copySkillKeywordStats = (_event?: Event) => {
     };
 
     processKeywords(skill, skill.displayName);
-    if (skill.specializations) {
-      Object.entries(skill.specializations).forEach(([, spec]) => {
-        processKeywords(spec, `${skill.displayName} > ${spec.displayName}`);
+    if (skill.specializations && skill.specializations.length > 0) {
+      skill.specializations.forEach((specId: string) => { // Iterate over spec IDs
+        const spec = skillLib.getSpecialization(specId); // Get spec object
+        if (spec) {
+          processKeywords(spec, `${skill.displayName} > ${spec.displayName}`);
+        }
       });
     }
   });
@@ -404,14 +454,17 @@ const copySkillNamesAndDescriptions = (_event?: Event) => {
   }
 
   const skillLib = gameState.lib.getSkillLib();
-  const skillsData = skillLib.skills;
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   let clipboardText = "";
 
-  Object.values(skillsData).forEach((skill: Skill) => {
-    clipboardText += `"${skill.displayName}": "${skill.description}",\n`;
-    if (skill.specializations) {
-      Object.values(skill.specializations).forEach((spec: SkillSpecialization) => {
-        clipboardText += `  "${spec.displayName}": "${spec.description}",\n`;
+  Object.values(skillsData).forEach((skill: Skill) => { // skillsData is Record<string, Skill>, so value is Skill
+    clipboardText += `\"${skill.displayName}\": \"${skill.description}\",\n`;
+    if (skill.specializations && skill.specializations.length > 0) {
+      skill.specializations.forEach((specId: string) => { // skill.specializations is string[]
+        const spec = skillLib.getSpecialization(specId);
+        if (spec) {
+          clipboardText += `  \"${spec.displayName}\": \"${spec.description}\",\n`;
+        }
       });
     }
   });
@@ -432,14 +485,14 @@ const copySkillIds = (_event?: Event) => {
   }
 
   const skillLib = gameState.lib.getSkillLib();
-  const skillsData = skillLib.skills;
+  const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
   let clipboardText = "";
 
-  Object.entries(skillsData).forEach(([skillId, skill]) => {
-    clipboardText += `${skillId}\n`; // Add skill ID
-    if (skill.specializations) {
-      Object.keys(skill.specializations).forEach((specId) => {
-        clipboardText += `${specId}\n`; // Add specialization ID
+  Object.values(skillsData).forEach((skill: Skill) => { // Iterate over Skill objects
+    clipboardText += `${skill.id}\n`; // Add skill ID
+    if (skill.specializations && skill.specializations.length > 0) {
+      skill.specializations.forEach((specId: string) => { // Iterate over spec IDs
+        clipboardText += `${specId}\n`; // Add specialization ID (which is spec.id)
       });
     }
   });
@@ -467,7 +520,6 @@ const copyGameStateToClipboard = (_event?: Event) => {
     'connections',
     'lib',
     'eventProcessor',
-    'resourceManager',
     'uiState'
   ];
 
@@ -497,6 +549,111 @@ const copyGameStateToClipboard = (_event?: Event) => {
       .then(() => triggerCopyAnimation('gameStateError')) // Use a different animation key for error
       .catch(err => console.error('Failed to copy error message to clipboard:', err));
   }
+};
+
+// Function to replace skill display names with IDs in clipboard text
+const replaceSkillNamesWithIdsInClipboard = async (_event?: Event) => {
+  if (!gameState || !gameState.lib?.getSkillLib) {
+    console.error("GameState or SkillLib not available for replacing names with IDs.");
+    triggerCopyAnimation('replaceNamesWithIdsError');
+    return;
+  }
+
+  try {
+    let clipboardText = await navigator.clipboard.readText();
+    const skillLib = gameState.lib.getSkillLib();
+    const skillsData = skillLib.getAllSkills(); // Changed to getAllSkills()
+
+    const replacements: { searchDisplayName: string; replacementId: string }[] = [];
+
+    // Collect all skills and specializations
+    Object.values(skillsData).forEach((skill: Skill) => { // Iterate over Skill objects
+      // Add skill
+      replacements.push({
+        searchDisplayName: skill.displayName,
+        replacementId: skill.id
+      });
+
+      // Add specializations
+      if (skill.specializations && skill.specializations.length > 0) {
+        skill.specializations.forEach((specId: string) => { // Iterate over spec IDs
+          const spec = skillLib.getSpecialization(specId); // Get spec object
+          if (spec) {
+            replacements.push({
+              searchDisplayName: spec.displayName,
+              replacementId: spec.id // Corrected: spec.id is globally unique
+            });
+          }
+        });
+      }
+    });
+
+    // Sort by display name length (descending) to replace longer names first
+    replacements.sort((a, b) => b.searchDisplayName.length - a.searchDisplayName.length);
+
+    // Helper to escape regex special characters
+    const escapeRegExp = (string: string) => {
+      return string.replace(/[.*+?^${}()|[\]\\\\]/g, '\\\\$&'); // $& means the whole matched string
+    };
+
+    // Perform replacements
+    replacements.forEach(rep => {
+      // Match the display name only when enclosed in double quotes
+      const searchRegex = new RegExp(`"${escapeRegExp(rep.searchDisplayName)}"`, 'g');
+      const replacementString = `"${rep.replacementId}"`;
+      clipboardText = clipboardText.replace(searchRegex, replacementString);
+    });
+
+    await navigator.clipboard.writeText(clipboardText);
+    triggerCopyAnimation('replaceNamesWithIds');
+
+  } catch (err) {
+    console.error('Failed to replace skill names with IDs in clipboard:', err);
+    // Consider providing user feedback about the error, e.g., clipboard read/write permission denied
+    // You could use a specific animation for errors here too.
+    triggerCopyAnimation('replaceNamesWithIdsError'); // Or a general copy error animation
+  }
+};
+
+// Function to simplify clipboard text by extracting the second part of dot-separated words in quotes
+const simplifyClipboardText = async (_event?: Event) => {
+  try {
+    let clipboardText = await navigator.clipboard.readText();
+
+    // Regex to find "word1.word2" patterns
+    // It captures word1 and word2
+    const regex = /"([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)"/g;
+
+    // Replace "word1.word2" with "word2"
+    const simplifiedText = clipboardText.replace(regex, (_match, _word1, word2) => {
+      return `"${word2}"`;
+    });
+
+    await navigator.clipboard.writeText(simplifiedText);
+    triggerCopyAnimation('simplifyClipboard'); // Use a new animation key
+
+  } catch (err) {
+    console.error('Failed to simplify clipboard text:', err);
+    triggerCopyAnimation('simplifyClipboardError'); // Optional: specific error animation
+  }
+};
+
+// Function to clear the include filter
+const clearIncludeFilter = () => {
+  includeFilter.value = '';
+  isIncludeRegexValid.value = true; // Reset validity
+};
+
+// Function to clear the exclude filter
+const clearExcludeFilter = () => {
+  excludeFilter.value = '';
+  isExcludeRegexValid.value = true; // Reset validity
+};
+
+// Function to clear both filters
+const clearAllFilters = () => {
+  clearIncludeFilter();
+  clearExcludeFilter();
 };
 </script>
 
@@ -634,5 +791,43 @@ p {
   100% {
     transform: scale(1);
   }
+}
+
+.filter-input {
+  width: calc(50% - 10px); /* Adjust width considering gap */
+  padding: 8px;
+  font-family: monospace;
+}
+
+.filter-input.invalid-regex {
+  border-color: red;
+}
+
+.filter-inputs {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Add gap between input fields */
+    margin-bottom: 15px; /* Add some space below the filter section */
+}
+
+.clear-btn {
+  padding: 6px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 0.8em;
+  height: fit-content; /* Adjust height to match input boxes better */
+}
+
+.clear-btn.clear-all-btn {
+    width: auto; /* Allow button to size to its content */
+    flex-shrink: 0; /* Prevent shrinking if space is tight */
+    margin-left: 5px; /* A bit of space from the last input */
+}
+
+.clear-btn:hover {
+  background-color: #e9ecef;
 }
 </style>

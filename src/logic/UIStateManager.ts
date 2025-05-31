@@ -1,17 +1,26 @@
 import { Stat, Parameter, FormulaStat, IndependentStat } from './core/Stat';
-import type { Character } from './Character';
+// import type { Character } from './Character';
+import { Character as CharacterNamespace } from './Character'; // Import the namespace
 import { AttributeUIInfo, AttributeCategoryUIInfo, SkillUIInfo, SkillSpecializationUIInfo, DebugStatInfo } from '../types/uiTypes';
 import type { GameState } from "./GameState";
+import { getAllResources } from './Resource';
+import { GameTaskType, GameTaskStatus, type GameTask } from './TaskTypes'; // Import task types
 
 /**
  * Manages UI state updates from the game state to the reactive UI objects
  */
 
+export interface ResourceUIData {
+    current: number;
+    max: number;
+    income: number;
+}
+
 /**
- * Synchronizes ResourceManager state to uiState.resources
+ * Synchronizes resources state to uiState.resources
  */
 export function syncUiResources(gameState: GameState): void {
-    const allResources = gameState.resourceManager.getAllResources();
+    const allResources = getAllResources(gameState.resources);
     const currentUiKeys = new Set(Object.keys(gameState.uiState.resources));
 
     allResources.forEach((resource, name) => {
@@ -32,7 +41,7 @@ export function syncUiResources(gameState: GameState): void {
         currentUiKeys.delete(name); // Mark this key as processed
     });
 
-    // Remove resources from UI state that no longer exist in ResourceManager
+    // Remove resources from UI state that no longer exist in resources
     currentUiKeys.forEach(keyToRemove => {
         delete gameState.uiState.resources[keyToRemove];
     });
@@ -68,11 +77,9 @@ export function updateDebugView(gameState: GameState): void {
         if (!existing) {
             gameState.uiState.debugStats[key] = statData; // Add new
         } else {
-            let changed = false;
             // Update value
             if (existing.value !== statData.value) {
                 existing.value = statData.value;
-                changed = true;
             }
 
             // Update params
@@ -85,7 +92,6 @@ export function updateDebugView(gameState: GameState): void {
                 } else {
                     delete existing.params; // Remove
                 }
-                changed = true;
             }
 
             // Optionally, could add logging here if changed is true
@@ -114,9 +120,9 @@ export function updateCharacterUIData(gameState: GameState): void {
     }
     
     // Get skill definitions once
-    const allSkillDefs = gameState.lib.getSkillLib().skills;
+    const allSkillDefs = gameState.lib.getSkillLib().getAllSkills();
     if (!allSkillDefs) {
-        console.error("Cannot update character UI data: Skill definitions not loaded.");
+        console.error("Cannot update character UI data: Skill definitions not loaded or empty.");
         return;
     }
 
@@ -168,21 +174,29 @@ export function updateCharacterUIData(gameState: GameState): void {
         for (const skillId in char.skills) {
             const skillDef = allSkillDefs[skillId];
             if (skillDef) {
-                const specializations: SkillSpecializationUIInfo[] = [];
+                const specializationsUiInfo: SkillSpecializationUIInfo[] = [];
                 
-                // Add specializations for this skill
-                for (const specId in skillDef.specializations) {
-                    const fullSpecId = `${skillId}.${specId}`;
-                    const specDef = skillDef.specializations[specId];
-                    const specLevel = char.specializations[fullSpecId]?.value ?? 0;
+                // Add specializations for this skill (skillDef.specializations is string[] of full IDs)
+                for (const fullSpecId of skillDef.specializations) { // Iterate over full specialization IDs
+                    const specDef = gameState.lib.getSkillLib().getSpecialization(fullSpecId);
                     
-                    if (specLevel > 0) {
-                        specializations.push({
-                            id: specId,
-                            displayName: specDef.displayName,
-                            description: specDef.description,
-                            level: specLevel
-                        });
+                    if (specDef) { // specDef is of type SkillSpecialization
+                        const specLevel = char.specializations[fullSpecId]?.value ?? 0;
+                        const specProficiency = CharacterNamespace.getProficiency(char, fullSpecId, gameState);
+                    
+                        if (specLevel > 0) { // Only add if character has levels in it
+                            // Extract localId for UI: e.g., "striking" from "unarmed_combat.striking"
+                            const localSpecId = fullSpecId.substring(specDef.parentId.length + 1);
+                            specializationsUiInfo.push({
+                                id: localSpecId, // Use the local part of the ID
+                                displayName: specDef.displayName,
+                                description: specDef.description,
+                                level: specLevel,
+                                proficiency: specProficiency
+                            });
+                        }
+                    } else {
+                        console.warn(`UIStateManager: Full specialization definition not found for ID: ${fullSpecId} (parent skill: ${skillId})`);
                     }
                 }
                 
@@ -195,7 +209,8 @@ export function updateCharacterUIData(gameState: GameState): void {
                     governedBy: skillDef.governedBy,
                     assistedBy: skillDef.assistedBy,
                     level: char.skills[skillId].value,
-                    specializations: specializations
+                    specializations: specializationsUiInfo,
+                    proficiency: CharacterNamespace.getProficiency(char, skillId, gameState)
                 });
             }
         }
@@ -216,4 +231,158 @@ export function updateCharacterUIData(gameState: GameState): void {
     if (gameState.uiState.characters.length > 0 && gameState.uiState.selectedCharacterId === null) {
         gameState.uiState.selectedCharacterId = gameState.uiState.characters[0].id;
     }
+}
+
+/**
+ * Synchronizes the constructed building IDs to uiState.constructedBuildingIds
+ */
+export function syncConstructedBuildings(gameState: GameState): void {
+    const currentUiBuildingIds = new Set(gameState.uiState.constructedBuildingIds);
+    const actualConstructedBuildingIds = new Set(gameState.buildings.map(b => b.buildingId));
+
+    // Add new building IDs to UI state
+    actualConstructedBuildingIds.forEach(id => {
+        if (!currentUiBuildingIds.has(id)) {
+            gameState.uiState.constructedBuildingIds.add(id);
+        }
+    });
+
+    // Remove building IDs from UI state that are no longer constructed (if that becomes possible)
+    currentUiBuildingIds.forEach(id => {
+        if (!actualConstructedBuildingIds.has(id)) {
+            gameState.uiState.constructedBuildingIds.delete(id);
+        }
+    });
+}
+
+/**
+ * Synchronizes task lists for the TasksView.
+ */
+export function syncTasksView(gameState: GameState): void {
+    const allTasks = [
+        ...gameState.availableTasks,
+        ...gameState.queuedTasks,
+        ...gameState.processingTasks,
+        ...gameState.completedTasks,
+    ];
+
+    // Helper function to update an existing UI array with new tasks
+    const updateTaskArray = (uiArray: GameTask[], newTasks: GameTask[]) => {
+        // Create a map of existing tasks by UID for quick lookup
+        const existingTaskMap = new Map<string, GameTask>();
+        for (const task of uiArray) {
+            existingTaskMap.set(task.uid, task);
+        }
+
+        // Clear the array but keep the reference
+        uiArray.length = 0;
+
+        // Add tasks, reusing existing objects where possible to maintain Vue reactivity
+        for (const newTask of newTasks) {
+            const existingTask = existingTaskMap.get(newTask.uid);
+            if (existingTask) {
+                // Create a new object for the update to ensure Vue detects a change in the array element reference.
+                // This is a more forceful way to trigger reactivity if direct property updates are not being picked up.
+                const updatedTask = { 
+                    ...existingTask, // Spread existing properties
+                    ...newTask     // Spread and overwrite with new properties
+                };
+                uiArray.push(updatedTask);
+            } else {
+                // New task, add it directly (it's already a new object)
+                uiArray.push(newTask);
+            }
+        }
+    };
+
+    const completed: GameTask[] = [];
+    const active: GameTask[] = [];
+    const queued: GameTask[] = [];
+    const maintenance: GameTask[] = [];
+    const opportunity: GameTask[] = [];
+    const endeavour: GameTask[] = [];
+    const quest: GameTask[] = [];
+
+    for (const task of allTasks) {
+        if (task.status === GameTaskStatus.Complete) {
+            completed.push(task);
+        } else if (task.status === GameTaskStatus.Processing) {
+            active.push(task);
+        } else if (task.status === GameTaskStatus.Queued) {
+            queued.push(task);
+        } else if (task.status === GameTaskStatus.Available) {
+            // Available tasks are sorted into their type-specific columns
+            switch (task.type) {
+                case GameTaskType.Maintenance:
+                    maintenance.push(task);
+                    break;
+                case GameTaskType.Opportunity:
+                    opportunity.push(task);
+                    break;
+                case GameTaskType.Endeavour:
+                    endeavour.push(task);
+                    break;
+                case GameTaskType.Quest:
+                    quest.push(task);
+                    break;
+            }
+        }
+    }
+
+    // Update reactive arrays while preserving object references for Vue reactivity
+    updateTaskArray(gameState.uiState.uiCompletedTasks, completed);
+    updateTaskArray(gameState.uiState.uiActiveTasks, active);
+    updateTaskArray(gameState.uiState.uiQueuedTasks, queued);
+    updateTaskArray(gameState.uiState.uiMaintenanceTasks, maintenance);
+    updateTaskArray(gameState.uiState.uiOpportunityTasks, opportunity);
+    updateTaskArray(gameState.uiState.uiEndeavourTasks, endeavour);
+    updateTaskArray(gameState.uiState.uiQuestTasks, quest);
+}
+
+/**
+ * Synchronizes the current time scale to uiState.currentTimeScale
+ */
+export function syncTimeScale(gameState: GameState): void {
+    if (gameState.uiState.currentTimeScale !== gameState.timeScale.current) {
+        gameState.uiState.currentTimeScale = gameState.timeScale.current;
+    }
+}
+
+/**
+ * Synchronizes core game parameters like workSpeed and clutterRatio to uiState.
+ */
+export function syncCoreParameters(gameState: GameState): void {
+    if (gameState.uiState.uiWorkSpeed !== gameState.workSpeed.value) {
+        gameState.uiState.uiWorkSpeed = gameState.workSpeed.value;
+    }
+    if (gameState.uiState.uiClutterRatio !== gameState.clutterRatio.value) {
+        gameState.uiState.uiClutterRatio = gameState.clutterRatio.value;
+    }
+}
+
+/**
+ * Central synchronization function to update UI state based on active tab and global needs.
+ */
+export function sync(gameState: GameState): void {
+    // Always sync resources as they might be globally displayed (e.g., top bar)
+    syncUiResources(gameState);
+    // Always sync time scale as it's globally displayed
+    syncTimeScale(gameState);
+    // Always sync core parameters for components like BuffBar
+    syncCoreParameters(gameState);
+    // syncTasksView(gameState); // Reverted: No longer called unconditionally
+
+    // Sync data specific to the active tab
+    const activeTab = gameState.uiState.activeTabName;
+    if (activeTab === 'Crew') {
+        updateCharacterUIData(gameState);
+    } else if (activeTab === 'Debug') {
+        updateDebugView(gameState);
+    } else if (activeTab === 'Castle') {
+        syncConstructedBuildings(gameState);
+    } else if (activeTab === 'Tasks') {
+        syncTasksView(gameState); // Called only when Tasks tab is active
+    }
+    // Add other tabs here as needed, e.g.:
+    // else if (activeTab === 'Quests') { syncQuestsView(gameState); }
 } 

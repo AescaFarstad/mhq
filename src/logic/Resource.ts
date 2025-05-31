@@ -72,62 +72,60 @@ export class Resource {
 }
 
 /**
- * Manages all resources in the game state.
+ * Module for managing all resources in the game state.
  */
-export class ResourceManager {
-    private resources: Map<string, Resource> = new Map<string, Resource>();
-    private connections: Connections;
 
-    constructor(connections: Connections) {
-        this.connections = connections;
+/**
+ * Adds a new resource to be managed.
+ *
+ * @param resources The Map containing all resources.
+ * @param name Base name of the resource.
+ * @param initialValue Starting amount.
+ * @param initialMax Initial capacity.
+ * @param connections The Connections manager instance.
+ * @returns The newly created Resource object.
+ */
+export function addResource(resources: Map<string, Resource>, name: string, initialValue: number, initialMax: number, connections: Connections): Resource {
+    if (resources.has(name)) {
+        console.warn(`Resource "${name}" already exists.`);
+        return resources.get(name)!;
     }
+    const resource = new Resource(name, initialValue, initialMax, connections);
+    resources.set(name, resource);
+    return resource;
+}
 
-    /**
-     * Adds a new resource to be managed.
-     *
-     * @param name Base name of the resource.
-     * @param initialValue Starting amount.
-     * @param initialMax Initial capacity.
-     * @returns The newly created Resource object.
-     */
-    public addResource(name: string, initialValue: number, initialMax: number): Resource {
-        if (this.resources.has(name)) {
-            console.warn(`Resource "${name}" already exists.`);
-            return this.resources.get(name)!;
-        }
-        const resource = new Resource(name, initialValue, initialMax, this.connections);
-        this.resources.set(name, resource);
-        return resource;
-    }
+/**
+ * Retrieves a resource by name.
+ *
+ * @param resources The Map containing all resources.
+ * @param name The name of the resource.
+ * @returns The Resource object or undefined if not found.
+ */
+export function getResource(resources: Map<string, Resource>, name: string): Resource | undefined {
+    return resources.get(name);
+}
 
-    /**
-     * Retrieves a resource by name.
-     *
-     * @param name The name of the resource.
-     * @returns The Resource object or undefined if not found.
-     */
-    public getResource(name: string): Resource | undefined {
-        return this.resources.get(name);
-    }
+/**
+ * Gets the map of all managed resources.
+ * Useful for iterating over all resources in the UI.
+ *
+ * @param resources The Map containing all resources.
+ * @returns A Map containing all resources, keyed by name.
+ */
+export function getAllResources(resources: Map<string, Resource>): Map<string, Resource> {
+    return resources;
+}
 
-    /**
-     * Gets the map of all managed resources.
-     * Useful for iterating over all resources in the UI.
-     *
-     * @returns A Map containing all resources, keyed by name.
-     */
-    public getAllResources(): Map<string, Resource> {
-        return this.resources;
-    }
-
-    /**
-     * Updates all managed resources based on elapsed time.
-     *
-     * @param deltaTime Time elapsed since the last update, in seconds.
-     */
-    public updateAll(deltaTime: number): void {
-        this.resources.forEach(resource => {
-            resource.update(deltaTime, this.connections);
-        });
-    }
+/**
+ * Updates all managed resources based on elapsed time.
+ *
+ * @param resources The Map containing all resources.
+ * @param deltaTime Time elapsed since the last update, in seconds.
+ * @param connections The Connections manager instance.
+ */
+export function updateAllResources(resources: Map<string, Resource>, deltaTime: number, connections: Connections): void {
+    resources.forEach(resource => {
+        resource.update(deltaTime, connections);
+    });
 } 

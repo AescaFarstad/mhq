@@ -38,7 +38,6 @@ defineEmits(['select-character']);
   flex-direction: column;
   gap: 8px; /* Space between items */
   overflow-y: auto;
-  padding-right: 5px; /* Avoid scrollbar overlapping content */
 }
 
 .no-characters {

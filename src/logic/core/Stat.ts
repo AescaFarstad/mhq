@@ -20,10 +20,16 @@ export class Connection {
     public target: string;
     /** The type of connection, determining how the target stat is affected. */
     public type: ConnectionType;
+    /** The name of the input on the target FormulaParameter, if type is NAMED_INPUT. */
+    public inputName?: string;
 
-    constructor(target: string, type: ConnectionType) {
+    constructor(target: string, type: ConnectionType, inputName?: string) {
         this.target = target;
         this.type = type;
+        if (type === ConnectionType.NAMED_INPUT && !inputName) {
+            throw new Error("inputName is required for NAMED_INPUT connection type.");
+        }
+        this.inputName = inputName;
     }
 }
 
@@ -31,14 +37,12 @@ export class Connection {
  * Defines the types of connections between stats.
  */
 export enum ConnectionType {
-    /** Add the source value to the target's additive component (Parameter). */
     ADD = 1,
-    /** Multiply the target's multiplicative component by the source value (Parameter). */
-    MULTY = 2,
-    /** Subtract the source value from the target's additive component (Parameter). */
-    SUB = 3,
-    /** Use the source value as the input argument for the target's formula (FormulaStat). */
-    FORMULA = 4,
+    SUB = 2,
+    MULTY = 3,
+    DIV = 4,
+    FORMULA = 5,
+    NAMED_INPUT = 6,
 }
 
 /**
@@ -48,7 +52,7 @@ export interface Stat {
     /** Unique identifier for the stat. */
     name: string;
     /** The current calculated value of the stat. */
-    value: number;
+    readonly value: number;
     /** Optional flag indicating if the stat's value is set directly. */
     readonly independent?: boolean;
 }
@@ -63,10 +67,12 @@ export class Parameter implements Stat {
     public add: number = 0;
     /** Array storing the names of stats connected via MULTY. */
     public multi: Array<string> = [];
-    /** Cached product of the values of all MULTY-connected stats. */
+    /** Array storing the names of stats connected via DIV. */
+    public divSources: Array<string> = [];
+    /** Cached product of the values of all MULTY-connected stats and reciprocals of DIV-connected stats. */
     public multiCache: number = 1;
     /** The final calculated value (add * multiCache). */
-    public value: number = 0;
+    public readonly value: number = 0;
 
     constructor(name: string) {
         this.name = name;
@@ -79,12 +85,12 @@ export class Parameter implements Stat {
  */
 export class IndependentStat implements Stat {
     public name: string;
-    public value: number = 0;
+    public readonly value: number = 0;
     public readonly independent: boolean = true;
 
     constructor(name: string, initialValue: number = 0) {
         this.name = name;
-        this.value = initialValue;
+        (this as { -readonly [K in keyof this]: this[K] })['value'] = initialValue;
     }
 }
 
@@ -94,7 +100,7 @@ export class IndependentStat implements Stat {
  */
 export class FormulaStat implements Stat {
     public name: string;
-    public value: number = 0;
+    public readonly value: number = 0;
     /** The input value for the formula. */
     public argument: number = 0;
     /** The function used to calculate the value from the argument. */
@@ -103,5 +109,35 @@ export class FormulaStat implements Stat {
     constructor(name: string, formula: StatFormula) {
         this.name = name;
         this.formula = formula;
+        // Initial calculation requires argument to be set by a connection
+        (this as { -readonly [K in keyof this]: this[K] })['value'] = this.formula(this.argument);
+    }
+}
+
+/**
+ * Type for the formula function of a FormulaParameter.
+ */
+export type FormulaParameterFormula = (inputs: Record<string, number>) => number;
+
+/**
+ * A derived stat whose value is calculated using a custom formula and a set of named inputs.
+ * Each named input is typically supplied by another stat via a NAMED_INPUT connection.
+ */
+export class FormulaParameter implements Stat {
+    public name: string;
+    public readonly value: number = 0;
+    /** Stores the current values of named inputs. Key is inputName, value is the input's current value. */
+    public inputs: Record<string, number> = {};
+    /** The custom function used to calculate the value from the inputs. */
+    public formula: FormulaParameterFormula;
+
+    constructor(name: string, formula: FormulaParameterFormula, initialInputs?: Record<string, number>) {
+        this.name = name;
+        this.formula = formula;
+        if (initialInputs) {
+            this.inputs = { ...initialInputs };
+        }
+        // Initial calculation
+        (this as { -readonly [K in keyof this]: this[K] })['value'] = this.formula(this.inputs);
     }
 } 

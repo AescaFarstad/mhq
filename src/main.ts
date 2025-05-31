@@ -2,6 +2,9 @@ import { createApp } from 'vue';
 import './style.css'; // Optional: include a basic CSS file
 import App from './App.vue';
 import { GameState } from './logic/GameState';
+import { processInputs } from './logic/input/InputProcessor';
+import { initializeDebugConsole } from './logic/DebugConsole';
+// import { setGlobalGameState } from './composables/useGameState'; // No longer needed
 
 // --- Synchronous Initialization ---
 function initializeGame() {
@@ -9,6 +12,10 @@ function initializeGame() {
     // Create the game state instance
     // This will also synchronously load the Lib definitions
     const gameState = new GameState();
+    // const eventProcessorInstance = new EventProcessor(gameState.lib); // No longer needed, EventProcessor is a namespace
+
+    // Set the global game state for the composable
+    // setGlobalGameState(gameState); // No longer needed
 
     // Check if Lib loading was successful (optional but good practice)
     if (!gameState.lib.isLoaded) {
@@ -23,22 +30,45 @@ function initializeGame() {
     const app = createApp(App);
 
     // Provide the gameState to the Vue application
+    // Make sure the key matches what useGameState expects, e.g., GameStateKey if you defined it
     app.provide('gameState', gameState);
+
+    // Initialize debug console
+    initializeDebugConsole(
+        () => gameState 
+        // No longer need to pass eventProcessorInstance getter
+    );
 
     // Mount the Vue app
     app.mount('#app');
 
     // --- Game Loop ---
     let lastTimestamp = 0;
+    let accumulatedTime = 0;
 
     function gameLoop(timestamp: number) {
         if (lastTimestamp === 0) {
             lastTimestamp = timestamp;
         }
-        const deltaTime = (timestamp - lastTimestamp) / 1000; // Convert ms to seconds
+        const rawDeltaTime = (timestamp - lastTimestamp) / 1000; // Convert ms to seconds
         lastTimestamp = timestamp;
 
-        gameState.update(deltaTime);
+        // Apply time scale to rawDeltaTime
+        const scaledDeltaTime = rawDeltaTime * gameState.timeScale.current;
+
+        accumulatedTime += scaledDeltaTime;
+
+        processInputs(gameState);
+
+        // Process game logic if enough accumulated time has passed
+        if (gameState.allowedUpdates > 0) {
+            gameState.update(gameState.minDeltaTime); // Use minDeltaTime for a consistent tick
+            gameState.allowedUpdates--;
+            accumulatedTime = 0; // Reset accumulated time after a tick
+        } else if (accumulatedTime >= gameState.minDeltaTime) {
+            gameState.update(Math.min(10.0, accumulatedTime));
+            accumulatedTime = 0;
+        }
 
         requestAnimationFrame(gameLoop);
     }

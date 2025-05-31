@@ -1,4 +1,4 @@
-import { CharacterDefinition, CharacterSkill } from '../lib/definitions/CharacterDefinition';
+import { CharacterDefinition } from '../lib/definitions/CharacterDefinition';
 
 // Type defining the structure of our characters data file
 type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;

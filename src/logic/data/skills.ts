@@ -1,6 +1,6 @@
-import { SkillsData } from '../lib/definitions/SkillDefinition';
+import { RawSkillsData } from '../lib/definitions/SkillDefinition';
 
-const skills: SkillsData = {
+const skills: RawSkillsData = {
     // --- PHYSIQUE ---
     melee_combat: {
       displayName: "Melee Combat",
@@ -545,7 +545,7 @@ const skills: SkillsData = {
       specializations: {
         precognition: {
           displayName: "Precognition",
-          description: "Receiving glimpses of potential futures or past events",
+          description: "Receiving glimpses of potential futures",
         },
         retrocognition: {
           displayName: "Retrocognition",
@@ -842,6 +842,10 @@ const skills: SkillsData = {
         first_aid: {
           displayName: "First Aid",
           description: "Immediate treatment of wounds, stabilization",
+        },
+        hygiene: {
+          displayName: "Hygiene",
+          description: "Fend off rot, decay and earthly ailments",
         },
         surgery: {
           displayName: "Surgery",
@@ -1395,6 +1399,10 @@ const skills: SkillsData = {
         staff_direction: {
           displayName: "Staff Direction",
           description: "Organizing workers efficiently for maximum guest satisfaction",
+        },
+        cleaning: {
+          displayName: "Cleaning",
+          description: "Keeping things tidy and fresh",
         }
       },
     },

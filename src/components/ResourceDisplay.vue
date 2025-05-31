@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue';
 import { GameState } from '../logic/GameState';
+import { obfuscateString } from '../utils/stringUtils';
 // No need for Resource type import since we're using the simplified UI data
 
 // Inject the game state
@@ -21,7 +22,7 @@ const resourceEntries = computed(() => {
     <div v-else-if="resourceEntries.length === 0">No resources defined.</div>
     <div v-else>
       <div v-for="[key, resource] in resourceEntries" :key="key" class="resource-item">
-        <span class="resource-name">{{ key.charAt(0).toUpperCase() + key.slice(1) }}:</span>
+        <span class="resource-name">{{ gameState && gameState.isDiscovered(key) ? (key.charAt(0).toUpperCase() + key.slice(1)) : obfuscateString(key.charAt(0).toUpperCase() + key.slice(1)) }}:</span>
         <div class="resource-amount-group">
             <!-- Access properties directly from the reactive object -->
             <span class="resource-current">{{ resource.current.toFixed(1) }}</span>
@@ -40,7 +41,7 @@ const resourceEntries = computed(() => {
 <style scoped>
 .resource-panel {
   padding: 2px;
-  width: 250px;
+  width: 300px;
 }
 
 .resource-panel h2 {

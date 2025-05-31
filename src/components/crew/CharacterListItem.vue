@@ -8,14 +8,24 @@
       <span class="char-level">Level {{ character.level }}</span>
       <span class="char-upkeep">Upkeep: {{ character.upkeep.toFixed(1) }}</span>
     </div>
+    <!-- Assigned Task Display -->
+    <div v-if="assignedTask" class="assigned-task-container">
+      <TaskCard v-if="isSelected" :task="assignedTask" />
+      <MiniTaskDisplay v-else :task="assignedTask" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { PropType, computed } from 'vue';
 import { SimpleCharacterInfo } from '../../types/uiTypes';
+import { defineComponent as _defineComponent } from "vue";
+import TaskCard from "../common/TaskCard.vue";
+import MiniTaskDisplay from "../common/MiniTaskDisplay.vue";
+import type { GameTask } from '../../logic/TaskTypes';
+import { useGameState } from '../../composables/useGameState';
 
-defineProps({
+const props = defineProps({
   character: {
     type: Object as PropType<SimpleCharacterInfo>,
     required: true,
@@ -24,21 +34,45 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  // assignedTask: { // This will be replaced by a computed property
+  //   type: Object as PropType<GameTask | null>,
+  //   default: null,
+  // }
 });
 
 defineEmits(['select']);
+
+const { gameState } = useGameState();
+
+const assignedTask = computed(() => {
+  if (!gameState.value) return null;
+
+  const taskInProgress = gameState.value.processingTasks.find(
+    (t) => t.assignedCharacterIds.includes(props.character.id)
+  );
+
+  if (taskInProgress) {
+    // Return a new object (shallow clone) using spread syntax.
+    // This ensures reactivity for child components when task properties change.
+    return { ...taskInProgress } as GameTask;
+  }
+  
+  return null;
+});
+
 </script>
 
 <style scoped>
-/* Styles moved from CrewView.vue for individual list items */
 .character-item {
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 10px 12px; /* Slightly increased padding */
+  padding: 8px 10px; /* Slightly increased padding */
   background-color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow */
+  display: flex; /* Added to allow flex-direction */
+  flex-direction: column; /* Stack children vertically */
 }
 
 .character-item:hover {
@@ -77,5 +111,19 @@ defineEmits(['select']);
 
 .char-upkeep {
     /* Specific styles for upkeep if needed */
+}
+
+.assigned-task-container {
+  margin-top: 8px; /* Add some space above the task display */
+  margin-right: -11px; /* Counteract parent padding-right */
+  margin-bottom: -8px; /* Counteract parent padding-bottom */
+  margin-left: -11px;  /* Counteract parent padding-left */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.assigned-task-container > * {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 </style>

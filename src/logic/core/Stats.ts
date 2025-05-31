@@ -6,7 +6,9 @@ import {
     IndependentStat,
     Parameter,
     Stat,
-    StatFormula
+    StatFormula,
+    FormulaParameter,
+    FormulaParameterFormula
 } from './Stat';
 
 /**
@@ -60,13 +62,29 @@ export namespace Stats {
     }
 
     /**
+     * Creates a new FormulaParameter stat and registers it.
+     * @param name Unique name for the stat.
+     * @param formula The calculation function for the FormulaParameter.
+     * @param connections The Connections manager instance.
+     * @param initialInputs Optional initial values for the named inputs.
+     * @returns The newly created FormulaParameter.
+     */
+    export function createFormulaParameter(name: string, formula: FormulaParameterFormula, connections: Connections, initialInputs?: Record<string, number>): FormulaParameter {
+        const result = new FormulaParameter(name, formula, initialInputs);
+        console.assert(!connections.connectablesByName.has(name), `Stat already exists: ${name}`);
+        connections.connectablesByName.set(name, result);
+        return result;
+    }
+
+    /**
      * Establishes a connection between two stats by their names.
      * @param fromName Name of the source stat.
      * @param toName Name of the target stat.
      * @param type Type of the connection.
      * @param connections The Connections manager instance.
+     * @param inputName For NAMED_INPUT, the name of the input on the target FormulaParameter.
      */
-    export function connectStr(fromName: string, toName: string, type: ConnectionType, connections: Connections): void {
+    export function connectStr(fromName: string, toName: string, type: ConnectionType, connections: Connections, inputName?: string): void {
         const fromStat = connections.connectablesByName.get(fromName);
         const toStat = connections.connectablesByName.get(toName);
         if (!fromStat) {
@@ -81,33 +99,78 @@ export namespace Stats {
              console.error(`Cannot connect to an IndependentStat: ${toName}`);
              return;
         }
+         if (type === ConnectionType.NAMED_INPUT && !inputName) {
+            console.error(`inputName is required for NAMED_INPUT connection type when calling connectStr for ${toName}.`);
+            return;
+        }
+
 
         if (!connections.establishedConnections.has(fromName)) {
             connections.establishedConnections.set(fromName, []);
         }
-        const connection = new Connection(toName, type);
+        const connection = new Connection(toName, type, inputName); // Pass inputName here
         connections.establishedConnections.get(fromName)!.push(connection);
 
         if (type === ConnectionType.MULTY) {
+            if (!(toStat instanceof Parameter)) {
+                console.error(`MULTY connection target ${toName} is not a Parameter.`);
+                return;
+            }
             (toStat as Parameter).multi.push(fromName);
-            // Recalculate multiCache immediately
+            updateMultiCache(toStat as Parameter, connections);
+        } else if (type === ConnectionType.NAMED_INPUT) {
+            if (!(toStat instanceof FormulaParameter)) {
+                console.error(`NAMED_INPUT connection target ${toName} is not a FormulaParameter.`);
+                return;
+            }
+            if (!inputName) { // Should be caught by earlier check, but good for safety
+                console.error(`inputName is crucial for NAMED_INPUT connection to ${toName} but was not provided.`);
+                return;
+            }
+            // Removed: (toStat as FormulaParameter).inputConnections.set(inputName, fromName);
+            // Set initial input value and recalculate
+            (toStat as FormulaParameter).inputs[inputName] = fromStat.value;
+            recalculateFormulaParameterValue(toStat as FormulaParameter, connections);
+            // No immediate call to applyConnection here as FormulaParameter recalc handles propagation
+            return; // Return to avoid double application via generic applyConnection call below
+        }
+        // New: Handle DIV connection
+        else if (type === ConnectionType.DIV) {
+            if (!(toStat instanceof Parameter)) {
+                console.error(`DIV connection target ${toName} is not a Parameter.`);
+                return;
+            }
+            (toStat as Parameter).divSources.push(fromName);
             updateMultiCache(toStat as Parameter, connections);
         }
 
-        // Apply the initial value immediately
+
+        // Apply the initial value immediately for other connection types
+        // For NAMED_INPUT, this is handled during its specific setup block
         applyConnection(connection, 0, fromStat.value, connections);
     }
 
     /**
      * Establishes a connection between two stat objects.
      * @param from Source Stat object.
-     * @param to Target Parameter or FormulaStat object.
+     * @param to Target Parameter, FormulaStat or FormulaParameter object.
      * @param type Type of the connection.
      * @param connections The Connections manager instance.
+     * @param inputName For NAMED_INPUT, the name of the input on the target FormulaParameter.
      */
-    export function connectStat(from: Stat, to: Parameter | FormulaStat, type: ConnectionType, connections: Connections): void {
+    export function connectStat(from: Stat, to: Parameter | FormulaStat | FormulaParameter, type: ConnectionType, connections: Connections, inputName?: string): void {
         console.assert(!(to as any).independent, `Cannot connect to an IndependentStat: ${to.name}`);
-        connectStr(from.name, to.name, type, connections);
+        if (type === ConnectionType.NAMED_INPUT) {
+            if (!(to instanceof FormulaParameter)) {
+                 console.error(`Target for NAMED_INPUT connection must be a FormulaParameter. Target: ${to.name}`);
+                 return;
+            }
+            if (!inputName) {
+                console.error(`inputName is required for NAMED_INPUT connection type to ${to.name}.`);
+                return;
+            }
+        }
+        connectStr(from.name, to.name, type, connections, inputName);
     }
 
     /**
@@ -122,7 +185,8 @@ export namespace Stats {
             return;
         }
         const oldValue = stat.value;
-        stat.value = newValue;
+        // Use type assertion to modify readonly property
+        (stat as { value: number }).value = newValue;
         applyConnections(stat, oldValue, newValue, connections);
     }
 
@@ -172,6 +236,13 @@ export namespace Stats {
                 parameter.multiCache *= sourceStat.value;
             }
         });
+        parameter.divSources.forEach(sourceName => {
+            const sourceStat = connections.connectablesByName.get(sourceName);
+            if (sourceStat) {
+                const divisor = sourceStat.value === 0 ? 1 : sourceStat.value;
+                parameter.multiCache /= divisor;
+            }
+        });
     }
 
     /**
@@ -191,6 +262,16 @@ export namespace Stats {
      */
     function recalculateFormulaStatValue(stat: FormulaStat, connections: Connections): void {
         const newValue = stat.formula(stat.argument);
+        setStat(stat, newValue, connections);
+    }
+
+    /**
+     * Recalculates the value of a FormulaParameter based on its current inputs and propagates changes.
+     * @param stat The FormulaParameter to recalculate.
+     * @param connections The Connections manager instance.
+     */
+    function recalculateFormulaParameterValue(stat: FormulaParameter, connections: Connections): void {
+        const newValue = stat.formula(stat.inputs);
         setStat(stat, newValue, connections);
     }
 
@@ -220,10 +301,10 @@ export namespace Stats {
      */
     function applyConnection(connection: Connection, oldValue: number, newValue: number, connections: Connections): void {
         const targetStat = connections.connectablesByName.get(connection.target);
-        if (!targetStat || targetStat.independent) return; // Should not happen based on connect assertions
+        if (!targetStat || targetStat.independent) return;
 
         // Type assertion needed as independent stats are filtered out
-        const pStat = targetStat as Parameter | FormulaStat;
+        const pStat = targetStat as Parameter | FormulaStat | FormulaParameter; // Add FormulaParameter here
 
         switch (connection.type) {
             case ConnectionType.ADD:
@@ -239,9 +320,18 @@ export namespace Stats {
                 updateMultiCache(pStat as Parameter, connections);
                 recalculateParameterValue(pStat as Parameter, connections);
                 break;
+            case ConnectionType.DIV:
+                // The change in one DIV source requires recalculating the entire cache
+                updateMultiCache(pStat as Parameter, connections);
+                recalculateParameterValue(pStat as Parameter, connections);
+                break;
             case ConnectionType.FORMULA:
                 (pStat as FormulaStat).argument = newValue;
                 recalculateFormulaStatValue(pStat as FormulaStat, connections);
+                break;
+            case ConnectionType.NAMED_INPUT:
+                (pStat as FormulaParameter).inputs[connection.inputName as string] = newValue;
+                recalculateFormulaParameterValue(pStat as FormulaParameter, connections);
                 break;
         }
     }

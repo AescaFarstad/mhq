@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { defineProps, ref, computed } from 'vue';
-import { SkillUIInfo, SkillSpecializationUIInfo } from '../../types/uiTypes';
+import { defineProps, ref, computed, inject } from 'vue';
+import { SkillUIInfo } from '../../types/uiTypes';
 import ImageHolder from '../common/ImageHolder.vue';
-import { globalInputQueue } from '../../logic/GameState';
+import { globalInputQueue, GameState } from '../../logic/GameState';
 import { CmdCheatSkillUp } from '../../logic/input/InputCommands';
+import { obfuscateString } from '../../utils/stringUtils';
 
 const props = defineProps<{
   skill: SkillUIInfo;
@@ -19,9 +20,10 @@ const skillAttributeClass = computed(() => {
   return `skill-attribute-${props.skill.attribute.toLowerCase()}`;
 });
 
-const formatValue = (value: number | string | undefined): string => {
+const formatValue = (value: number | string | undefined, roundToInt: boolean = false): string => {
   if (value === undefined) return '0';
   if (typeof value === 'number') {
+    if (roundToInt) return Math.round(value).toString();
     return Number.isInteger(value) ? value.toString() : value.toFixed(1);
   }
   return value.toString();
@@ -38,6 +40,8 @@ const showSpecializationHint = (description: string | undefined) => {
 const clearHint = () => {
   currentHint.value = '';
 };
+
+const gameState = inject<GameState>('gameState');
 
 const increaseSkillLevel = () => {
   if (props.skill && props.characterId) {
@@ -70,8 +74,9 @@ const increaseSkillLevel = () => {
         :displayHeight="128"
         class="skill-icon"
       />
-      <div class="image-overlay skill-name-overlay">{{ props.skill.displayName }}</div>
+      <div class="image-overlay skill-name-overlay">{{ gameState && gameState.isDiscovered(props.skill.id) ? props.skill.displayName : obfuscateString(props.skill.displayName) }}</div>
       <div class="image-overlay level-overlay">{{ formatValue(props.skill.level) }}</div>
+      <div v-if="props.skill.proficiency !== undefined" class="image-overlay proficiency-overlay">{{ formatValue(props.skill.proficiency, true) }}</div>
     </div>
     
     <div class="skill-details-container">
@@ -91,8 +96,9 @@ const increaseSkillLevel = () => {
             :displayHeight="96"
             class="specialization-icon"
           />
-          <div class="image-overlay spec-name-overlay">{{ spec.displayName }}</div>
+          <div class="image-overlay spec-name-overlay">{{ gameState && gameState.isDiscovered(spec.id) ? spec.displayName : obfuscateString(spec.displayName) }}</div>
           <div class="image-overlay level-overlay spec-level-overlay">{{ formatValue(spec.level) }}</div>
+          <div v-if="spec.proficiency !== undefined" class="image-overlay proficiency-overlay spec-proficiency-overlay">{{ formatValue(spec.proficiency, true) }}</div>
         </div>
       </div>
     </div>
@@ -221,7 +227,26 @@ const increaseSkillLevel = () => {
   min-width: 20px; /* Ensure it's visible even for single digit */
   text-align: center;
 }
+
+.proficiency-overlay {
+  top: 0px;
+  right: 0px;
+  left: auto; /* Ensure it doesn't stretch full width */
+  background-color: rgba(0, 0, 0, 0.7); /* Changed to match level-overlay */
+  color: #fff;
+  padding: 3px 5px;
+  font-size: 0.9em;
+  font-weight: bold;
+  border-radius: 0 0 0 5px; /* Rounded corner bottom left */
+  min-width: 20px;
+  text-align: center;
+}
+
 .spec-level-overlay {
    border-radius: 0 0 5px 0; /* Rounded corner bottom right */
+}
+
+.spec-proficiency-overlay {
+  border-radius: 0 0 0 5px; /* Rounded corner bottom left */
 }
 </style> 

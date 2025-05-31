@@ -47,7 +47,8 @@ export interface SkillSpecializationUIInfo {
   id: string;
   displayName: string;
   description: string;
-  level?: number; // Optional level for character specializations
+  level: number;
+  proficiency: number;
 }
 
 /**
@@ -61,7 +62,8 @@ export interface SkillUIInfo {
   governedBy: string[];
   assistedBy: string[];
   specializations: SkillSpecializationUIInfo[];
-  level?: number; // Optional level for character skills
+  level: number;
+  proficiency: number;
 }
 
 /**

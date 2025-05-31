@@ -8,3 +8,20 @@ export interface CmdCheatSkillUp extends CmdInput {
   skillId: string;
   amount: number;
 }
+
+export interface CmdConstructBuilding extends CmdInput {
+  name: "CmdConstructBuilding";
+  buildingId: string;
+}
+
+export interface CmdTimeScale extends CmdInput {
+  name: "CmdTimeScale";
+  scale: number;
+}
+
+export interface CmdTickOnce extends CmdInput {
+  name: "CmdTickOnce";
+}
+
+// Add other command interfaces here, e.g.:
+// export interface CmdOtherAction extends CmdInput { ... }

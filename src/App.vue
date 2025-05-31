@@ -1,20 +1,57 @@
 <script setup lang="ts">
-import { ref, inject, onMounted, onUnmounted, reactive } from 'vue';
-import { GameState } from './logic/GameState';
-// Import the new components
+import { ref, inject, onMounted, computed } from 'vue';
+import { GameState, globalInputQueue } from './logic/GameState';
+import type { CmdTimeScale, CmdTickOnce } from './logic/input/InputCommands';
 import ResourceDisplay from './components/ResourceDisplay.vue';
 import CastleView from './components/tabs/CastleView.vue';
 import CrewView from './components/tabs/CrewView.vue';
 import QuestsView from './components/tabs/QuestsView.vue';
-import DebugView from './components/tabs/DebugView.vue'; // Import the Debug view
-import TasksView from './components/tabs/TasksView.vue'; // Import the Tasks view
+import DebugView from './components/tabs/DebugView.vue';
+import TasksView from './components/tabs/TasksView.vue';
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
 
 // Tab management
-const activeTab = ref('Castle'); // Default tab
-const tabs = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug']; // Add 'Tasks' to list of tabs
+const activeTab = ref('Castle');
+const tabs = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
+
+// Use discoveredItemsCount to force UI refresh when discoveries happen
+const uiRefreshKey = computed(() => {
+  return gameState?.uiState.discoveredItemsCount ?? 0;
+});
+
+const timeControlScales = [
+  { label: "Pause", value: 0 },
+  { label: "0.01x", value: 0.01 },
+  { label: "0.1x", value: 0.1 },
+  { label: "0.3x", value: 0.3 },
+  { label: "1x", value: 1 },
+  { label: "3x", value: 3 },
+  { label: "10x", value: 10 },
+  { label: "100x", value: 100 },
+];
+
+const currentTimeScaleDisplay = computed(() => {
+  if (gameState) {
+    return gameState.uiState.currentTimeScale.toFixed(2);
+  }
+  return '1.00'; // Default display if gameState is not yet available
+});
+
+const queueTimeScaleCommand = (scale: number) => {
+  if (gameState) {
+    const command: CmdTimeScale = { name: "CmdTimeScale", scale: scale };
+    globalInputQueue.push(command);
+  }
+};
+
+const queueTickOnceCommand = () => {
+  if (gameState) {
+    const command: CmdTickOnce = { name: "CmdTickOnce" };
+    globalInputQueue.push(command);
+  }
+};
 
 // Notify GameState when tab changes
 const setActiveTab = (tabName: string) => {
@@ -60,8 +97,20 @@ onMounted(() => {
         >
           {{ tab }}
         </button>
+        <div class="time-controls">
+          <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
+          <button
+            v-for="control in timeControlScales"
+            :key="control.label"
+            @click="queueTimeScaleCommand(control.value)"
+            :class="{ active: gameState && gameState.uiState.currentTimeScale === control.value }"
+          >
+            {{ control.label }}
+          </button>
+          <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
+        </div>
       </div>
-      <div class="tab-content">
+      <div class="tab-content" :key="uiRefreshKey">
         <!-- Use the Tab components -->
         <CastleView v-if="activeTab === 'Castle'" />
         <CrewView v-if="activeTab === 'Crew'" />
@@ -93,7 +142,7 @@ onMounted(() => {
 }
 
 .sidebar {
-  width: 250px; /* Increased width */
+  width: 300px; /* Increased width */
   background-color: #f0f0f0;
   border-right: 1px solid #ccc;
   overflow-y: auto; /* Add scroll if content overflows */
@@ -112,6 +161,7 @@ onMounted(() => {
   display: flex;
   margin-bottom: 0px;
   border-bottom: 1px solid #ccc;
+  align-items: center; /* Align items vertically */
 }
 
 .tabs button {
@@ -122,6 +172,8 @@ onMounted(() => {
   font-size: 1em;
   border-bottom: 3px solid transparent; /* Placeholder for active indicator */
   margin-bottom: -1px; /* Align with the content border */
+  min-width: 60px; /* Ensure consistent button width */
+  text-align: center; /* Center text in button */
 }
 
 .tabs button.active {
@@ -135,6 +187,38 @@ onMounted(() => {
 
 .tab-content {
   flex-grow: 1; /* Takes up remaining space in main-content */
+}
+
+.time-controls {
+  margin-left: auto; /* Pushes controls to the right */
+  display: flex;
+  align-items: center;
+}
+
+.time-controls button {
+  padding: 8px 10px; /* Slightly smaller padding for more compact buttons */
+  margin-left: 5px;
+  font-size: 0.9em;
+  min-width: 50px; /* Consistent width for time control buttons */
+}
+
+.tick-button {
+    /* Specific styles for the tick button if needed, otherwise it inherits .time-controls button styles */
+    /* For example, to make it stand out: */
+    /* background-color: #ffc107; */
+    /* color: black; */
+}
+
+.time-controls button.active {
+  background-color: #d0e0ff; /* Different active color for time controls */
+  border-bottom-color: #0056b3;
+}
+
+.current-timescale {
+  margin-right: 10px;
+  font-weight: bold;
+  min-width: 50px; /* Reserve space to prevent layout shift */
+  text-align: right;
 }
 
 /* Dialog Styles */
