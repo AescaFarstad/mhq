@@ -16,7 +16,9 @@ import { processTasks } from './Task';
 import type { GameTask } from './TaskTypes';
 import { SlowTick } from './utils/SlowTick';
 import type { ResourceUIData } from './UIStateManager';
+import type { BaseMinigame, MinigameType, MinigameState } from './minigames/MinigameTypes';
 
+export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
 export const DEFAULT_MIN_DELTA_TIME = 0.05;
 export const maintenanceSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 5, "maintenance_task_gen");
 export const assignmentSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 1.5, "task_assignment_process");
@@ -30,6 +32,7 @@ export class GameState {
     public characters: Character[] = [];
     public buildings: Building[] = [];
     public discoveredItems: Record<string, boolean> = {};
+    public activeMinigame: BaseMinigame<MinigameState> | null = null;
 
     public gold! : Resource;
     public clutter! : Resource;
@@ -45,9 +48,11 @@ export class GameState {
     public gameTime: number = 0;
     public tick: number = 0;
 
+    public locationId: string = "sequioter";
+
     public minDeltaTime: number = DEFAULT_MIN_DELTA_TIME;
     public timeScale: { current: number; previous: number } = { current: 1.0, previous: 1.0 };
-    public allowedUpdates: number = 0; // Added for single tick updates
+    public allowedUpdates: number = 0;
 
     public availableTasks: GameTask[] = [];
     public queuedTasks: GameTask[] = [];
@@ -74,6 +79,8 @@ export class GameState {
         uiWorkSpeed: number; // Added for BuffBar
         uiClutterRatio: number; // Added for BuffBar
         discoveredItemsCount: number; // Added for discovery system reactivity
+        activeMinigameType: MinigameType | null;
+        activeMinigameState: MinigameState | null;
     };
 
     constructor() {
@@ -104,6 +111,8 @@ export class GameState {
             uiWorkSpeed: 0, // Initialize uiWorkSpeed
             uiClutterRatio: 0, // Initialize uiClutterRatio
             discoveredItemsCount: 0, // Initialize discoveredItemsCount
+            activeMinigameType: null,
+            activeMinigameState: null,
         });
 
         this.setupInitialResources();
@@ -132,6 +141,11 @@ export class GameState {
 
         updateAllResources(this.resources, deltaTime, this.connections);
         processTasks(this, deltaTime);
+        
+        // Update active minigame if present
+        if (this.activeMinigame) {
+            this.activeMinigame.update(this, deltaTime);
+        }
         
         UIStateManager.sync(this);
 
@@ -212,5 +226,27 @@ export class GameState {
 
     public isDiscovered(itemId: string): boolean {
         return !!this.discoveredItems[itemId];
+    }
+
+    // --- Minigame Management ---
+    public startMinigame(minigame: BaseMinigame<MinigameState>): void {
+        if (this.activeMinigame) {
+            console.warn("Cannot start a new minigame, one is already active:", this.activeMinigame.type);
+            return;
+        }
+        this.activeMinigame = minigame;
+        this.uiState.activeMinigameType = minigame.type;
+        this.uiState.activeMinigameState = minigame.state; // Initial state for UI
+        console.log(`Minigame started: ${minigame.type}`);
+    }
+
+    public exitMinigame(): void {
+        if (this.activeMinigame) {
+            console.log(`Exiting minigame: ${this.activeMinigame.type}`);
+            this.activeMinigame.destroy(this);
+            this.activeMinigame = null;
+            this.uiState.activeMinigameType = null;
+            this.uiState.activeMinigameState = null;
+        }
     }
 }

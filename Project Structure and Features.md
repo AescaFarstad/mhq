@@ -7,6 +7,7 @@
     *   Left sidebar for resource display (`ResourceDisplay.vue`).
     *   Main content area with tabs (`CastleView.vue`, `CrewView.vue` (refactored), `QuestsView.vue`, `TasksView.vue`, `DebugView.vue`).
     *   Refactored `CrewView` into smaller, focused components (`crew/CharacterList.vue`, `crew/CharacterListItem.vue`, `crew/CharacterDetails.vue`, `crew/CharacterAttributes.vue`, `crew/CharacterSkills.vue`) for better maintainability.
+    *   **Discovery System & UI Obfuscation**: Game entities (like skills, attributes, specializations) can be "undiscovered". Their names and descriptions are obfuscated in the UI until discovered by the player. This uses `GameState.markAsDiscovered()`, `GameState.isDiscovered()`, and `obfuscateString()` utility.
 *   Core game logic separated from UI:
     *   Central `GameState` managing resources, stats, characters, events, and game time.
     *   Reactive `uiState` within `GameState` for efficient UI updates.
@@ -49,7 +50,7 @@
             *   `CharacterAttributes.vue`: Displays the hierarchical attributes of a character.
             *   `CharacterSkills.vue`: Displays a character's skills and specializations in a vertical list.
     *   **`logic/`**: Core game logic (TypeScript classes, independent of Vue).
-        *   `GameState.ts`: Central class holding and managing the entire game state (resources via `ResourceManager`, stats via `Connections`, characters, event processing via `EventProcessor`, data via `Lib`, game time). Provides reactive `uiState` for the Vue components. Handles the main `update` loop.
+        *   `GameState.ts`: Central class holding and managing the entire game state (resources via `ResourceManager`, stats via `Connections`, characters, event processing via `EventProcessor`, data via `Lib`, game time). Provides reactive `uiState` for the Vue components. Handles the main `update` loop. Includes methods for tracking and managing discovered game items (`markAsDiscovered`, `isDiscovered`) to control UI obfuscation.
         *   `Event.ts`: Checks `EventDefinition` conditions against `GameState` and applies effects if met.
         *   `Resource.ts`: Represents a game resource (e.g., gold) using `IndependentStat` (current amount) and `Parameter` (max, income). Includes `ResourceManager`.
         *   `Character.ts`: Represents an active character instance with level, upkeep, attributes, skills, and specializations as `IndependentStat` objects.
@@ -80,6 +81,7 @@
             *   `social`: Plain text file containing keywords for Social skills/specializations.
         *   **`utils/`**: General utility functions.
             *   `keywordParser.ts`: Contains the `parseKeywordsFromString` function for processing raw keyword file content.
+            *   `stringUtils.ts`: Contains utility functions for string manipulation, including `obfuscateString` which is used to hide details of undiscovered game entities.
     *   **`types/`**: Contains shared TypeScript type definitions.
         *   `uiTypes.ts`: Defines interfaces for common UI data structures (e.g., `SimpleCharacterInfo`, `AttributeCategoryUIInfo`, `SkillUIInfo`, `SkillSpecializationUIInfo`) used across components.
     *   **`Shared Utilities and Components/`**: Components and utilities used across different parts of the application.
@@ -111,3 +113,33 @@
     *   **Workflow Summary:** UI/Game System -> Creates Specific Command Object -> Imports `globalInputQueue` from `GameState.ts` and adds command to it -> `GameState.update()` calls `InputProcessor.processInputs()` -> `processInputs()` iterates `globalInputQueue`, uses `command.name` to find handler in `handlersByName` -> Handler is invoked with command data and `gameState` -> Handler executes logic -> `globalInputQueue` is cleared.
 *   **Task System (`src/logic/Task.ts`, `src/logic/TaskTypes.ts`):** `Task.ts` contains the logic for processing tasks. This includes updating task progress based on assigned characters' calculated speed (derived from skills and game-wide work speed), handling task completion, and distributing rewards. It also features a system for automatically generating maintenance tasks (e.g., 'declutter') based on conditions like current clutter levels and existing maintenance tasks. `TaskTypes.ts` defines the structures and enumerations for tasks (e.g., `GameTask`, `GameTaskType`, `GameTaskStatus`). Task definitions (effort, skills, rewards) are expected to be loaded via `Lib.ts`.
 *   **Building System (`src/logic/Building.ts`):** `Building.ts` provides functionality to add buildings to the game state. Each building can have associated stats, such as `clutterGeneration`, which is an `IndependentStat` connected to the global `totalBuildingsClutter` parameter in `GameState`. Building definitions, including their `clutterPerSecond`, are loaded from `data/buildings.ts` (implicitly, via `Lib.ts`).
+
+*   **Minigame System:** Allows for adding self-contained game modules that can overlay or temporarily replace the main game UI.
+    *   **Core Concepts & Lifecycle:**
+        *   Minigames are managed by `GameState` via the `activeMinigame` property.
+        *   They are started by creating an instance of the minigame's logic class and passing it to `GameState.startMinigame(minigameInstance)`.
+        *   When a minigame starts, its `state` (which must be a Vue `reactive` object) is assigned to `GameState.uiState.activeMinigameState` for UI binding.
+        *   The `GameState.update()` loop calls the `activeMinigame.update()` method each tick.
+        *   Minigames are stopped by calling `GameState.exitMinigame()`, which in turn calls the `activeMinigame.destroy()` method for cleanup and nullifies `activeMinigame` and related `uiState` properties.
+    *   **Directory Structure (per minigame):** `src/minigames/<minigame_name>/`
+        *   Example: `src/minigames/click_counter/`
+    *   **Key Files & Implementation Details:**
+        *   **1. Types Definition (`<MinigameName>Types.ts`):**
+            *   Defines a unique `MinigameType` string literal constant (e.g., `export const MY_MINIGAME_TYPE: MinigameType = 'MyMinigame';`).
+            *   Defines the specific state interface for the minigame, extending `MinigameState` from `src/logic/minigames/MinigameTypes.ts` (e.g., `interface MyMinigameState extends MinigameState { ... }`).
+        *   **2. Logic Class (`<MinigameName>Game.ts`):**
+            *   Implements `BaseMinigame<YourMinigameState>` from `src/logic/minigames/MinigameTypes.ts`.
+            *   **Properties:**
+                *   `id: string`: A unique identifier for the instance.
+                *   `type: MinigameType`: The string literal type defined in `<MinigameName>Types.ts`.
+                *   `state: YourMinigameState`: The core state of the minigame. **Crucially, this object must be initialized using `reactive()` from Vue** to ensure its properties trigger UI updates when changed (e.g., `this.state = reactive({ myValue: 0 });`).
+                *   `hidesMainUI: boolean`: If `true`, the main game UI (sidebar, tabs, etc.) will be hidden, and its updates skipped while the minigame is active. If `false`, the minigame is treated as an overlay.
+        *   **3. Vue Component (`<MinigameName>View.vue`):**
+            *   Standard Vue 3 `<script setup lang="ts">` component.
+            *   Injects `gameState`: `const gameState = inject<GameState>('gameState');`
+            *   Accesses its reactive state through a computed property: `const minigameState = computed(() => gameState?.uiState.activeMinigameType === MY_MINIGAME_TYPE ? gameState.uiState.activeMinigameState as MyMinigameState : null);`
+        *   **4. UI Sync Function Module (`<minigameName>UISync.ts`):**
+            *   Exports a synchronization function: `export const syncMyMinigameUI: MinigameUISyncFn = (gameState) => { ... };`.
+            *   The sync function receives the full `gameState` and extracts the minigame's logic state from `gameState.activeMinigame?.state` and UI state from `gameState.uiState.activeMinigameState`.
+            *   **Note:** This sync function might become a no-op if the state is simple (shallow) enough
+            *   This sync function is registered in `main.ts` during initialization.

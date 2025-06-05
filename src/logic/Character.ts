@@ -125,12 +125,11 @@ export namespace Character {
         upsertSkillAndProficiency(character, skillId, initialSkillData.level, skillDefinitionFromLib, idPrefix, connections);
 
         if (initialSkillData.specializations && skillDefinitionFromLib.specializations) {
-            for (const globalSpecId of skillDefinitionFromLib.specializations) {
-                const shortSpecId = globalSpecId.substring(skillId.length + 1);
-                
-                if (Object.prototype.hasOwnProperty.call(initialSkillData.specializations, shortSpecId)) {
-                    const specLevel = initialSkillData.specializations[shortSpecId];
-                    upsertSpecializationAndProficiency(character, globalSpecId, specLevel, skillDefinitionFromLib, idPrefix, connections);
+            for (const specId of skillDefinitionFromLib.specializations) {
+                // Since all IDs are globally unique, check if this specialization ID exists in initial data
+                if (Object.prototype.hasOwnProperty.call(initialSkillData.specializations, specId)) {
+                    const specLevel = initialSkillData.specializations[specId];
+                    upsertSpecializationAndProficiency(character, specId, specLevel, skillDefinitionFromLib, idPrefix, connections);
                 }
             }
         }
@@ -225,20 +224,20 @@ export namespace Character {
      */
     export function upsertSpecializationAndProficiency(
         character: Character,
-        globalSpecId: string, // e.g., "melee_combat.one_handed_blades"
+        specId: string, // Globally unique specialization ID
         level: number,
         baseSkillDefinitionFromLib: Skill, // Definition of the parent skill
         idPrefix: string,
         connections: Connections
     ): void {
-        const specStatId = `${idPrefix}spec_${globalSpecId}`;
-        let specStat = character.specializations[globalSpecId];
+        const specStatId = `${idPrefix}spec_${specId}`;
+        let specStat = character.specializations[specId];
 
         if (specStat) {
             Stats.setIndependentStat(specStat, level, connections);
         } else {
             specStat = Stats.createStat(specStatId, level, connections);
-            character.specializations[globalSpecId] = specStat;
+            character.specializations[specId] = specStat;
         }
 
         const baseSkillId = baseSkillDefinitionFromLib.id;
@@ -246,21 +245,21 @@ export namespace Character {
         const parentSkillProficiencyStat = character.proficiencies[baseSkillId]; // This is a Parameter
 
         if (!parentSkillProficiencyStat) {
-            console.warn(`upsertSpecializationAndProficiency: Parent skill proficiency stat for ${baseSkillId} not found on character ${character.characterId} when upserting spec ${globalSpecId}. Spec proficiency will be incorrect.`);
+            console.warn(`upsertSpecializationAndProficiency: Parent skill proficiency stat for ${baseSkillId} not found on character ${character.characterId} when upserting spec ${specId}. Spec proficiency will be incorrect.`);
             // Optionally, could try to create/upsert parent skill proficiency here if truly missing,
             // but current flow assumes parent skill is processed first.
             return; 
         }
 
         // --- Specialization Proficiency Calculation (now a Parameter) ---
-        const specProficiencyStatId = `${idPrefix}prof_${globalSpecId}`;
-        let specProficiencyStat = character.proficiencies[globalSpecId] as Parameter | undefined;
+        const specProficiencyStatId = `${idPrefix}prof_${specId}`;
+        let specProficiencyStat = character.proficiencies[specId] as Parameter | undefined;
 
         if (specProficiencyStat) {
             // Parameter exists, value will update automatically from connections.
         } else {
             specProficiencyStat = Stats.createParameter(specProficiencyStatId, connections);
-            character.proficiencies[globalSpecId] = specProficiencyStat;
+            character.proficiencies[specId] = specProficiencyStat;
         }
 
         // Initialize/ensure 'add' component is 1 for the (spec_level + 1) part
@@ -296,11 +295,11 @@ export namespace Character {
 
         // Upsert all library-defined specializations for this skill and their proficiencies
         if (skillDefinitionFromLib.specializations) {
-            for (const globalSpecId of skillDefinitionFromLib.specializations) {
+            for (const specId of skillDefinitionFromLib.specializations) {
                 // It's assumed that if we are setting/updating a skill and "all" its specializations,
                 // we grant/update all specializations defined in the library for that skill to the same level.
                 // If a specialization is not meant to be granted, it shouldn't be in skillDefinitionFromLib.specializations
-                upsertSpecializationAndProficiency(character, globalSpecId, level, skillDefinitionFromLib, idPrefix, connections);
+                upsertSpecializationAndProficiency(character, specId, level, skillDefinitionFromLib, idPrefix, connections);
             }
         }
     }

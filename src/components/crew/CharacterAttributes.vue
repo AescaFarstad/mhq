@@ -10,12 +10,12 @@
         :key="category.key" 
         class="attribute-category"
         :class="`attribute-category-${category.key.toLowerCase()}`"
-        @mouseenter="$emit('set-hint', category.description || null)"
+        @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(category.key) ? category.description || null : obfuscateString(category.description || ''))"
         @mouseleave="$emit('set-hint', null)"
       >
         <div 
           class="category-header"
-          @mouseenter="$emit('set-hint', category.description || null)" 
+          @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(category.key) ? category.description || null : obfuscateString(category.description || ''))" 
           @mouseleave="$emit('set-hint', null)" 
         >
           <span class="category-name">{{ gameState && gameState.isDiscovered(category.key) ? category.displayName : obfuscateString(category.displayName) }}</span>
@@ -26,8 +26,8 @@
             v-for="attribute in category.attributes" 
             :key="attribute.key" 
             class="attribute-row" 
-            :class="{ 'highlighted': currentHint === attribute.description }"
-            @mouseenter="$emit('set-hint', attribute.description || null)"
+            :class="{ 'highlighted': currentHint === attribute.description || currentHint === obfuscateString(attribute.description || '') }"
+            @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(attribute.key) ? attribute.description || null : obfuscateString(attribute.description || ''))"
             @mouseleave="$emit('set-hint', null)"
           >
             <span class="attribute-name">{{ gameState && gameState.isDiscovered(attribute.key) ? attribute.displayName : obfuscateString(attribute.displayName) }}</span>

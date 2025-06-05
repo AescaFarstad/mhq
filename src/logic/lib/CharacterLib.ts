@@ -8,30 +8,40 @@ export class CharacterLib {
     public isLoaded: boolean = false;
 
     /**
-     * Loads character definitions from TypeScript data
+     * Loads and appends character definitions from TypeScript data.
+     * Can be called multiple times to load from different sources.
      * @param characterData The character data with proper typing
+     * @param sourceName Optional name of the source for logging purposes
      */
-    public loadCharacters(characterData: CharacterData): void {
-        this.characters.clear();
+    public loadCharacters(characterData: CharacterData, sourceName?: string): void {
+        let count = 0;
         for (const id in characterData) {
             if (Object.prototype.hasOwnProperty.call(characterData, id)) {
                 const data = characterData[id];
-                // We no longer need extensive validation as TypeScript ensures correct types
                 const charDef: CharacterDefinition = {
                     id: id,
                     name: data.name,
+                    gender: data.gender,
                     initialLevel: data.initialLevel,
                     baseUpkeep: data.baseUpkeep,
                     bio: data.bio || '',
+                    fullImage: data.fullImage,
+                    location: data.location,
+                    portraitImage: data.portraitImage,
                     initialAttributes: data.initialAttributes,
                     initialSkills: data.initialSkills || {},
                     triggerOnCreated: data.triggerOnCreated
                 };
+                if (this.characters.has(id)) {
+                    console.warn(`CharacterLib: Duplicate character ID "${id}" found. Overwriting with data from ${sourceName || 'current source'}.`);
+                }
                 this.characters.set(id, charDef);
+                count++;
             }
         }
-        this.isLoaded = true;
-        console.log(`CharacterLib loaded ${this.characters.size} character definitions.`);
+        this.isLoaded = true; // Mark as loaded as soon as any characters are loaded
+        const fromSource = sourceName ? ` from ${sourceName}` : '';
+        console.log(`CharacterLib: Loaded ${count} character definitions${fromSource}. Total characters: ${this.characters.size}.`);
     }
 
     /**

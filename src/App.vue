@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, inject, onMounted, computed } from 'vue';
-import { GameState, globalInputQueue } from './logic/GameState';
+import { GameState, globalInputQueue, ALL_TAB_IDS } from './logic/GameState';
 import type { CmdTimeScale, CmdTickOnce } from './logic/input/InputCommands';
 import ResourceDisplay from './components/ResourceDisplay.vue';
 import CastleView from './components/tabs/CastleView.vue';
@@ -8,17 +8,34 @@ import CrewView from './components/tabs/CrewView.vue';
 import QuestsView from './components/tabs/QuestsView.vue';
 import DebugView from './components/tabs/DebugView.vue';
 import TasksView from './components/tabs/TasksView.vue';
+import ClickCounterView from './minigames/click_counter/ClickCounterView.vue';
+import WelcomeView from './minigames/welcome/WelcomeView.vue';
+import IngressView from './minigames/ingress/IngressView.vue';
+import ExampleView from './minigames/example/ExampleView.vue';
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
 
 // Tab management
 const activeTab = ref('Castle');
-const tabs = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
+
+const displayedTabs = computed(() => {
+  if (!gameState) return [];
+  return ALL_TAB_IDS.filter((tabId: string) => gameState.isDiscovered(tabId));
+});
 
 // Use discoveredItemsCount to force UI refresh when discoveries happen
 const uiRefreshKey = computed(() => {
   return gameState?.uiState.discoveredItemsCount ?? 0;
+});
+
+// Active minigame type for conditional rendering
+const activeMinigameType = computed(() => {
+  return gameState?.uiState.activeMinigameType;
+});
+
+const shouldHideMainUI = computed(() => {
+  return gameState?.activeMinigame?.hidesMainUI === true;
 });
 
 const timeControlScales = [
@@ -80,49 +97,67 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <!-- Left Sidebar for Resources -->
-    <div class="sidebar">
-      <!-- Use the ResourceDisplay component -->
-      <ResourceDisplay />
-    </div>
+    <!-- Main Game UI (conditionally hidden) -->
+    <template v-if="!shouldHideMainUI">
+      <!-- Left Sidebar for Resources -->
+      <div class="sidebar">
+        <!-- Use the ResourceDisplay component -->
+        <ResourceDisplay />
+      </div>
 
-    <!-- Right Main Content Area with Tabs -->
-    <div class="main-content">
-      <div class="tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab"
-          @click="setActiveTab(tab)"
-          :class="{ active: activeTab === tab }"
-        >
-          {{ tab }}
-        </button>
-        <div class="time-controls">
-          <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
+      <!-- Right Main Content Area with Tabs -->
+      <div class="main-content">
+        <div class="tabs">
           <button
-            v-for="control in timeControlScales"
-            :key="control.label"
-            @click="queueTimeScaleCommand(control.value)"
-            :class="{ active: gameState && gameState.uiState.currentTimeScale === control.value }"
+            v-for="tab in displayedTabs"
+            :key="tab"
+            @click="setActiveTab(tab)"
+            :class="{ active: activeTab === tab }"
           >
-            {{ control.label }}
+            {{ tab }}
           </button>
-          <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
+          <div class="time-controls">
+            <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
+            <button
+              v-for="control in timeControlScales"
+              :key="control.label"
+              @click="queueTimeScaleCommand(control.value)"
+              :class="{ active: gameState && gameState.uiState.currentTimeScale === control.value }"
+            >
+              {{ control.label }}
+            </button>
+            <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
+          </div>
+        </div>
+        <div class="tab-content" :key="uiRefreshKey">
+          <!-- Use the Tab components -->
+          <CastleView v-if="activeTab === 'Castle'" />
+          <CrewView v-if="activeTab === 'Crew'" />
+          <QuestsView v-if="activeTab === 'Quests'" />
+          <TasksView v-if="activeTab === 'Tasks'" />
+          <!-- Add the DebugView component, passing the stats -->
+          <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
         </div>
       </div>
-      <div class="tab-content" :key="uiRefreshKey">
-        <!-- Use the Tab components -->
-        <CastleView v-if="activeTab === 'Castle'" />
-        <CrewView v-if="activeTab === 'Crew'" />
-        <QuestsView v-if="activeTab === 'Quests'" />
-        <TasksView v-if="activeTab === 'Tasks'" />
-        <!-- Add the DebugView component, passing the stats -->
-        <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
-      </div>
-    </div>
+    </template>
 
-    <!-- Overlay Dialog -->
-    <div v-if="showDialog" class="dialog-overlay">
+    <!-- Minigame Overlay Area -->
+    <div v-if="activeMinigameType === 'ClickCounter'" class="minigame-overlay-container">
+      <ClickCounterView />
+    </div>
+    <div v-else-if="activeMinigameType === 'Welcome'" class="minigame-overlay-container">
+      <WelcomeView />
+    </div>
+    <div v-else-if="activeMinigameType === 'Ingress'" class="minigame-overlay-container">
+      <IngressView />
+    </div>
+    <div v-else-if="activeMinigameType === 'Example'" class="minigame-overlay-container">
+      <ExampleView />
+    </div>
+    <!-- Add other minigame views here with v-else-if, wrapped in the overlay container -->
+
+    <!-- Overlay Dialog (Example, can be adapted or removed) -->
+    <div v-if="showDialog && !shouldHideMainUI" class="dialog-overlay">
       <div class="dialog-content">
         <h2>Dialog Title</h2>
         <p>This is the dialog content. It appears on top of everything.</p>
@@ -219,6 +254,20 @@ onMounted(() => {
   font-weight: bold;
   min-width: 50px; /* Reserve space to prevent layout shift */
   text-align: right;
+}
+
+/* Minigame Overlay Container Style */
+.minigame-overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Optional: semi-transparent background */
+  display: flex; /* To center the minigame content if needed */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensures it's on top of other content */
 }
 
 /* Dialog Styles */

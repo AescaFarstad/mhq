@@ -7,9 +7,13 @@ import { AttributeLib } from './AttributeLib';
 import { SkillLib } from './SkillLib';
 import { TaskLib } from './TaskLib';
 import { BuildingLib } from './BuildingLib';
+import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 
 import eventsData from '../data/events';
-import charactersData from '../data/characters';
+import mainCharacters from '../data/characters';
+import turfablieCharacters from '../data/turfablieCharacters';
+import aeigareikaCharacters from '../data/aeigareikaCharacters';
+import sequoiterCharacters from '../data/sequoiterCharacters';
 import { taskDefinitions } from '../data/tasks';
 import { buildingDefinitions } from '../data/buildings';
 // Note: Attribute data is imported directly within AttributeLib.ts
@@ -28,10 +32,12 @@ export class Lib {
     public tasks: TaskLib = new TaskLib();
     public buildings: BuildingLib = new BuildingLib();
     public techs: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be TechDefinition
+    public ingressWords: IngressWordsLib;
     public isLoaded: boolean = false;
 
     constructor() {
         this.skills = new SkillLib(this.attributes);
+        this.ingressWords = new IngressWordsLib();
         this.loadAllDefinitions();
     }
 
@@ -48,7 +54,10 @@ export class Lib {
         try {
             // Process events from imported JSON
             this.events = this._processDataDefinitions<EventDefinition>(eventsData);
-            this.characters.loadCharacters(charactersData);
+            this.characters.loadCharacters(mainCharacters);
+            this.characters.loadCharacters(turfablieCharacters);
+            this.characters.loadCharacters(aeigareikaCharacters);
+            this.characters.loadCharacters(sequoiterCharacters);
             // AttributeLib loads its data in its constructor or a dedicated load method
             // SkillLib loads its data in its constructor or a dedicated load method
             this.buildings.loadBuildings(buildingDefinitions);
@@ -148,5 +157,13 @@ export class Lib {
      */
     public getBuildingLib(): BuildingLib {
         return this.buildings;
+    }
+
+    /**
+     * Retrieves the IngressWordsLib instance.
+     * @returns The IngressWordsLib instance.
+     */
+    public getIngressWordsLib(): IngressWordsLib {
+        return this.ingressWords;
     }
 }

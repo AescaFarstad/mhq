@@ -5,6 +5,9 @@ import { AttributeUIInfo, AttributeCategoryUIInfo, SkillUIInfo, SkillSpecializat
 import type { GameState } from "./GameState";
 import { getAllResources } from './Resource';
 import { GameTaskType, GameTaskStatus, type GameTask } from './TaskTypes'; // Import task types
+import { resolveStepPlaceholderFromLib } from './lib/TaskLib'; // Updated import
+// import type { MinigameState } from './minigames/MinigameTypes'; // No longer directly needed here
+import { minigameUISyncFunctions } from './minigames/MinigameUIStateManager'; // Updated import name
 
 /**
  * Manages UI state updates from the game state to the reactive UI objects
@@ -176,19 +179,17 @@ export function updateCharacterUIData(gameState: GameState): void {
             if (skillDef) {
                 const specializationsUiInfo: SkillSpecializationUIInfo[] = [];
                 
-                // Add specializations for this skill (skillDef.specializations is string[] of full IDs)
-                for (const fullSpecId of skillDef.specializations) { // Iterate over full specialization IDs
-                    const specDef = gameState.lib.getSkillLib().getSpecialization(fullSpecId);
+                // Add specializations for this skill (skillDef.specializations is string[] of globally unique IDs)
+                for (const specId of skillDef.specializations) { // Iterate over globally unique specialization IDs
+                    const specDef = gameState.lib.getSkillLib().getSpecialization(specId);
                     
                     if (specDef) { // specDef is of type SkillSpecialization
-                        const specLevel = char.specializations[fullSpecId]?.value ?? 0;
-                        const specProficiency = CharacterNamespace.getProficiency(char, fullSpecId, gameState);
+                        const specLevel = char.specializations[specId]?.value ?? 0;
+                        const specProficiency = CharacterNamespace.getProficiency(char, specId, gameState);
                     
                         if (specLevel > 0) { // Only add if character has levels in it
-                            // Extract localId for UI: e.g., "striking" from "unarmed_combat.striking"
-                            const localSpecId = fullSpecId.substring(specDef.parentId.length + 1);
                             specializationsUiInfo.push({
-                                id: localSpecId, // Use the local part of the ID
+                                id: specId, // Use the globally unique ID
                                 displayName: specDef.displayName,
                                 description: specDef.description,
                                 level: specLevel,
@@ -196,7 +197,7 @@ export function updateCharacterUIData(gameState: GameState): void {
                             });
                         }
                     } else {
-                        console.warn(`UIStateManager: Full specialization definition not found for ID: ${fullSpecId} (parent skill: ${skillId})`);
+                        console.warn(`UIStateManager: Specialization definition not found for ID: ${specId} (parent skill: ${skillId})`);
                     }
                 }
                 
@@ -280,17 +281,51 @@ export function syncTasksView(gameState: GameState): void {
         // Add tasks, reusing existing objects where possible to maintain Vue reactivity
         for (const newTask of newTasks) {
             const existingTask = existingTaskMap.get(newTask.uid);
+            let resolvedText = '';
+
             if (existingTask) {
-                // Create a new object for the update to ensure Vue detects a change in the array element reference.
-                // This is a more forceful way to trigger reactivity if direct property updates are not being picked up.
-                const updatedTask = { 
-                    ...existingTask, // Spread existing properties
-                    ...newTask     // Spread and overwrite with new properties
+                // It's an update to an existing task object
+                // Check if step has changed before re-resolving
+                if (existingTask.stepIdx === newTask.stepIdx) {
+                    resolvedText = existingTask.currentStepResolvedText!;
+                } else {
+                    // Step has changed or was not previously resolved, so resolve now
+                    if (newTask.stepCount > 0 && newTask.stepIdx >= 0 && 
+                        newTask.stepIntermediateIdx >= 0 && 
+                        newTask.resolvedDefinitionDetails?.intermediates && 
+                        newTask.stepIntermediateIdx < newTask.resolvedDefinitionDetails.intermediates.length
+                    ) {
+                        const rawIntermediateText = newTask.resolvedDefinitionDetails.intermediates[newTask.stepIntermediateIdx];
+                        resolvedText = resolveStepPlaceholderFromLib(
+                            rawIntermediateText,
+                            newTask.resolvedDefinitionDetails,
+                            newTask.stepOptionIdx
+                        );
+                    }
+                }
+                const updatedTask: GameTask = { 
+                    ...existingTask, 
+                    ...newTask,
+                    currentStepResolvedText: resolvedText 
                 };
                 uiArray.push(updatedTask);
             } else {
-                // New task, add it directly (it's already a new object)
-                uiArray.push(newTask);
+                // It's a new task object
+                const taskToAdd = { ...newTask }; // Clone to ensure we can modify
+                if (taskToAdd.stepCount > 0 && taskToAdd.stepIdx >= 0 && 
+                    taskToAdd.stepIntermediateIdx >= 0 && 
+                    taskToAdd.resolvedDefinitionDetails?.intermediates && 
+                    taskToAdd.stepIntermediateIdx < taskToAdd.resolvedDefinitionDetails.intermediates.length
+                ) {
+                    const rawIntermediateText = taskToAdd.resolvedDefinitionDetails.intermediates[taskToAdd.stepIntermediateIdx];
+                    resolvedText = resolveStepPlaceholderFromLib(
+                        rawIntermediateText,
+                        taskToAdd.resolvedDefinitionDetails,
+                        taskToAdd.stepOptionIdx
+                    );
+                }
+                taskToAdd.currentStepResolvedText = resolvedText;
+                uiArray.push(taskToAdd);
             }
         }
     };
@@ -361,16 +396,37 @@ export function syncCoreParameters(gameState: GameState): void {
 }
 
 /**
+ * Synchronizes the active minigame's state to uiState.activeMinigameState
+ */
+export function syncMinigameState(gameState: GameState): void {
+    if (gameState.activeMinigame && gameState.uiState.activeMinigameState) {
+        const syncFn = minigameUISyncFunctions.get(gameState.activeMinigame.type);
+        if (syncFn) {
+            syncFn(gameState);
+        }
+    } else if (!gameState.activeMinigame && gameState.uiState.activeMinigameState !== null) {
+        gameState.uiState.activeMinigameState = null;
+    }
+}
+
+/**
  * Central synchronization function to update UI state based on active tab and global needs.
  */
 export function sync(gameState: GameState): void {
+    // First, handle minigame UI state. This is always needed.
+    syncMinigameState(gameState);
+
+    // If a minigame is active and it hides the main UI, skip the rest of the main UI sync.
+    if (gameState.activeMinigame && gameState.activeMinigame.hidesMainUI) {
+        return; // Stop here, only minigame UI is relevant
+    }
+
     // Always sync resources as they might be globally displayed (e.g., top bar)
     syncUiResources(gameState);
     // Always sync time scale as it's globally displayed
     syncTimeScale(gameState);
     // Always sync core parameters for components like BuffBar
     syncCoreParameters(gameState);
-    // syncTasksView(gameState); // Reverted: No longer called unconditionally
 
     // Sync data specific to the active tab
     const activeTab = gameState.uiState.activeTabName;
@@ -383,6 +439,4 @@ export function sync(gameState: GameState): void {
     } else if (activeTab === 'Tasks') {
         syncTasksView(gameState); // Called only when Tasks tab is active
     }
-    // Add other tabs here as needed, e.g.:
-    // else if (activeTab === 'Quests') { syncQuestsView(gameState); }
 } 

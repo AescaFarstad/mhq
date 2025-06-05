@@ -45,4 +45,14 @@ export interface GameTask {
     speed?: number;                  // Calculated speed if task is active
     clutterReduction?: number;       // Calculated clutter reduction if applicable
     assignedCharacterEffectiveScores?: { [skillOrSpecName: string]: number }; // Character's scores for required skills
+
+    // Fields for step-based progression
+    stepIntermediateIdx: number; // Index of the current intermediate text in resolvedDefinitionDetails.intermediates
+    stepOptionIdx: number;       // Index of the chosen option for the current intermediate's placeholder (e.g., _OPTION1[stepOptionIdx]), or -1
+    stepIdx: number;             // Current step number (0-indexed)
+    stepCount: number;           // Total number of steps for this task instance
+    stepEffortTarget: number;    // Invested effort at which the current step completes
+    currentStepResolvedText?: string; // Resolved text for the current step, populated by UIStateManager
+
+    randomSeed: number; // Retained for other potential randomization needs or future step re-generation logic
 } 

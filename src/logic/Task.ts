@@ -7,6 +7,8 @@ import { Character as CharacterNamespace } from './Character';
 
 import { Stats } from './core/Stats';
 import { IndependentStat } from './core/Stat';
+import { getWeightedRandomIndex } from './utils/mathUtils';
+import type { TaskNameDetails } from './lib/definitions/TaskDefinition';
 
 export const CLUTTER_STEP = 10; // Example value, adjust as needed
 
@@ -48,6 +50,48 @@ export function getSkillMultipliers(numSkills: number): number[] {
 export function getNextTaskUid(gameState: GameState): string {
     const nextId = gameState.getAndIncrementTaskUidValue();
     return `TASK_${nextId}`;
+}
+
+/**
+ * Calculates and sets the effort target for the current step of a task.
+ * @param task The task to update.
+ */
+function setNextStepEffortTarget(task: GameTask): void {
+    if (task.stepCount <= 0 || task.stepIdx < 0 || task.stepIdx >= task.stepCount) {
+        // No steps, invalid current step, or already past the last declared step index.
+        // Set target to total effort to align with task completion or prevent further step processing.
+        task.stepEffortTarget = task.totalEffort;
+        return;
+    }
+
+    const stepsLeftIncludingCurrent = task.stepCount - task.stepIdx;
+    const effortAlreadyInvested = task.investedEffort;
+    const effortRemainingInTask = Math.max(0, task.totalEffort - effortAlreadyInvested);
+
+    if (effortRemainingInTask === 0) {
+        // No effort left in the task, so current step (and all subsequent) effectively met.
+        task.stepEffortTarget = effortAlreadyInvested; // Or task.totalEffort
+        return;
+    }
+
+    // Average effort for each of the remaining steps (including the current one).
+    const avgEffortPerRemainingStep = effortRemainingInTask / stepsLeftIncludingCurrent;
+
+    // Apply +/- 25% randomization for this specific step's effort portion.
+    const randomizationFactor = 1 + (Math.random() * 0.5 - 0.25); // Random number between 0.75 and 1.25
+    let effortForThisStep = avgEffortPerRemainingStep * randomizationFactor;
+
+    // Ensure step effort isn't absurdly small (e.g., min 60 effort points, assuming 1 pt/sec is a baseline speed).
+    const minEffortForStep = 60; 
+    effortForThisStep = Math.max(effortForThisStep, minEffortForStep);
+
+    // The target for the current step is current invested effort + calculated effort for this step.
+    task.stepEffortTarget = effortAlreadyInvested + effortForThisStep;
+
+    // However, the step target should not exceed the total effort for the task.
+    task.stepEffortTarget = Math.min(task.stepEffortTarget, task.totalEffort);
+    
+    // console.log(`Task ${task.uid} step ${task.stepIdx}/${task.stepCount}: new effort target ${task.stepEffortTarget.toFixed(0)} (effort for this step: ${(task.stepEffortTarget - effortAlreadyInvested).toFixed(0)})`);
 }
 
 /**
@@ -103,6 +147,28 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
             task.speed = 0;
         }
 
+        // Step progression logic based on effort
+        if (task.stepCount > 0 && task.stepIdx >= 0 && task.investedEffort >= task.stepEffortTarget) {
+            if (task.stepIdx < task.stepCount - 1) { // Not the last step yet
+                task.stepIdx++;
+                const newStepDetails = generateSingleTaskStepDetails(task.resolvedDefinitionDetails.intermediates || [], task.resolvedDefinitionDetails);
+                if (newStepDetails) {
+                    task.stepIntermediateIdx = newStepDetails.intermediateIndex;
+                    task.stepOptionIdx = newStepDetails.optionIndex;
+                } else {
+                    console.warn(`Task ${task.uid}: Failed to generate details for step ${task.stepIdx}. Step progression might halt.`);
+                    // To prevent issues, we can mark remaining steps as 'done' by setting target to total.
+                    task.stepEffortTarget = task.totalEffort; 
+                }
+                // Recalculate effort target for the new current step.
+                setNextStepEffortTarget(task);
+            } else {
+                // It was the last step (task.stepIdx === task.stepCount - 1) and its effort target is met.
+                // No new step to advance to. Task continues until total effort is met.
+                // We can set stepEffortTarget to totalEffort to ensure this condition isn't re-triggered pointlessly.
+                task.stepEffortTarget = task.totalEffort;
+            }
+        }
 
         if (task.investedEffort >= task.totalEffort) {
             task.status = GameTaskStatus.Complete;
@@ -145,6 +211,61 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
     if (gameState.completedTasks.length > 20) {
         gameState.completedTasks = gameState.completedTasks.slice(-20);
     }
+}
+
+/**
+ * Generates the details for a single task step based on available intermediates and their options.
+ * @param intermediates Array of intermediate description strings from TaskNameDetails.
+ * @param taskNameDetails The TaskNameDetails object containing option arrays (_OPTION1, etc.).
+ * @returns An object with intermediateIndex and optionIndex, or null if no step can be generated.
+ */
+function generateSingleTaskStepDetails(
+    intermediates: string[], 
+    taskNameDetails: TaskNameDetails
+): { intermediateIndex: number, optionIndex: number } | null {
+    if (!intermediates || intermediates.length === 0) {
+        return null;
+    }
+
+    const weights: number[] = [];
+    for (const intermediateText of intermediates) {
+        let weight = 3;
+        const placeholders = intermediateText.match(/{[a-zA-Z0-9_]+}/g);
+        if (placeholders && placeholders.length > 0) {
+            const placeholder = placeholders[0];
+            const optionKey = placeholder.substring(1, placeholder.length - 1);
+            const optionsArray = taskNameDetails[optionKey as keyof typeof taskNameDetails] as string[];
+            if (optionsArray && Array.isArray(optionsArray)) {
+                weight += optionsArray.length;
+            }
+        }
+        weights.push(weight);
+    }
+
+    if (weights.length === 0) { // Should not happen if intermediates.length > 0
+        return null;
+    }
+
+    const chosenIntermediateOverallIndex = getWeightedRandomIndex(weights);
+    if (chosenIntermediateOverallIndex === -1) {
+        // Fallback if weighted random somehow fails (e.g., all weights zero)
+        // Return the first intermediate with no option as a default.
+        return { intermediateIndex: 0, optionIndex: -1 };
+    }
+
+    let chosenOptionIndex = -1;
+    const chosenIntermediateText = intermediates[chosenIntermediateOverallIndex];
+    const placeholdersInChosen = chosenIntermediateText.match(/{[a-zA-Z0-9_]+}/g);
+
+    if (placeholdersInChosen && placeholdersInChosen.length > 0) {
+        const placeholder = placeholdersInChosen[0];
+        const optionKey = placeholder.substring(1, placeholder.length - 1);
+        const optionsArray = taskNameDetails[optionKey as keyof typeof taskNameDetails] as string[];
+        if (optionsArray && Array.isArray(optionsArray) && optionsArray.length > 0) {
+            chosenOptionIndex = Math.floor(Math.random() * optionsArray.length);
+        }
+    }
+    return { intermediateIndex: chosenIntermediateOverallIndex, optionIndex: chosenOptionIndex };
 }
 
 /**
@@ -261,21 +382,63 @@ function updateMaintenance(gameState: GameState): void {
 
                 if (!isDuplicate || attempts === MAX_ATTEMPTS) {
                     const newTaskUid = getNextTaskUid(gameState);
+                    const taskTotalEffort = Math.floor(Math.random() * (declutterTaskDef.effortMax - declutterTaskDef.effortMin) * 0.1) * 10 + declutterTaskDef.effortMin;
+                    
+                    const randomSeed = Math.random();
+                    const intermediates = chosenNameDetails.intermediates || [];
+                    let stepCount = 0;
+                    let initialStepIntermediateIdx = -1;
+                    let initialStepOptionIdx = -1;
+
+                    if (intermediates.length > 0) {
+                        const minEffort = 100;
+                        const maxEffort = 3000;
+                        const minStepsBase = 3;
+                        const maxStepsBase = 30;
+
+                        const clampedEffort = Math.max(minEffort, Math.min(maxEffort, taskTotalEffort));
+                        const effortRatio = (clampedEffort - minEffort) / (maxEffort - minEffort);
+                        let calculatedSteps = minStepsBase + effortRatio * (maxStepsBase - minStepsBase);
+                        const randomizationFactor = 1 + (Math.random() * 0.5 - 0.25);
+                        calculatedSteps *= randomizationFactor;
+                        stepCount = Math.round(Math.max(minStepsBase, Math.min(maxStepsBase, calculatedSteps)));
+                        
+                        // Generate details for the first step (stepIdx = 0)
+                        const firstStepDetails = generateSingleTaskStepDetails(intermediates, chosenNameDetails);
+                        if (firstStepDetails) {
+                            initialStepIntermediateIdx = firstStepDetails.intermediateIndex;
+                            initialStepOptionIdx = firstStepDetails.optionIndex;
+                        } else {
+                            // This case should ideally not be hit if intermediates.length > 0 led to stepCount > 0
+                            // If it is, it implies an issue with generateSingleTaskStepDetails or no valid first step.
+                            // Setting stepCount to 0 to reflect no valid steps can be formed.
+                            stepCount = 0; 
+                            console.warn(`Task ${newTaskUid}: Could not generate first step details despite having intermediates. Setting stepCount to 0.`);
+                        }
+                    } // If no intermediates, stepCount remains 0, and idx fields remain -1.
+                    
                     const newTask: GameTask = {
                         uid: newTaskUid,
                         type: GameTaskType.Maintenance,
                         status: GameTaskStatus.Available,
-                        definitionPath: chosenDefinitionPath, // chosenDefinitionPath is guaranteed to be set here
-                        resolvedDefinitionDetails: chosenNameDetails, // chosenNameDetails is guaranteed to be set here
+                        definitionPath: chosenDefinitionPath, 
+                        resolvedDefinitionDetails: chosenNameDetails, 
                         resolvedParentDefinition: declutterTaskDef,
                         name: chosenNameDetails.name || declutterTaskDef.id,
-                        totalEffort: Math.floor(Math.random() * (declutterTaskDef.effortMax - declutterTaskDef.effortMin) * 0.1) * 10 + declutterTaskDef.effortMin,
+                        totalEffort: taskTotalEffort,
                         investedEffort: 0,
                         assignedCharacterIds: [],
                         startedAt: 0,
                         workTime: 0,
+                        // Initialize new step fields
+                        stepIntermediateIdx: initialStepIntermediateIdx,
+                        stepOptionIdx: initialStepOptionIdx,
+                        stepIdx: stepCount > 0 ? 0 : -1, // Current step is 0 if there are steps, otherwise -1
+                        stepCount: stepCount,
+                        stepEffortTarget: 0, // Will be set by setNextStepEffortTarget if task starts
+                        randomSeed: randomSeed,
                     };
-                    if (declutterTaskDef.reward?.clutterPerEffort) { // Already checked it's < 0
+                    if (declutterTaskDef.reward?.clutterPerEffort && declutterTaskDef.reward.clutterPerEffort < 0) {
                         newTask.clutterReduction = declutterTaskDef.reward.clutterPerEffort * newTask.totalEffort;
                     }
                     generatedTask = newTask;
@@ -337,7 +500,7 @@ function calculateCharacterTaskSpeed(character: Character, task: GameTask, gameS
  */
 function findBestTaskForCharacterBySpeed(character: Character, taskPool: GameTask[], gameState: GameState): { task: GameTask, speed: number, proficiencies: Record<string, number> } | undefined {
     let bestTask: GameTask | undefined = undefined;
-    let maxSpeed = 0; // Initialize to 0, as speed cannot be negative
+    let maxSpeed = -1; // Initialize to -1 to ensure any valid task speed (even 0) is chosen over no task
     let bestProficiencies: Record<string, number> = {};
 
     for (const task of taskPool) {
@@ -453,7 +616,7 @@ function assignTasks(gameState: GameState): void {
     }
 
     // Assign the single best task found (highest speed)
-    if (bestOverallAssignment.task && bestOverallAssignment.character && bestOverallAssignment.speed > 0) {
+    if (bestOverallAssignment.task && bestOverallAssignment.character && bestOverallAssignment.speed >= 0) {
         const assignedTask = bestOverallAssignment.task;
         const assignedCharacter = bestOverallAssignment.character;
 
@@ -462,6 +625,13 @@ function assignTasks(gameState: GameState): void {
         assignedTask.startedAt = gameState.gameTime;
         assignedTask.speed = bestOverallAssignment.speed; 
         assignedTask.assignedCharacterEffectiveScores = bestOverallAssignment.proficiencies; // Set initial scores
+
+        // If it's the first step of a task with steps, and its effort target hasn't been set, set it now.
+        // Check stepEffortTarget <= investedEffort because investedEffort is 0 when task is first assigned.
+        // A target of 0 would mean it's not yet properly initialized for the first step.
+        if (assignedTask.stepCount > 0 && assignedTask.stepIdx === 0 && assignedTask.stepEffortTarget <= assignedTask.investedEffort) {
+            setNextStepEffortTarget(assignedTask);
+        }
 
         gameState.processingTasks.push(assignedTask);
 

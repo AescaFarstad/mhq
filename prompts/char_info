@@ -1,0 +1,584 @@
+I'm developing a video game in HOMM-like universe.
+The premise is that you've possessed a hermit mage guild master who lives solitary life in a deteriorated guild. Now you're going to restore the guild, recruit members etc.
+
+I want to give the player a choice between six candidates: three male and three female. They each should be knowledgeable in magic - have at least some connection to it, be at least a little proficient in at least one of the schools. But also have other strengths - each a unique one.
+
+My game has the following skills:
+"Melee Combat": "Fighting hand-to-hand with weapons",
+  "One-Handed Blades": "Swords, Daggers, Scimitars",
+  "One-Handed Impact": "Maces, Hammers, Axes",
+  "Two-Handed Weapons": "Greatswords, Greataxes, Mauls",
+  "Polearms": "Spears, Halberds, Glaives",
+  "Flails & Chains": "Weapons requiring specific momentum control",
+"Ranged Combat": "Fighting from a distance with projectile weapons",
+  "Archery": "Longbows, Shortbows",
+  "Crossbows": "Light, Heavy, Repeating",
+  "Throwing Weapons": "Daggers, Axes, Javelins, Slings",
+  "Siege Weaponry": "Ballistae, Catapults (basic aiming/firing)",
+"Unarmed Combat": "Fighting without weapons",
+  "Striking": "Punches, Kicks, Elbows, Knees",
+  "Grappling": "Holds, Throws, Joint Locks, Pins",
+  "Improvised Weaponry": "Using chairs, bottles, tools effectively in a fight",
+"Defense": "Actively avoiding or mitigating harm",
+  "Dodging": "Evading attacks through movement and positioning",
+  "Parrying": "Deflecting blows with a weapon or item",
+  "Shields": "Effectively blocking, bashing, and covering with shields",
+  "Armor": "Effectively wearing and maneuvering in protective gear",
+"Athletics": "General physical movement and capability",
+  "Running": "Speed and short-burst endurance",
+  "Climbing": "Scaling walls, cliffs, trees; rappelling techniques, effective use of grappling hooks",
+  "Swimming": "Effective movement through water, diving, breath control, navigating currents",
+  "Jumping": "Leaping gaps or over obstacles",
+"Acrobatics": "Feats of balance, coordination, and flexibility",
+  "Balance": "Walking tightropes, navigating narrow ledges",
+  "Tumbling": "Rolling, controlled falls, diving through obstacles",
+  "Escapology": "Slipping bonds, contorting through small spaces",
+  "Parkour": "Swift city traversal, rooftop navigation",
+"Hardiness": "Physical resilience and endurance",
+  "Pain Tolerance": "Resisting effects of wounds, torture, or strain",
+  "Stamina": "Resisting fatigue from prolonged exertion (marching, labor)",
+  "Acclimatization": "Thrive in heat, cold and harsh weather",
+  "Immunity": "Natural fortitude against toxins and sickness",
+"Stealth": "Moving and hiding without being detected",
+  "Sneaking": "Moving silently across various surfaces",
+  "Hiding": "Utilizing shadows, cover, and stillness effectively",
+  "Camouflage": "Blending into specific environments (urban, forest, snow)",
+"Legerdemain": "Manual dexterity for subtle manipulation",
+  "Sleight of Hand": "Pickpocketing, planting items, palming objects, cheating",
+  "Lockpicking": "Bypassing mechanical locks and simple mechanisms",
+  "Trap Handling": "Identifying, disarming, and setting simple physical traps",
+"Perception": "Using senses to gather information",
+  "Eagle Eye": "Spotting details at distance, noticing slight movements",
+  "Bat's Ear": "Detecting faint sounds, eavesdropping, identifying sounds",
+  "Wolf's Nose": "Identifying scents, tracking by smell",
+  "Serpent's Skin": "Reading surfaces through touch, detecting temperature changes and vibrations",
+  "Synesthesia": "Experiencing blended senses, revealing truths through unconventional sensory input",
+"Riding": "Skillfully controlling mounts for travel and combat maneuvering",
+  "Equine Mounts": "Mastery of riding horses, zebras, unicorns, and similar quadrupeds",
+  "Avian Mounts": "Handling the complexities of flight and control aboard griffins, rocs, phoenixes",
+  "Exotic Mounts": "Adapting riding techniques for wolves, lizards, boars, manticores, or even dragons",
+  "Mounted Combat": "Fighting effectively while mounted",
+"Labor": "Performing strenuous physical work",
+  "Mining": "Extracting ore and stone",
+  "Woodcutting": "Felling trees and processing wood",
+  "Farming": "Ploughing, planting, harvesting crops",
+  "Construction": "Heavy lifting, digging foundations, basic building tasks",
+  "Hauling": "Moving heavy loads over distances",
+"Artisanry": "Creating practical goods and structures",
+  "Smithing": "Working metal: forging, tempering, repair",
+  "Woodworking": "Carpentry, carving, fletching, bowyery",
+  "Leatherworking": "Preparing hides, crafting leather goods",
+  "Tailoring": "Creating clothing, banners, sails",
+  "Masonry": "Working with stone for building or sculpting",
+"Life Magic": "Harnessing positive energy to heal, protect, and bless",
+  "Restoration": "Healing wounds, curing diseases and poisons",
+  "Protection": "Creating wards and shields against harm",
+  "Blessings": "Imbuing allies with strength, speed, or fortitude",
+  "Spirit Bonding": "Establishing and maintaining the empathetic link with a dedicated magical familiar creature",
+  "Anti-Undead": "Channeling energy harmful to undead creatures",
+"Nature Magic": "Drawing power from the natural world",
+  "Verdant Call": "Influencing plant growth, entangling foes",
+  "Beast Tongue": "Summoning, communicating with, or calming beasts",
+  "Sky dance": "Foreseeing weather and guiding wind, fog, and rain",
+  "Terramancy": "Shaping earth and stone for shelter or obstacles, leveraging ley lines",
+  "Bloom": "Fostering natural revitalization, enhancing vigor",
+"Chaos Magic": "Tapping into entropic forces, destruction, and fire",
+  "Unraveling": "Unleashing bolts of raw energy, causing decay or explosions",
+  "Twisting Fate": "Influencing chance, causing misfires or critical successes",
+  "Infernal Summoning": "Calling forth imps, demons, or other chaotic beings",
+"Death Magic": "Mastery over negative energy, undeath, and decay",
+  "Necromancy": "Animating corpses and skeletons, controlling undead",
+  "Afflictions": "Spreading disease and decay, that wither body and spirit",
+  "Spectral Mastery": "Communicating with, binding, or banishing ghosts and spirits",
+  "Shadowmancy": "Conjuring darkness, inciting terror, siphoning light",
+"Order Magic": "Utilizing structured patterns for enhancement, illusion, and control",
+  "Augmentation": "Improving attributes or granting temporary abilities",
+  "Illusions": "Creating phantasms, disguising appearances, masking sounds",
+  "Mentalism": "Telepathy, suggestion, controlling minds",
+  "Spatial Warping": "Teleportation, creating dimensional pockets, astral projections",
+  "Abjuration": "Dispelling magic, creating barriers against magic",
+"Elemental Magic": "Direct command over Air, Earth, Fire, and Water",
+  "Aeromancy": "Controlling winds, conjuring lightning, flight",
+  "Geomancy": "Shaping earth and stone, causing tremors, earth armor",
+  "Hydromancy": "Manipulating water and ice, creating fog",
+  "Pyromancy": "Raw fire control, distinct from Chaos's destructive focus",
+  "Harmony": "Balancing and combining elementals into a unified whole",
+  "Elemental Summoning": "Calling forth Air, Earth, Fire, or Water elementals",
+"Magical Lore": "Theoretical knowledge of magical principles and history",
+  "Arcane Sight": "Recognizing spells being cast or their lingering effects",
+  "Arcane Principles": "Understanding fundamental laws and interactions of magic",
+  "Arcane History": "Knowledge of traditions, artifacts, historical wizards",
+  "Magical Item Analysis": "Discerning properties and function of enchanted objects",
+  "Monster Lore": "Knowledge of magical beasts, elementals, undead, abominations etc",
+  "Cosmology": "Understanding other dimensions and planes, interdimensional travel",
+  "Runes": "Deciphering magical scripts, symbols, and glyphs",
+"Divination": "Perceiving things beyond the normal senses",
+  "Precognition": "Receiving glimpses of potential futures",
+  "Retrocognition": "Sensing the history of an object through touch",
+  "Clairvoyance": "Perceiving events or sounds remotely",
+  "Psychometry": "Perceiving the magical or emotional state of beings/places",
+"Alchemy": "Transmuting substances and brewing potent concoctions",
+  "Potions": "Creating consumables with magical or curative effects",
+  "Toxicology": "Crafting poisons, acids, and their antidotes",
+  "Mutagenesis": "Creating elixirs that induce physical changes (risky)",
+  "Incendiaries": "Crafting bombs, fire concoctions, corrosive substances",
+  "Transmutation": "Altering the nature of a substance",
+"Enchanting": "Infusing existing objects or scrolls with magical power",
+  "Armament Enchanting": "Adding magical properties to gear",
+  "Imbuing": "Creating magical trinkets (rings, amulets) with effects",
+  "Scribing": "Transferring spell energy into readable scrolls",
+  "Implement Crafting": "Creating wands, staves, or orbs to channel magic",
+  "Binding": "The magical step of animating constructs",
+"Spellcraft": "Analyzing, modifying, and designing spell formulae and magical effects",
+  "Spell Shaping": "Modifying the spell's parameters, area of effect, delivery method, and targeting specifications",
+  "Synergistic Casting": "Exploiting interactions between different magical effects",
+  "Counter-Spelling": "Techniques to disrupt, negate, or redirect identified incoming spells",
+  "Spell Analysis": "Deconstructing observed spells into their function, triggers, components, and potential weaknesses",
+"Lore": "General knowledge and academic understanding",
+  "History": "Knowledge of past events, dynasties, wars, fallen empires",
+  "Customs": "Traditions, laws, social structures",
+  "Geography": "Regions, terrain, landmarks, settlements; map making/reading",
+  "Mythology": "Understanding deities, religious practices, myths, legends",
+  "Bestiary": "Knowledge of animals - their habitats, habits, and weaknesses",
+  "Agriculture": "Identifying plants, farming techniques, crop cycles",
+  "Philosophy": "Schools of thought, logical arguments, academic procedures",
+  "Critique": "Understanding artistic styles, history, and significance",
+"Memory": "The ability to accurately retain, recall, and organize information.",
+  "Eidetic Recall": "Accurate recall of visual details and imagery previously observed.",
+  "Auditory Memory": "Accurate recall of sounds, voices, conversations, and musical patterns.",
+  "Sequential Memory": "Remembering sequences of events, instructions, and procedures in the correct order",
+  "Associative Memory": "Linking related pieces of information, facts, or memories, even if disparate",
+  "Mental Mapping": "Creating and recalling detailed spatial layouts",
+"Meditation": "Practices for achieving mental clarity, focus, self-control, and heightened awareness",
+  "Introspection": "Self-awareness; understanding one's own biases, emotional states, and thought processes",
+  "Mana Conservation": "Mental techniques and breathing exercises to reduce the expenditure of magical energy.",
+  "Occlumency": "Active mental defenses against telepathic intrusion or emotional manipulation",
+  "Oneiromancy": "Achieving lucidity within dreams, influencing dream content, and navigating shared dreamscapes",
+  "Emotional Regulation": "Processing feelings while maintaining behavioral control",
+"Investigation": "Gathering clues and uncovering secrets",
+  "Forensics": "Scene examination, Careful collection, Interpreting evidence",
+  "Interviewing": "Extracting information via questioning and observation",
+  "Archive Delving": "Sifting through archives, libraries, records",
+  "Information Brokering": "Cultivating informant networks, understanding information flow",
+  "Counter-forgery": "Identifying counterfeit documents, coins, or artifacts",
+"Analysis & Logic": "Reasoning and problem-solving",
+  "Deductive Reasoning": "Drawing specific conclusions from general principles",
+  "Inductive Reasoning": "Forming general theories from specific observations",
+  "Pattern Recognition": "Identifying recurring sequences, codes, behaviors",
+  "Puzzle Solving": "Overcoming logical traps, riddles, complex mechanisms",
+  "Cryptography": "Deciphering codes, ciphers, hidden messages",
+"Strategy & Tactics": "Planning and directing coordinated efforts",
+  "Battlefield Tactics": "Maneuvering forces, exploiting terrain, countering moves",
+  "Logistics": "Managing supply lines, resource allocation, movement",
+  "Siegecraft": "Planning assault or defense of fortified positions",
+  "Management": "Structuring groups, delegating tasks, ensuring efficiency",
+  "Risk Assessment": "Evaluating dangers and benefits of courses of action",
+"Medicine": "Non-magical healing and biological knowledge",
+  "First Aid": "Immediate treatment of wounds, stabilization",
+  "Hygiene": "Fend off rot, decay and earthly ailments",
+  "Surgery": "Performing invasive procedures to repair damage",
+  "Diagnostics": "Identifying illnesses, poisons, deficiencies",
+  "Pharmacology": "Understanding medicinal herbs, minerals, compounds",
+  "Physiology": "Knowledge of how bodies function",
+"Artistry": "Creating works of aesthetic value through fine manual skill and creative vision",
+  "Lapidary Arts": "Creating fine jewelry, cutting and setting gemstones",
+  "Calligraphy": "Producing aesthetically pleasing lettering for documents, scrolls, or inscriptions",
+  "Painting": "Creating visual art on surfaces using pigments; mastering composition and color theory",
+  "Sculpture": "Creating three-dimensional art by shaping materials like stone, wood, clay, or metal",
+"Engineering": "Design and construction of complex systems",
+  "Architecture": "Designing buildings and structures for stability",
+  "Clockwork": "Creating gears, clockwork, complex traps",
+  "Civil Engineering": "Designing bridges, roads, irrigation",
+  "Hydraulics": "Using water to power mechanisms, designing waterways",
+"Pedagogy": "Teaching and imparting knowledge effectively",
+  "Training": "Teaching practical abilities",
+  "Tutoring": "Explaining complex theories, history, lore",
+  "Mentorship": "Guiding long-term development of an individual",
+  "Curriculum Design": "Structuring lessons or training programs",
+"Linguistics": "Understanding and using languages",
+  "Polyglot": "Proficiency in multiple languages",
+  "Translation": "Accurately converting spoken or written language",
+  "Ancient Languages": "Focus on dead or rare tongues",
+  "Grammar": "Understanding principles of language",
+  "Dialects": "Understanding regional variations, slang, common speech",
+"Navigation": "Finding one's way and planning routes",
+  "Cartography": "Interpreting and creating maps and charts",
+  "Star Guiding": "Using stars, sun, and moon for direction",
+  "Pathfinding": "Using terrain, wind, animal behavior to find the way",
+  "Route Planning": "Calculating travel times, identifying hazards, calculating provisions",
+"Obfuscation": "Actively concealing information, actions, or identities",
+  "Forgery": "Creating convincing fake documents, items, or signatures",
+  "Misdirection": "Diverting attention from the truth or key actions",
+  "Scene Scrubbing": "Removing traces of presence or activity from a location",
+  "Cover Stories": "Constructing believable accounts of whereabouts",
+"Provisions": "Preparing and managing food and drink",
+  "Butchery": "Dressing carcasses and preparing cuts of meat",
+  "Dairying": "Producing cheese, butter, yogurt, and other dairy products",
+  "Cooking": "Preparing well-rounded meals for sustenance and morale",
+  "Baking & Pastry": "Preparing breads, pies, pastries, and other baked goods",
+  "Fermentation & Distillation": "Creating beers, wines, meads, and stronger spirits",
+  "Preservation": "Salting, smoking, pickling, drying foods for storage",
+  "Refined Palate": "Identifying ingredients, judging the quality of food and drink",
+"Survival": "Enduring and navigating natural environments",
+  "Shelter Craft": "Building temporary protection from the elements",
+  "Fire Starting": "Creating fire reliably in various conditions",
+  "Foraging": "Finding edible plants/fungi",
+  "Hunting": "Tracking and catching game",
+  "Water Procurement": "Finding and purifying drinkable water",
+  "Hazard Recognition": "Identifying dangerous plants, animals, terrain, weather signs",
+"Persuasion": "Influencing through reason, charm, or appeal",
+  "Bargaining": "Haggling over prices, terms, or favors",
+  "Oratory": "Public speaking designed to sway crowds or individuals",
+  "Witty Repartee": "Using quick wit and charm to gain temporary advantage",
+  "Formal Debate": "Engaging in structured arguments",
+  "Seduction": "Using charm, allure, and understanding of desire to influence someone romantically or gain favor",
+  "Conflict Resolution": "Mediating disputes between parties, facilitating negotiation",
+"Deception": "Misleading others and maintaining falsehoods",
+  "Bluffing": "Presenting a false front of strength, knowledge, or intent",
+  "Lying": "Crafting believable falsehoods",
+  "Disguise": "Altering appearance effectively to mislead or impersonate",
+  "Impersonation": "Mimicking speech, mannerisms, and behavior",
+"Intimidation": "Influencing through fear, presence, or threats",
+  "Coercion": "Using threats of harm or consequence",
+  "Presence": "Projecting an aura of danger or authority",
+  "Interrogation": "Extracting information or compliance through pain",
+  "Extortion & Blackmail": "Leveraging secrets, threats, or vulnerabilities to coerce compliance or payment",
+"Leadership": "Inspiring, directing, and organizing groups",
+  "Motivation": "Rallying allies, boosting morale, giving rousing speeches",
+  "Command": "Giving clear orders in stressful situations",
+  "Delegation": "Assigning tasks effectively based on ability",
+  "Team Building": "Fostering cooperation and loyalty within a group",
+  "Discipline": "Enforcing rules and order",
+  "Recruitment": "Identifying suitable candidates, and persuading individuals to join a group or cause",
+"Insight": "Understanding people and social dynamics",
+  "Reading Emotions": "Discerning true feelings beneath a facade",
+  "Detecting Lies": "Identifying deception through verbal/non-verbal cues",
+  "Motive Analysis": "Understanding WHY someone acts the way they do",
+  "Social Prediction": "Anticipating reactions in social encounters",
+  "Profiling": "Building a mental picture of someone based on observation",
+  "Group Dynamics": "Understanding group behavior, informal hierarchies, mob mentality and team cohesion",
+"Etiquette": "Navigating formal social structures",
+  "Noble Courts": "Navigating high society, formal occasions, precedence",
+  "Mages Guild Protocols": "Hierarchies, debate forms, arcane greetings",
+  "Workshop Lingo": "Technical jargon, project proposals, innovation respect",
+  "Merchant Guild Practices": "Negotiation styles, contract norms, trade routes",
+  "Guard Regime": "Legal procedures, reporting structures, addressing officials",
+  "Underworld Codes": "Thieves' cant, gang signs, territory respect",
+  "Temple Rites & Observances": "Addressing clergy, sacred space conduct, ritual participation",
+"Performance": "Engaging or influencing through artistic expression",
+  "Acting": "Assuming roles, portraying emotions convincingly",
+  "Musical Instruments": "Proficiency with a variety of instruments",
+  "Singing": "Vocal performance",
+  "Storytelling": "Captivating an audience with narratives",
+  "Dancing": "Expressive or ritualistic movement",
+  "Comedy": "Using wit, timing, and delivery to entertain and amuse an audience",
+"Streetwise": "Navigating informal and underground social networks",
+  "Gathering Rumors": "Tapping into the local gossip network",
+  "Underworld Navigation": "Knowing contacts, safe houses, black markets",
+  "Urban Survival": "Finding necessities, avoiding trouble in rough areas",
+  "Gang Affiliations": "Understanding local power structures among criminals",
+  "Gambling": "Playing games of chance, reading opponents",
+"Commerce & Trade": "Managing economic interactions",
+  "Bartering": "Exchanging goods/services without currency",
+  "Appraisal": "Accurately judging the value of items",
+  "Salesmanship": "Effectively presenting goods or services, closing deals",
+  "Bookkeeping": "Managing ledgers, tracking income and expenses, handling loans and currency exchange",
+  "Customs & Tariffs": "Navigating legal trade barriers, taxes, and regulations",
+  "Smuggling Routes": "Knowledge of illicit trade paths and methods",
+  "Financial Acumen": "Predicting supply and demand, price fluctuations, economic opportunities and threats",
+"Hospitality": "Providing comfort, service, and managing social events",
+  "Patron Care": "Making visitors feel welcome, anticipating needs",
+  "Amenities & Luxuries": "Knowledge of fine food, wine, bedding to please guests",
+  "Event Orchestration": "Organizing feasts, gatherings, ceremonies",
+  "Staff Direction": "Organizing workers efficiently for maximum guest satisfaction",
+  "Cleaning": "Keeping things tidy and fresh",
+"Statecraft": "Manipulating political systems, managing institutions, and wielding influence on a grand scale",
+  "Bureaucracy": "Navigating red tape, understanding legal frameworks, exploiting loopholes",
+  "Diplomacy": "High-stakes negotiation between factions, treaty formulation",
+  "Intrigue": "Spreading influence subtly, manipulating factions against each other, political maneuvering",
+  "Reputation Management": "Building and protecting the public image of an individual or organization",
+  "Faction Alliances": "Building and maintaining relationships between different power groups",
+  "Propaganda": "Actively shaping public sentiment, managing information flow, and cultivating narratives",
+"Beast Mastery": "Controlling, caring for, and utilizing various creatures",
+  "Animal Companionship": "Developing a bond with a specific animal partner; training communication, and cooperation",
+  "Wild Taming": "Domesticate, calm, or gain the trust of a wild creature",
+  "Teamster": "Managing draft animals pulling carts, wagons, or carriages; harnessing; load balancing",
+  "Breeding": "Selecting stock, tracking lineages, refining breeds for desired traits",
+  "Animal Husbandry": "Raising, feeding, housing, ensuring the health of captive animals; harvesting their products",
+
+Think of the characters and write a paragraph about each.
+They are going to live in the following city:
+
+SEQUOITER - Technical Overview
+Geography & Layout
+
+Elevation: 1,245 meters, situated on river confluence
+Built along Frostflow River and Timber Creek junction
+Current settlement area: 12 square kilometers (expanding weekly)
+Population: ~35,000 (was 3,000 five years ago), highly transient
+Average temperature: -15°C (winter), 12°C (summer)
+Permafrost begins 2 meters below surface
+
+Districts
+
+Old Fort: Original trading post, now administrative center, stone construction
+The Sprawl: Chaotic new development, 70% temporary structures
+Expedition Row: Outfitter shops, mercenary halls, contract boards
+Riverside Camps: Tent cities, yurt clusters, 8,000+ residents
+Timber Town: Sawmills and carpentry workshops, feeds constant construction
+The Frozen Vaults: Natural ice caves used for preservation and storage
+
+Notable Buildings
+
+Fort Sequoiter: Original structure, now Mayor's seat and militia barracks
+The Venture Hall: Largest tavern/inn complex, 400 beds, 3 common rooms
+Prospector's Registry: Maps, claims, expedition records, operates 24 hours
+The Bone Bridge: Only permanent river crossing, mammoth ivory reinforcements
+Northwind Chapel: Multi-faith temple, accommodates 12 different religions
+The Assay House: Evaluates discoveries, heavily guarded, fireproof construction
+
+Infrastructure
+
+Roads: 60% dirt/gravel, 30% wooden planking, 10% packed snow
+Water: River source, 17 public wells, ice melt cisterns
+Waste: Minimal system, open sewers freeze in winter, spring "mud season" crisis
+Heating: Individual wood stoves, communal fire pits, no central system
+Construction rate: 15-20 new buildings per week, 40% fail within a year
+
+Economic Data
+
+Primary economy: Expedition supply (45%), raw materials (30%), services (25%)
+Inflation rate: 300% over past 3 years
+Basic room: 5 silver/night (was 5 copper three years ago)
+Trail rations: 1 gold/week supply (triple southern prices)
+Average expedition investment: 500-5,000 gold depending on scale
+Success rate: 1 in 8 expeditions profitable, 1 in 20 highly profitable
+
+Expedition Types
+
+Ruin Delving: Ancient structures beneath permafrost, 3-week typical duration
+Beast Hunting: Exotic creatures for parts/capture, high mortality rate
+Mineral Survey: Gold, silver, magical crystals, 2-month expeditions
+Mapping Runs: Charting new territory, funded by southern cities
+Rescue Missions: Recovering lost expeditions, 50 gold/day/person
+Trade Routes: Establishing contact with indigenous peoples
+
+Cultural Elements
+
+The Departure Toast: Dawn ritual for expeditions leaving that day
+Claim Jumping: Technically illegal, practically common, enforced by violence
+Story Stones: Tradition of leaving carved markers for major discoveries
+The Longest Night: Mid-winter festival, 72-hour continuous celebration
+Blood Money: Custom of expedition survivors inheriting dead members' shares
+
+Recent Historical Events
+
+The Golden Summer (1 year ago): Major gold strike triggered current boom
+The Vanishing (2 years ago): Entire expedition of 200 disappeared without trace
+Ice Drake Attack (3 years ago): Destroyed original warehouse district
+First Thaw (4 years ago): Initial trade route established with natives
+Foundation (5 years ago): Fort Sequoiter expanded from pure military outpost
+
+Mages Guild Presence
+
+31 registered mages (number fluctuates weekly)
+Temporary guild hall in converted warehouse, inadequate for proper sanctums
+High demand for: Divination (finding ruins), Elemental magic (cold protection)
+Emergency services: Frostbite healing, emergency warmth, body preservation
+Research opportunities: Studying permafrost artifacts, pre-civilization ruins
+Budget: Irregular, dependent on expedition contracts and member dues
+
+City Services
+
+Militia: 100 regular soldiers from original fort, 300 irregular volunteers
+Fire Brigade: Critical service, 50 members, water freezes in buckets
+Claim Office: 12 clerks processing 200+ claims daily
+Public Houses: 47 taverns, 23 brothels, 15 gambling dens
+Healing Services: 8 surgeons, 12 herbalists, 3 magical healers (overworked)
+Morgue & Preservation: Handles 10-30 bodies weekly, ice storage
+
+Survival Challenges
+
+Supply lines: Single road south, impassable 3 months/year
+Food security: 80% imported, local hunting insufficient
+Heating fuel: Deforestation within 5km radius, wood prices rising
+Disease: Crowding leads to outbreaks, "Sequoiter Cough" endemic
+Law enforcement: Vigilante justice common, official authority limited
+
+Transportation
+
+Dog Sleds: Primary winter transport, 500+ teams operating
+River Barges: Summer only, rapids require experienced pilots
+Pack Trains: Mules and horses, 30% loss rate to cold/predators
+Native Guides: Essential for deep wilderness, 50 gold/day
+Emergency Evacuation: Wealthy can hire magical transportation south
+
+Factions & Power Groups
+
+The Old Guard: Original fort inhabitants and fur traders
+The Syndicate: Organized crime from southern cities, expanding influence
+Prospector Unions: Attempting to organize claims, frequently violent
+Mercenary Companies: 12 major groups, shifting alliances
+Native Tribes: Complex relationships, some trade, some hostile
+The Mayor: Theoretical authority, actual control limited to Old Fort
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Create character data for each. Use the format from the example (note, this is typescript, not json)
+```
+"ingress_sequoiter_fire_mage": {
+        name: "You",
+        gender: "male",
+        initialLevel: 1,
+        baseUpkeep: 0.0,
+        bio: "This is you — the master of this place. You work for free. But on the bright side, you work for no one!",
+        initialAttributes: {
+            physique: 2,
+            strength: 2,
+            agility: 2,
+            constitution: 2,
+            senses: 2,
+            spirit: 2,
+            attunement: 2,
+            channeling: 2,
+            weaving: 2,
+            resilience: 2,
+            mind: 2,
+            knowledge: 2,
+            wisdom: 2,
+            ingenuity: 2,
+            willpower: 2,
+            social: 2,
+            composure: 2,
+            charisma: 2,
+            empathy: 2,
+            leadership: 2
+        },
+        initialSkills: {
+            // Physique skills
+            melee_combat: {
+                level: 2,
+                specializations: {
+                    one_handed_blades: 3
+                }
+            },
+            ranged_combat: {
+                level: 1,
+                specializations: {
+                    throwing_weapons: 2
+                }
+            },
+            
+            // Mind skills
+            engineering: {
+                level: 3,
+                specializations: {
+                    clockwork: 4
+                }
+            },
+            meditation: {
+                level: 2,
+                specializations: {
+                    introspection: 3
+                }
+            },
+            memory: {
+                level: 2,
+                specializations: {
+                    mental_mapping: 2
+                }
+            },
+            
+            // Social skills
+            performance: {
+                level: 2,
+                specializations: {
+                    storytelling: 3
+                }
+            }
+        }
+    },
+```
+considerations:
+the id (ingress_sequoiter_fire_mage) must start with 'ingress' then the city name, then a key aspect of the character
+
+The attributes:
+Physique: Concerns the capabilities of the body.
+* Strength: Physical power, lifting capacity, and melee impact.
+* Agility: Speed, reaction time, coordination, and fine motor skills.
+* Constitution: Health; resilience to damage, illness or toxins.
+* Senses: Awareness; effectiveness of sight, hearing, smell and touch.
+
+Spirit: Relates to magical aptitude.
+* Attunement: Connect with and draw upon various magical sources.
+* Channeling: The raw amount of magical energy that can be harnessed and directed.
+* Weaving: Precision and finesse in shaping magical energies.
+* Resilience: Fortitude against magical influence and stress.
+
+Mind: Encompasses intellectual and cognitive faculties.
+* Knowledge: Accumulated learning, facts, and general erudition.
+* Wisdom: Sound judgment, foresight, and intuition.
+* Ingenuity: Creativity, problem-solving, and logical reasoning.
+* Willpower: Ability to maintain attention, multitask, and persevere through challenges.
+
+Social: Concerns social interactions.
+* Composure: Conceal true feelings, and maintain a facade.
+* Charisma: Innate personal magnetism and influence.
+* Empathy: Understand and share the feelings or perspectives of others.
+* Authority: Inspire, direct, organize, and gain authority within groups.
+
+attribute at 2  is the default
+1 - underdeveloped
+3 - developed
+4 - exceptional
+5 - genius //super rare
+
+distribute roughly 8-10 attribute points
+~13-15 skill points
+~13-15 specialization points
+
+Could be more or less, depending on what makes sense. Could be fewer attributes but more skills, or fewer skills but more specializations etc
+Note that a specialization can only be taken if the skill is at least level 1.
+
+The characters at the start are not particularly exceptional. They may be guild masters, but this is all by mistake :) and because they are alone.
+
+The bio must be brief - 2-3 sentences.
+
+Bio should tell the player about who this character was. But not their personality (as the player will replace them). The player will use bio to make guesses about proficiency of each character.
+Bios should also give a glimpse into how they became guild masters and why they ended up alone.
+
+Some characters should have underdeveloped attributes.
+Throw in a few useless skills/specializations - they will enrich the believability of the character.
+
+Do not write comments

@@ -3,6 +3,11 @@
     <!-- Task Name (Centered) -->
     <div class="task-name">{{ task.name }}</div>
 
+    <!-- Current Step Text -->
+    <div v-if="!isCompleted && task.currentStepResolvedText" class="current-step-text">
+      {{ task.currentStepResolvedText }}
+    </div>
+
     <!-- Progress Bar and Overlay -->
     <EffortBar
       v-if="!isCompleted"
@@ -125,7 +130,7 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 <style scoped>
 .task-card {
   border: 1px solid #ccc;
-  padding: 6px; /* Reverted from 3px */
+  padding: 5px; /* Reverted from 3px */
   margin: 3px; /* Reverted from 2px */
   font-size: 0.85em; /* Reverted from 0.8em */
   display: flex;
@@ -138,6 +143,16 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
   font-size: 1em; /* Reverted from 0.9em */
   text-align: center;
   margin-bottom: 3px; /* Reverted from 2px */
+}
+
+.current-step-text {
+  color: #555;
+  text-align: left;
+  margin-bottom: 5px; /* Added margin */
+  font-size: 0.8em;
+  padding: 2px 4px;
+  border: 1px dashed #eee;
+  background-color: #f9f9f9;
 }
 
 .skills-character-container {

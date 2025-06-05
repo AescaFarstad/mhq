@@ -39,6 +39,13 @@ export interface DiscoverEffectParams {
     key: string; // The item ID to mark as discovered
 }
 
+/** Represents parameters for starting a minigame */
+export interface StartMinigameParams {
+    name: string; // The key/type of the minigame to start (e.g., 'ClickCounter')
+    // Optional: any specific parameters to initialize the minigame
+    minigameParams?: Record<string, any>; 
+}
+
 /**
  * Represents a condition that must be met for an event to trigger.
  * Specific condition types will implement this interface.

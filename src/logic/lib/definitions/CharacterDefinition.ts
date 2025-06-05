@@ -2,11 +2,15 @@
  * Defines the static data structure for a character loaded from JSON.
  */
 export interface CharacterDefinition {
-    id: string;          // Unique identifier
-    name: string;        // Display name
-    initialLevel: number; // Starting level (will become an IndependentStat)
-    baseUpkeep: number;  // Base gold upkeep (will become an IndependentStat)
-    bio: string; // Bio text
+    id: string;
+    name: string;
+    gender: string;
+    initialLevel: number;
+    baseUpkeep: number;
+    bio: string;
+    fullImage: string;
+    location: string;
+    portraitImage?: string; // Optional portrait image
 
     // Initial attribute values for this character type (flat structure)
     initialAttributes: Record<string, number>; // Changed to flat structure

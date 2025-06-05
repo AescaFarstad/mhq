@@ -187,3 +187,39 @@ export class TaskLib {
         return this.tasks.values();
     }
 }
+
+const PLACEHOLDER_REGEX_LIB = /{[a-zA-Z0-9_]+}/g; // Renamed to avoid potential global scope issues if file was larger
+
+/**
+ * Resolves the first placeholder in an intermediate step string with a chosen option.
+ * 
+ * @param intermediateText The raw text of the intermediate step, possibly containing a placeholder.
+ * @param taskDetails The TaskNameDetails object which holds the arrays of options (e.g., _OPTION1: ["text1", "text2"]).
+ * @param chosenOptionIndexForStep The index of the option chosen for this specific step. If -1, no option is substituted.
+ * @returns The intermediate text with the placeholder substituted, or the original text if no valid placeholder/option is found or chosen.
+ */
+export function resolveStepPlaceholderFromLib(
+    intermediateText: string,
+    taskDetails: TaskNameDetails,
+    chosenOptionIndexForStep: number
+): string {
+    if (!intermediateText || chosenOptionIndexForStep < 0) {
+        return intermediateText; 
+    }
+
+    const placeholders = intermediateText.match(PLACEHOLDER_REGEX_LIB);
+    if (placeholders && placeholders.length > 0) {
+        const placeholder = placeholders[0]; 
+        const optionKey = placeholder.substring(1, placeholder.length - 1); 
+
+        const optionsArray = taskDetails[optionKey as keyof TaskNameDetails] as string[];
+
+        if (optionsArray && Array.isArray(optionsArray) && chosenOptionIndexForStep < optionsArray.length) {
+            const chosenOptionText = optionsArray[chosenOptionIndexForStep];
+            return intermediateText.replace(placeholder, chosenOptionText);
+        } else {
+            return intermediateText; 
+        }
+    }
+    return intermediateText; 
+}

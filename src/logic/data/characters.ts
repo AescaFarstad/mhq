@@ -1,11 +1,17 @@
 import { CharacterDefinition } from '../lib/definitions/CharacterDefinition';
 
-// Type defining the structure of our characters data file
 type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;
 
-const characters: CharacterData = {
+const charactersData: CharacterData = {
+};
+
+export default charactersData; 
+
+/*
+
     "you_char": {
         name: "You",
+        gender: "male",
         initialLevel: 1,
         baseUpkeep: 0.0,
         bio: "This is you — the master of this place. You work for free. But on the bright side, you work for no one!",
@@ -77,6 +83,7 @@ const characters: CharacterData = {
     },
     "nadia_char": {
         name: "Nadia",
+        gender: "female",
         initialLevel: 1,
         baseUpkeep: 1.0,
         bio: "A basic worker, good for simple tasks.",
@@ -105,6 +112,4 @@ const characters: CharacterData = {
         },
         initialSkills: { }
     }
-};
-
-export default characters; 
+        */

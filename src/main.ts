@@ -4,6 +4,16 @@ import App from './App.vue';
 import { GameState } from './logic/GameState';
 import { processInputs } from './logic/input/InputProcessor';
 import { initializeDebugConsole } from './logic/DebugConsole';
+import { registerMinigameUISyncFunction } from './logic/minigames/MinigameUIStateManager';
+import { syncClickCounterUI } from './minigames/click_counter/clickCounterUISync';
+import { CLICK_COUNTER_TYPE } from './minigames/click_counter/ClickCounterTypes';
+import { welcomeUISync } from './minigames/welcome/welcomeUISync';
+import { WELCOME_TYPE } from './minigames/welcome/WelcomeTypes';
+import { syncIngressUI } from './minigames/ingress/ingressUISync';
+import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
+import { syncExampleUI } from './minigames/example/exampleUISync';
+import { EXAMPLE_TYPE } from './minigames/example/ExampleTypes';
+
 // import { setGlobalGameState } from './composables/useGameState'; // No longer needed
 
 // --- Synchronous Initialization ---
@@ -33,10 +43,15 @@ function initializeGame() {
     // Make sure the key matches what useGameState expects, e.g., GameStateKey if you defined it
     app.provide('gameState', gameState);
 
-    // Initialize debug console
+    // Register Minigame UI Sync Functions
+    registerMinigameUISyncFunction(CLICK_COUNTER_TYPE, syncClickCounterUI);
+    registerMinigameUISyncFunction(WELCOME_TYPE, welcomeUISync);
+    registerMinigameUISyncFunction(INGRESS_TYPE, syncIngressUI);
+    registerMinigameUISyncFunction(EXAMPLE_TYPE, syncExampleUI);
+    // Register other minigame UI sync functions here
+
     initializeDebugConsole(
-        () => gameState 
-        // No longer need to pass eventProcessorInstance getter
+        () => gameState
     );
 
     // Mount the Vue app

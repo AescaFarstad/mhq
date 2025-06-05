@@ -39,11 +39,17 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "buildings" } },
       { key: "addResourceIncome", params: { resource: "gold", amount: 10, source: "Council Funding" } },
       { key: "addResourceIncome", params: { resource: "mana", amount: 1, source: "Innate" } },
-      { key: "addCharacterByName", params: { characterId: "you_char" } },
-      { key: "addCharacterByName", params: { characterId: "nadia_char" } },
+      { key: "addCharacterByName", params: { characterId: "ingress_aeiga_reika_secret_seer" } },
+      { key: "addCharacterByName", params: { characterId: "ingress_sequoiter_sky_pathfinder" } },
       { key: "discover", params: { key: "gold" } },
+      { key: "discover", params: { key: "Castle" } },
+      { key: "discover", params: { key: "Crew" } },
+      { key: "discover", params: { key: "Debug" } },
       { key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
+      { key: "startMinigame", params: { name: "Ingress" } },
+      { key: "discoverAll", params: {} },
+      { key: "giveSkillsAndSpecs", params: {} },
     ]
   },
   "giveAllSkillsAndSpecs": {
@@ -53,6 +59,15 @@ const events: EventsDataType = {
     ],
     effects: [
       { key: "giveAllSkillsAndSpecsEffect", params: {} }
+    ]
+  },
+  "giveFirstCharAllSkills": {
+    triggerOnce: true,
+    conditions: [
+      { key: "alwaysTrue" }
+    ],
+    effects: [
+      { key: "giveSkillsAndSpecs", params: {} }
     ]
   }
 };

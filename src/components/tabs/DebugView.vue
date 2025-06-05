@@ -13,6 +13,7 @@
         <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
         <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
         <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
+        <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
       </div>
       <div class="filter-inputs">
         <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
@@ -54,6 +55,7 @@ import type { DebugStatInfo } from '../../types/uiTypes'; // Import centralized 
 import { Stats } from '../../logic/core/Stats';
 import { IndependentStat } from '../../logic/core/Stat'; // Import IndependentStat for type assertion
 import * as UIStateManager from '../../logic/UIStateManager'; // Added import
+import { CharacterLib } from '../../logic/lib/CharacterLib'; // Corrected import for CharacterLib
 
 const props = defineProps({
   // Make stats potentially null or undefined if gameState might not be ready
@@ -519,12 +521,22 @@ const copyGameStateToClipboard = (_event?: Event) => {
   const keysToRemove: (keyof GameState)[] = [
     'connections',
     'lib',
-    'eventProcessor',
+    // 'eventProcessor', // Temporarily remove or ensure it's a valid keyof GameState
     'uiState'
   ];
 
+  // Add 'eventProcessor' back if it's confirmed to be a valid key and update GameState type
+  // For now, let's assume it might be dynamically added or type is slightly off
+  const dynamicKeysToRemove = ['eventProcessor'];
+
   // Remove the specified keys from the copy
   for (const key of keysToRemove) {
+    if (key in gameStateCopy) {
+      delete (gameStateCopy as any)[key]; // Use 'as any' for keys known to be problematic with strict typing
+    }
+  }
+  // Handle potentially dynamic keys separately to avoid strict type errors
+  for (const key of dynamicKeysToRemove) {
     if (key in gameStateCopy) {
       delete (gameStateCopy as any)[key];
     }
@@ -654,6 +666,33 @@ const clearExcludeFilter = () => {
 const clearAllFilters = () => {
   clearIncludeFilter();
   clearExcludeFilter();
+};
+
+// New function to copy character names and bios
+const copyCharacterNamesAndBios = (_event?: Event) => {
+  if (!gameState || !gameState.lib || !(gameState.lib as any).characters) { // Check for characters property
+    console.error("GameState, Lib, or CharacterLib not available for character names and bios.");
+    triggerCopyAnimation('characterNamesAndBiosError');
+    return;
+  }
+
+  const characterLib = (gameState.lib as any).characters as CharacterLib; // Access directly
+  const characters = characterLib.values();
+  let clipboardText = "";
+
+  for (const character of characters) {
+    clipboardText += `Name: ${character.name}\n`;
+    clipboardText += `Bio: ${character.bio || 'N/A'}\n\n`; // Add bio, handle if undefined/empty
+  }
+
+  navigator.clipboard.writeText(clipboardText.trim())
+    .then(() => {
+      triggerCopyAnimation('characterNamesAndBios');
+    })
+    .catch(err => {
+      console.error('Failed to copy character names and bios to clipboard:', err);
+      triggerCopyAnimation('characterNamesAndBiosError'); // Optional: error animation
+    });
 };
 </script>
 

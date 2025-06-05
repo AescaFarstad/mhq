@@ -30,11 +30,19 @@ const formatValue = (value: number | string | undefined, roundToInt: boolean = f
 };
 
 const showSkillHint = (description: string | undefined) => {
-  currentHint.value = description || '';
+  if (props.skill && gameState && !gameState.isDiscovered(props.skill.id)) {
+    currentHint.value = obfuscateString(description || '');
+  } else {
+    currentHint.value = description || '';
+  }
 };
 
-const showSpecializationHint = (description: string | undefined) => {
-  currentHint.value = description || '';
+const showSpecializationHint = (description: string | undefined, specId: string) => {
+  if (gameState && !gameState.isDiscovered(specId)) {
+    currentHint.value = obfuscateString(description || '');
+  } else {
+    currentHint.value = description || '';
+  }
 };
 
 const clearHint = () => {
@@ -87,7 +95,7 @@ const increaseSkillLevel = () => {
           v-for="spec in props.skill.specializations" 
           :key="spec.id" 
           class="specialization-item"
-          @mouseover="showSpecializationHint(spec.description)"
+          @mouseover="showSpecializationHint(spec.description, spec.id)"
         >
           <ImageHolder 
             atlasName="skills"
