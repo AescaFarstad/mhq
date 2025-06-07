@@ -48,7 +48,7 @@ export class GameState {
     public gameTime: number = 0;
     public tick: number = 0;
 
-    public locationId: string = "sequioter";
+    public locationId: string = "turfablie";
 
     public minDeltaTime: number = DEFAULT_MIN_DELTA_TIME;
     public timeScale: { current: number; previous: number } = { current: 1.0, previous: 1.0 };

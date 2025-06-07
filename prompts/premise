@@ -1,20 +1,35 @@
 I'm developing a video game in HOMM-like universe.
 The premise is that you've possessed a hermit mage guild master who lives solitary life in a deteriorated guild. Now you're going to restore the guild, recruit members etc.
 
-The player sees such intro:
+The player sees intro where they chose the region.
+
+Once they've chosen the region they start possessing the guild master.
+They they are presented with an input box.
+
+I need you to proof read all the user-facing UI text. Some of it is disjointed, other should make more sense.
+
+
 
 We've established a telepathic link to a new world—one with <b>magic</b>.
 To access these resources, we need a stable gateway built from both sides.
 The plan: possess an isolated guild master who have the necessary infrastructure.
 Several candidates exist across different regions. Choose the region.
 
-Once they've chosen the region they start possessing the guild master.
-They they are presented with an input box which says:
-Type in words which you believe might help
+
+
+Time initiate possession.
+This is a mentally strenious process, stoke up on coffee or tea.
+
+Type in <b>nouns,/b> which you believe might help. The corret words will accelerate the process.
 type a magic noun and hit Enter
 
 Entering a meaningful word gives them possession points.
 
-Now I need large list of words which the user might type. I want to anticipate what they might type and reward them for practically every word that possibly makes sense in the context of possession.
-
+As they ear points, they are going to see characters appear. I need you to generate a list of words (nouns) that the player may come up with, looking at these characters. I will post you the image of the character and their bio. Please return the list of word in the following form:
+["word1", "word2" ...]
 The words are single nouns lowercase. The shortest form of the word is used (i.e. 'dark' instead of 'darkness' or 'farm' instead of 'farmer'. So even if their meanings are different, the shorter form is preferred anyway)
+
+
+
+
+Now I need large list of words which the user might type. I want to anticipate what they might type and reward them for practically every word that possibly makes sense in the context of possession.

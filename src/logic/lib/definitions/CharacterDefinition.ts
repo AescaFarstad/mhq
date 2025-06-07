@@ -11,6 +11,7 @@ export interface CharacterDefinition {
     fullImage: string;
     location: string;
     portraitImage?: string; // Optional portrait image
+    keywords?: string[]; // Keywords for Ingress game, etc.
 
     // Initial attribute values for this character type (flat structure)
     initialAttributes: Record<string, number>; // Changed to flat structure

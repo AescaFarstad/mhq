@@ -23,7 +23,8 @@ interface AtlasData {
 // Define atlas configurations here
 const A_DEFAULT_ATLAS_CONFIGS: AtlasConfig[] = [
   { name: "skills", imagePath: "/img/skills.png", jsonPath: "/img/skills.json" },
-  // Add other global atlas configurations here if needed
+  { name: "heroes", imagePath: "/img/heroes.jpg", jsonPath: "/img/heroes.json" },
+  { name: "locations", imagePath: "/img/locations.jpg", jsonPath: "/img/locations.json" },
 ];
 
 export class AtlasManager {

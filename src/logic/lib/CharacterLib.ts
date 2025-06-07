@@ -30,7 +30,8 @@ export class CharacterLib {
                     portraitImage: data.portraitImage,
                     initialAttributes: data.initialAttributes,
                     initialSkills: data.initialSkills || {},
-                    triggerOnCreated: data.triggerOnCreated
+                    triggerOnCreated: data.triggerOnCreated,
+                    keywords: data.keywords,
                 };
                 if (this.characters.has(id)) {
                     console.warn(`CharacterLib: Duplicate character ID "${id}" found. Overwriting with data from ${sourceName || 'current source'}.`);
@@ -39,9 +40,7 @@ export class CharacterLib {
                 count++;
             }
         }
-        this.isLoaded = true; // Mark as loaded as soon as any characters are loaded
-        const fromSource = sourceName ? ` from ${sourceName}` : '';
-        console.log(`CharacterLib: Loaded ${count} character definitions${fromSource}. Total characters: ${this.characters.size}.`);
+        this.isLoaded = true; //This may be problematic as there are multiple sources. TODO: Fix this.
     }
 
     /**

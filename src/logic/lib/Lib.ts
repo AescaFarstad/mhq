@@ -8,6 +8,7 @@ import { SkillLib } from './SkillLib';
 import { TaskLib } from './TaskLib';
 import { BuildingLib } from './BuildingLib';
 import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
+import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
 
 import eventsData from '../data/events';
 import mainCharacters from '../data/characters';
@@ -33,11 +34,13 @@ export class Lib {
     public buildings: BuildingLib = new BuildingLib();
     public techs: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be TechDefinition
     public ingressWords: IngressWordsLib;
+    public welcomeLocations: WelcomeLocationsLib;
     public isLoaded: boolean = false;
 
     constructor() {
         this.skills = new SkillLib(this.attributes);
         this.ingressWords = new IngressWordsLib();
+        this.welcomeLocations = new WelcomeLocationsLib();
         this.loadAllDefinitions();
     }
 

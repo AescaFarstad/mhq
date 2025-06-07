@@ -6,20 +6,26 @@
       :title="column.title"
       :words="column.words"
       class="word-column"
+      @word-hover="$emit('word-hover', $event)"
+      @word-leave="$emit('word-leave')"
+      :any-badge-hovered="anyBadgeHovered"
     />
   </transition-group>
 </template>
 
 <script setup lang="ts">
 import IngressWordColumn from './IngressWordColumn.vue';
-import type { WordDefinition } from '../lib/definitions/WordDefinition';
+import type { SubmittedWord } from '../IngressTypes';
 
 defineProps<{
   columns: {
     title: string;
-    words: (WordDefinition | string)[];
+    words: (SubmittedWord | string)[];
   }[];
+  anyBadgeHovered: boolean;
 }>();
+
+defineEmits(['word-hover', 'word-leave']);
 </script>
 
 <style scoped>
@@ -33,7 +39,7 @@ defineProps<{
 }
 
 .word-column {
-  width: 200px;
+  width: 220px;
 }
 
 .slide-from-right-enter-active,

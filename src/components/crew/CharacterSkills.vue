@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import { SkillUIInfo } from '../../types/uiTypes'; 
-// ImageHolder might be removable if not directly used in CharacterSkills template after refactor
 import SkillItem from './SkillItem.vue'; // Import the new component
 
 const props = defineProps<{

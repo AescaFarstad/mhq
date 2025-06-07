@@ -56,6 +56,4 @@ export function initializeDebugConsole(
         }
         debugConsoleInstance.run(gameState, effectKey, params);
     };
-    
-    console.log("Debug console initialized. Use `window.run(effectKey, params)` from the browser console to execute game effects.");
 } 

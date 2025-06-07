@@ -11,6 +11,7 @@
 *   Core game logic separated from UI:
     *   Central `GameState` managing resources, stats, characters, events, and game time.
     *   Reactive `uiState` within `GameState` for efficient UI updates.
+    *   **Debug Console**: A utility (`DebugConsole.ts`) that exposes a global `window.run(effectKey, params)` function. This allows developers to directly execute any game `Effect` from the browser's developer console, simplifying testing and debugging of game logic and events.
     *   Stat system (`core/Stat.ts`, `core/Stats.ts`) for managing interconnected game values (independent, parameters, formulas). Classes: `Stat`, `Connections`, `Connection`, `ConnectionType`, `Parameter`, `IndependentStat`, `FormulaStat`, and `FormulaParameter` for stats calculated from named inputs via a custom formula. Namespace: `Stats`.
     *   Resource management (`core/Resource.ts`) using the stat system for current, max, and income values. Classes: `Resource`, `ResourceManager`.
     *   Character system (`Character.ts`) with static definitions (`CharacterDefinition`) and dynamic instances (`Character`) using the stat system for level, upkeep, attributes, skills, specializations, and proficiencies. Proficiencies for skills and specializations are calculated using `FormulaParameter` stats, dynamically updating based on underlying attributes and levels. Classes/Interfaces: `Character`, `CharacterDefinition`, `CharacterSkill`.
@@ -123,6 +124,7 @@
         *   Minigames are stopped by calling `GameState.exitMinigame()`, which in turn calls the `activeMinigame.destroy()` method for cleanup and nullifies `activeMinigame` and related `uiState` properties.
     *   **Directory Structure (per minigame):** `src/minigames/<minigame_name>/`
         *   Example: `src/minigames/click_counter/`
+        *   Example: `src/minigames/ingress/`. See `Ingress.md` for a detailed breakdown.
     *   **Key Files & Implementation Details:**
         *   **1. Types Definition (`<MinigameName>Types.ts`):**
             *   Defines a unique `MinigameType` string literal constant (e.g., `export const MY_MINIGAME_TYPE: MinigameType = 'MyMinigame';`).

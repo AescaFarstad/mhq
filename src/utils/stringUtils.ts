@@ -13,11 +13,16 @@ const MYSTERIOUS_CHARS: string[] = [
  * Characters are selectively obfuscated based on the obfuscationPercentage parameter.
  * @param text The input string.
  * @param obfuscationPercentage The percentage of characters to obfuscate (0-1, default 1 for 100%).
+ * @param progressivity A value from 0 to 1 that controls how much character position influences obfuscation. A value of 0 results in uniform obfuscation. A value of 0.5 mimics the old 'progressive' behavior. At 1, obfuscation is almost entirely dependent on position (more likely at the end).
  * @returns The obfuscated string.
  */
-export function obfuscateString(text: string, obfuscationPercentage: number = 1): string {
+export function obfuscateString(text: string, obfuscationPercentage: number = 1, progressivity: number = 0): string {
     if (!text) {
         return "";
+    }
+
+    if (obfuscationPercentage === 0) {
+        return text;
     }
 
     const len = text.length;
@@ -40,6 +45,12 @@ export function obfuscateString(text: string, obfuscationPercentage: number = 1)
     let thresholdSeed = (firstCharCode * 31 + lastCharCode * 17 + len * 7) & 0xFFFFFFFF;
     let obfuscationSeed = (firstCharCode * 41 + lastCharCode * 23 + len * 11) & 0xFFFFFFFF;
 
+    // Note on stability: The algorithm is designed to be stable. This means
+    // that if a character is revealed at a certain obfuscationPercentage, it remains
+    // revealed for any lower percentage. To achieve this, the seeds for both threshold
+    // and character selection must be advanced predictably on every character,
+    // regardless of whether the character is ultimately obfuscated or not.
+    // The only exception is the shortcut for obfuscationPercentage = 0.
     for (let i = 0; i < len; i++) {
         const originalChar = text[i];
         
@@ -71,7 +82,18 @@ export function obfuscateString(text: string, obfuscationPercentage: number = 1)
         }
 
         // Decide whether to use original or obfuscated character
-        const shouldObfuscate = obfuscationPercentage > threshold;
+        let shouldObfuscate: boolean;
+        if (progressivity > 0 && len > 1) {
+            const progress = i / (len - 1);
+            // The original implementation made characters at the start *more* likely
+            // to be obfuscated. This is reversed now. The threshold is higher at
+            // the start (less obfuscation) and lower at the end (more obfuscation).
+            const progressionFactor = 1 - progress; // Varies from 1 at start to 0 at end
+            const progressiveThreshold = (1 - progressivity) * threshold + progressivity * progressionFactor;
+            shouldObfuscate = obfuscationPercentage > progressiveThreshold;
+        } else {
+            shouldObfuscate = obfuscationPercentage > threshold;
+        }
         result += shouldObfuscate ? obfuscatedChar : originalChar;
     }
     
@@ -183,3 +205,47 @@ export function wordify(inputText: string): string[] {
 
     return Array.from(results);
 } 
+
+
+export function areOneEditAway(s1: string, s2: string): boolean {
+    const len1 = s1.length;
+    const len2 = s2.length;
+  
+    if (Math.abs(len1 - len2) > 1) {
+      return false;
+    }
+  
+    if (len1 === len2) {
+      let diffCount = 0;
+      for (let i = 0; i < len1; i++) {
+        if (s1[i] !== s2[i]) {
+          diffCount++;
+        }
+        if (diffCount > 1) {
+          return false;
+        }
+      }
+      return true;
+    }
+  
+    // Ensure s1 is the shorter string
+    const short = len1 < len2 ? s1 : s2;
+    const long = len1 < len2 ? s2 : s1;
+  
+    let i = 0, j = 0;
+    let foundDifference = false;
+  
+    while (i < short.length && j < long.length) {
+      if (short[i] !== long[j]) {
+        if (foundDifference) {
+          return false; // Second difference
+        }
+        foundDifference = true;
+        j++; // Skip character in the longer string
+      } else {
+        i++;
+        j++;
+      }
+    }
+    return true;
+  }

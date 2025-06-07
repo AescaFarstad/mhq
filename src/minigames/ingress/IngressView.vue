@@ -1,18 +1,60 @@
 <script setup lang="ts">
-import { inject, computed, ref, nextTick, watch } from 'vue';
+import { inject, computed, ref, nextTick } from 'vue';
 import type { GameState } from '../../logic/GameState';
-import { INGRESS_TYPE, type IngressState } from './IngressTypes';
+import { INGRESS_TYPE, type IngressState, type IngressCharacterOption, type SubmittedWord } from './IngressTypes';
 import type { IngressGame } from './IngressGame';
 import IngressWordColumns from './components/IngressWordColumns.vue';
-import type { WordDefinition } from './lib/definitions/WordDefinition';
+import IngressCharacterCard from './components/IngressCharacterCard.vue';
+import IngressCharacterInspectView from './components/IngressCharacterInspectView.vue';
+import IngressUpgradeView from './components/IngressUpgradeView.vue';
+import PossessionChargesBar from './components/PossessionChargesBar.vue';
+import { IngressWordsLib } from './lib/IngressWordsLib';
+import IngressCharacterHint from './components/IngressCharacterHint.vue';
+import IngressInputArea from './components/IngressInputArea.vue';
 
 const gameState = inject<GameState>('gameState');
-const inputValue = ref('');
-const inputElementRef = ref<HTMLInputElement | null>(null); // Ref for the input element
-const inputAreaRef = ref<HTMLDivElement | null>(null); // Ref for the div.input-area for animations
+const ingressInputAreaRef = ref<InstanceType<typeof IngressInputArea> | null>(null);
 
-// State for managing input visual feedback and animations
-const inputInteractionState = ref<'default' | 'blank-error' | 'scored-points' | 'typing'>('default');
+const hoveredWord = ref<SubmittedWord | null>(null);
+const hintPosition = ref<{ x: number, y: number } | null>(null);
+const anyBadgeHovered = ref(false);
+
+const showInputHint = computed(() => {
+  if (!ingressState.value) return false;
+  return (ingressState.value.usefulWords.length + ingressState.value.offensiveWords.length) >= 2;
+});
+
+const animationState = ref<{
+  wordId: string;
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  wordName: string;
+  wordPoints: number;
+  wordWasTypo: boolean;
+  wordItemWidth: number;
+} | null>(null);
+
+const flyerStyle = computed(() => {
+  if (!animationState.value) return {};
+  return {
+    '--start-x': `${animationState.value.from.x}px`,
+    '--start-y': `${animationState.value.from.y}px`,
+    '--end-x': `${animationState.value.to.x}px`,
+    '--end-y': `${animationState.value.to.y}px`,
+    width: `${animationState.value.wordItemWidth}px`,
+  };
+});
+
+const onAnimationEnd = () => {
+  if (animationState.value) {
+    const wordEl = document.getElementById(`word-li-${animationState.value.wordId}`);
+    if (wordEl) {
+      wordEl.style.visibility = 'visible';
+      wordEl.classList.add('new-word-entry-animation');
+    }
+    animationState.value = null;
+  }
+};
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
@@ -28,13 +70,27 @@ const ingressGame = computed(() => {
   return null;
 });
 
+const totalUsefulWordsCount = computed(() => {
+  if (!gameState || !ingressGame.value) return 0;
+  const ingressWordsLib = gameState.lib.ingressWords as IngressWordsLib;
+  return ingressGame.value.getUsefulWordsCount(ingressWordsLib, gameState);
+});
+
 const wordColumns = computed(() => {
-  const columns: { title: string; words: (WordDefinition | string)[] }[] = [];
+  const columns: { title: string; words: (SubmittedWord | string)[] }[] = [];
 
   if (!ingressState.value) return [];
 
-  if (ingressState.value.usefulWords.length > 0) {
-    columns.push({ title: 'Useful', words: [...ingressState.value.usefulWords].reverse() });
+  const showUsefulColumn = ingressState.value.usefulWords.length > 0 || ingressState.value.upgrades.breach_word_counter;
+
+  if (showUsefulColumn) {
+    let title = 'Useful';
+    if (ingressState.value.upgrades.breach_word_counter) {
+        const found = ingressState.value.usefulWords.length;
+        const total = totalUsefulWordsCount.value;
+        title = `Useful ${found}/${total}`;
+    }
+    columns.push({ title: title, words: [...ingressState.value.usefulWords].reverse() });
   }
 
   if (ingressState.value.offensiveWords.length > 0) {
@@ -44,94 +100,81 @@ const wordColumns = computed(() => {
   return columns;
 });
 
-// Possession Charges Bar Logic
-const possessionBarFlash = ref<'default' | 'increase' | 'decrease'>('default');
-const internalPreviousPossessionCharges = ref<number | undefined>(undefined);
-
-const possessionStarsDisplay = computed(() => {
-  const charges = ingressState.value?.possessionCharges ?? 0;
-  if (charges <= 0) return '';
-  return '★'.repeat(charges);
-});
-
-watch(() => ingressState.value?.possessionCharges, (newCharges) => {
-  const currentVal = newCharges ?? 0;
-
-  if (internalPreviousPossessionCharges.value === undefined) {
-    internalPreviousPossessionCharges.value = currentVal;
-    return;
-  }
-
-  if (currentVal > internalPreviousPossessionCharges.value) {
-    possessionBarFlash.value = 'increase';
-  } else if (currentVal < internalPreviousPossessionCharges.value) {
-    possessionBarFlash.value = 'decrease';
-  } else {
-    internalPreviousPossessionCharges.value = currentVal;
-    return;
-  }
-
-  setTimeout(() => {
-    possessionBarFlash.value = 'default';
-  }, 700);
-
-  internalPreviousPossessionCharges.value = currentVal;
-});
-
-watch(ingressState, (newState) => {
-    if (newState && internalPreviousPossessionCharges.value === undefined) {
-        internalPreviousPossessionCharges.value = newState.possessionCharges ?? 0;
-    }
-}, { immediate: true });
-
-const submitInput = async () => {
-  if (ingressGame.value && gameState?.lib.ingressWords && inputValue.value.trim()) {
-    const currentWord = inputValue.value;
-    const result = ingressGame.value.processSubmittedWord(currentWord, gameState.lib.ingressWords as any);
+const handleSubmitWord = async (payload: { word: string, inputRect: DOMRect | undefined }) => {
+  if (ingressGame.value && gameState?.lib.ingressWords) {
+    const { word, inputRect } = payload;
+    const result = ingressGame.value.processSubmittedWord(word, gameState.lib.ingressWords as any, gameState);
     
-    inputInteractionState.value = 'default';
+    ingressInputAreaRef.value?.resetState();
     await nextTick();
 
     if (result.classification === 'blank') {
-      inputInteractionState.value = 'blank-error';
-      inputElementRef.value?.select();
-      setTimeout(() => {
-        if (inputInteractionState.value === 'blank-error' && inputValue.value === currentWord) {
-          // Stays red until user types
-        }
-      }, 700);
+      ingressInputAreaRef.value?.showBlankError();
+      ingressInputAreaRef.value?.selectInput();
     } else {
       if (result.classification === 'offensive' || result.isNewAddition) {
-        inputValue.value = '';
+        ingressInputAreaRef.value?.clearInput();
       } else if (result.classification === 'useful' && !result.isNewAddition) {
-        inputElementRef.value?.select();
+        ingressInputAreaRef.value?.selectInput();
       }
       
-      inputElementRef.value?.focus(); 
+      ingressInputAreaRef.value?.focusInput(); 
 
       if (result.classification === 'useful' && result.pointsEarned > 0 && result.isNewAddition) {
-        inputInteractionState.value = 'scored-points';
-        setTimeout(() => {
-          if (inputInteractionState.value === 'scored-points') {
-            inputInteractionState.value = 'default';
-          }
-        }, 700);
+        if (ingressState.value && ingressState.value.usefulWords.length > 0 && inputRect) {
+            const newWord = ingressState.value.usefulWords[ingressState.value.usefulWords.length - 1];
+
+            const wordEl = document.getElementById(`word-li-${newWord.definition.id}`);
+            const wordRect = wordEl?.getBoundingClientRect();
+            
+            if (wordRect && wordEl) {
+                wordEl.style.visibility = 'hidden';
+
+                animationState.value = {
+                    wordId: newWord.definition.id,
+                    from: { x: inputRect.left + inputRect.width / 2, y: inputRect.top + inputRect.height / 2 },
+                    to: { x: wordRect.left, y: wordRect.top },
+                    wordName: newWord.definition.name,
+                    wordPoints: newWord.pointsEarned,
+                    wordWasTypo: newWord.wasTypo,
+                    wordItemWidth: wordRect.width
+                };
+            }
+        }
+
+        ingressInputAreaRef.value?.showScoredPoints();
       } else if (result.classification === 'useful' && result.pointsEarned > 0 && !result.isNewAddition) {
-        // Handle visual feedback for duplicate useful word if needed (e.g., a different small animation or message)
-        // For now, no specific animation, just selection of text.
+        // Handle visual feedback for duplicate useful word if needed
       }
     }
-  } else if (!inputValue.value.trim()) {
-    inputValue.value = '';
-    inputInteractionState.value = 'default';
   }
 };
 
-const onInputBoxInput = () => {
-  if (inputInteractionState.value === 'blank-error' || inputInteractionState.value === 'scored-points') {
-    inputInteractionState.value = 'typing'; // Or 'default' - 'typing' could have a subtle green border
-  }
-  // If just 'default' or 'typing', no specific visual change on input other than normal browser behavior
+const handleWordHover = (payload: { word: SubmittedWord, event: MouseEvent }) => {
+    hoveredWord.value = payload.word;
+    hintPosition.value = { x: payload.event.clientX, y: payload.event.clientY };
+    if (!anyBadgeHovered.value) {
+        anyBadgeHovered.value = true;
+    }
+};
+
+const handleWordLeave = () => {
+    hoveredWord.value = null;
+    hintPosition.value = null;
+};
+
+const handleCharacterExplore = (option: IngressCharacterOption) => {
+    if (ingressGame.value && gameState) {
+        if (option.discoveryState === 'portrait_revealed') {
+            ingressGame.value.startCharacterInspection(option.characterId);
+        } else {
+            ingressGame.value.exploreCharacter(option.characterId, gameState);
+        }
+    }
+};
+
+const handleCloseInspect = () => {
+    ingressGame.value?.closeCharacterInspection();
 };
 
 </script>
@@ -140,45 +183,58 @@ const onInputBoxInput = () => {
   <div class="ingress-view-container">
     <div class="game-content-below-bar">
       <div class="main-content-area">
-        <div 
-          v-if="ingressState && ingressState.possessionCharges >= 5"
-          class="possession-charges-bar"
-          :class="{
-            'flash-green-possession': possessionBarFlash === 'increase',
-            'flash-dark-possession': possessionBarFlash === 'decrease'
-          }"
-        >
-          <span class="possession-charges-label">Possession Charges: </span><span class="stars">{{ possessionStarsDisplay }}</span>
+        <PossessionChargesBar
+          v-if="ingressState && ingressState.chargesBarRevealed"
+          :charges="ingressState.possessionCharges"
+          :possession-progress="ingressState.possessionProgress"
+          :total-possession-charges="ingressState.totalPossessionCharges"
+          :upgrades="ingressState.upgrades"
+          :show-progress="true"
+        />
+        <div v-if="ingressState && ingressState.characterOptions.length > 0" class="character-options-container">
+            <IngressCharacterCard 
+                v-for="option in ingressState.characterOptions"
+                :key="option.characterId"
+                :option="option"
+                :xp-bonus="ingressState.characterXpBonuses[option.characterId] || 0"
+                @explore="handleCharacterExplore"
+            />
         </div>
-        <div class="input-and-prompt-area-wrapper">
-          <div class="input-and-prompt-area">
-            <p class="input-prompt">Type in words which you believe might help</p>
-            <div 
-              ref="inputAreaRef" 
-              class="input-area" 
-              :class="{
-                'shake-animation': inputInteractionState === 'blank-error',
-                'flash-green-animation': inputInteractionState === 'scored-points'
-              }"
-            >
-              <input 
-                ref="inputElementRef"
-                type="text" 
-                v-model="inputValue" 
-                @keyup.enter="submitInput" 
-                @input="onInputBoxInput"
-                placeholder="type a magic noun and hit Enter" 
-                :class="{
-                  'input-blank-highlight': inputInteractionState === 'blank-error',
-                  'input-typing-highlight': inputInteractionState === 'typing'
-                }"
-              />
-              <button @click="submitInput">Enter</button>
-            </div>
-          </div>
-        </div>
+        
+        <IngressInputArea
+          ref="ingressInputAreaRef"
+          :show-hint="showInputHint"
+          :charges-bar-revealed="ingressState?.chargesBarRevealed || false"
+          @submit-word="handleSubmitWord"
+        />
       </div>
-      <IngressWordColumns :columns="wordColumns" v-if="wordColumns.length > 0" :key="wordColumns.length" />
+      <IngressWordColumns 
+        :columns="wordColumns" 
+        v-if="wordColumns.length > 0" 
+        :key="wordColumns.length"
+        @word-hover="handleWordHover"
+        @word-leave="handleWordLeave"
+        :any-badge-hovered="anyBadgeHovered"
+      />
+    </div>
+    <div v-if="ingressState && ingressState.inspectingCharacterId" class="inspect-views-container-backdrop" @click.self="handleCloseInspect">
+      <div class="inspect-views-panel-container">
+        <IngressCharacterInspectView />
+        <IngressUpgradeView />
+      </div>
+    </div>
+    <IngressCharacterHint :word="hoveredWord" :position="hintPosition" />
+    <div 
+      v-if="animationState" 
+      class="word-flyer" 
+      :style="flyerStyle"
+      @animationend="onAnimationEnd"
+    >
+        <div class="word-item">
+          <span class="word-name">{{ animationState.wordName }}</span>
+          <span class="stars" v-if="animationState.wordPoints > 0">{{ '★'.repeat(Math.min(animationState.wordPoints, 4)) }}</span>
+        </div>
+        <div v-if="animationState.wordWasTypo" class="typo-sticker">TYPO</div>
     </div>
   </div>
 </template>
@@ -194,50 +250,6 @@ const onInputBoxInput = () => {
   padding: 20px;
   box-sizing: border-box;
   position: relative;
-}
-
-.possession-charges-bar {
-  display: flex;
-  align-items: center;
-  padding: 8px 15px;
-  background-color: #3e4f61; 
-  color: #e2e8f0;
-  font-size: 0.9em;
-  border-radius: 6px;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-  width: 100%;
-}
-
-.possession-charges-label {
-  flex-shrink: 0;
-}
-
-.possession-charges-bar .stars {
-  font-size: 1.2em;
-  color: #f1c40f; /* Star color */
-  margin-left: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@keyframes flashGreenPossessionAnim {
-  0%, 100% { background-color: #3e4f61; }
-  50% { background-color: #27ae60; } /* Green flash */
-}
-
-.flash-green-possession {
-  animation: flashGreenPossessionAnim 0.7s ease-out;
-}
-
-@keyframes flashDarkPossessionAnim {
-  0%, 100% { background-color: #3e4f61; }
-  50% { background-color: #2c3a47; } /* Darker flash */
-}
-
-.flash-dark-possession {
-  animation: flashDarkPossessionAnim 0.7s ease-out;
 }
 
 .game-content-below-bar {
@@ -260,98 +272,135 @@ const onInputBoxInput = () => {
   min-width: 0; /* Prevent from overflowing when content is too wide */
 }
 
-.input-and-prompt-area-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
-  width: 100%;
-}
-
-.input-and-prompt-area {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Space between prompt and input box */
-  align-items: flex-start; /* Align prompt and input area to the left */
-}
-
-.input-prompt {
-  font-size: 0.9em;
-  color: #bdc3c7;
-  margin-left: 2px; /* Slight indent to align with input box padding */
-}
-
-.input-area {
-  display: flex;
-  background-color: #34495e; /* Adjusted color */
-  padding: 10px; /* Reduced padding a bit */
-  border-radius: 8px;
-  align-items: center;
-  width: auto; /* Allow it to shrink to content + input max-width */
-  max-width: 450px; /* Max width for the whole input area */
-  border: 2px solid transparent; /* For smooth transition with highlight */
-}
-
-.input-area input {
-  flex-grow: 0;
-  width: 220px; /* Further reduced input box width slightly */
-  max-width: 280px; /* Adjusted max-width */
-  padding: 10px;
-  margin-right: 10px;
-  border: 1px solid #7f8c8d;
-  border-radius: 4px;
-  background-color: #ecf0f1;
-  color: #2c3e50;
-  transition: border-color 0.3s ease;
-}
-
-.input-area input.input-blank-highlight {
-  border-color: #e74c3c !important; /* Red border for blank */
-  background-color: #fadbd8; /* Light red background */
-}
-
-.input-area input.input-typing-highlight {
-  border-color: #2ecc71; /* Green border when typing after blank */
-}
-
-.input-area input::placeholder {
-  color: #95a5a6;
-}
-
-.input-area button {
-  padding: 10px 15px; /* Adjusted padding */
-  background-color: #f1c40f;
-  color: #2c3e50;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.input-area button:hover {
-  background-color: #f39c12;
-}
-
 /* Animations */
-@keyframes shakeInput {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-  20%, 40%, 60%, 80% { transform: translateX(8px); }
-}
-
-.shake-animation {
-  animation: shakeInput 0.6s ease-in-out;
-}
-
 @keyframes flashGreenBackground {
   0% { background-color: #34495e; } /* Original color */
   50% { background-color: #2ecc71; } /* Flash green */
   100% { background-color: #34495e; } /* Back to original */
 }
 
-.flash-green-animation {
-  animation: flashGreenBackground 0.7s ease-out;
+.word-flyer {
+  position: fixed;
+  top: var(--start-y);
+  left: var(--start-x);
+  z-index: 2000;
+  transform: translate(-50%, -50%);
+  animation: flyToPlace 0.5s ease-in-out forwards;
+  pointer-events: none; /* Don't intercept clicks */
+
+  /* Styles copied from IngressWordColumn.vue to replicate the look */
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+@keyframes flyToPlace {
+  0% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.7;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    top: var(--end-y);
+    left: var(--end-x);
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+.word-flyer .word-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #34495e;
+  border-radius: 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: white; /* Make sure text is visible */
+  animation: flashGreenBackground 0.5s ease-out;
+}
+
+.word-flyer .word-name {
+  flex-grow: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.word-flyer .stars {
+  color: #f1c40f;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.word-flyer .typo-sticker {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  background-color: #e74c3c;
+  color: white;
+  padding: 3px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  transform: rotate(15deg);
+  border-radius: 3px;
+  z-index: 1;
+  text-transform: uppercase;
+  line-height: 1;
+  padding-bottom: 3px;
+}
+
+@keyframes fadeInAndScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.new-word-entry-animation {
+  animation: fadeInAndScale 0.3s ease-out;
+}
+
+.inspect-views-container-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.inspect-views-panel-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 80%;
+    max-width: 1100px;
+}
+
+.character-options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px 0;
+    width: 100%;
 }
 
 </style> 

@@ -128,7 +128,6 @@ export class TaskLib {
             }
         }
         this.isLoaded = true; // Mark as loaded, verification is separate
-        console.log(`TaskLib loaded ${loadedCount} task definitions. Verification pending.`);
     }
 
     /**

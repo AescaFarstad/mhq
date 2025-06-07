@@ -23,7 +23,6 @@ export class BuildingLib {
             }
         }
         this.isLoaded = true;
-        console.log(`BuildingLib loaded ${this.buildings.size} building definitions.`);
     }
 
     /**

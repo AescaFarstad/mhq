@@ -1,8 +1,8 @@
 <template>
   <div class="stage-one-container">
     <p class="stage-text">We've established a telepathic link to a new world—one with <b>magic</b>.</p>
-    <p class="stage-text">To access these resources, we need a stable gateway built from both sides.</p>
-    <p class="stage-text">The plan: possses an isolated guild master who have the necessary infrastructure.</p>
+    <p class="stage-text">To tap into this power, we need a stable gateway built from both sides.</p>
+    <p class="stage-text">The plan: possses an isolated guild master who has the necessary infrastructure.</p>
     <p class="stage-text">Several candidates exist across different regions. Choose the region.</p>
     <div class="choices-container">
       <ChoiceOption

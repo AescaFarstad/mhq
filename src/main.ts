@@ -13,6 +13,7 @@ import { syncIngressUI } from './minigames/ingress/ingressUISync';
 import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
 import { syncExampleUI } from './minigames/example/exampleUISync';
 import { EXAMPLE_TYPE } from './minigames/example/ExampleTypes';
+import { runTests } from './utils/stringUtils.test';
 
 // import { setGlobalGameState } from './composables/useGameState'; // No longer needed
 
@@ -56,6 +57,8 @@ function initializeGame() {
 
     // Mount the Vue app
     app.mount('#app');
+
+    runTests();
 
     // --- Game Loop ---
     let lastTimestamp = 0;

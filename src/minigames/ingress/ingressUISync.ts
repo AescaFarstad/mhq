@@ -20,6 +20,25 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.possessionCharges = logicState.possessionCharges;
         }
 
+        // Sync total possession charges
+        if (logicState.totalPossessionCharges !== uiState.totalPossessionCharges) {
+            uiState.totalPossessionCharges = logicState.totalPossessionCharges;
+        }
+
+        // Sync character options - needs a deep copy for reactivity
+        // A simple check and deep copy ensures the UI updates when cards change state
+        if (JSON.stringify(logicState.characterOptions) !== JSON.stringify(uiState.characterOptions)) {
+            uiState.characterOptions = JSON.parse(JSON.stringify(logicState.characterOptions));
+        }
+
+        // Sync inspection state
+        if (logicState.inspectingCharacterId !== uiState.inspectingCharacterId) {
+            uiState.inspectingCharacterId = logicState.inspectingCharacterId;
+        }
+        if (logicState.bioObfuscation !== uiState.bioObfuscation) {
+            uiState.bioObfuscation = logicState.bioObfuscation;
+        }
+
         // Sync useful words
         if (logicState.usefulWords !== uiState.usefulWords) { 
             uiState.usefulWords = [...logicState.usefulWords]; 
@@ -33,6 +52,24 @@ export const syncIngressUI: MinigameUISyncFn = (
         // Sync blank words (assuming it might change and needs syncing)
         if (logicState.blankWords !== uiState.blankWords) { 
             uiState.blankWords = [...logicState.blankWords]; 
+        }
+
+        // Sync upgrades
+        if (JSON.stringify(logicState.upgrades) !== JSON.stringify(uiState.upgrades)) {
+            uiState.upgrades = JSON.parse(JSON.stringify(logicState.upgrades));
+        }
+
+        if (logicState.upgradesRevealed !== uiState.upgradesRevealed) {
+            uiState.upgradesRevealed = logicState.upgradesRevealed;
+        }
+
+        if (logicState.possessionProgress !== uiState.possessionProgress) {
+            uiState.possessionProgress = logicState.possessionProgress;
+        }
+
+        // Sync character XP bonuses
+        if (JSON.stringify(logicState.characterXpBonuses) !== JSON.stringify(uiState.characterXpBonuses)) {
+            uiState.characterXpBonuses = JSON.parse(JSON.stringify(logicState.characterXpBonuses));
         }
 
         // Add other properties from IngressState that need to be kept in sync

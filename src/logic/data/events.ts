@@ -45,7 +45,7 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Castle" } },
       { key: "discover", params: { key: "Crew" } },
       { key: "discover", params: { key: "Debug" } },
-      { key: "giveResource", params: { resource: "clutter", amount: 50 } },
+      //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
       { key: "startMinigame", params: { name: "Ingress" } },
       { key: "discoverAll", params: {} },

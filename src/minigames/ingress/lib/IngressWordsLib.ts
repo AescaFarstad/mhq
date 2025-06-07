@@ -4,6 +4,7 @@ import { wordify } from '../../../utils/stringUtils';
 
 export class IngressWordsLib {
     private words: Map<string, WordDefinition> = new Map();
+    private _usefulWordsCount = 0;
 
     constructor() {
         this.loadWords();
@@ -45,6 +46,8 @@ export class IngressWordsLib {
                 this.words.set(word.toLowerCase(), wordDefinition);
             });
         }
+
+        this._usefulWordsCount = [...this.words.values()].filter(w => w.type === 'useful').length;
     }
 
     public getWord(id: string): WordDefinition | undefined {
@@ -52,11 +55,15 @@ export class IngressWordsLib {
     }
 
     public getWordByName(name: string): WordDefinition | undefined {
+        return IngressWordsLib.findWordInMap(name, this.words);
+    }
+
+    public static findWordInMap(name: string, wordsMap: Map<string, WordDefinition>): WordDefinition | undefined {
         const lowerCaseName = name.toLowerCase();
         const potentialWords = wordify(lowerCaseName); // wordify returns the original word as part of the array
 
         for (const wordForm of potentialWords) {
-            const definition = this.words.get(wordForm); // wordify results are already lowercase
+            const definition = wordsMap.get(wordForm); // wordify results are already lowercase
             if (definition) {
                 return definition;
             }
@@ -66,5 +73,9 @@ export class IngressWordsLib {
 
     public getAllWords(): MapIterator<WordDefinition> {
         return this.words.values();
+    }
+
+    public getUsefulWordsCount(): number {
+        return this._usefulWordsCount;
     }
 } 

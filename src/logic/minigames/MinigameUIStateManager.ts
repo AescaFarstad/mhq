@@ -53,5 +53,4 @@ export function registerMinigameUISyncFunction(type: MinigameType, syncFn: Minig
         console.warn(`[MinigameUISync] Overwriting UI sync function for type: ${type}`);
     }
     minigameUISyncFunctions.set(type, syncFn);
-    console.log(`[MinigameUISync] Registered UI sync function for type: ${type}`);
 } 
