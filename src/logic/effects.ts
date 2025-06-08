@@ -7,7 +7,8 @@ import {
     StartMinigameParams,
     ApplyIngressResultsParams,
     ApplyWelcomeResultsParams,
-    EventContext
+    EventContext,
+    EventDefinition
 } from './lib/definitions/EventDefinition';
 import { Stats } from './core/Stats';
 import { Character } from './Character';
@@ -19,6 +20,7 @@ import { ClickCounterGame } from '../minigames/click_counter/ClickCounterGame';
 import { WelcomeGame } from '../minigames/welcome/WelcomeGame';
 import { IngressGame } from '../minigames/ingress/IngressGame';
 import { ExampleGame } from '../minigames/example/ExampleGame';
+import { EventProcessor } from './Event';
 
 export function giveResource(state: GameState, params: ModifyResourceParams): void {
     const res = getResource(state.resources, params.resource);
@@ -133,12 +135,11 @@ export function giveAllSkillsAndSpecsEffect(state: GameState, context: EventCont
         return;
     }
     const character = context as Character; // context is expected to be Character here
-    const charDef = state.lib.characters.getCharacter(character.characterId)!; // Assume charDef exists
 
     const allSkillDefs = state.lib.skills.getAllSkills() as Record<string, Skill>;
 
     if (Object.keys(allSkillDefs).length === 0) {
-        console.warn(`[giveAllSkillsAndSpecsEffect] For ${charDef.name}: No skill definitions found in state.lib.skills.getAllSkills(). Cannot give skills.`);
+        console.warn(`[giveAllSkillsAndSpecsEffect] For ${character.name}: No skill definitions found in state.lib.skills.getAllSkills(). Cannot give skills.`);
         return;
     }
 
@@ -177,27 +178,33 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
         console.warn(`Effect 'startMinigame': Minigame '${state.activeMinigame.type}' already active. Cannot start '${params.name}'.`);
         return;
     }
+    let minigameInstance;
     // This part would need a factory or switch if more minigames exist
     if (params.name === 'ClickCounter') {
         // Extract specific params for ClickCounter if any, e.g., clicksToWin
         const clicksToWin = params.minigameParams?.clicksToWin as number | undefined;
-        const minigameInstance = new ClickCounterGame(`event-${params.name}-${Date.now()}`, clicksToWin);
-        state.startMinigame(minigameInstance);
-        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+        minigameInstance = new ClickCounterGame(`event-${params.name}-${Date.now()}`, clicksToWin);
     } else if (params.name === 'Welcome') {
-        const minigameInstance = new WelcomeGame(`event-${params.name}-${Date.now()}`);
-        state.startMinigame(minigameInstance);
-        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+        minigameInstance = new WelcomeGame(`event-${params.name}-${Date.now()}`);
     } else if (params.name === 'Ingress') {
-        const minigameInstance = new IngressGame(`event-${params.name}-${Date.now()}`);
-        state.startMinigame(minigameInstance);
-        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+        minigameInstance = new IngressGame(`event-${params.name}-${Date.now()}`);
     } else if (params.name === 'Example') {
-        const minigameInstance = new ExampleGame(`event-${params.name}-${Date.now()}`);
-        state.startMinigame(minigameInstance);
-        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+        minigameInstance = new ExampleGame(`event-${params.name}-${Date.now()}`);
     } else {
         console.warn(`Effect 'startMinigame': Unknown minigame name '${params.name}'.`);
+        return;
+    }
+    
+    if (minigameInstance) {
+        state.startMinigame(minigameInstance);
+        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+
+        const startEvent: EventDefinition = {
+            id: 'minigameStarted',
+            params: { minigameType: minigameInstance.type },
+            effects: []
+        };
+        EventProcessor.processSingleEvent(startEvent, state);
     }
 }
 
@@ -212,6 +219,7 @@ export function startBehTree(state: GameState, params: { treeName: string }): vo
 }
 
 export function applyIngressResults(state: GameState, params: ApplyIngressResultsParams): void {
+    console.log(`Applying ingress results:`, params);
     let character = state.characters.find(c => c.characterId === params.characterId);
 
     if (!character) {
@@ -238,6 +246,7 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
 }
 
 export function applyWelcomeResults(state: GameState, params: ApplyWelcomeResultsParams): void {
+    console.log(`Applying welcome results:`, params);
     if (params.locationId) {
         state.locationId = params.locationId;
     } else {

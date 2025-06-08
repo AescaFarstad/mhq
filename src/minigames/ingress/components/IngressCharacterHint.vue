@@ -35,19 +35,29 @@ const positionStyle = computed(() => {
 });
 
 const characterInfo = computed(() => {
-  if (!props.word?.sourceCharacterIds || !gameState?.lib.characters) {
+  if (!props.word?.sourceCharacterIds || !gameState) {
     return [];
   }
   const ingressState = gameState.uiState.activeMinigameState as IngressState | undefined;
 
   return props.word.sourceCharacterIds.map(id => {
-    const char = gameState.lib.characters.getCharacter(id);
     const totalBonus = ingressState?.characterXpBonuses?.[id] || 0;
-    return {
-      id,
-      name: char ? char.name : 'Unknown Character',
-      totalBonus,
-    };
+    let name = 'Unknown Character';
+
+    // Priority:
+    // 1. Character in ingress options (discovered during this minigame)
+    const ingressOption = ingressState?.characterOptions.find(o => o.characterId === id);
+    if (ingressOption && ingressOption.characterName) {
+        name = ingressOption.characterName;
+    } else {
+        // 2. Fallback to definition from library
+        const charDef = gameState.lib.characters.getCharacter(id);
+        if (charDef) {
+            name = charDef.name;
+        }
+    }
+
+    return { id, name, totalBonus };
   });
 });
 </script>

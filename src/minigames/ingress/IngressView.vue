@@ -77,7 +77,7 @@ const totalUsefulWordsCount = computed(() => {
 });
 
 const wordColumns = computed(() => {
-  const columns: { title: string; words: (SubmittedWord | string)[] }[] = [];
+  const columns: { id: string, title: string; words: (SubmittedWord | string)[] }[] = [];
 
   if (!ingressState.value) return [];
 
@@ -90,11 +90,11 @@ const wordColumns = computed(() => {
         const total = totalUsefulWordsCount.value;
         title = `Useful ${found}/${total}`;
     }
-    columns.push({ title: title, words: [...ingressState.value.usefulWords].reverse() });
+    columns.push({ id: 'useful', title: title, words: [...ingressState.value.usefulWords].reverse() });
   }
 
   if (ingressState.value.offensiveWords.length > 0) {
-    columns.push({ title: 'Offensive', words: [...ingressState.value.offensiveWords].reverse() });
+    columns.push({ id: 'offensive', title: 'Offensive', words: [...ingressState.value.offensiveWords].reverse() });
   }
 
   return columns;
@@ -413,16 +413,16 @@ const handleEngageGame = () => {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 80%;
+    width: 85%;
     max-width: 1100px;
 }
 
 .character-options-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 10px;
     justify-content: center;
-    padding: 20px 0;
+    padding: 10px 0;
     width: 100%;
 }
 

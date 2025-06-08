@@ -41,12 +41,10 @@ function handleCheatSkillUp(gameState: GameState, command: CmdInput): void {
         return;
     }
 
-    const charDef = gameState.lib.characters.getCharacter(character.characterId)!;
-
     const skillStat = character.skills[specificCommand.skillId] as IndependentStat;
 
     if (!skillStat) {
-        console.error(`CmdCheatSkillUp: Skill with ID '${specificCommand.skillId}' not found for character '${charDef.name}' (ID: ${character.characterId}).`);
+        console.error(`CmdCheatSkillUp: Skill with ID '${specificCommand.skillId}' not found for character '${character.name}' (ID: ${character.characterId}).`);
         return;
     }
 

@@ -1,21 +1,18 @@
 import type { GameState } from "../../GameState";
 import type { EventDefinition, EventContext } from "../../lib/definitions/EventDefinition";
 import { BehNode } from "./BehNode";
-import type { EventLambda } from "./BehTreeTypes";
 import { NodeResult } from "./BehTreeTypes";
 
-type EventCondition = (eventDef: EventDefinition, eventContext?: EventContext) => boolean;
+type EventPredicate = (eventDef: EventDefinition, eventContext?: EventContext) => boolean;
 
 export class AwaitEventNode extends BehNode {
     private readonly eventId: string;
-    private readonly lambda: EventLambda;
-    private readonly condition?: EventCondition;
+    private readonly predicate?: EventPredicate;
 
-    constructor(name: string, eventId: string, lambda: EventLambda, condition?: EventCondition) {
+    constructor(name: string, eventId: string, predicate?: EventPredicate) {
         super(name);
         this.eventId = eventId;
-        this.lambda = lambda;
-        this.condition = condition;
+        this.predicate = predicate;
     }
 
     public init(state: GameState): void {
@@ -35,17 +32,11 @@ export class AwaitEventNode extends BehNode {
     }
 
     public handleEvent(eventDef: EventDefinition, state: GameState, eventContext?: EventContext): void {
-        if (eventDef.id === this.eventId && (!this.condition || this.condition(eventDef, eventContext))) {
+        if (eventDef.id === this.eventId && (!this.predicate || this.predicate(eventDef, eventContext))) {
             if (this.root.invoker?.logVerbose) {
-                console.log(`[BehTree] ${this.getHierarchicalPath()} caught event '${this.eventId}' and condition met.`);
+                console.log(`[BehTree] ${this.getHierarchicalPath()} caught event '${this.eventId}' and predicate passed.`);
             }
-            try {
-                this.lambda(this, eventDef, state, eventContext);
-                this.parent?.report(NodeResult.SUCCESS, state);
-            } catch (error) {
-                console.error(`[BehTree] Error in ${this.getHierarchicalPath()} event handler:`, error);
-                this.parent?.report(NodeResult.FAILURE, state);
-            }
+            this.parent?.report(NodeResult.SUCCESS, state);
         }
     }
 } 

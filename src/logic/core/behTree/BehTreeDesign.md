@@ -121,6 +121,12 @@ state.invoker.handleEvent(eventDef, state, context);
    new SequencerNode([node1, node2, node3])
    ```
 
+4. **WaitNode** - Waits for a specified duration
+   ```typescript
+   new WaitNode({ durationMin: 2.5, name: 'wait_for_intro' }) // waits 2.5 seconds
+   new WaitNode({ durationMin: 1, durationMax: 5, name: 'random_delay' }) // waits between 1 and 5 seconds
+   ```
+
 ### Planned Nodes
 
 - **TickerNode** - Subscribes to updates until condition met

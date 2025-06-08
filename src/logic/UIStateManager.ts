@@ -218,8 +218,8 @@ export function updateCharacterUIData(gameState: GameState): void {
 
         // Push the complete character data to UI state
         gameState.uiState.characters.push({
-            id: charDef.id,       // Use charDef.id
-            name: charDef.name,   // Use charDef.name
+            id: char.characterId, // Use char.characterId
+            name: char.name,      // Use char.name
             level: char.level.value,
             upkeep: char.upkeep.value,
             bio: charDef.bio || '', // Use charDef.bio

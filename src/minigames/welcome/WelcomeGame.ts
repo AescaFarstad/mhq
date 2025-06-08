@@ -119,7 +119,6 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
     public makeChoiceAndPrepareExit(choiceId: string, gameState: GameState): void {
         const selectedChoiceDefinition = this.state.lib.locations.getLocation(choiceId);
         if (selectedChoiceDefinition) {
-            console.log('Choice made in WelcomeGame:', selectedChoiceDefinition);
             
             const params: ApplyWelcomeResultsParams = {
                 locationId: selectedChoiceDefinition.id,

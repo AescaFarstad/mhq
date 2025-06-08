@@ -2,6 +2,10 @@ import { GameState } from './GameState';
 import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, EventContext, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams } from './lib/definitions/EventDefinition';
 import * as effects from './effects';
 
+// Module-level queue for pending events
+const eventQueue: { eventDef: EventDefinition; context?: EventContext }[] = [];
+let isProcessingEvents = false;
+
 /**
  * Processes game events based on their conditions and applies their effects.
  */
@@ -9,21 +13,37 @@ export namespace EventProcessor {
     // Lib is accessed via state.lib
 
     /**
-     * Processes a single event definition.
-     * Checks conditions and applies effects.
+     * Queues a single event for processing.
+     * If not already processing, starts processing the queue.
      *
      * @param eventDef The event definition to process.
      * @param state The current game state (contains lib).
      * @param context The event context for context (optional).
      */
     export function processSingleEvent(eventDef: EventDefinition, state: GameState, context?: EventContext): void {
-        if (state.invoker?.logVerbose) {
-            console.log(`[EventProcessor] Applying effects for event: ${eventDef.id}`);
-        }
-        console.log("process Event ", eventDef.id);
-        applyEffects(eventDef.effects, state, context);
+        eventQueue.push({ eventDef, context });
 
-        state.invoker?.handleEvent(eventDef, state, context);
+        if (isProcessingEvents) {
+            return;
+        }
+
+        isProcessingEvents = true;
+        try {
+            while (eventQueue.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const { eventDef: currentEventDef, context: currentContext } = eventQueue.shift()!;
+                
+                if (state.invoker?.logVerbose) {
+                    console.log(`[EventProcessor] Processing event: ${currentEventDef.id}`);
+                }
+                
+                console.log("process Event ", currentEventDef.id);
+                applyEffects(currentEventDef.effects, state, currentContext);
+                state.invoker?.handleEvent(currentEventDef, state, currentContext);
+            }
+        } finally {
+            isProcessingEvents = false;
+        }
     }
 
     /**

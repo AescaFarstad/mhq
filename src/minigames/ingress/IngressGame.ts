@@ -14,7 +14,7 @@ const CHARGES_BAR_REVEAL_THRESHOLD = 4;
 const FIRST_CHAR_UNLOCK_THRESHOLD = 6;
 const SUBSEQUENT_CHAR_UNLOCK_THRESHOLD = 2;
 const CHAR_EXPLORATION_COSTS = [1, 2, 3]; // Costs for name, portrait, investigate
-const POSSESSION_BASE_SPEED = 0.05;
+const POSSESSION_BASE_SPEED = 0.005;
 
 export class IngressGame implements BaseMinigame<IngressState> {
     readonly id: string;

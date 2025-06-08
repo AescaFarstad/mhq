@@ -2,7 +2,7 @@
   <transition-group appear name="slide-from-right" tag="div" class="ingress-word-columns-container">
     <IngressWordColumn
       v-for="column in columns"
-      :key="column.title"
+      :key="column.id"
       :title="column.title"
       :words="column.words"
       class="word-column"
@@ -19,6 +19,7 @@ import type { SubmittedWord } from '../IngressTypes';
 
 defineProps<{
   columns: {
+    id: string;
     title: string;
     words: (SubmittedWord | string)[];
   }[];

@@ -77,6 +77,7 @@ watch(() => props.charges, (newCharges, oldCharges) => {
           Possession progress: {{ formattedProgress }}%, rate: {{ displayRate }}x
         </span>
         <div
+          v-if="possessionProgress < 100"
           class="input-hint-container"
           @mouseenter="isHintVisible = true"
           @mouseleave="isHintVisible = false"

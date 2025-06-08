@@ -54,7 +54,10 @@ const buttonText = computed(() => {
 });
 
 const isButtonDisabled = computed(() => {
-    return props.option.discoveryState !== 'unexplored' && props.option.discoveryState !== 'name_revealed';
+    if (props.option.discoveryState !== 'unexplored' && props.option.discoveryState !== 'name_revealed') {
+        return true;
+    }
+    return !ingressState.value || (ingressState.value.possessionCharges < explorationCost.value);
 });
 
 const costStarsDisplay = computed(() => {

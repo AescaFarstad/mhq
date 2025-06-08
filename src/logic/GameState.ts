@@ -256,8 +256,6 @@ export class GameState {
             const completionEvent: EventDefinition = {
                 id: 'minigameComplete',
                 params: { minigameType: minigameType },
-                triggerOnce: true,
-                conditions: [],
                 effects: []
             };
             EventProcessor.processSingleEvent(completionEvent, this);

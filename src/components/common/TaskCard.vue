@@ -99,7 +99,11 @@ const assignedCharacterName = computed(() => {
     return null;
   }
   const charId = props.task.assignedCharacterIds[0];
-  const characterDef = gameState.value!.lib.characters.getCharacter(charId);
+  const character = gameState.value.characters.find(c => c.characterId === charId);
+  if (character) {
+      return character.name;
+  }
+  const characterDef = gameState.value.lib.characters.getCharacter(charId);
   return characterDef?.name || 'Unknown';
 });
 

@@ -7,7 +7,7 @@ export class Invoker implements IInvoker {
     public completedTrees: string[] = [];
     public eventListeners: Map<string, IBehNode[]> = new Map();
     public updateListeners: IBehNode[] = [];
-    public logVerbose: boolean = true;
+    public logVerbose: boolean = false;
 
     private listenersMutationCount = 0;
 

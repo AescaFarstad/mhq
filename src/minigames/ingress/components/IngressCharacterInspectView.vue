@@ -62,6 +62,13 @@ const handleDeobfuscate = () => {
     ingressGame.value?.deobfuscateBio();
 };
 
+const isPossessButtonDisabled = computed(() => {
+    if (!ingressState.value) {
+        return true;
+    }
+    return ingressState.value.possessionProgress < 100 || ingressState.value.possessionCharges < 10;
+});
+
 const handlePossess = () => {
     if (ingressGame.value && gameState) {
         ingressGame.value.commitAndPossess(gameState);
@@ -160,7 +167,7 @@ const deobfuscateButtonLabel = computed(() => {
                 <div class="possess-button-container">
                     <button 
                         @click="handlePossess" 
-                        :disabled="!ingressState || ingressState.possessionProgress < 100"
+                        :disabled="isPossessButtonDisabled"
                         class="action-button possess-button"
                     >
                         Commit and possess <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
@@ -174,7 +181,7 @@ const deobfuscateButtonLabel = computed(() => {
 
         <div v-if="ingressState && ingressState.renamingCharacterId === characterDef?.id" class="rename-dialog-backdrop">
             <div class="rename-dialog">
-                <h3>Rename {{ characterDef.name }}</h3>
+                <h3>Rename {{ displayedCharacterName }}</h3>
                 <input type="text" v-model="newName" class="rename-input" placeholder="Inscribe New Name" />
                 <div class="rename-dialog-actions">
                     <span class="error-message" :class="{ 'error-visible': !isNewNameValid }">Names require 3-12 characters.</span>
@@ -280,7 +287,7 @@ const deobfuscateButtonLabel = computed(() => {
     z-index: 1;
 }
 .char-details-panel {
-    flex-basis: 45%;
+    flex-basis: 50%;
     display: flex;
     flex-direction: column;
 }
@@ -289,6 +296,7 @@ const deobfuscateButtonLabel = computed(() => {
     background-color: rgba(0,0,0,0.2);
     border-radius: 8px;
     padding: 15px;
+    padding-top: 8px;
     overflow-y: auto;
     font-family: 'Source Code Pro', Courier, monospace;
     font-size: 1.1rem;

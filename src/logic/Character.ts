@@ -114,8 +114,7 @@ export namespace Character {
             try {
                 gameState.processEventsForCharacter(charDef.triggerOnCreated, newChar, charDef);
             } catch (error) {
-                const charDefinition = gameState.lib.characters.getCharacter(newChar.characterId);
-                console.error(`Character.addCharacter: ${charDefinition ? charDefinition.name : newChar.characterId} - Error processing triggerOnCreated events:`, error);
+                console.error(`Character.addCharacter: ${newChar.name} - Error processing triggerOnCreated events:`, error);
             }
         }
 
