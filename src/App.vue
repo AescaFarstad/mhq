@@ -237,13 +237,6 @@ onMounted(() => {
   min-width: 50px; /* Consistent width for time control buttons */
 }
 
-.tick-button {
-    /* Specific styles for the tick button if needed, otherwise it inherits .time-controls button styles */
-    /* For example, to make it stand out: */
-    /* background-color: #ffc107; */
-    /* color: black; */
-}
-
 .time-controls button.active {
   background-color: #d0e0ff; /* Different active color for time controls */
   border-bottom-color: #0056b3;

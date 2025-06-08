@@ -6,19 +6,12 @@ import {
 } from '../lib/definitions/EventDefinition';
 
 // Define the shape of our events data
-interface ConditionData {
-  key: string;
-  params?: Record<string, any>;
-}
-
 interface EffectData {
   key: string;
   params: ModifyResourceParams | DiscoverParams | AddCharacterParams | Record<string, any> | DiscoverEffectParams;
 }
 
 interface EventData {
-  triggerOnce?: boolean;
-  conditions: ConditionData[];
   effects: EffectData[];
 }
 
@@ -26,10 +19,6 @@ type EventsDataType = Record<string, EventData>;
 
 const events: EventsDataType = {
   "startGame": {
-    triggerOnce: true,
-    conditions: [
-      { key: "alwaysTrue" }
-    ],
     effects: [
       { key: "giveMaxResource", params: { resource: "gold", amount: 1000 } },
       { key: "giveResource", params: { resource: "gold", amount: 50 } },
@@ -47,25 +36,17 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Debug" } },
       //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
-      { key: "startMinigame", params: { name: "Ingress" } },
+      { key: "startBehTree", params: { treeName: "introSequence" } },
       { key: "discoverAll", params: {} },
       { key: "giveSkillsAndSpecs", params: {} },
     ]
   },
   "giveAllSkillsAndSpecs": {
-    triggerOnce: true,
-    conditions: [
-      { key: "alwaysTrue" }
-    ],
     effects: [
       { key: "giveAllSkillsAndSpecsEffect", params: {} }
     ]
   },
   "giveFirstCharAllSkills": {
-    triggerOnce: true,
-    conditions: [
-      { key: "alwaysTrue" }
-    ],
     effects: [
       { key: "giveSkillsAndSpecs", params: {} }
     ]

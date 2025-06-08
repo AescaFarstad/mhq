@@ -6,12 +6,15 @@ import { IngressWordsLib } from './lib/IngressWordsLib';
 import type { WordDefinition } from './lib/definitions/WordDefinition';
 import { areOneEditAway } from '../../utils/stringUtils';
 import { wordify } from '../../utils/stringUtils';
+import type { ApplyIngressResultsParams } from '../../logic/lib/definitions/EventDefinition';
+import * as effects from '../../logic/effects';
+import { getCharacterKeywordsMap, getCombinedWordsMap, getUsefulWordsCountFromMap } from './logic/IngressWordLogic';
 
 const CHARGES_BAR_REVEAL_THRESHOLD = 4;
 const FIRST_CHAR_UNLOCK_THRESHOLD = 6;
 const SUBSEQUENT_CHAR_UNLOCK_THRESHOLD = 2;
 const CHAR_EXPLORATION_COSTS = [1, 2, 3]; // Costs for name, portrait, investigate
-const POSSESSION_BASE_SPEED = 0.0005;
+const POSSESSION_BASE_SPEED = 0.05;
 
 export class IngressGame implements BaseMinigame<IngressState> {
     readonly id: string;
@@ -54,6 +57,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
             },
             upgradesRevealed: false,
             possessionProgress: 0,
+            engaged: false,
         });
     }
 
@@ -232,10 +236,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
      * Use this to clean up any resources, listeners, or ongoing processes.
      * @param _gameState The global game state.
      */
-    destroy(_gameState: GameState): void {
-        // TODO: Add any cleanup logic specific to your minigame
-        // This could include stopping timers, removing event listeners, etc.
-        // console.log('IngressGame destroyed');
+    destroy(_gameState: GameState): void {}
+
+    public engage(): void {
+        this.state.engaged = true;
     }
 
     public revealUpgrades(): void {
@@ -303,13 +307,41 @@ export class IngressGame implements BaseMinigame<IngressState> {
         }
     }
 
-    public commitAndPossess(): void {
-        if (this.state.possessionCharges >= 10) {
-            this.state.possessionCharges -= 10;
-            // TODO: Implement actual possession logic
-            console.log(`Possessed character ${this.state.inspectingCharacterId}`);
-            this.closeCharacterInspection();
+    public commitAndPossess(gameState: GameState): void {
+        const characterId = this.state.inspectingCharacterId;
+        if (this.state.possessionProgress < 100 || !characterId) {
+            console.warn("Cannot possess yet. Progress must be 100% and a character must be selected.");
+            return;
         }
+
+        if (this.state.possessionCharges < 10) {
+            console.warn("Not enough possession charges to commit and possess.");
+            return;
+        }
+
+        const characterOption = this.state.characterOptions.find(co => co.characterId === characterId);
+        if (!characterOption || characterOption.discoveryState !== 'portrait_revealed') {
+            console.warn("Selected character is not fully investigated.");
+            return;
+        }
+
+        this.state.possessionCharges -= 10;
+
+        const xpBonusFromKeywords = this.state.characterXpBonuses[characterId] || 0;
+        const universalXpBonus = this.state.upgrades.char_xp_boost ? 25 : 0;
+
+        const params: ApplyIngressResultsParams = {
+            characterId: characterId,
+            characterName: this.state.characterRenames[characterId],
+            xpBonus: xpBonusFromKeywords + universalXpBonus,
+            attributePoints: this.state.upgrades.char_attribute_point ? 1 : 0,
+            skillPoints: this.state.upgrades.char_skill_point ? 1 : 0,
+            specPoints: this.state.upgrades.char_spec_point ? 1 : 0,
+        };
+
+        effects.applyIngressResults(gameState, params);
+
+        gameState.exitMinigame();
     }
 
     public exploreCharacter(characterId: string, gameState: GameState): void {
@@ -396,58 +428,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
     }
 
     private initializeWordLists(ingressWordsLib: IngressWordsLib, gameState: GameState): void {
-        this.combinedWords = this.getCombinedWordsMap(ingressWordsLib, gameState);
-        this.characterKeywords = this.getCharacterKeywordsMap(gameState);
-    }
-
-    private getCharacterKeywordsMap(gameState: GameState): Map<string, string[]> {
-        const keywordMap = new Map<string, string[]>();
-        const locationCharacters = Array.from(gameState.lib.characters.values()).filter(
-            c => c.location === gameState.locationId,
-        );
-
-        for (const charDef of locationCharacters) {
-            const keywords = [...(charDef.keywords || []), charDef.name];
-            for (const keyword of keywords) {
-                const lowerKeyword = keyword.toLowerCase();
-                if (!keywordMap.has(lowerKeyword)) {
-                    keywordMap.set(lowerKeyword, []);
-                }
-                keywordMap.get(lowerKeyword)!.push(charDef.id);
-            }
-        }
-        return keywordMap;
-    }
-
-    private getCombinedWordsMap(ingressWordsLib: IngressWordsLib, gameState: GameState): Map<string, WordDefinition> {
-        const baseWords = new Map<string, WordDefinition>();
-        for (const wordDef of ingressWordsLib.getAllWords()) {
-            baseWords.set(wordDef.id, wordDef);
-        }
-
-        const combinedWords = new Map<string, WordDefinition>(baseWords);
-
-        const locationCharacters = Array.from(gameState.lib.characters.values()).filter(
-            c => c.location === gameState.locationId,
-        );
-
-        // Add character-specific words
-        for (const charDef of locationCharacters) {
-            const keywords = [...(charDef.keywords || []), charDef.name];
-            for (const keyword of keywords) {
-                const lowerKeyword = keyword.toLowerCase();
-                // Add only if not already present in the base lib.
-                if (!baseWords.has(lowerKeyword)) {
-                    combinedWords.set(lowerKeyword, {
-                        id: lowerKeyword,
-                        name: keyword,
-                        type: 'useful',
-                        points: 1,
-                    });
-                }
-            }
-        }
-        return combinedWords;
+        this.combinedWords = getCombinedWordsMap(ingressWordsLib, gameState);
+        this.characterKeywords = getCharacterKeywordsMap(gameState);
     }
 
     public getUsefulWordsCount(ingressWordsLib: IngressWordsLib, gameState: GameState): number {
@@ -459,24 +441,6 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return 0;
         }
 
-        let usefulWordsCount = 0;
-        for (const word of this.combinedWords.values()) {
-            if (word.type === 'useful') {
-                usefulWordsCount++;
-            }
-        }
-        return usefulWordsCount;
+        return getUsefulWordsCountFromMap(this.combinedWords);
     }
-
-    // TODO: Add your custom minigame methods here
-    // For example:
-    // public increaseScore(points: number): void {
-    //    if (this.state.isActive) {
-    //        this.state.score += points;
-    //    }
-    // }
-    //
-    // public completeLevel(): void {
-    //     this.state.currentLevel = 'nextLevel'; // Or some other logic
-    // }
 } 

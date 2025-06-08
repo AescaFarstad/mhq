@@ -94,7 +94,7 @@ const handleMouseLeave = () => {
   margin: 10px;
   cursor: default;
   transition: background-color 0.3s, transform 0.3s;
-  width: calc(33.333% - 22px);
+  width: 300px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -131,6 +131,7 @@ const handleMouseLeave = () => {
   width: 100%;
   height: 300px;
   position: relative;
+  top:-1px;
   background-color: #333;
   display: flex;
   justify-content: center;

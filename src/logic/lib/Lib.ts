@@ -9,6 +9,7 @@ import { TaskLib } from './TaskLib';
 import { BuildingLib } from './BuildingLib';
 import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
+import { BehTreeLib } from './BehTreeLib';
 
 import eventsData from '../data/events';
 import mainCharacters from '../data/characters';
@@ -17,37 +18,32 @@ import aeigareikaCharacters from '../data/aeigareikaCharacters';
 import sequoiterCharacters from '../data/sequoiterCharacters';
 import { taskDefinitions } from '../data/tasks';
 import { buildingDefinitions } from '../data/buildings';
-// Note: Attribute data is imported directly within AttributeLib.ts
-// Note: Skills data is imported directly within SkillLib.ts
 
 /**
- * Manages collections of game entity definitions loaded from external sources (like JSON).
- * This provides a central access point for definitions of things like buildings, techs, events, etc.
+ * The Lib class is a container for all the game's static data definitions.
+ * It is responsible for loading data from the /data folder and making it accessible.
  */
 export class Lib {
     public events: Map<string, EventDefinition> = new Map<string, EventDefinition>();
-
     public characters: CharacterLib = new CharacterLib();
     public attributes: AttributeLib = new AttributeLib();
     public skills: SkillLib;
     public tasks: TaskLib = new TaskLib();
     public buildings: BuildingLib = new BuildingLib();
-    public techs: Map<string, LibItem> = new Map<string, LibItem>(); // Specific type would be TechDefinition
+    public techs: Map<string, LibItem> = new Map<string, LibItem>();
     public ingressWords: IngressWordsLib;
     public welcomeLocations: WelcomeLocationsLib;
+    public behTrees: BehTreeLib;
     public isLoaded: boolean = false;
 
     constructor() {
         this.skills = new SkillLib(this.attributes);
         this.ingressWords = new IngressWordsLib();
         this.welcomeLocations = new WelcomeLocationsLib();
+        this.behTrees = new BehTreeLib();
         this.loadAllDefinitions();
     }
 
-    /**
-     * Loads all library definitions from their sources.
-     * (Now synchronous due to direct JSON import)
-     */
     private loadAllDefinitions(): void {
         if (this.isLoaded) {
             return;
@@ -55,43 +51,27 @@ export class Lib {
 
         console.log("Processing library definitions...");
         try {
-            // Process events from imported JSON
             this.events = this._processDataDefinitions<EventDefinition>(eventsData);
             this.characters.loadCharacters(mainCharacters);
             this.characters.loadCharacters(turfablieCharacters);
             this.characters.loadCharacters(aeigareikaCharacters);
             this.characters.loadCharacters(sequoiterCharacters);
-            // AttributeLib loads its data in its constructor or a dedicated load method
-            // SkillLib loads its data in its constructor or a dedicated load method
             this.buildings.loadBuildings(buildingDefinitions);
             this.tasks.loadTasks(taskDefinitions);
-
-            // After all relevant libraries are loaded, verify tasks
             this.tasks.verifyAllTasks(this.skills, this.buildings);
-
-            // Process other definitions similarly if they were imported
-
             this.isLoaded = true;
             console.log("Library definitions processed successfully.");
         } catch (error) {
             console.error("Failed to process library definitions:", error);
-            // Handle critical error - perhaps prevent game start
-            this.isLoaded = false; // Ensure flag indicates failure
+            this.isLoaded = false;
         }
     }
 
-    /**
-     * Helper method for processing imported TypeScript data into a Map.
-     *
-     * @param data The imported TypeScript object.
-     * @returns A Map where keys are the top-level keys from the data and values are the corresponding objects with an added 'id' property.
-     */
     private _processDataDefinitions<T extends LibItem>(data: Record<string, any>): Map<string, T> {
         const items = new Map<string, T>();
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 const itemData = data[key];
-                // Add the id property based on the key
                 const item: T = { ...itemData, id: key } as T;
                 items.set(key, item);
             }

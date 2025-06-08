@@ -177,46 +177,55 @@ const handleCloseInspect = () => {
     ingressGame.value?.closeCharacterInspection();
 };
 
+const handleEngageGame = () => {
+    ingressGame.value?.engage();
+};
+
 </script>
 
 <template>
-  <div class="ingress-view-container">
-    <div class="game-content-below-bar">
-      <div class="main-content-area">
-        <PossessionChargesBar
-          v-if="ingressState && ingressState.chargesBarRevealed"
-          :charges="ingressState.possessionCharges"
-          :possession-progress="ingressState.possessionProgress"
-          :total-possession-charges="ingressState.totalPossessionCharges"
-          :upgrades="ingressState.upgrades"
-          :show-progress="true"
-        />
-        <div v-if="ingressState && ingressState.characterOptions.length > 0" class="character-options-container">
-            <IngressCharacterCard 
-                v-for="option in ingressState.characterOptions"
-                :key="option.characterId"
-                :option="option"
-                :xp-bonus="ingressState.characterXpBonuses[option.characterId] || 0"
-                @explore="handleCharacterExplore"
-            />
+  <div class="ingress-view-container" :class="{ 'center-content': !ingressState?.engaged }">
+    <div class="game-content-wrapper">
+      <div class="game-content-below-bar" :class="{ 'engaged': ingressState?.engaged }">
+        <div class="main-content-area">
+          <PossessionChargesBar
+            v-if="ingressState && ingressState.chargesBarRevealed && ingressState.engaged"
+            :charges="ingressState.possessionCharges"
+            :possession-progress="ingressState.possessionProgress"
+            :total-possession-charges="ingressState.totalPossessionCharges"
+            :upgrades="ingressState.upgrades"
+            :show-progress="true"
+          />
+          <div v-if="ingressState && ingressState.characterOptions.length > 0 && ingressState.engaged" class="character-options-container">
+              <IngressCharacterCard
+                  v-for="option in ingressState.characterOptions"
+                  :key="option.characterId"
+                  :option="option"
+                  :xp-bonus="ingressState.characterXpBonuses[option.characterId] || 0"
+                  @explore="handleCharacterExplore"
+              />
+          </div>
+          <IngressInputArea
+              v-if="ingressState"
+              ref="ingressInputAreaRef"
+              :show-hint="showInputHint"
+              :charges-bar-revealed="ingressState.chargesBarRevealed"
+              :engaged="ingressState.engaged"
+              @submit-word="handleSubmitWord"
+              @engage-game="handleEngageGame"
+          />
         </div>
-        
-        <IngressInputArea
-          ref="ingressInputAreaRef"
-          :show-hint="showInputHint"
-          :charges-bar-revealed="ingressState?.chargesBarRevealed || false"
-          @submit-word="handleSubmitWord"
+        <IngressWordColumns
+          :columns="wordColumns"
+          v-if="wordColumns.length > 0 && ingressState?.engaged"
+          :key="wordColumns.length"
+          @word-hover="handleWordHover"
+          @word-leave="handleWordLeave"
+          :any-badge-hovered="anyBadgeHovered"
         />
       </div>
-      <IngressWordColumns 
-        :columns="wordColumns" 
-        v-if="wordColumns.length > 0" 
-        :key="wordColumns.length"
-        @word-hover="handleWordHover"
-        @word-leave="handleWordLeave"
-        :any-badge-hovered="anyBadgeHovered"
-      />
     </div>
+
     <div v-if="ingressState && ingressState.inspectingCharacterId" class="inspect-views-container-backdrop" @click.self="handleCloseInspect">
       <div class="inspect-views-panel-container">
         <IngressCharacterInspectView />
@@ -252,6 +261,16 @@ const handleCloseInspect = () => {
   position: relative;
 }
 
+.ingress-view-container.center-content {
+  justify-content: center; /* Center content vertically */
+}
+
+.game-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .game-content-below-bar {
   display: flex;
   flex-direction: row; /* Changed to row */
@@ -260,6 +279,10 @@ const handleCloseInspect = () => {
   flex-grow: 1; 
   overflow: visible; /* Allow seeing animations outside bounds */
   gap: 20px;
+}
+
+.game-content-below-bar:not(.engaged) {
+  align-items: center; /* Center when not engaged */
 }
 
 .main-content-area {

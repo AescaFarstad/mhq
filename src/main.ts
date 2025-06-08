@@ -8,7 +8,7 @@ import { registerMinigameUISyncFunction } from './logic/minigames/MinigameUIStat
 import { syncClickCounterUI } from './minigames/click_counter/clickCounterUISync';
 import { CLICK_COUNTER_TYPE } from './minigames/click_counter/ClickCounterTypes';
 import { welcomeUISync } from './minigames/welcome/welcomeUISync';
-import { WELCOME_TYPE } from './minigames/welcome/WelcomeTypes';
+import { WELCOME_TYPE } from './minigames/welcome/WelcomeGame';
 import { syncIngressUI } from './minigames/ingress/ingressUISync';
 import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
 import { syncExampleUI } from './minigames/example/exampleUISync';

@@ -72,6 +72,10 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.characterXpBonuses = JSON.parse(JSON.stringify(logicState.characterXpBonuses));
         }
 
+        if (logicState.engaged !== uiState.engaged) {
+            uiState.engaged = logicState.engaged;
+        }
+
         // Add other properties from IngressState that need to be kept in sync
         // For example:
         // if (logicState.score !== uiState.score) {

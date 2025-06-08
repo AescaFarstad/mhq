@@ -4,14 +4,14 @@ export const connectionLocationDefinitions: Record<string, Omit<WelcomeLocationD
     turfablie:{
         name: 'Turfablie',
         description: 'Highland artificer town with established merchant routes. Peaceful and picturesque.',
-        imageName: 'location (1)',
+        imageName: 'location (2)',
         pros: ['Strong, stable telepathic signal', 'Minimal resistance to merger', 'Thriving markets'],
         cons: ['Guild masters are not as skilled'],
     },
     aeiga_reika:{
         name: 'Aeiga-Reika',
         description: 'Industrial port city. Home to a large golem foundry. Salty and smoggy.',
-        imageName: 'location (2)',
+        imageName: 'location (1)',
         pros: ['Skilled guild masters', 'Wealthy port commerce'],
         cons: ['Weak signal and intermittent telepathic interference during possession'],
     },

@@ -10,12 +10,18 @@ import type { Skill } from './lib/definitions/SkillDefinition';
  */
 export interface Character {
     characterId: string;
+    name: string;
     level: IndependentStat;
+    xp: IndependentStat;
+    nextLevelXp: IndependentStat;
     baseUpkeep: IndependentStat;
     upkeep: Parameter;
     attributes: Record<string, IndependentStat>;
+    attributePoints: IndependentStat;
     skills: Record<string, IndependentStat>;
+    universalSkillPoints: IndependentStat;
     specializations: Record<string, IndependentStat>;
+    universalSpecializationPoints: IndependentStat;
     proficiencies: Record<string, Parameter>;
     avgGovAttrStatsCache: Map<string, FormulaParameter>;
 }
@@ -53,12 +59,18 @@ export namespace Character {
 
         const newChar: Character = {
             characterId: charDef.id,
+            name: charDef.name,
             level: Stats.createStat(`${idPrefix}level`, charDef.initialLevel, gameState.connections),
+            xp: Stats.createStat(`${idPrefix}xp`, 0, gameState.connections),
+            nextLevelXp: Stats.createStat(`${idPrefix}nextLevelXp`, 1000, gameState.connections),
             baseUpkeep: Stats.createStat(`${idPrefix}base_upkeep`, charDef.baseUpkeep, gameState.connections),
             upkeep: Stats.createParameter(`${idPrefix}upkeep`, gameState.connections),
             attributes: {},
+            attributePoints: Stats.createStat(`${idPrefix}attributePoints`, 0, gameState.connections),
             skills: {},
+            universalSkillPoints: Stats.createStat(`${idPrefix}universalSkillPoints`, 0, gameState.connections),
             specializations: {},
+            universalSpecializationPoints: Stats.createStat(`${idPrefix}universalSpecializationPoints`, 0, gameState.connections),
             proficiencies: {},
             avgGovAttrStatsCache: new Map<string, FormulaParameter>()
         };

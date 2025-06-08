@@ -4,10 +4,12 @@ import { ref } from 'vue';
 defineProps<{
   showHint: boolean;
   chargesBarRevealed: boolean;
+  engaged: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void
+  (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
+  (e: 'engage-game'): void;
 }>();
 
 const inputValue = ref('');
@@ -65,48 +67,53 @@ defineExpose({
   <div class="input-and-prompt-area-wrapper">
     <div class="input-and-prompt-area">
       <p v-if="!chargesBarRevealed" class="input-prompt large-prompt">Time to initiate possession.</p>
-      <p v-if="!chargesBarRevealed" class="input-prompt">This process is mentally strenuous, stock up on coffee or tea.</p>
-      <p v-if="!chargesBarRevealed"></p>
-      <p class="input-prompt">Type in <b>nouns</b> you believe might resonate across the dimensional barrier. The right words will accelerate the possession.</p>
-      <div class="input-wrapper">
-        <div
-          ref="inputAreaRef"
-          class="input-area"
-          :class="{
-            'shake-animation': inputInteractionState === 'blank-error',
-            'flash-green-animation': inputInteractionState === 'scored-points'
-          }"
-        >
-          <input
-            ref="inputElementRef"
-            type="text"
-            v-model="inputValue"
-            @keyup.enter="submitInput"
-            @input="onInputBoxInput"
-            placeholder="type a magic noun and hit Enter"
-            :class="{
-              'input-blank-highlight': inputInteractionState === 'blank-error',
-              'input-typing-highlight': inputInteractionState === 'typing'
-            }"
-          />
-          <button @click="submitInput">Enter</button>
-        </div>
-        <div
-          v-if="showHint"
-          class="input-hint-container"
-          @mouseenter="isInputHintVisible = true"
-          @mouseleave="isInputHintVisible = false"
-        >
-          <span class="hint-icon">?</span>
-          <div v-if="isInputHintVisible" class="hint-tooltip">
-              <ul>
-                <li>Verbs can not transcend universal boundaries. Only nouns pave the way.</li>
-                <li>Use simple, singular forms (i.e. 'farm' instead of 'farmer'). Simple cases will be autocorrected.</li>
-                <li>Nobody can tell you which words to type. Telepathy responds to instinct.</li>
-                <li>There is no penalty for errors. Despair is your only undoing.</li>
-              </ul>
+      <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break">This process is mentally strenuous, stock up on coffee or tea.</p>
+
+      <div class="action-area">
+        <div class="engaged-content" :class="{ hidden: !engaged }">
+          <p class="input-prompt">Type in <b>nouns</b> you believe might resonate across the dimensional barrier. The right words will accelerate the possession.</p>
+          <div class="input-wrapper">
+            <div
+              ref="inputAreaRef"
+              class="input-area"
+              :class="{
+                'shake-animation': inputInteractionState === 'blank-error',
+                'flash-green-animation': inputInteractionState === 'scored-points'
+              }"
+            >
+              <input
+                ref="inputElementRef"
+                type="text"
+                v-model="inputValue"
+                @keyup.enter="submitInput"
+                @input="onInputBoxInput"
+                placeholder="type a magic noun and hit Enter"
+                :class="{
+                  'input-blank-highlight': inputInteractionState === 'blank-error',
+                  'input-typing-highlight': inputInteractionState === 'typing'
+                }"
+              />
+              <button @click="submitInput">Enter</button>
+            </div>
+            <div
+              v-if="showHint"
+              class="input-hint-container"
+              @mouseenter="isInputHintVisible = true"
+              @mouseleave="isInputHintVisible = false"
+            >
+              <span class="hint-icon">?</span>
+              <div v-if="isInputHintVisible" class="hint-tooltip">
+                  <ul>
+                    <li>Verbs can not transcend universal boundaries. Only nouns pave the way.</li>
+                    <li>Use simple, singular forms (i.e. 'farm' instead of 'farmer'). Trivial cases will be autocorrected.</li>
+                    <li>Nobody can tell you which words to type. Telepathy responds to instinct.</li>
+                    <li>There is no penalty for errors. Despair is your only undoing.</li>
+                  </ul>
+              </div>
+            </div>
           </div>
         </div>
+        <button :class="{ hidden: engaged }" @click="$emit('engage-game')" class="engage-button">Engage now</button>
       </div>
     </div>
   </div>
@@ -119,6 +126,8 @@ defineExpose({
   align-items: center;
   flex-grow: 1;
   width: 100%;
+  gap: 8px; /* Space between prompt and input box */
+  align-items: center; /* Align prompt and input area to the center */
 }
 
 .input-and-prompt-area {
@@ -126,6 +135,26 @@ defineExpose({
   flex-direction: column;
   gap: 8px; /* Space between prompt and input box */
   align-items: center; /* Align prompt and input area to the center */
+}
+
+.action-area {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.engaged-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.engaged-content.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .input-wrapper {
@@ -138,11 +167,46 @@ defineExpose({
   font-size: 0.9em;
   color: #bdc3c7;
   text-align: center;
+  margin: 0;
 }
 
 .large-prompt {
   font-size: 1.2em;
   font-weight: bold;
+}
+
+.prompt-with-a-break {
+  margin-bottom: 1.2em;
+}
+
+.initial-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+}
+
+.engage-button {
+  position: absolute;
+  padding: 12px 24px;
+  background-color: #f1c40f;
+  color: #2c3e50;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background-color 0.2s;
+  font-size: 1.1em;
+}
+
+.engage-button.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.engage-button:hover {
+  background-color: #f39c12;
 }
 
 .input-area {

@@ -63,7 +63,9 @@ const handleDeobfuscate = () => {
 };
 
 const handlePossess = () => {
-    ingressGame.value?.commitAndPossess();
+    if (ingressGame.value && gameState) {
+        ingressGame.value.commitAndPossess(gameState);
+    }
 };
 
 const handleClose = () => {

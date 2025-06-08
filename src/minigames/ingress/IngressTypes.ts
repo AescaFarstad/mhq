@@ -67,16 +67,5 @@ export interface IngressState extends MinigameState {
     upgrades: IngressUpgrades;
     upgradesRevealed: boolean;
     possessionProgress: number; // From 0 to 100
-    // Example state properties:
-    // score: number;
-    // currentLevel: string;
-    // isActive: boolean;
+    engaged: boolean;
 }
-
-// Add any other Ingress-specific type definitions here
-// For example:
-// export interface IngressItem {
-//   id: string;
-//   name: string;
-//   value: number;
-// }

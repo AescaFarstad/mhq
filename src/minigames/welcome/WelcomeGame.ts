@@ -1,15 +1,50 @@
 import type { GameState } from '../../logic/GameState';
-import type { BaseMinigame } from '../../logic/minigames/MinigameTypes';
-import {
-    WELCOME_TYPE, type WelcomeState, type ExplorableWelcomeChoice,
-    EXPLORATION_RATE,
-    THRESHOLD_DESCRIPTION_OBFUSCATED_REVEAL,
-    THRESHOLD_PROS_CONS_TITLES_REVEAL,
-    THRESHOLD_DESCRIPTION_REVEAL,
-    THRESHOLD_SELECTABLE
-} from './WelcomeTypes';
+import type { BaseMinigame, MinigameState, MinigameType } from '../../logic/minigames/MinigameTypes';
 import { reactive, shallowReactive } from 'vue';
 import { WelcomeLib } from './lib/WelcomeLib';
+import type { WelcomeLocationDefinition } from './lib/definitions/WelcomeLocationDefinition';
+import * as effects from '../../logic/effects';
+import type { ApplyWelcomeResultsParams } from '../../logic/lib/definitions/EventDefinition';
+
+export const WELCOME_TYPE: MinigameType = 'Welcome';
+
+export const EXPLORATION_RATE = 0.07; // Progress per second
+export const THRESHOLD_DESCRIPTION_OBFUSCATED_REVEAL = 0.4;
+export const THRESHOLD_PROS_CONS_TITLES_REVEAL = 0.5;
+// Thresholds for individual pros/cons will be dynamic
+export const THRESHOLD_DESCRIPTION_REVEAL = 0.9;
+export const THRESHOLD_SELECTABLE = 1.0;
+
+export interface WelcomeState extends MinigameState {
+    lib: WelcomeLib;
+    selectedLocation?: WelcomeLocationDefinition;
+    explorableChoices: ExplorableWelcomeChoice[];
+    lastSelectedLocationId?: string;
+}
+
+export interface WelcomeChoice {
+  id: string;
+  name: string;
+  imageName: string;
+  atlasName?: string;
+  pros: string[];
+  cons: string[];
+  description?: string; // Optional: for more details if needed later
+}
+
+export interface ExplorableWelcomeChoice extends WelcomeChoice {
+  explorationProgress: number; // 0 to 1
+  isExploring: boolean;
+  totalExplorationSteps: number; // Total steps to reveal everything
+  currentExplorationStep: number; // Current step achieved
+  nameObfuscationPercentage: number; // 0 to 1, where 1 is fully obfuscated
+  isDescriptionVisible: boolean;
+  descriptionObfuscationPercentage: number; // 0 to 1, where 1 is fully obfuscated
+  areProsConsTitlesVisible: boolean;
+  revealedProsCount: number;
+  revealedConsCount: number;
+  canBeSelected: boolean;
+}
 
 export class WelcomeGame implements BaseMinigame<WelcomeState> {
     readonly id: string;
@@ -43,6 +78,7 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
                 id: loc.id, // Ensure all fields from ExplorableWelcomeChoice are present
                 name: loc.name,
                 imageName: loc.imageName,
+                atlasName: 'locations',
                 pros: loc.pros,
                 cons: loc.cons,
                 description: loc.description,
@@ -84,10 +120,13 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
         const selectedChoiceDefinition = this.state.lib.locations.getLocation(choiceId);
         if (selectedChoiceDefinition) {
             console.log('Choice made in WelcomeGame:', selectedChoiceDefinition);
-            // this.state.selectedLocation = selectedChoiceDefinition; // No longer needed to set here for UI, as view will re-render or close
-            gameState.locationId = selectedChoiceDefinition.id;
+            
+            const params: ApplyWelcomeResultsParams = {
+                locationId: selectedChoiceDefinition.id,
+            };
+            effects.applyWelcomeResults(gameState, params);
+
             this.state.lastSelectedLocationId = selectedChoiceDefinition.id;
-            // this.state.selectedLocation = undefined; // Clearing for UI state if minigame didn't immediately exit
             gameState.exitMinigame();
         } else {
             console.error('WelcomeGame: Could not find location definition for id:', choiceId);
@@ -173,11 +212,6 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
     }
 
     destroy(_gameState: GameState): void {
-        // TODO: Add any cleanup logic here
-        // This method is called when the minigame is being closed
-        // Stop any ongoing explorations if necessary
         this.stopAllExplorations();
     }
-
-    // TODO: Add your custom minigame methods here
 } 

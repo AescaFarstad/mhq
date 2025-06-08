@@ -17,6 +17,8 @@ import type { GameTask } from './TaskTypes';
 import { SlowTick } from './utils/SlowTick';
 import type { ResourceUIData } from './UIStateManager';
 import type { BaseMinigame, MinigameType, MinigameState } from './minigames/MinigameTypes';
+import { Invoker } from './core/behTree/Invoker';
+import type { EventDefinition } from './lib/definitions/EventDefinition';
 
 export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
 export const DEFAULT_MIN_DELTA_TIME = 0.05;
@@ -33,6 +35,7 @@ export class GameState {
     public buildings: Building[] = [];
     public discoveredItems: Record<string, boolean> = {};
     public activeMinigame: BaseMinigame<MinigameState> | null = null;
+    public invoker: Invoker = new Invoker();
 
     public gold! : Resource;
     public clutter! : Resource;
@@ -146,6 +149,7 @@ export class GameState {
         if (this.activeMinigame) {
             this.activeMinigame.update(this, deltaTime);
         }
+        this.invoker.update(deltaTime, this);
         
         UIStateManager.sync(this);
 
@@ -242,11 +246,21 @@ export class GameState {
 
     public exitMinigame(): void {
         if (this.activeMinigame) {
+            const minigameType = this.activeMinigame.type;
             console.log(`Exiting minigame: ${this.activeMinigame.type}`);
             this.activeMinigame.destroy(this);
             this.activeMinigame = null;
             this.uiState.activeMinigameType = null;
             this.uiState.activeMinigameState = null;
+
+            const completionEvent: EventDefinition = {
+                id: 'minigameComplete',
+                params: { minigameType: minigameType },
+                triggerOnce: true,
+                conditions: [],
+                effects: []
+            };
+            EventProcessor.processSingleEvent(completionEvent, this);
         }
     }
 }
