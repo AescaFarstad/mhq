@@ -38,7 +38,7 @@ function testStandardObfuscation() {
     
     const expected = {
         '1': '¿ՁՀ юລՈзю ଓກʋɗɻ Ճ☋ы ʋՆՅຢລ ՀⵛзՐ ɦю☋ ⵛՃՐՆ ઇՆՎ?',
-        '0.8': '¿ՁՀ юລiзю ଓກʋɗɻ foы ʋՆՅps ՀveՐ ɦю☋ lՃՐՆ ઇՆՎ?',
+        '0.8': '¿hՀ qລiзю ଓກʋɗɻ f☋ы ʋՆՅຢລ ՀⵛзՐ ɦю☋ ⵛՃՐՆ ઇՆՎ?',
         '0.6': '¿hՀ qລiзk bກʋɗɻ foы ʋՆՅps Հver ɦюe lՃՐՆ dog?',
         '0.4': '¿hՀ quiзk bກoɗɻ fox ʋՆՅps Հver tюe lazy dog?',
         '0.2': 'The quiзk browɻ fox ʋՆmps over the lazy dog?',

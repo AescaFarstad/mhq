@@ -1,4 +1,4 @@
-import type { MinigameState, MinigameType } from './MinigameTypes';
+import type { MinigameType } from './MinigameTypes';
 import type { GameState } from '../GameState'; // Needed for context, though sync might not use it directly
 
 /**
@@ -13,25 +13,6 @@ export interface IMinigameUIStateManager {
      */
     sync(gameState: GameState): void;
 }
-
-// Example of how a specific minigame UI state manager might look (conceptual)
-/*
-import { ClickCounterState } from '../../minigames/click_counter/ClickCounterTypes';
-
-export class ClickCounterUIStateManager implements IMinigameUIStateManager {
-    sync(gameState: GameState): void {
-        const minigameLogicState = gameState.activeMinigame?.state as ClickCounterState;
-        const UIMinigameState = gameState.uiState.activeMinigameState;
-        if (minigameLogicState && UIMinigameState) {
-            // Assuming UIMinigameState is an object that can hold these properties
-            // and is correctly typed or cast within the actual implementation.
-            (UIMinigameState as any).clickCount = minigameLogicState.clickCount;
-            (UIMinigameState as any).clicksToWin = minigameLogicState.clicksToWin; 
-            // Potentially more complex transformations or calculations for UI
-        }
-    }
-}
-*/
 
 /**
  * Signature for a minigame-specific UI state synchronization function.

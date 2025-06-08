@@ -1,5 +1,5 @@
 import type { GameState } from '../../logic/GameState';
-import type { WelcomeState, ExplorableWelcomeChoice } from './WelcomeTypes';
+import type { WelcomeState, ExplorableWelcomeChoice } from './WelcomeGame';
 import type { MinigameUISyncFn } from '../../logic/minigames/MinigameUIStateManager';
 
 /**
@@ -28,20 +28,19 @@ export const welcomeUISync: MinigameUISyncFn = (
             if (!uiState.explorableChoices || uiState.explorableChoices.length !== logicState.explorableChoices.length) {
                 // If UI array is not initialized or length mismatch, replace it (Vue will react)
                 // Ensure items are plain objects if they are to be reactive, or that reactivity is handled correctly
-                uiState.explorableChoices = logicState.explorableChoices.map(choice => ({ ...choice }));
+                uiState.explorableChoices = logicState.explorableChoices.map((choice: ExplorableWelcomeChoice) => ({ ...choice }));
             } else {
                 // If arrays match in length, update each item property by property
                 // This is generally better for Vue's reactivity if UI choices are already reactive objects
-                logicState.explorableChoices.forEach((logicChoice, index) => {
+                logicState.explorableChoices.forEach((logicChoice: ExplorableWelcomeChoice, index: number) => {
                     const uiChoice = uiState.explorableChoices[index];
                     if (uiChoice && uiChoice.id === logicChoice.id) {
                         // Sync all relevant mutable properties
                         uiChoice.explorationProgress = logicChoice.explorationProgress;
                         uiChoice.isExploring = logicChoice.isExploring;
-                        uiChoice.isNameObfuscated = logicChoice.isNameObfuscated;
-                        uiChoice.obfuscatedName = logicChoice.obfuscatedName;
+                        uiChoice.nameObfuscationPercentage = logicChoice.nameObfuscationPercentage;
                         uiChoice.isDescriptionVisible = logicChoice.isDescriptionVisible;
-                        uiChoice.isDescriptionObfuscated = logicChoice.isDescriptionObfuscated;
+                        uiChoice.descriptionObfuscationPercentage = logicChoice.descriptionObfuscationPercentage;
                         uiChoice.areProsConsTitlesVisible = logicChoice.areProsConsTitlesVisible;
                         uiChoice.revealedProsCount = logicChoice.revealedProsCount;
                         uiChoice.revealedConsCount = logicChoice.revealedConsCount;

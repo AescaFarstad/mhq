@@ -28,7 +28,7 @@ export class ExampleGame implements BaseMinigame<ExampleState> {
      * @param _gameState The global game state.
      * @param deltaTime The time elapsed since the last update, in seconds.
      */
-    update(_gameState: GameState, deltaTime: number): void {
+    update(_gameState: GameState, _deltaTime: number): void {
         // TODO: Implement your minigame's core logic here
         // This method is called repeatedly - use deltaTime for frame-rate independent updates.
         // console.log(`ExampleGame update, deltaTime: \${deltaTime}`);

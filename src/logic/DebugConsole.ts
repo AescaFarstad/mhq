@@ -20,7 +20,6 @@ export class DebugConsole {
         
         const eventDef: EventDefinition = {
             id: `console_event_${effectKey}_${Date.now()}`,
-            conditions: [], 
             effects: [effect as Effect] 
         };
 

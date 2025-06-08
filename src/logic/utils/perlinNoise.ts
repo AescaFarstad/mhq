@@ -1,5 +1,3 @@
-import { random } from './mathUtils';
-
 // Perlin noise implementation
 class PerlinNoise {
     private permutation: number[];
@@ -24,7 +22,7 @@ class PerlinNoise {
         } else {
             // Random shuffle
             for (let i = 255; i > 0; i--) {
-                const j = Math.floor(random() * (i + 1));
+                const j = Math.floor(Math.random() * (i + 1));
                 [this.permutation[i], this.permutation[j]] = [this.permutation[j], this.permutation[i]];
             }
         }

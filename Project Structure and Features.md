@@ -114,6 +114,11 @@
     *   **Workflow Summary:** UI/Game System -> Creates Specific Command Object -> Imports `globalInputQueue` from `GameState.ts` and adds command to it -> `GameState.update()` calls `InputProcessor.processInputs()` -> `processInputs()` iterates `globalInputQueue`, uses `command.name` to find handler in `handlersByName` -> Handler is invoked with command data and `gameState` -> Handler executes logic -> `globalInputQueue` is cleared.
 *   **Task System (`src/logic/Task.ts`, `src/logic/TaskTypes.ts`):** `Task.ts` contains the logic for processing tasks. This includes updating task progress based on assigned characters' calculated speed (derived from skills and game-wide work speed), handling task completion, and distributing rewards. It also features a system for automatically generating maintenance tasks (e.g., 'declutter') based on conditions like current clutter levels and existing maintenance tasks. `TaskTypes.ts` defines the structures and enumerations for tasks (e.g., `GameTask`, `GameTaskType`, `GameTaskStatus`). Task definitions (effort, skills, rewards) are expected to be loaded via `Lib.ts`.
 *   **Building System (`src/logic/Building.ts`):** `Building.ts` provides functionality to add buildings to the game state. Each building can have associated stats, such as `clutterGeneration`, which is an `IndependentStat` connected to the global `totalBuildingsClutter` parameter in `GameState`. Building definitions, including their `clutterPerSecond`, are loaded from `data/buildings.ts` (implicitly, via `Lib.ts`).
+*   **TypeScript Configuration:** The project uses a multi-level `tsconfig.json` setup for different environments.
+    *   `tsconfig.base.json`: Contains the common, strict compiler settings used for development.
+    *   `tsconfig.json`: Used by IDEs for development, inheriting the strict settings.
+    *   `tsconfig.build.json`: Used for creating production builds (e.g., for GitHub Pages). It inherits the base settings but disables strict checks like `noUnusedLocals` to prevent build failures on non-critical warnings.
+    *   The `package.json` build script is configured to use `tsconfig.build.json` specifically.
 
 *   **Minigame System:** Allows for adding self-contained game modules that can overlay or temporarily replace the main game UI.
     *   **Core Concepts & Lifecycle:**
