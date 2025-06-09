@@ -129,7 +129,7 @@ const deobfuscateButtonLabel = computed(() => {
             <div class="char-portrait-panel">
                 <div class="name-container">
                     <h2 class="char-name">{{ displayedCharacterName }}</h2>
-                    <button @click="handleOpenRenameDialog" class="rename-button" :disabled="!ingressState || ingressState.possessionCharges < 1">Rename ☆</button>
+                    <button @click="handleOpenRenameDialog" class="rename-button" :disabled="!ingressState || ingressState.possessionCharges < 1">✏️ ☆</button>
                 </div>
                 <div class="portrait-container">
                     <ImageHolder 

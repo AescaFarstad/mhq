@@ -32,9 +32,14 @@ onMounted(() => {
     }, 5000);
 });
 
+// Constants for engage button fade behavior
+const FADE_START_PERCENTAGE = 0;
+const OPACITY_EXPONENT = 4;
+
 const engageButtonStyle = computed(() => {
-    if (props.engagementProgress > 50) {
-        const opacity = 1 - (props.engagementProgress - 50) / 50;
+    if (props.engagementProgress > FADE_START_PERCENTAGE) {
+        const progressRatio = (props.engagementProgress - FADE_START_PERCENTAGE) / (100 - FADE_START_PERCENTAGE);
+        const opacity = Math.pow(1 - progressRatio, OPACITY_EXPONENT);
         return { opacity: Math.max(0, opacity) };
     }
     return {};

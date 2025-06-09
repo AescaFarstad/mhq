@@ -114,9 +114,9 @@ onMounted(() => {
     };
     
     let alpha;
-    const baseAlpha = 0.7;
-    const endAlpha = 0.07;
-    const clearAlphaExponent = 2;
+    const baseAlpha = 0.9;
+    const endAlpha = 0.04;
+    const clearAlphaExponent = 0.4;
 
     if (props.isEngaged && props.engagementCompletionTime) {
         const timeSinceEngaged = Date.now() - props.engagementCompletionTime;
