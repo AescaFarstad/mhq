@@ -76,6 +76,14 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.engaged = logicState.engaged;
         }
 
+        if (logicState.engagementProgress !== uiState.engagementProgress) {
+            uiState.engagementProgress = logicState.engagementProgress;
+        }
+
+        if (logicState.engagementCompletionTime !== uiState.engagementCompletionTime) {
+            uiState.engagementCompletionTime = logicState.engagementCompletionTime;
+        }
+
         // Add other properties from IngressState that need to be kept in sync
         // For example:
         // if (logicState.score !== uiState.score) {

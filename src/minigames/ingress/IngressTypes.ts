@@ -68,4 +68,6 @@ export interface IngressState extends MinigameState {
     upgradesRevealed: boolean;
     possessionProgress: number; // From 0 to 100
     engaged: boolean;
+    engagementProgress: number;
+    engagementCompletionTime: number | null;
 }

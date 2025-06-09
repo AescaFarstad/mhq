@@ -8,7 +8,7 @@ import type { ApplyWelcomeResultsParams } from '../../logic/lib/definitions/Even
 
 export const WELCOME_TYPE: MinigameType = 'Welcome';
 
-export const EXPLORATION_RATE = 10.07; // Progress per second
+export const EXPLORATION_RATE = 0.07; // Progress per second
 export const THRESHOLD_DESCRIPTION_OBFUSCATED_REVEAL = 0.4;
 export const THRESHOLD_PROS_CONS_TITLES_REVEAL = 0.5;
 // Thresholds for individual pros/cons will be dynamic

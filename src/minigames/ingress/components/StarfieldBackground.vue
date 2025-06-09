@@ -8,6 +8,8 @@ import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
 const props = defineProps<{
   attractorPosition: { x: number; y: number } | null;
   isEngaged: boolean;
+  engagementProgress: number;
+  engagementCompletionTime: number | null;
 }>();
 
 const emit = defineEmits<{
@@ -81,7 +83,7 @@ onMounted(() => {
     star.x = (screenX - centerX) * star.z / focal;
     star.y = (screenY - centerY) * star.z / focal;
 
-    const flyInSpeed = 2 + Math.random() * 2;
+    const flyInSpeed = 4 + Math.random() * 4;
     const magnitude = Math.hypot(star.x, star.y);
     if (magnitude > 0) {
         star.vx = (-star.x / magnitude) * flyInSpeed;
@@ -111,7 +113,22 @@ onMounted(() => {
       return;
     };
     
-    ctx.fillStyle = 'rgba(44, 62, 80, 0.7)';
+    let alpha;
+    const baseAlpha = 0.7;
+    const endAlpha = 0.07;
+    const clearAlphaExponent = 2;
+
+    if (props.isEngaged && props.engagementCompletionTime) {
+        const timeSinceEngaged = Date.now() - props.engagementCompletionTime;
+        const transitionDuration = 10000; // 10 seconds
+        const transitionProgress = Math.min(timeSinceEngaged / transitionDuration, 1);
+        alpha = endAlpha + (baseAlpha - endAlpha) * transitionProgress;
+    } else {
+        const p = props.engagementProgress / 100;
+        alpha = baseAlpha * Math.pow(endAlpha / baseAlpha, Math.pow(p, clearAlphaExponent));
+    }
+
+    ctx.fillStyle = `rgba(44, 62, 80, ${alpha})`;
     ctx.fillRect(0, 0, width, height);
 
     const centerX = width / 2;
@@ -178,12 +195,21 @@ onMounted(() => {
         }
 
     } else {
-        const attractionForce = 120;
+        const attractionForce = 220;
         const repulsionForce = 50;
+        const now = Date.now();
 
         for (const star of stars) {
-            const sx = (star.x / star.z) * focal + centerX;
-            const sy = (star.y / star.z) * focal + centerY;
+            star.z -= speed;
+
+            if (star.z <= 0) {
+                resetStar(star, false);
+                continue;
+            }
+            
+            const invZ = 1 / star.z;
+            const sx = star.x * invZ * focal + centerX;
+            const sy = star.y * invZ * focal + centerY;
 
             let ax = 0, ay = 0;
             
@@ -228,34 +254,26 @@ onMounted(() => {
             star.x += star.vx;
             star.y += star.vy;
 
-            const starAge = Date.now() - star.creationTime;
-            if (starAge > 4500 - (Math.abs(star.vx) + Math.abs(star.vy)) * 300) {
+            const starAge = now - star.creationTime;
+            if (starAge > 5500 - (Math.abs(star.vx) + Math.abs(star.vy)) * 300) {
                 star.vx *= 0.95;
                 star.vy *= 0.95;
             }
 
-            star.z -= speed;
-
-            if (star.z <= 0 || (star.z > width * 2 && isNaN(sx))) {
-                resetStar(star, false);
-            }
-
-            if (star.z > 0) {
-                const screenX = (star.x / star.z) * focal + centerX;
-                const screenY = (star.y / star.z) * focal + centerY;
+            const screenX = star.x * invZ * focal + centerX;
+            const screenY = star.y * invZ * focal + centerY;
+        
+            const r = (star.baseRadius * invZ) * focal * 0.5;
             
-                const r = (star.baseRadius / star.z) * focal * 0.5;
-                
-                const distFromCenter = Math.hypot(screenX - centerX, screenY - centerY);
-                const centralClearance = Math.min(width, height) * 0.05 * star.sensitivity;
+            const distFromCenter = Math.hypot(screenX - centerX, screenY - centerY);
+            const centralClearance = Math.min(width, height) * 0.05 * star.sensitivity;
 
-                if (distFromCenter > centralClearance && screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
-                    const opacity = Math.min(1, (focal / star.z) * 1.5);
-                    ctx.fillStyle = `rgba(226, 232, 240, ${opacity})`;
-                    ctx.beginPath();
-                    ctx.arc(screenX, screenY, r, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+            if (distFromCenter > centralClearance && screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
+                const opacity = Math.min(1, focal * invZ * 1.5);
+                ctx.fillStyle = `rgba(226, 232, 240, ${opacity})`;
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, r, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
     }

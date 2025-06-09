@@ -158,12 +158,9 @@ const deobfuscateButtonLabel = computed(() => {
                 </div>
             </div>
             <div class="commit-panel" v-if="locationDef">
-                <ImageHolder
-                    :atlas-name="'locations'"
-                    :image-name="locationDef.imageName"
-                    :display-width="300"
-                    :display-height="300"
-                />
+                <div class="location-image-container">
+                    <img :src="'img/' + locationDef.imageName" :alt="locationDef.name" class="location-image"/>
+                </div>
                 <div class="possess-button-container">
                     <button 
                         @click="handlePossess" 
@@ -199,13 +196,13 @@ const deobfuscateButtonLabel = computed(() => {
     background-color: #2c3e50;
     border: 2px solid #7f8c8d;
     border-radius: 15px;
-    padding: 25px;
+    padding: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     position: relative;
     color: #ecf0f1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 .close-button {
     position: absolute;
@@ -238,7 +235,7 @@ const deobfuscateButtonLabel = computed(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
 }
 .name-container {
     display: flex;
@@ -273,6 +270,8 @@ const deobfuscateButtonLabel = computed(() => {
 }
 .portrait-container {
     position: relative;
+    border-radius: 8px;
+    overflow: hidden;
 }
 .xp-bonus-overlay {
     position: absolute;
@@ -299,11 +298,11 @@ const deobfuscateButtonLabel = computed(() => {
     padding-top: 8px;
     overflow-y: auto;
     font-family: 'Source Code Pro', Courier, monospace;
-    font-size: 1.1rem;
+    font-size: 1.0rem;
     line-height: 1.6;
 }
 .actions-container {
-    padding-top: 20px;
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -336,6 +335,21 @@ const deobfuscateButtonLabel = computed(() => {
     align-items: center;
     justify-content: center;
     gap: 20px;
+}
+.location-image-container {
+    width: 320px;
+    height: 270px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+.location-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 .possess-button-container {
     position: relative;

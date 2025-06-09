@@ -203,6 +203,8 @@ const handleEngageHover = (rect: DOMRect | null) => {
       v-if="showStarfield"
       :attractor-position="attractorPosition"
       :is-engaged="!!ingressState?.engaged"
+      :engagement-progress="ingressState?.engagementProgress ?? 0"
+      :engagement-completion-time="ingressState?.engagementCompletionTime ?? null"
       @all-stars-gone="() => {
         showStarfield = false;
         console.log('[IngressView] Starfield component removed.');
@@ -229,14 +231,19 @@ const handleEngageHover = (rect: DOMRect | null) => {
               />
           </div>
           <IngressInputArea
-              v-if="ingressState"
+              v-if="ingressState && ingressGame"
               ref="ingressInputAreaRef"
               :show-hint="showInputHint"
               :charges-bar-revealed="ingressState.chargesBarRevealed"
               :engaged="ingressState.engaged"
+              :engagement-progress="ingressState.engagementProgress"
               @submit-word="handleSubmitWord"
               @engage-game="handleEngageGame"
               @engage-hover="handleEngageHover"
+              @engagement-click="ingressGame.handleEngagementClick()"
+              @engagement-mousedown="ingressGame.handleEngagementMouseDown()"
+              @engagement-mouseup="ingressGame.stopEngagementHold()"
+              @engagement-mouseleave="ingressGame.stopEngagementHold()"
           />
         </div>
         <IngressWordColumns
@@ -280,7 +287,7 @@ const handleEngageHover = (rect: DOMRect | null) => {
   flex-direction: column; 
   background-color: #2c3e50;
   color: #e2e8f0;
-  padding: 20px;
+  padding: 10px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
@@ -315,7 +322,7 @@ const handleEngageHover = (rect: DOMRect | null) => {
 .main-content-area {
   display: flex;
   flex-direction: column;
-  gap: 20px; 
+  gap: 10px; 
   align-items: stretch; /* Stretch children to fill width */
   justify-content: flex-start;
   flex-grow: 1;

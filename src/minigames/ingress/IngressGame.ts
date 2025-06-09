@@ -58,6 +58,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
             upgradesRevealed: false,
             possessionProgress: 0,
             engaged: false,
+            engagementProgress: 0,
+            engagementCompletionTime: null,
         });
     }
 
@@ -217,6 +219,13 @@ export class IngressGame implements BaseMinigame<IngressState> {
     update(gameState: GameState, deltaTime: number): void {
         this.updateCharacterUnlocks(gameState);
 
+        if (this.isEngagementHeld) {
+            this.state.engagementProgress = Math.min(100, this.state.engagementProgress + 15 * deltaTime);
+            if (this.state.engagementProgress >= 100) {
+                this.engage();
+            }
+        }
+
         if (!this.state.chargesBarRevealed && this.state.possessionCharges >= CHARGES_BAR_REVEAL_THRESHOLD) {
             this.state.chargesBarRevealed = true;
         }
@@ -240,6 +249,26 @@ export class IngressGame implements BaseMinigame<IngressState> {
 
     public engage(): void {
         this.state.engaged = true;
+        this.state.engagementCompletionTime = Date.now();
+        this.isEngagementHeld = false;
+    }
+
+    private isEngagementHeld = false;
+    public handleEngagementClick(): void {
+        if (this.state.engaged) return;
+        this.state.engagementProgress = Math.min(100, this.state.engagementProgress + 4);
+        if (this.state.engagementProgress >= 100) {
+            this.engage();
+        }
+    }
+
+    public handleEngagementMouseDown(): void {
+        if (this.state.engaged) return;
+        this.isEngagementHeld = true;
+    }
+    
+    public stopEngagementHold(): void {
+        this.isEngagementHeld = false;
     }
 
     public revealUpgrades(): void {

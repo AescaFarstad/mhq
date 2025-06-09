@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     showHint: boolean;
     chargesBarRevealed: boolean;
     engaged: boolean;
+    engagementProgress: number;
 }>();
 
 const emit = defineEmits<{
     (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
     (e: 'engage-game'): void;
     (e: 'engage-hover', payload: DOMRect | null): void;
+    (e: 'engagement-click'): void;
+    (e: 'engagement-mousedown'): void;
+    (e: 'engagement-mouseup'): void;
+    (e: 'engagement-mouseleave'): void;
 }>();
 
 const inputValue = ref('');
@@ -18,6 +23,22 @@ const inputElementRef = ref<HTMLInputElement | null>(null);
 const inputAreaRef = ref<HTMLDivElement | null>(null);
 const engageButtonRef = ref<HTMLButtonElement | null>(null);
 const isInputHintVisible = ref(false);
+const isEngageButtonVisible = ref(false);
+const isEngagedClicked = ref(false);
+
+onMounted(() => {
+    setTimeout(() => {
+        isEngageButtonVisible.value = true;
+    }, 5000);
+});
+
+const engageButtonStyle = computed(() => {
+    if (props.engagementProgress > 50) {
+        const opacity = 1 - (props.engagementProgress - 50) / 50;
+        return { opacity: Math.max(0, opacity) };
+    }
+    return {};
+});
 
 const inputInteractionState = ref<'default' | 'blank-error' | 'scored-points' | 'typing'>('default');
 
@@ -41,15 +62,25 @@ const onInputBoxInput = () => {
 };
 
 const handleEngageClick = () => {
-    emit('engage-game');
+    emit('engagement-click');
+    isEngagedClicked.value = true;
+    setTimeout(() => {
+        isEngagedClicked.value = false;
+    }, 800);
 };
 
-const handleEngageMouseOver = () => {
+const stopHolding = () => {
+    emit('engage-hover', null);
+    emit('engagement-mouseup');
+};
+
+const handleEngageMouseDown = () => {
     emit('engage-hover', engageButtonRef.value?.getBoundingClientRect() ?? null);
+    emit('engagement-mousedown');
 };
 
 const handleEngageMouseLeave = () => {
-    emit('engage-hover', null);
+    emit('engagement-mouseleave');
 };
 
 defineExpose({
@@ -136,9 +167,11 @@ defineExpose({
         <!-- Engage Button -->
         <button
           ref="engageButtonRef"
-          :class="{ hidden: engaged }"
+          :class="{ hidden: engaged || !isEngageButtonVisible, 'engage-button--clicked': isEngagedClicked }"
+          :style="engageButtonStyle"
           @click="handleEngageClick"
-          @mouseover="handleEngageMouseOver"
+          @mousedown="handleEngageMouseDown"
+          @mouseup="stopHolding"
           @mouseleave="handleEngageMouseLeave"
           class="engage-button"
         >
@@ -237,6 +270,10 @@ defineExpose({
 
 .engage-button:hover {
   background-color: #f39c12;
+}
+
+.engage-button--clicked {
+  animation: engageClickEffect 0.8s ease-out;
 }
 
 .input-area {
@@ -364,5 +401,19 @@ defineExpose({
 
 .flash-green-animation {
   animation: flashGreenBackground 0.7s ease-out;
+}
+
+@keyframes engageClickEffect {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7);
+  }
+  40% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px 30px rgba(241, 196, 15, 0);
+  }
 }
 </style> 
