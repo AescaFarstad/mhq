@@ -2,7 +2,7 @@
 import { onMounted } from 'vue';
 import { inject, computed } from 'vue';
 import type { GameState } from '../../logic/GameState';
-import type { WelcomeState } from './WelcomeTypes';
+import type { WelcomeState } from './WelcomeGame';
 import { WelcomeGame } from './WelcomeGame';
 import WelcomeChoices from './WelcomeChoices.vue';
 
@@ -61,11 +61,6 @@ onMounted(() => {
 .connection-view-container {
   width: 100%;
   height: 100%;
-  /* display: flex; */ /* Commented out to allow stage containers to control their own centering/width */
-  /* flex-direction: column; */
-  /* align-items: center; */
-  /* justify-content: center; */
-  padding-top: 20px; /* Add some padding at the top */
   background-color: #2c3e50; /* Darker background for the overall view */
   color: #ecf0f1; /* Light text color for contrast */
 }

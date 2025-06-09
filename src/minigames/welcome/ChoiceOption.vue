@@ -6,12 +6,7 @@
        @click="selectOptionIfPossible">
     <div class="choice-option">
       <div class="card-header">
-        <ImageHolder
-          :atlasName="atlasName"
-          :imageName="imageName"
-          :displayWidth="300"
-          :displayHeight="300"
-        />
+        <img :src="'img/' + imageName" :alt="name" class="choice-image"/>
         <div class="progress-bar-container" v-if="isExploring">
           <div class="progress-bar" :style="{ width: (explorationProgress * 100) + '%' }"></div>
         </div>
@@ -44,14 +39,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, computed } from 'vue';
-import ImageHolder from '../../components/common/ImageHolder.vue';
+import { ref, defineProps, defineEmits } from 'vue';
 
 const props = defineProps<{
   id: string;
   name: string;
   imageName: string;
-  atlasName?: string;
   pros: string[]; // These will be the revealed pros
   cons: string[]; // These will be the revealed cons
   description?: string;
@@ -65,7 +58,6 @@ const props = defineProps<{
 const emit = defineEmits(['selected', 'mouseenter-choice', 'mouseleave-choice', 'explore']);
 
 const hovered = ref(false);
-const atlasName = computed(() => props.atlasName || 'default-atlas');
 
 const selectOptionIfPossible = () => {
   if (props.canBeSelected) {
@@ -94,7 +86,7 @@ const handleMouseLeave = () => {
   margin: 10px;
   cursor: default;
   transition: background-color 0.3s, transform 0.3s;
-  width: 300px;
+  width: 360px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -112,7 +104,7 @@ const handleMouseLeave = () => {
 .choice-option {
   background-color: #ffffff;
   border-radius: 10px;
-  min-height: 580px;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -139,18 +131,13 @@ const handleMouseLeave = () => {
   overflow: hidden;
 }
 
-.card-header > .image-holder-wrapper {
+.card-header .choice-image {
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card-header :deep(canvas) {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .card-header .progress-bar-container {
@@ -200,11 +187,18 @@ const handleMouseLeave = () => {
   justify-content: flex-start; /* Allow content to flow from top */
 }
 
-.pros, .cons {
+.pros {
   width: 100%; /* Full width for vertical stacking */
-  margin-bottom: 15px; /* Original margin */
+  margin-bottom: 10px; /* Original margin */
   text-align: left;
   min-height: 100px; /* Original min-height to reserve space */
+}
+
+.cons {
+  width: 100%; /* Full width for vertical stacking */
+  margin-bottom: 10px; /* Original margin */
+  text-align: left;
+  min-height: 80px; /* Original min-height to reserve space */
 }
 
 .pros:last-child, .cons:last-child { /* This might not be needed if stacking*/

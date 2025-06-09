@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, computed } from 'vue';
 import ChoiceOption from './ChoiceOption.vue';
-import type { ExplorableWelcomeChoice } from './WelcomeTypes';
+import type { ExplorableWelcomeChoice } from './WelcomeGame';
 import { obfuscateString } from '../../utils/stringUtils'; // For obfuscating description
 
 const props = defineProps<{
@@ -94,8 +94,8 @@ const handleChoiceLeave = () => {
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  min-width: 70%; /* Increased from 50% */
-  min-height: 90%;
+  min-width: 70%;
+  min-height: 80%;
   max-width: 1200px; /* Added max-width for very large screens */
   margin: 20px auto; /* Added top/bottom margin and ensured centering */
   border: 1px solid #ddd;
@@ -132,7 +132,6 @@ const handleChoiceLeave = () => {
   width: 100%;
   min-height: 60px; /* Reserve space for description (adjust as needed) */
   padding: 10px 20px;
-  margin-top: 10px; /* Space above the description text */
   border-radius: 8px;
   text-align: center;
   font-size: 1em;

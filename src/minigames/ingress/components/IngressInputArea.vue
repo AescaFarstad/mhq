@@ -2,19 +2,21 @@
 import { ref } from 'vue';
 
 defineProps<{
-  showHint: boolean;
-  chargesBarRevealed: boolean;
-  engaged: boolean;
+    showHint: boolean;
+    chargesBarRevealed: boolean;
+    engaged: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
-  (e: 'engage-game'): void;
+    (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
+    (e: 'engage-game'): void;
+    (e: 'engage-hover', payload: DOMRect | null): void;
 }>();
 
 const inputValue = ref('');
 const inputElementRef = ref<HTMLInputElement | null>(null);
 const inputAreaRef = ref<HTMLDivElement | null>(null);
+const engageButtonRef = ref<HTMLButtonElement | null>(null);
 const isInputHintVisible = ref(false);
 
 const inputInteractionState = ref<'default' | 'blank-error' | 'scored-points' | 'typing'>('default');
@@ -25,15 +27,29 @@ const submitInput = () => {
     const inputRect = inputElementRef.value?.getBoundingClientRect();
     emit('submit-word', { word, inputRect });
   } else {
+    // If the input is blank, we'll just clear the visual state without submitting
     inputValue.value = '';
     inputInteractionState.value = 'default';
   }
 };
 
+// When user starts typing after a blank error, reset the visual state
 const onInputBoxInput = () => {
   if (inputInteractionState.value === 'blank-error' || inputInteractionState.value === 'scored-points') {
     inputInteractionState.value = 'typing';
   }
+};
+
+const handleEngageClick = () => {
+    emit('engage-game');
+};
+
+const handleEngageMouseOver = () => {
+    emit('engage-hover', engageButtonRef.value?.getBoundingClientRect() ?? null);
+};
+
+const handleEngageMouseLeave = () => {
+    emit('engage-hover', null);
 };
 
 defineExpose({
@@ -52,6 +68,7 @@ defineExpose({
   showScoredPoints: () => {
     inputInteractionState.value = 'scored-points';
     setTimeout(() => {
+      // Transition back to default state after the animation
       if (inputInteractionState.value === 'scored-points') {
         inputInteractionState.value = 'default';
       }
@@ -66,10 +83,12 @@ defineExpose({
 <template>
   <div class="input-and-prompt-area-wrapper">
     <div class="input-and-prompt-area">
+      <!-- Prompts shown before the game is engaged -->
       <p v-if="!chargesBarRevealed" class="input-prompt large-prompt">Time to initiate possession.</p>
       <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break">This process is mentally strenuous, stock up on coffee or tea.</p>
 
       <div class="action-area">
+        <!-- Content shown when the game is engaged -->
         <div class="engaged-content" :class="{ hidden: !engaged }">
           <p class="input-prompt">Type in <b>nouns</b> you believe might resonate across the dimensional barrier. The right words will accelerate the possession.</p>
           <div class="input-wrapper">
@@ -95,6 +114,7 @@ defineExpose({
               />
               <button @click="submitInput">Enter</button>
             </div>
+            <!-- Hint for input rules -->
             <div
               v-if="showHint"
               class="input-hint-container"
@@ -113,7 +133,17 @@ defineExpose({
             </div>
           </div>
         </div>
-        <button :class="{ hidden: engaged }" @click="$emit('engage-game')" class="engage-button">Engage now</button>
+        <!-- Engage Button -->
+        <button
+          ref="engageButtonRef"
+          :class="{ hidden: engaged }"
+          @click="handleEngageClick"
+          @mouseover="handleEngageMouseOver"
+          @mouseleave="handleEngageMouseLeave"
+          class="engage-button"
+        >
+          Engage now
+        </button>
       </div>
     </div>
   </div>

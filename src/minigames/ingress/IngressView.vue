@@ -11,9 +11,12 @@ import PossessionChargesBar from './components/PossessionChargesBar.vue';
 import { IngressWordsLib } from './lib/IngressWordsLib';
 import IngressCharacterHint from './components/IngressCharacterHint.vue';
 import IngressInputArea from './components/IngressInputArea.vue';
+import StarfieldBackground from './components/StarfieldBackground.vue';
 
+const showStarfield = ref(true);
 const gameState = inject<GameState>('gameState');
 const ingressInputAreaRef = ref<InstanceType<typeof IngressInputArea> | null>(null);
+const attractorPosition = ref<{ x: number; y: number } | null>(null);
 
 const hoveredWord = ref<SubmittedWord | null>(null);
 const hintPosition = ref<{ x: number, y: number } | null>(null);
@@ -181,10 +184,30 @@ const handleEngageGame = () => {
     ingressGame.value?.engage();
 };
 
+const handleEngageHover = (rect: DOMRect | null) => {
+    if (rect) {
+        attractorPosition.value = {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+        };
+    } else {
+        attractorPosition.value = null;
+    }
+};
+
 </script>
 
 <template>
   <div class="ingress-view-container" :class="{ 'center-content': !ingressState?.engaged }">
+    <StarfieldBackground
+      v-if="showStarfield"
+      :attractor-position="attractorPosition"
+      :is-engaged="!!ingressState?.engaged"
+      @all-stars-gone="() => {
+        showStarfield = false;
+        console.log('[IngressView] Starfield component removed.');
+      }"
+    />
     <div class="game-content-wrapper">
       <div class="game-content-below-bar" :class="{ 'engaged': ingressState?.engaged }">
         <div class="main-content-area">
@@ -213,6 +236,7 @@ const handleEngageGame = () => {
               :engaged="ingressState.engaged"
               @submit-word="handleSubmitWord"
               @engage-game="handleEngageGame"
+              @engage-hover="handleEngageHover"
           />
         </div>
         <IngressWordColumns
@@ -259,6 +283,7 @@ const handleEngageGame = () => {
   padding: 20px;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
 .ingress-view-container.center-content {
@@ -269,6 +294,8 @@ const handleEngageGame = () => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .game-content-below-bar {
