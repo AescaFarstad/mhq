@@ -72,10 +72,17 @@ export function discoverAllSkills(state: GameState): void {
             skillItem.specializations.forEach(specId => state.markAsDiscovered(specId));
         }
     }
-    // Discover all attribute categories as well
+    // Discover all attribute categories and their individual attributes
     const attributeDefs = state.lib.attributes.getAttributeDefinitions();
-    for (const attrKey in attributeDefs) {
-        state.markAsDiscovered(attrKey);
+    for (const categoryKey in attributeDefs) {
+        state.markAsDiscovered(categoryKey);
+        // Also discover individual attributes within each category
+        const category = attributeDefs[categoryKey];
+        if (category.attributes) {
+            for (const attributeKey in category.attributes) {
+                state.markAsDiscovered(attributeKey);
+            }
+        }
     }
 }
 
@@ -86,33 +93,12 @@ export function discoverAllResources(state: GameState): void {
 }
 
 export function discoverAll(state: GameState): void {
-    // Buildings
-    for (const buildingDef of state.lib.buildings.values()) {
-        state.markAsDiscovered(buildingDef.id);
-    }
-    // Skills, Attributes, Specializations
-    const allSkills = state.lib.skills.getAllSkillItems();
-    for (const skillId in allSkills) {
-        state.markAsDiscovered(skillId);
-        const skillItem = allSkills[skillId];
-        if (skillItem.type === 'skill') {
-            state.markAsDiscovered(skillItem.attribute);
-            skillItem.specializations.forEach(specId => state.markAsDiscovered(specId));
-        }
-    }
-    const attributeDefs = state.lib.attributes.getAttributeDefinitions();
-    for (const attrKey in attributeDefs) {
-        state.markAsDiscovered(attrKey);
-    }
-    // Resources
-    for (const resourceName of state.resources.keys()) {
-        state.markAsDiscovered(resourceName);
-    }
-    // Discover all tabs
-    ALL_TAB_IDS.forEach(tabId => state.markAsDiscovered(tabId));
-    // Optionally, discover tabs or other general items if needed.
-    // For example, discovering all defined tabs if you have a TabLib
-    // state.lib.tabs.getAllTabIds().forEach(tabId => state.markAsDiscovered(tabId));
+    // Use the individual discovery functions for consistency
+    discoverAllBuildings(state);
+    discoverAllSkills(state);
+    discoverAllAttributes(state);
+    discoverAllResources(state);
+    discoverAllTabs(state);
 }
 
 export function startDialog(): void {
@@ -252,4 +238,22 @@ export function applyWelcomeResults(state: GameState, params: ApplyWelcomeResult
     } else {
         console.warn(`Effect 'applyWelcomeResults': Missing 'locationId' parameter.`);
     }
+}
+
+export function discoverAllAttributes(state: GameState): void {
+    const attributeDefs = state.lib.attributes.getAttributeDefinitions();
+    for (const categoryKey in attributeDefs) {
+        state.markAsDiscovered(categoryKey);
+        // Also discover individual attributes within each category
+        const category = attributeDefs[categoryKey];
+        if (category.attributes) {
+            for (const attributeKey in category.attributes) {
+                state.markAsDiscovered(attributeKey);
+            }
+        }
+    }
+}
+
+export function discoverAllTabs(state: GameState): void {
+    ALL_TAB_IDS.forEach(tabId => state.markAsDiscovered(tabId));
 } 

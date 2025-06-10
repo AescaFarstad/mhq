@@ -83,6 +83,12 @@ export namespace EventProcessor {
                 case 'discoverAllResources':
                     effects.discoverAllResources(state);
                     break;
+                case 'discoverAllAttributes':
+                    effects.discoverAllAttributes(state);
+                    break;
+                case 'discoverAllTabs':
+                    effects.discoverAllTabs(state);
+                    break;
                 case 'discoverAll':
                     effects.discoverAll(state);
                     break;

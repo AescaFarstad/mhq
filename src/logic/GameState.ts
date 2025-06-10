@@ -84,6 +84,7 @@ export class GameState {
         discoveredItemsCount: number; // Added for discovery system reactivity
         activeMinigameType: MinigameType | null;
         activeMinigameState: MinigameState | null;
+        debugActiveTab: string; // Added for debug view tab persistence
     };
 
     constructor() {
@@ -116,6 +117,7 @@ export class GameState {
             discoveredItemsCount: 0, // Initialize discoveredItemsCount
             activeMinigameType: null,
             activeMinigameState: null,
+            debugActiveTab: 'main', // Initialize debug tab
         });
 
         this.setupInitialResources();

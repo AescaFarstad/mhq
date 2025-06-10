@@ -36,7 +36,7 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Debug" } },
       //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
-//      { key: "startBehTree", params: { treeName: "cheatIntro" } },
+      { key: "startBehTree", params: { treeName: "cheatIntro" } },
       { key: "startBehTree", params: { treeName: "introSequence" } },
       { key: "discoverAll", params: {} },
       { key: "giveSkillsAndSpecs", params: {} },

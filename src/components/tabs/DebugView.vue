@@ -1,49 +1,96 @@
 <template>
     <div class="debug-view">
-      <h2>Debug Stats</h2>
-      <div class="button-container">
-        <button @click="copySkillsToClipboard(false, $event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'basic' }">Skills (Basic)</button>
-        <button @click="copySkillsToClipboard(true, $event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributes' }">Skills (With Attributes)</button>
-        <button @click="copyAttributesToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributesCopy' }">Attributes</button>
-        <button @click="copyAttributeSkillStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributeStats' }">Attribute Skill Stats</button>
-        <button @click="copyAllSkillNames($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNames' }">Skill Names</button>
-        <button @click="copySkillKeywordStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillKeywords' }">Skill Keyword Stats</button>
-        <button @click="copySkillNamesAndDescriptions($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNameDesc' }">Skill Names & Descriptions</button>
-        <button @click="copySkillIds($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillIds' }">Skill IDs</button>
-        <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
-        <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
-        <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
-        <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button 
+          @click="setDebugTab('main')" 
+          :class="{ active: debugActiveTab === 'main' }" 
+          class="tab-btn"
+        >
+          Main
+        </button>
+        <button 
+          @click="setDebugTab('discover')" 
+          :class="{ active: debugActiveTab === 'discover' }" 
+          class="tab-btn"
+        >
+          Discover
+        </button>
       </div>
-      <div class="filter-inputs">
-        <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
-        <input type="text" v-model="excludeFilter" placeholder="Exclude Regex (e.g., Mana$)" class="filter-input" :class="{ 'invalid-regex': !isExcludeRegexValid }" />
-        <button @click="clearAllFilters" class="clear-btn clear-all-btn">Clear Filters</button>
-      </div>
-      <div v-if="hasStats" class="stats-container">
-        <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
-          <div class="stat-controls">
-            <template v-if="isIndependentStat(stat)">
-              <button @click="modifyStat(name, -1)" class="control-btn">-</button>
-              <button @click="modifyStat(name, 1)" class="control-btn">+</button>
-              <input type="text" v-model="statInputValues[name]" class="stat-input" @keyup.enter="setStatValue(name)" />
-              <button @click="setStatValue(name)" class="control-btn">Set</button>
-            </template>
-            <template v-else>
-              <div class="placeholder-controls"></div>
-            </template>
-          </div>
-          <div class="stat-name">{{ name }}</div>
-          <div class="stat-separator">:</div>
-          <div class="stat-value">
-            {{ stat.value }}
-            <span v-if="stat.params" class="stat-params">
-              = {{ formatParams(stat.params) }}
-            </span>
+
+      <!-- Main Tab Content -->
+      <div v-if="debugActiveTab === 'main'" class="tab-content">
+        <div class="button-container">
+          <button @click="copySkillsToClipboard(false, $event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'basic' }">Skills (Basic)</button>
+          <button @click="copySkillsToClipboard(true, $event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributes' }">Skills (With Attributes)</button>
+          <button @click="copyAttributesToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributesCopy' }">Attributes</button>
+          <button @click="copyAttributeSkillStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributeStats' }">Attribute Skill Stats</button>
+          <button @click="copyAllSkillNames($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNames' }">Skill Names</button>
+          <button @click="copySkillKeywordStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillKeywords' }">Skill Keyword Stats</button>
+          <button @click="copySkillNamesAndDescriptions($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNameDesc' }">Skill Names & Descriptions</button>
+          <button @click="copySkillIds($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillIds' }">Skill IDs</button>
+          <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
+          <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
+          <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
+          <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
+        </div>
+        <div class="filter-inputs">
+          <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
+          <input type="text" v-model="excludeFilter" placeholder="Exclude Regex (e.g., Mana$)" class="filter-input" :class="{ 'invalid-regex': !isExcludeRegexValid }" />
+          <button @click="clearAllFilters" class="clear-btn clear-all-btn">Clear Filters</button>
+        </div>
+        <div v-if="hasStats" class="stats-container">
+          <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
+            <div class="stat-controls">
+              <template v-if="isIndependentStat(stat)">
+                <button @click="modifyStat(name, -1)" class="control-btn">-</button>
+                <button @click="modifyStat(name, 1)" class="control-btn">+</button>
+                <input type="text" v-model="statInputValues[name]" class="stat-input" @keyup.enter="setStatValue(name)" />
+                <button @click="setStatValue(name)" class="control-btn">Set</button>
+              </template>
+              <template v-else>
+                <div class="placeholder-controls"></div>
+              </template>
+            </div>
+            <div class="stat-name">{{ name }}</div>
+            <div class="stat-separator">:</div>
+            <div class="stat-value">
+              {{ stat.value }}
+              <span v-if="stat.params" class="stat-params">
+                = {{ formatParams(stat.params) }}
+              </span>
+            </div>
           </div>
         </div>
+        <p v-else>No stats available.</p>
       </div>
-      <p v-else>No stats available.</p>
+
+      <!-- Discover Tab Content -->
+      <div v-if="debugActiveTab === 'discover'" class="tab-content">
+        <div class="discover-header-controls">
+          <div class="discover-count">{{ filteredDiscoveredItems.length }}</div>
+          <input type="text" v-model="discoverIncludeFilter" placeholder="Include Regex (e.g., ^skill)" class="filter-input discover-filter" :class="{ 'invalid-regex': !isDiscoverIncludeRegexValid }" />
+          <div class="discover-buttons">
+            <button @click="discoverAllItems" class="discover-type-btn">All</button>
+            <button @click="discoverNoneItems" class="discover-type-btn">None</button>
+            <button @click="discoverSkills" class="discover-type-btn">Skills</button>
+            <button @click="discoverBuildings" class="discover-type-btn">Buildings</button>
+            <button @click="discoverResources" class="discover-type-btn">Resources</button>
+            <button @click="discoverAttributes" class="discover-type-btn">Attributes</button>
+            <button @click="discoverTabs" class="discover-type-btn">Tabs</button>
+            <button @click="clearDiscoverFilters" class="clear-discover-btn">Clear</button>
+            <button @click="copyDiscoveredItemsToClipboard($event)" class="action-btn bigger-btn" :class="{ 'copy-success': copyAnimationButton === 'discoveredItems' }">Copy</button>
+          </div>
+        </div>
+        <div v-if="hasDiscoveredItems" class="discover-container">
+          <div class="discover-columns">
+            <div v-for="item in filteredDiscoveredItems" :key="item" class="discover-item">
+              {{ item }}
+            </div>
+          </div>
+        </div>
+        <p v-else>No discovered items available.</p>
+      </div>
     </div>
   </template>
   
@@ -76,6 +123,26 @@ const includeFilter = ref('');
 const excludeFilter = ref('');
 const isIncludeRegexValid = ref(true);
 const isExcludeRegexValid = ref(true);
+
+// Add new reactive properties for discover filtering
+const discoverIncludeFilter = ref('');
+const isDiscoverIncludeRegexValid = ref(true);
+
+// Debug tab management using gameState
+const debugActiveTab = computed(() => {
+  // Use a specific debug tab state from gameState, defaulting to 'main'
+  return (gameState?.uiState as any)?.debugActiveTab || 'main';
+});
+
+const setDebugTab = (tabName: string) => {
+  if (gameState) {
+    // Store debug tab state in gameState to persist across UI updates
+    if (!(gameState.uiState as any).debugActiveTab) {
+      (gameState.uiState as any).debugActiveTab = 'main';
+    }
+    (gameState.uiState as any).debugActiveTab = tabName;
+  }
+};
 
 // Check if there are any stats to display
 const hasStats = computed(() => {
@@ -694,11 +761,152 @@ const copyCharacterNamesAndBios = (_event?: Event) => {
       triggerCopyAnimation('characterNamesAndBiosError'); // Optional: error animation
     });
 };
+
+// New computed properties for discovered items
+const hasDiscoveredItems = computed(() => {
+  return gameState && gameState.discoveredItems && Object.keys(gameState.discoveredItems).length > 0;
+});
+
+const filteredDiscoveredItems = computed(() => {
+  if (!gameState || !gameState.discoveredItems) {
+    return [];
+  }
+
+  let items = Object.keys(gameState.discoveredItems).filter(key => gameState.discoveredItems[key]);
+  isDiscoverIncludeRegexValid.value = true; // Reset validity before check
+
+  // Apply include filter
+  if (discoverIncludeFilter.value.trim() !== '') {
+    try {
+      const includeRegex = new RegExp(discoverIncludeFilter.value.trim(), 'i');
+      items = items.filter(item => includeRegex.test(item));
+    } catch (e) {
+      console.warn("Invalid discover include regex:", e);
+      isDiscoverIncludeRegexValid.value = false; // Mark as invalid
+      // Do not filter if regex is invalid
+    }
+  }
+
+  // Sort items alphabetically
+  return items.sort();
+});
+
+// Function to clear discover filters
+const clearDiscoverFilters = () => {
+  discoverIncludeFilter.value = '';
+  isDiscoverIncludeRegexValid.value = true; // Reset validity
+};
+
+// Function to copy discovered items to clipboard
+const copyDiscoveredItemsToClipboard = (_event?: Event) => {
+  if (!gameState || !gameState.discoveredItems) {
+    console.error("GameState or discoveredItems not available");
+    return;
+  }
+
+  const discoveredItemsList = Object.keys(gameState.discoveredItems)
+    .filter(key => gameState.discoveredItems[key])
+    .sort();
+
+  let clipboardText = 'Discovered Items:\n\n';
+  discoveredItemsList.forEach(item => {
+    clipboardText += `${item}\n`;
+  });
+
+  navigator.clipboard.writeText(clipboardText.trim())
+    .then(() => {
+      triggerCopyAnimation('discoveredItems');
+    })
+    .catch(err => {
+      console.error('Failed to copy discovered items to clipboard:', err);
+    });
+};
+
+// Function to discover all items
+const discoverAllItems = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  // Import and call the discoverAll effect
+  import('../../logic/effects').then(effects => {
+    effects.discoverAll(gameState);
+  });
+};
+
+// Function to clear all discovered items
+const discoverNoneItems = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  // Clear all discovered items
+  gameState.discoveredItems = {};
+  gameState.uiState.discoveredItemsCount = 0;
+};
+
+// Individual discovery functions
+const discoverSkills = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  import('../../logic/effects').then(effects => {
+    effects.discoverAllSkills(gameState);
+  });
+};
+
+const discoverBuildings = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  import('../../logic/effects').then(effects => {
+    effects.discoverAllBuildings(gameState);
+  });
+};
+
+const discoverResources = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  import('../../logic/effects').then(effects => {
+    effects.discoverAllResources(gameState);
+  });
+};
+
+const discoverAttributes = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  import('../../logic/effects').then(effects => {
+    effects.discoverAllAttributes(gameState);
+  });
+};
+
+const discoverTabs = () => {
+  if (!gameState) {
+    console.error("GameState not available");
+    return;
+  }
+  
+  import('../../logic/effects').then(effects => {
+    effects.discoverAllTabs(gameState);
+  });
+};
 </script>
 
 <style scoped>
 .debug-view {
-  padding: 1rem;
+  padding: 0.5rem;
   font-family: monospace;
   overflow-x: auto; /* Prevent wide content from breaking layout */
 }
@@ -867,6 +1075,126 @@ p {
 }
 
 .clear-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* Tab Navigation Styles */
+.tab-navigation {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tab-btn {
+  padding: 4px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.3s;
+}
+
+.tab-btn:hover {
+  background-color: #e9ecef;
+}
+
+.tab-btn.active {
+  background-color: #4b72b0;
+  color: white;
+  border-color: #4b72b0;
+}
+
+.tab-content {
+  margin-top: 5px;
+}
+
+/* Discover Tab Styles */
+.discover-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 5px 0;
+}
+
+.discover-count {
+  font-weight: bold;
+  color: #495057;
+  white-space: nowrap;
+  font-size: 0.9em;
+  min-width: 35px;
+  text-align: right;
+}
+
+.discover-buttons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.bigger-btn {
+  padding: 6px 12px;
+  font-size: 0.85em;
+}
+
+.discover-container {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 8px;
+  font-size: 0.9em;
+  color: #212529;
+  width: 100%;
+}
+
+.discover-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 2px;
+  line-height: 1.2;
+}
+
+.discover-item {
+  font-family: monospace;
+  font-size: 1.1em;
+  padding: 2px 0;
+  word-break: break-word;
+}
+
+.filter-input.discover-filter {
+  width: 500px;
+  flex-shrink: 1;
+}
+
+.discover-type-btn {
+  padding: 6px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.3s;
+}
+
+.discover-type-btn:hover {
+  background-color: #5a6268;
+}
+
+.clear-discover-btn {
+  padding: 6px 12px;
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.3s;
+}
+
+.clear-discover-btn:hover {
   background-color: #e9ecef;
 }
 </style>
