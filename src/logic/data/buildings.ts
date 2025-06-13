@@ -92,8 +92,10 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.01,
-
         xpMult: 2,
+        effects:[
+            { key: "discover", params: { key: "Discover" } }
+        ]
     },
     storage_vault: {
         name: "Storage Vault",

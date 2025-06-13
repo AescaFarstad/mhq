@@ -1,0 +1,34 @@
+I'm creating a game where a character lives in a Tower city of HOMM 3 universe (I don't adhere to the universe 100%, it's a rough reference), investigates various activities in the city and solves quests. They are also going to be managing their own magic guild. This game is heavily focused on RPG elements.
+
+I've implemented an involved skill system, which I need you to help improve. The game is going to be about guessing the skills and specializations by typing the keywords associated with them. I need to come up with many keywords.
+
+For each skill/specialization, consider these categories to generate diverse keywords:
+Tools & Equipment: Items used to perform the skill
+Actions & Verbs: How the skill is performed
+Outcomes & Results: What the skill produces or achieves
+Materials: What substances are involved
+Locations: Where the skill is typically practiced
+Practitioners: People who use this skill (titles/professions)
+Jargon & Terminology: Specialized vocabulary
+Cultural Associations: Symbols, traditions, or beliefs
+Sensory Experiences: Sights, sounds, smells, textures
+Problems & Obstacles: Common challenges
+Related Concepts: Philosophical or abstract connections
+
+And come up with your own categories and find keywords there.
+Remember that this is a fantasy game, set in renaissance-like time period.
+
+The skill always has a broader scope than simply the sum of its specializations. So take advantage of this fact when writing words for the skill. While repeating words is acceptable, try to focus on words that are unique for this particular skill/specialization first.
+Write the specialization's words before you do the skill they belong to. Do not use markdown, use indentation with spaces instead. Prefer shorter forms of words if the meaning is close ('resource' instead of 'resources', 'fair' instead of 'fairness'). Use single forms unless absolutely necessary.
+
+I need only single, isoleted words. Only nouns.
+
+I need many words, 30+ for each at least.
+We will start with:
+
+"Hospitality": "Providing comfort, service, and managing social events",
+  "Patron Care": "Making visitors feel welcome, anticipating needs",
+  "Amenities & Luxuries": "Knowledge of fine food, wine, bedding to please guests",
+  "Event Orchestration": "Organizing feasts, gatherings, ceremonies",
+  "Staff Direction": "Organizing workers efficiently for maximum guest satisfaction",
+  "Cleaning": "Keeping things tidy and fresh",

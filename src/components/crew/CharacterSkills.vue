@@ -11,6 +11,8 @@ const props = defineProps<{
   selectedAttribute?: string; // Optional prop for displaying current attribute
 }>();
 
+const emit = defineEmits(['set-hint']);
+
 // Computed property to determine what points text to show
 const pointsText = computed(() => {
   const hasSkillPoints = props.skillPoints > 0;
@@ -59,6 +61,7 @@ const headerText = computed(() => {
         :characterId="props.characterId"
         :skillPoints="props.skillPoints"
         :specPoints="props.specPoints"
+        @set-hint="emit('set-hint', $event)"
       />
     </div>
   </div>

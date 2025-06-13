@@ -17,6 +17,8 @@ const props = defineProps<{
   specPoints?: number;
 }>();
 
+const emit = defineEmits(['set-hint']);
+
 const currentHint = ref<string>('');
 
 const skillAttributeClass = computed(() => {
@@ -35,24 +37,54 @@ const formatValue = (value: number | string | undefined, roundToInt: boolean = f
   return value.toString();
 };
 
+const formatKeywords = (keywords: string[][] | undefined): string => {
+  if (!keywords || keywords.length === 0) {
+    return 'No keywords available';
+  }
+  // Join each keyword array with commas, then join all arrays with line breaks
+  return keywords.map(keywordArray => keywordArray.join(', ')).join('\n');
+};
+
 const showSkillHint = (description: string | undefined) => {
+  // Show local hint with description
   if (props.skill && gameState && !gameState.isDiscovered(props.skill.id)) {
     currentHint.value = obfuscateString(description || '');
   } else {
     currentHint.value = description || '';
   }
+  
+  // Also emit keywords to bio box
+  if (props.skill && gameState && !gameState.isDiscovered(props.skill.id)) {
+    const keywordsText = formatKeywords(props.skill.definition.keywords);
+    emit('set-hint', obfuscateString(keywordsText));
+  } else {
+    emit('set-hint', formatKeywords(props.skill.definition.keywords));
+  }
 };
 
 const showSpecializationHint = (description: string | undefined, specId: string) => {
+  // Show local hint with description
   if (gameState && !gameState.isDiscovered(specId)) {
     currentHint.value = obfuscateString(description || '');
   } else {
     currentHint.value = description || '';
   }
+  
+  // Also emit keywords to bio box
+  const spec = props.skill.specializations.find(s => s.id === specId);
+  if (spec) {
+    if (gameState && !gameState.isDiscovered(specId)) {
+      const keywordsText = formatKeywords(spec.definition.keywords);
+      emit('set-hint', obfuscateString(keywordsText));
+    } else {
+      emit('set-hint', formatKeywords(spec.definition.keywords));
+    }
+  }
 };
 
 const clearHint = () => {
   currentHint.value = '';
+  emit('set-hint', null);
 };
 
 const gameState = inject<GameState>('gameState');
@@ -168,10 +200,10 @@ const clearHypothetical = () => {
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
-    <div 
-      class="skill-image-container" 
-      @mouseover="showSkillHint(props.skill.definition.description)"
-    >
+          <div 
+        class="skill-image-container" 
+        @mouseover="showSkillHint(props.skill.definition.description)"
+      >
       <ImageHolder 
         atlasName="skills"
         :imageName="props.skill.id" 
@@ -292,6 +324,8 @@ const clearHypothetical = () => {
   color: #555;
   font-size: 0.9em;
 }
+
+
 
 .specializations-row {
   display: flex;

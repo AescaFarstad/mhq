@@ -1,4 +1,5 @@
 import { LibItem } from './LibDefinitions';
+import { Effect } from './EventDefinition';
 
 /**
  * Represents the definition of a building
@@ -14,4 +15,6 @@ export interface BuildingDefinition extends LibItem {
     clutterPerSecond: number;
     /** XP multiplier for tasks performed in this building */
     xpMult?: number;
+    /** Effects to execute when this building is constructed */
+    effects?: Effect[];
 }

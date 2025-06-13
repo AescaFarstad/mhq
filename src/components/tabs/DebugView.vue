@@ -10,6 +10,13 @@
           Main
         </button>
         <button 
+          @click="setDebugTab('stats')" 
+          :class="{ active: debugActiveTab === 'stats' }" 
+          class="tab-btn"
+        >
+          Stats
+        </button>
+        <button 
           @click="setDebugTab('discover')" 
           :class="{ active: debugActiveTab === 'discover' }" 
           class="tab-btn"
@@ -27,7 +34,8 @@
 
       <!-- Render active tab component -->
       <div class="debug-tab-content">
-        <DebugMainTab v-if="debugActiveTab === 'main'" :stats="stats" />
+        <DebugMainTab v-if="debugActiveTab === 'main'" />
+        <DebugStatsTab v-if="debugActiveTab === 'stats'" :stats="stats" />
         <DebugDiscoverTab v-if="debugActiveTab === 'discover'" />
         <DebugExploreTab v-if="debugActiveTab === 'explore'" />
       </div>
@@ -41,6 +49,7 @@ import type { DebugStatInfo } from '../../types/uiTypes';
 
 // Child components
 import DebugMainTab from './DebugMainTab.vue';
+import DebugStatsTab from './DebugStatsTab.vue';
 import DebugDiscoverTab from './DebugDiscoverTab.vue';
 import DebugExploreTab from './DebugExploreTab.vue';
 
@@ -97,12 +106,16 @@ const setDebugTab = (name: string) => {
   display: flex;
   align-items: center;
   margin-right: 8px;
-  width: 148px; /* Fixed exact width for consistent alignment */
+  width: 220px; /* Fixed exact width for consistent alignment - increased for explore button */
   flex-shrink: 0;
 }
 
 .placeholder-controls {
-  width: 148px; /* Must match .stat-controls width exactly */
+  width: 220px; /* Must match .stat-controls width exactly */
+}
+
+.placeholder-controls-without-explore {
+  width: 148px; /* Original width minus explore button */
 }
 
 .control-btn {
@@ -118,6 +131,16 @@ const setDebugTab = (name: string) => {
 
 .control-btn:hover {
   background-color: #dee2e6;
+}
+
+.explore-btn {
+  background-color: #4b72b0 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.explore-btn:hover {
+  background-color: #3a5b8c !important;
 }
 
 .stat-input {
@@ -386,5 +409,71 @@ p {
   outline: none;
   border-color: #4b72b0;
   box-shadow: 0 0 0 2px rgba(75, 114, 176, 0.2);
+}
+
+/* Main tab content display styles */
+.content-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #e9ecef;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.content-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057;
+}
+
+.clear-content-btn {
+  padding: 4px 8px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-content-btn:hover {
+  background-color: #5a6268;
+}
+
+.content-text {
+  flex: 1;
+  padding: 15px;
+  margin: 0;
+  font-family: 'Courier New', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #212529;
+  background-color: white;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.no-content-message {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 40px 20px;
 }
 </style>

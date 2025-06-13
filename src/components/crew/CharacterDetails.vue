@@ -57,11 +57,13 @@
         />
       </div>
 
-      <!-- Bio Section -->
-      <div class="bio-section">
-        <p v-if="currentHint">{{ currentHint }}</p>
-        <p v-else-if="selectedCharacter.bio" class="bio-text">{{ selectedCharacter.bio }}</p>
-        <p v-else class="bio-placeholder">No description available.</p>
+      <!-- Bio Section Wrapper -->
+      <div class="bio-section-wrapper">
+        <div class="bio-section" :class="{ 'keywords-mode': currentHint && currentHint.includes('\n') }">
+          <p v-if="currentHint" :class="{ 'keywords-text': currentHint && currentHint.includes('\n') }">{{ currentHint }}</p>
+          <p v-else-if="selectedCharacter.bio" class="bio-text">{{ selectedCharacter.bio }}</p>
+          <p v-else class="bio-placeholder">No description available.</p>
+        </div>
       </div>
     </div>
 
@@ -91,6 +93,7 @@
           :skillPoints="selectedCharacter.skillPoints"
           :specPoints="selectedCharacter.specPoints"
           :selectedAttribute="selectedAttributeTab"
+          @set-hint="$emit('set-hint', $event)"
         />
       <div v-else class="no-skills">
         No skills data available.
@@ -280,17 +283,42 @@ const fireCharacter = () => {
   border-color: #bd2130;
 }
 
-.bio-section {
+.bio-section-wrapper {
   flex: 1;
   min-width: 200px;
+  position: relative; /* Allow absolute positioning of children */
+  height: 128px; /* Fixed height to maintain layout */
+}
+
+.bio-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   padding: 8px;
   background-color: #f8f9fa;
   border-radius: 4px;
   font-size: 0.9em;
   color: #333;
   border: 1px solid #eee;
-  max-height: 128px;
+  height: 128px; /* Default height */
   overflow-y: auto;
+  white-space: pre-line; /* Allow line breaks for keywords */
+  transition: all 0.3s ease; /* Smooth transition for expansion */
+  z-index: 10; /* Ensure it appears above other content when expanded */
+}
+
+/* Keywords mode: expand downward without affecting layout */
+.bio-section.keywords-mode {
+  height: auto; /* Allow natural height */
+  min-height: 128px; /* Maintain minimum height */
+  max-height: 300px; /* Reasonable maximum to prevent infinite growth */
+}
+
+.keywords-text {
+  font-size: 0.75em !important; /* Smaller font for keywords */
+  line-height: 1.3;
+  color: #444;
 }
 
 .bio-section p {

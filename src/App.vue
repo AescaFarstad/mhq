@@ -8,6 +8,7 @@ import CrewView from './components/tabs/CrewView.vue';
 import QuestsView from './components/tabs/QuestsView.vue';
 import DebugView from './components/tabs/DebugView.vue';
 import TasksView from './components/tabs/TasksView.vue';
+import DiscoverView from './components/tabs/DiscoverView.vue';
 import ClickCounterView from './minigames/click_counter/ClickCounterView.vue';
 import WelcomeView from './minigames/welcome/WelcomeView.vue';
 import IngressView from './minigames/ingress/IngressView.vue';
@@ -135,6 +136,7 @@ onMounted(() => {
           <CrewView v-if="activeTab === 'Crew'" />
           <QuestsView v-if="activeTab === 'Quests'" />
           <TasksView v-if="activeTab === 'Tasks'" />
+          <DiscoverView v-if="activeTab === 'Discover'" />
           <!-- Add the DebugView component, passing the stats -->
           <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
         </div>

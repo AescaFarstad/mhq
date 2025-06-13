@@ -23,7 +23,7 @@ import type { HypotheticalState } from './core/Hypothetical';
 
 import { C } from './lib/C';
 
-export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
+export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Discover', 'Debug'];
 
 export const maintenanceSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.MAINTENANCE_SLOW_TICK_INTERVAL, "maintenance_task_gen");
 export const assignmentSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.ASSIGNMENT_SLOW_TICK_INTERVAL, "task_assignment_process");
@@ -36,7 +36,10 @@ export class GameState {
     public resources: Map<string, Resource> = new Map<string, Resource>();
     public characters: Character[] = [];
     public buildings: Building[] = [];
-    public discoveredItems: Record<string, boolean> = {};
+    public discoveredItems: Set<string> = new Set();
+    public activeKeywords: Map<string, string[]> = new Map();
+    public discardedKeywords: Set<string> = new Set();
+    public discoveryLog: any[] = []; // This will be a structured type, e.g., DiscoveryEvent[]
     public activeMinigame: BaseMinigame<MinigameState> | null = null;
     public invoker: Invoker = new Invoker();
     public hypothetical: HypotheticalState | null = null;
@@ -230,14 +233,14 @@ export class GameState {
     }
 
     public markAsDiscovered(itemId: string): void {
-        if (!this.discoveredItems[itemId]) {
-            this.discoveredItems[itemId] = true;
-            this.uiState.discoveredItemsCount = Object.keys(this.discoveredItems).length;
+        if (!this.discoveredItems.has(itemId)) {
+            this.discoveredItems.add(itemId);
+            this.uiState.discoveredItemsCount = this.discoveredItems.size;
         }
     }
 
     public isDiscovered(itemId: string): boolean {
-        return !!this.discoveredItems[itemId];
+        return this.discoveredItems.has(itemId);
     }
 
     // --- Minigame Management ---
