@@ -1,6 +1,5 @@
 import { Stat, Parameter, FormulaStat, IndependentStat } from './core/Stat';
 // import type { Character } from './Character';
-import { Character as CharacterNamespace } from './Character'; // Import the namespace
 import { AttributeUIInfo, AttributeCategoryUIInfo, SkillUIInfo, SkillSpecializationUIInfo, DebugStatInfo } from '../types/uiTypes';
 import type { GameState } from "./GameState";
 import { getAllResources } from './Resource';
@@ -12,6 +11,21 @@ import { minigameUISyncFunctions } from './minigames/MinigameUIStateManager'; //
 /**
  * Manages UI state updates from the game state to the reactive UI objects
  */
+
+/**
+ * Synchronizes the hypothetical state connections to the reactive uiState.
+ * This allows UI components to react to changes when a hypothetical preview is created or cleared.
+ * @param gameState The global game state.
+ */
+export function syncHypotheticalState(gameState: GameState): void {
+    const newHypotheticalConnections = gameState.hypothetical?.connections || null;
+
+    // We cast to `any` here because the `UIState` type definition is not in this file.
+    // Ideally, `hypotheticalConnections` would be a formal property on the UIState interface.
+    if ((gameState.uiState as any).hypotheticalConnections !== newHypotheticalConnections) {
+        (gameState.uiState as any).hypotheticalConnections = newHypotheticalConnections;
+    }
+}
 
 export interface ResourceUIData {
     current: number;
@@ -116,14 +130,14 @@ export function updateCharacterUIData(gameState: GameState): void {
     gameState.uiState.characters.length = 0;
 
     // Get attribute definitions once
-    const allAttributeDefs = gameState.lib.getAttributeLib().getAttributeDefinitions();
+    const allAttributeDefs = gameState.lib.attributes.getAttributeDefinitions();
     if (!allAttributeDefs) {
         console.error("Cannot update character UI data: Attribute definitions not loaded.");
         return;
     }
     
     // Get skill definitions once
-    const allSkillDefs = gameState.lib.getSkillLib().getAllSkills();
+    const allSkillDefs = gameState.lib.skills.getAllSkills();
     if (!allSkillDefs) {
         console.error("Cannot update character UI data: Skill definitions not loaded or empty.");
         return;
@@ -141,7 +155,12 @@ export function updateCharacterUIData(gameState: GameState): void {
         for (const categoryKey in allAttributeDefs) {
             const categoryDef = allAttributeDefs[categoryKey];
             const primaryStatId = `${idPrefix}${categoryKey}`;
-            const primaryStatValue = char.attributes[primaryStatId]?.value ?? 0;
+            const primaryStat = char.attributes[primaryStatId];
+
+            if (!primaryStat) {
+                console.warn(`Primary attribute stat not found: ${primaryStatId}`);
+                continue;
+            }
 
             // Initialize category structure
             const categoryAttributes: AttributeUIInfo[] = [];
@@ -150,22 +169,24 @@ export function updateCharacterUIData(gameState: GameState): void {
             for (const attributeKey in categoryDef.attributes) {
                 const attributeDef = categoryDef.attributes[attributeKey];
                 const secondaryStatId = `${idPrefix}${attributeKey}`;
-                const secondaryStatValue = char.attributes[secondaryStatId]?.value ?? 0;
+                const secondaryStat = char.attributes[secondaryStatId];
 
+                if (secondaryStat) {
                 categoryAttributes.push({
                     key: attributeKey,
-                    displayName: attributeDef.displayName,
-                    description: attributeDef.description,
-                    value: secondaryStatValue as number, // Type assertion to ensure compatibility
+                        stat: secondaryStat,
+                        definition: attributeDef,
                 });
+                } else {
+                    console.warn(`Secondary attribute stat not found: ${secondaryStatId}`);
+                }
             }
 
             // Add the complete category info to the character's UI attributes
             charUiAttributes.push({
                 key: categoryKey,
-                displayName: categoryDef.displayName,
-                description: categoryDef.description,
-                value: primaryStatValue as number, // Type assertion to ensure compatibility
+                stat: primaryStat,
+                definition: categoryDef,
                 attributes: categoryAttributes,
             });
         }
@@ -177,44 +198,82 @@ export function updateCharacterUIData(gameState: GameState): void {
         for (const skillId in char.skills) {
             const skillDef = allSkillDefs[skillId];
             if (skillDef) {
+                const skillStat = char.skills[skillId];
+                const skillProficiencyStat = char.proficiencies[skillId];
+                
+                if (!skillStat) {
+                    console.warn(`Skill stat not found: ${skillId}`);
+                    continue;
+                }
+                
+                if (!skillProficiencyStat) {
+                    console.warn(`Skill proficiency stat not found: ${skillId}`);
+                    continue;
+                }
+                
                 const specializationsUiInfo: SkillSpecializationUIInfo[] = [];
                 
                 // Add specializations for this skill (skillDef.specializations is string[] of globally unique IDs)
                 for (const specId of skillDef.specializations) { // Iterate over globally unique specialization IDs
-                    const specDef = gameState.lib.getSkillLib().getSpecialization(specId);
+                    const specDef = gameState.lib.skills.getSpecialization(specId);
+                    const specStat = char.specializations[specId];
+                    const specProficiencyStat = char.proficiencies[specId];
                     
-                    if (specDef) { // specDef is of type SkillSpecialization
-                        const specLevel = char.specializations[specId]?.value ?? 0;
-                        const specProficiency = CharacterNamespace.getProficiency(char, specId, gameState);
-                    
-                        if (specLevel > 0) { // Only add if character has levels in it
+                    if (specDef && specStat && specProficiencyStat && specStat.value > 0) { // Only add if character has levels in it
                             specializationsUiInfo.push({
-                                id: specId, // Use the globally unique ID
-                                displayName: specDef.displayName,
-                                description: specDef.description,
-                                level: specLevel,
-                                proficiency: specProficiency
-                            });
-                        }
-                    } else {
-                        console.warn(`UIStateManager: Specialization definition not found for ID: ${specId} (parent skill: ${skillId})`);
+                            id: specId,
+                            stat: specStat,
+                            proficiencyStat: specProficiencyStat,
+                            definition: specDef,
+                        });
+                    } else if (specStat && specStat.value > 0) {
+                        console.warn(`UIStateManager: Specialization definition or proficiency stat not found for ID: ${specId} (parent skill: ${skillId})`);
                     }
                 }
                 
                 // Add the skill with its specializations
                 charUiSkills.push({
                     id: skillId,
-                    displayName: skillDef.displayName,
-                    description: skillDef.description,
-                    attribute: skillDef.attribute,
-                    governedBy: skillDef.governedBy,
-                    assistedBy: skillDef.assistedBy,
-                    level: char.skills[skillId].value,
+                    stat: skillStat,
+                    proficiencyStat: skillProficiencyStat,
+                    definition: skillDef,
                     specializations: specializationsUiInfo,
-                    proficiency: CharacterNamespace.getProficiency(char, skillId, gameState)
                 });
             }
         }
+
+        // Calculate XP progress data
+        const currentXp = char.xp.value;
+        const currentLevel = char.level.value;
+        const nextLevelXpDelta = char.nextLevelXpDelta.value;
+        
+        // Calculate XP needed for current level (this should match the calculateTotalXpForLevel function)
+        const calculateTotalXpForLevel = (level: number): number => {
+            if (level <= 1) return 0;
+            const XP_EXPONENT = 1.1;
+            const BASE_LEVEL_XP = 1000;
+            
+            // Helper function for rounding to two significant digits
+            const roundToTwoSignificantDigits = (num: number): number => {
+                if (num === 0) return 0;
+                const magnitude = Math.floor(Math.log10(Math.abs(num)));
+                const divisor = Math.pow(10, magnitude - 1);
+                return Math.round(num / divisor) * divisor;
+            };
+            
+            let totalXp = 0;
+            let currentLevelDelta = BASE_LEVEL_XP;
+            
+            for (let i = 2; i <= level; i++) {
+                totalXp += currentLevelDelta;
+                currentLevelDelta = roundToTwoSignificantDigits(currentLevelDelta * XP_EXPONENT);
+            }
+            
+            return totalXp;
+        };
+        
+        const currentLevelXp = calculateTotalXpForLevel(currentLevel);
+        const xpProgress = currentXp - currentLevelXp;
 
         // Push the complete character data to UI state
         gameState.uiState.characters.push({
@@ -224,7 +283,15 @@ export function updateCharacterUIData(gameState: GameState): void {
             upkeep: char.upkeep.value,
             bio: charDef.bio || '', // Use charDef.bio
             attributes: charUiAttributes,
-            skills: charUiSkills
+            skills: charUiSkills,
+            attributePoints: char.attributePoints.value,
+            skillPoints: char.skillPoints.value,
+            specPoints: char.specPoints.value,
+            xp: {
+                current: currentXp,
+                progress: xpProgress,
+                nextLevelDelta: nextLevelXpDelta
+            }
         });
     }
 
@@ -427,6 +494,8 @@ export function sync(gameState: GameState): void {
     syncTimeScale(gameState);
     // Always sync core parameters for components like BuffBar
     syncCoreParameters(gameState);
+    // Always sync hypothetical state for previews
+    syncHypotheticalState(gameState);
 
     // Sync data specific to the active tab
     const activeTab = gameState.uiState.activeTabName;

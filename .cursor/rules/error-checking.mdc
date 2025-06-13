@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+To check for errors run 'npx tsc --noEmit --project tsconfig.json'. For comprehensive refactors, check errors with 'npm run build'
+Current working directory is '/mnt/WoB/WOB/web%20rep/mhq'
+If you're experiencing problems editing a file, read the file again to check if the edit, which says it's failed, has actually succeeded.

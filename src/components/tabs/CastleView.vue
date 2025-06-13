@@ -70,16 +70,24 @@ const constructedBuildings = computed<BuildingDefinition[]>(() => {
 <style scoped>
 .castle-view-container {
   padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 h3 {
   margin-bottom: 20px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .columns {
   display: flex;
   justify-content: space-around;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .column {

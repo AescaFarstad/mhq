@@ -33,6 +33,8 @@ export class Connection {
     }
 }
 
+
+
 /**
  * Defines the types of connections between stats.
  */
@@ -43,6 +45,8 @@ export enum ConnectionType {
     DIV = 4,
     FORMULA = 5,
     NAMED_INPUT = 6,
+    GATE_THRESHOLD = 7,
+    GATE_VALUE = 8,
 }
 
 /**
@@ -139,5 +143,30 @@ export class FormulaParameter implements Stat {
         }
         // Initial calculation
         (this as { -readonly [K in keyof this]: this[K] })['value'] = this.formula(this.inputs);
+    }
+}
+
+/**
+ * A gated stat that only updates its value when (baseValue + inputValue) crosses a threshold.
+ * Useful for optimizing calculations that should only trigger on specific conditions.
+ */
+export class GateParameter implements Stat {
+    public name: string;
+    public readonly value: number = 0;
+    /** The base value added to input value before threshold comparison. */
+    public baseValue: number;
+    /** True for >= threshold, false for <= threshold. */
+    public isAboveThreshold: boolean;
+    /** The current threshold value. */
+    public threshold: number = 0;
+    /** The current input value. */
+    public inputValue: number = 0;
+
+    constructor(name: string, baseValue: number, isAboveThreshold: boolean) {
+        this.name = name;
+        this.baseValue = baseValue;
+        this.isAboveThreshold = isAboveThreshold;
+        // Initialize with base value
+        (this as { -readonly [K in keyof this]: this[K] })['value'] = baseValue;
     }
 } 

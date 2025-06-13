@@ -65,6 +65,7 @@ const setHint = (hint: string | null) => {
   height: 100%;
   width: 100%;
   background-color: #f0f0f0;
+  overflow: hidden;
 }
 
 .character-list {
@@ -91,7 +92,6 @@ const setHint = (hint: string | null) => {
 
 .character-details {
   flex-grow: 1;
-  padding: 10px;
   overflow-y: auto;
   background-color: #ffffff;
 }

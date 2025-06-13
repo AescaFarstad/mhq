@@ -1,4 +1,7 @@
 // Define shared interfaces for UI data structures
+import type { IndependentStat, FormulaStat } from '../logic/core/Stat';
+import type { AttributeDefinition, AttributeCategoryDefinition } from '../logic/lib/definitions/AttributeDefinition';
+import type { Skill, SkillSpecialization } from '../logic/lib/definitions/SkillDefinition';
 
 /**
  * Basic character information used in lists.
@@ -15,9 +18,8 @@ export interface SimpleCharacterInfo {
  */
 export interface AttributeUIInfo {
   key: string;
-  displayName: string;
-  value: number;
-  description?: string;
+  stat: IndependentStat;
+  definition: AttributeDefinition;
 }
 
 /**
@@ -25,9 +27,8 @@ export interface AttributeUIInfo {
  */
 export interface AttributeCategoryUIInfo {
   key: string;
-  displayName: string;
-  value: number;
-  description?: string;
+  stat: IndependentStat;
+  definition: AttributeCategoryDefinition;
   attributes: AttributeUIInfo[]; // Nested attributes
 }
 
@@ -38,6 +39,14 @@ export interface SelectedCharacterInfo extends SimpleCharacterInfo {
   bio: string;
   attributes: AttributeCategoryUIInfo[];
   skills: SkillUIInfo[];
+  attributePoints: number;
+  skillPoints: number;
+  specPoints: number;
+  xp: {
+    current: number;
+    progress: number;
+    nextLevelDelta: number;
+  };
 }
 
 /**
@@ -45,10 +54,9 @@ export interface SelectedCharacterInfo extends SimpleCharacterInfo {
  */
 export interface SkillSpecializationUIInfo {
   id: string;
-  displayName: string;
-  description: string;
-  level: number;
-  proficiency: number;
+  stat: IndependentStat;
+  proficiencyStat: FormulaStat;
+  definition: SkillSpecialization;
 }
 
 /**
@@ -56,14 +64,10 @@ export interface SkillSpecializationUIInfo {
  */
 export interface SkillUIInfo {
   id: string;
-  displayName: string;
-  description: string;
-  attribute: string;
-  governedBy: string[];
-  assistedBy: string[];
+  stat: IndependentStat;
+  proficiencyStat: FormulaStat;
+  definition: Skill;
   specializations: SkillSpecializationUIInfo[];
-  level: number;
-  proficiency: number;
 }
 
 /**

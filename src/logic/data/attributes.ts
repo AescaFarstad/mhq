@@ -69,7 +69,7 @@ const attributes: AttributeDefinitions = {
   },
   social: {
     displayName: "Social",
-    description: "Concerns social interactions.",
+    description: "Concerns interactions with people and animals.",
     attributes: {
       composure: {
         displayName: "Composure",

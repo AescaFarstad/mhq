@@ -1,5 +1,5 @@
 import { GameState } from './GameState';
-import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, EventContext, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams } from './lib/definitions/EventDefinition';
+import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, EventContext, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams, GivePointsParams } from './lib/definitions/EventDefinition';
 import * as effects from './effects';
 
 // Module-level queue for pending events
@@ -118,6 +118,9 @@ export namespace EventProcessor {
                     break;
                 case 'applyWelcomeResults':
                     effects.applyWelcomeResults(state, effect.params as ApplyWelcomeResultsParams);
+                    break;
+                case 'givePoints':
+                    effects.givePoints(state, effect.params as GivePointsParams);
                     break;
                 default:
                     console.warn(`Unknown effect key: ${effect.key}`);

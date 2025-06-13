@@ -36,7 +36,7 @@
               {{ task.assignedCharacterEffectiveScores[skillName].toFixed(1) }}
             </template>
             <template v-else-if="task.resolvedDefinitionDetails.skills">
-              x{{ (getSkillMultipliers(task.resolvedDefinitionDetails.skills.length)[index] || DEFAULT_LAST_SKILL_MULTIPLIER).toFixed(1) }}
+              x{{ (getSkillMultipliers(task.resolvedDefinitionDetails.skills.length)[index] || C.DEFAULT_LAST_SKILL_MULTIPLIER).toFixed(1) }}
             </template>
           </span>
         </div>
@@ -45,13 +45,16 @@
 
     <!-- Separator and Results -->
     <template v-if="!isCompleted">
-        <div class="separator-container" v-if="task.clutterReduction && task.clutterReduction < 0">
+        <div class="separator-container" v-if="(task.clutterReduction && task.clutterReduction < 0) || totalTaskXp > 0">
             <hr class="separator-line">
             <span class="separator-text">Results</span>
             <hr class="separator-line">
         </div>
         <div v-if="task.clutterReduction && task.clutterReduction < 0" class="task-result-item">
             Clutter Reduction: {{ (-task.clutterReduction).toFixed(1) }}
+        </div>
+        <div v-if="totalTaskXp > 0" class="task-result-item">
+            Total task XP: {{ Math.round(totalTaskXp) }}
         </div>
     </template>
 
@@ -81,9 +84,10 @@ import { computed, type PropType } from 'vue';
 import type { GameTask } from '../../logic/TaskTypes';
 import { GameTaskType, GameTaskStatus } from '../../logic/TaskTypes';
 import { useGameState } from '../../composables/useGameState';
-import { getSkillMultipliers, DEFAULT_LAST_SKILL_MULTIPLIER } from '../../logic/Task';
+import { getSkillMultipliers } from '../../logic/Task';
 import EffortBar from '../shared/EffortBar.vue';
 import { obfuscateString } from '../../utils/stringUtils';
+import { C } from '../../logic/lib/C';
 
 const props = defineProps({
   task: {
@@ -105,6 +109,10 @@ const assignedCharacterName = computed(() => {
   }
   const characterDef = gameState.value.lib.characters.getCharacter(charId);
   return characterDef?.name || 'Unknown';
+});
+
+const totalTaskXp = computed(() => {
+  return props.task.totalEffort * props.task.xpMultiplier;
 });
 
 const isCompleted = computed(() => {
@@ -134,25 +142,26 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 <style scoped>
 .task-card {
   border: 1px solid #ccc;
-  padding: 5px; /* Reverted from 3px */
-  margin: 3px; /* Reverted from 2px */
-  font-size: 0.85em; /* Reverted from 0.8em */
+  padding: 6px 8px;
+  font-size: 0.85em;
   display: flex;
   flex-direction: column;
-  gap: 5px; /* Reverted from 3px */
+  gap: 5px;
+  background-color: #f8f9fa; /* Slightly different background to distinguish from character info */
+  box-sizing: border-box; /* Ensure proper box model */
 }
 
 .task-name {
   font-weight: bold;
-  font-size: 1em; /* Reverted from 0.9em */
+  font-size: 1em;
   text-align: center;
-  margin-bottom: 3px; /* Reverted from 2px */
+  margin-bottom: 3px;
 }
 
 .current-step-text {
   color: #555;
   text-align: left;
-  margin-bottom: 5px; /* Added margin */
+  margin-bottom: 5px;
   font-size: 0.8em;
   padding: 2px 4px;
   border: 1px dashed #eee;
@@ -161,20 +170,20 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 
 .skills-character-container {
   display: flex;
-  gap: 6px; /* Reverted from 4px */
-  margin-bottom: 5px; /* Reverted from 3px */
+  gap: 6px;
+  margin-bottom: 5px;
 }
 
 .skills-character-container.boxed-layout {
   border: 1px solid #ccc;
-  padding: 3px; /* Reverted from 2px */
+  padding: 3px;
 }
 
 .skills-area {
   flex-grow: 1;
   display: flex;
   flex-direction: column; 
-  gap: 3px; /* Reverted from 2px */
+  gap: 3px;
   min-width: 0; 
 }
 
@@ -183,16 +192,16 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
   justify-content: space-between;
   align-items: center;
   background-color: #f0f0f0;
-  border-radius: 10px; /* Reverted from 8px */
-  padding: 3px 8px; /* Reverted from 2px 5px */
-  font-size: 0.8em; /* Reverted from 0.75em */
+  border-radius: 10px;
+  padding: 3px 8px;
+  font-size: 0.8em;
   box-sizing: border-box;
   width: 100%; 
   white-space: nowrap;
 }
 
 .skill-pill-name {
-  margin-right: 6px; /* Reverted from 4px */
+  margin-right: 6px;
   font-weight: 500;
   overflow: hidden; 
   text-overflow: ellipsis; 
@@ -205,29 +214,28 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 }
 
 .character-portrait-area {
-  width: 35%; /* Reverted from 30% */
-  min-height: 60px; /* Reverted from 40px */
+  width: 35%;
+  min-height: 60px;
   background-color: #e9e9e9;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.8em; /* Reverted from 0.75em */
+  font-size: 0.8em;
   color: #777;
-  padding: 2px; /* Reverted from 1px */
+  padding: 2px;
   flex-shrink: 0; 
 }
 
 .separator-container {
   display: flex;
   align-items: center;
-  margin: 5px 0; /* Reverted from 3px 0 */
-  gap: 8px; /* Reverted from 5px */
+  margin: 0px 0;
 }
 
 .separator-container-actions {
     display: flex;
     align-items: center;
-    margin: 3px 0; /* Reverted from 2px 0 */
+    margin: 3px 0;
 }
 
 .separator-line {
@@ -243,27 +251,26 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 }
 
 .separator-text {
-  font-size: 0.85em; /* Reverted from 0.8em */
+  font-size: 0.85em;
   color: #777;
   font-weight: bold;
   white-space: nowrap;
 }
 
 .task-result-item {
-  font-size: 0.85em; /* Reverted from 0.8em */
-  text-align: center;
-  margin-bottom: 3px; /* Reverted from 2px */
+  font-size: 0.7em;
+  text-align: left;
 }
 
 .task-actions {
   display: flex;
   justify-content: center;
-  gap: 10px; /* Reverted from 6px */
+  gap: 10px;
 }
 
 .task-actions button {
-  font-size: 0.85em; /* Reverted from 0.8em */
-  padding: 3px 7px; /* Reverted from 2px 5px */
+  font-size: 0.85em;
+  padding: 3px 7px;
 }
 
 .completed-task-info {
@@ -271,8 +278,8 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
   justify-content: space-between; 
   align-items: center;
   text-align: left; 
-  padding: 4px 6px; /* Reverted from 2px 4px */
-  font-size: 0.85em; /* Reverted from 0.8em */
+  padding: 4px 6px;
+  font-size: 0.85em;
 }
 
 .completed-task-effect {

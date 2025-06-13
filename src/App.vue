@@ -189,7 +189,7 @@ onMounted(() => {
   padding: 0px;
   display: flex;
   flex-direction: column; /* Stack tabs and content vertically */
-  overflow-y: auto; /* Add scroll if content overflows */
+  overflow: hidden; /* Prevent scrolling at this level */
 }
 
 .tabs {
@@ -222,6 +222,8 @@ onMounted(() => {
 
 .tab-content {
   flex-grow: 1; /* Takes up remaining space in main-content */
+  height: 100%; /* Ensure it takes full available height */
+  overflow: hidden; /* Let individual tabs handle their own scrolling */
 }
 
 .time-controls {

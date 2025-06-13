@@ -23,5 +23,28 @@ export interface CmdTickOnce extends CmdInput {
   name: "CmdTickOnce";
 }
 
+export interface CmdFireCharacter extends CmdInput {
+  name: "CmdFireCharacter";
+  characterId: string;
+}
+
+export interface CmdSpendAttributePoint extends CmdInput {
+  name: "CmdSpendAttributePoint";
+  characterId: string;
+  attributeId: string;
+}
+
+export interface CmdSpendSkillPoint extends CmdInput {
+  name: "CmdSpendSkillPoint";
+  characterId: string;
+  skillId: string;
+}
+
+export interface CmdSpendSpecPoint extends CmdInput {
+  name: "CmdSpendSpecPoint";
+  characterId: string;
+  specId: string;
+}
+
 // Add other command interfaces here, e.g.:
 // export interface CmdOtherAction extends CmdInput { ... }

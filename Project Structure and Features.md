@@ -47,11 +47,18 @@
         *   **`crew/`**: Components specific to the Crew tab UI.
             *   `CharacterList.vue`: Displays the list of available characters using `CharacterListItem`.
             *   `CharacterListItem.vue`: Renders a single character entry in the list.
-            *   `CharacterDetails.vue`: Displays detailed information for the selected character, using `CharacterAttributes` and `CharacterSkills`.
-            *   `CharacterAttributes.vue`: Displays the hierarchical attributes of a character.
+            *   `CharacterDetails.vue`: Displays detailed information for the selected character, using `CharacterAttributes` and `CharacterSkills`. Features XP progress bar and character advancement UI.
+            *   `CharacterAttributes.vue`: Displays the hierarchical attributes of a character with hypothetical preview support and spend point buttons.
             *   `CharacterSkills.vue`: Displays a character's skills and specializations in a vertical list.
+            *   `SkillItem.vue`: Renders individual skill/specialization entries with proficiency values, spend buttons, and hypothetical preview on hover.
+        *   **`shared/`**: Shared components used across multiple tabs.
+            *   `XpProgressBar.vue`: Displays experience progress with dynamic coloring and overlay text.
+        *   **`common/`**: Common utility components.
+            *   `SpendPointButton.vue`: Standardized button for spending character points with consistent styling.
+            *   `MiniTaskDisplay.vue`: Compact task display component.
+            *   `TaskCard.vue`: Full task card component with detailed information.
     *   **`logic/`**: Core game logic (TypeScript classes, independent of Vue).
-        *   `GameState.ts`: Central class holding and managing the entire game state (resources via `ResourceManager`, stats via `Connections`, characters, event processing via `EventProcessor`, data via `Lib`, game time). Provides reactive `uiState` for the Vue components. Handles the main `update` loop. Includes methods for tracking and managing discovered game items (`markAsDiscovered`, `isDiscovered`) to control UI obfuscation.
+        *   `GameState.ts`: Central class holding and managing the entire game state (resources via `ResourceManager`, stats via `Connections`, characters, event processing via `EventProcessor`, data via `Lib`, game time). Provides reactive `uiState` for the Vue components. Handles the main `update` loop. Includes methods for tracking and managing discovered game items (`markAsDiscovered`, `isDiscovered`) to control UI obfuscation. Features hypothetical state management for UI previews.
         *   `Event.ts`: Checks `EventDefinition` conditions against `GameState` and applies effects if met.
         *   `Resource.ts`: Represents a game resource (e.g., gold) using `IndependentStat` (current amount) and `Parameter` (max, income). Includes `ResourceManager`.
         *   `Character.ts`: Represents an active character instance with level, upkeep, attributes, skills, and specializations as `IndependentStat` objects.
@@ -59,11 +66,13 @@
         *   **`core/`**: Foundational systems.
             *   `Stat.ts`: Definitions for `Stat`, `Connections`, `Connection`, `ConnectionType`, `Parameter`, `IndependentStat`, `FormulaStat`, and `FormulaParameter`.
             *   `Stats.ts`: Utility functions for creating and managing `Stat` objects within `Connections`.
+            *   `Hypothetical.ts`: System for creating temporary "what-if" stat scenarios by cloning connections and applying hypothetical changes for UI previews.
         *   **`lib/`**: Data loading and management.
             *   `Lib.ts`: Main class responsible for loading game data (events, characters, attributes, skills) from TypeScript files in the `data/` directory using specific libs (`CharacterLib`, `AttributeLib`, `SkillLib`). Provides access methods.
             *   `CharacterLib.ts`: Handles loading and accessing `CharacterDefinition` data with strong typing.
             *   `AttributeLib.ts`: Handles loading and accessing attribute definitions and structures from `attributes.ts`.
             *   `SkillLib.ts`: Handles loading base skill data, merging with keywords loaded via `skillKeywordsLoader`, and creating a keyword lookup map.
+            *   `C.ts`: Constants library providing centralized access to game configuration values and tunable parameters.
             *   **`definitions/`**: TypeScript interfaces defining the structure of data loaded from data files.
                 *   `LibDefinitions.ts`: Basic type definitions (e.g., `LibItem`).
                 *   `CharacterDefinition.ts`: Structure for character blueprints, including `initialSkills` with nested specializations.
@@ -91,6 +100,7 @@
 
 ## Reference Code Details
 *   **Stats System (`src/logic/core/`):** Manages numerical values (`Stat`, `IndependentStat`, `Parameter`, `FormulaStat`, `FormulaParameter`) with automatic propagation of changes through connections (`Connections`, `ConnectionType`). `FormulaParameter` allows for creating stats whose values are derived from a set of named inputs through a user-defined formula, useful for complex calculations like skill proficiencies. Utility functions in `Stats` namespace. Used for resources, character level/upkeep, attributes, skills, specializations, and proficiencies.
+*   **Hypothetical System (`src/logic/core/Hypothetical.ts`):** Provides "what-if" scenario functionality by creating temporary stat connection clones with hypothetical modifications. Used for UI previews when hovering over upgrade buttons, allowing players to see potential stat changes before committing. The system creates unique keys for each hypothetical scenario and integrates with `UIStateManager` to sync hypothetical states to reactive UI components. Functions include `createHypotheticalForAttributeUpgrade`, `createHypotheticalForSkillUpgrade`, `createHypotheticalForSpecUpgrade`, and `clearHypothetical`.
 *   **Data Loading System (`src/logic/lib/`, `src/logic/data/`):** `Lib.ts` loads game entity definitions (`EventDefinition`, `CharacterDefinition`, `AttributeDefinition`, base `Skill` data) from typed TypeScript files into corresponding structures defined in `src/logic/lib/definitions/`, enabling a type-safe, data-driven approach with compile-time checking. Skill keywords are loaded separately via `skillKeywordsLoader.ts` and merged within `SkillLib.ts`.
 *   **Event System (`src/logic/Event.ts`, `src/logic/lib/definitions/EventDefinition.ts`):** `EventDefinition.ts` defines events with conditions and effects. `EventProcessor.ts` checks conditions against `GameState` and applies effects for scripted game progression/reactions.
 *   **Attribute System (`src/logic/data/attributes.ts`, `src/logic/lib/AttributeLib.ts`, `src/logic/lib/definitions/AttributeDefinition.ts`, `src/logic/GameState.ts`):** Defines hierarchical attributes in TypeScript. `AttributeLib` loads this data using structures from `AttributeDefinition.ts`. `GameState` processes character stats against these definitions to create structured UI data (defined in `src/types/uiTypes.ts` as `AttributeUIInfo`, `AttributeCategoryUIInfo`) used by components within `src/components/crew/`. Note: Character attributes are created as `IndependentStat` objects in `Character.ts` based on `initialAttributes` from `characters.ts` and processed by `GameState` for hierarchical UI display.

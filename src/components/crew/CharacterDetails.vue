@@ -2,54 +2,96 @@
   <div v-if="!selectedCharacter" class="no-selection">
     <p>Select a character to view details</p>
   </div>
-  <div v-else class="character-details-grid">
-    <!-- Column 1: Info & Image -->
-    <div class="character-info-column">
-      <!-- Character Header -->
-      <div class="character-header">
-        <h3>{{ selectedCharacter.name }}</h3>
-        <div class="character-stats">
-          <span class="stat-badge">Level {{ selectedCharacter.level }}</span>
-          <span class="stat-badge">Upkeep: {{ selectedCharacter.upkeep.toFixed(1) }} gold</span>
+  <div v-else class="character-details-container">
+    <!-- Top Row: Portrait, Character Info + XP, Bio -->
+    <div class="character-top-row">
+      <!-- Portrait (128x128) -->
+      <div class="portrait-section">
+        <div class="image-holder-placeholder">
+          <span>128x128 Image Placeholder</span>
         </div>
       </div>
 
-      <!-- New Row for Image and Bio -->
-      <div class="image-bio-row">
-        <!-- Image Holder Placeholder -->
-        <div class="image-holder-placeholder">
-          <!-- ImageHolder component will go here -->
-          <span>256x256 Image Placeholder</span>
+      <!-- Character Info + XP Bar -->
+      <div class="character-info-section">
+        <div class="character-header">
+          <h3>{{ selectedCharacter.name }}</h3>
+          <!-- Unspent Points Indicators -->
+          <div class="unspent-points-container">
+            <span 
+              v-if="selectedCharacter.attributePoints > 0"
+              class="unspent-points-badge"
+              @mouseenter="$emit('set-hint', `You have unspent attribute points: ${selectedCharacter.attributePoints}`)"
+              @mouseleave="$emit('set-hint', null)"
+            >
+              +{{ selectedCharacter.attributePoints }}
+            </span>
+            <span 
+              v-if="selectedCharacter.skillPoints > 0"
+              class="unspent-points-badge"
+              @mouseenter="$emit('set-hint', `You have unspent skill points: ${selectedCharacter.skillPoints}`)"
+              @mouseleave="$emit('set-hint', null)"
+            >
+              +{{ selectedCharacter.skillPoints }}
+            </span>
+            <span 
+              v-if="selectedCharacter.specPoints > 0"
+              class="unspent-points-badge"
+              @mouseenter="$emit('set-hint', `You have unspent specialization points: ${selectedCharacter.specPoints}`)"
+              @mouseleave="$emit('set-hint', null)"
+            >
+              +{{ selectedCharacter.specPoints }}
+            </span>
+          </div>
+          <div class="character-stats">
+            <span class="stat-badge">Level {{ selectedCharacter.level }}</span>
+            <span class="stat-badge">Upkeep: {{ selectedCharacter.upkeep.toFixed(1) }} gold</span>
+            <button class="fire-button" @click="fireCharacter">Fire</button>
+          </div>
         </div>
-        <!-- Bio Section -->
-        <div class="bio-section">
-          <p v-if="currentHint">{{ currentHint }}</p>
-          <p v-else-if="selectedCharacter.bio" class="bio-placeholder">{{ selectedCharacter.bio }}</p>
-          <p v-else class="bio-placeholder">No description available.</p>
-        </div>
+        <!-- XP Progress Bar -->
+        <XpProgressBar
+          v-if="selectedCharacter.xp"
+          :xpProgress="selectedCharacter.xp.progress"
+          :nextLevelDelta="selectedCharacter.xp.nextLevelDelta"
+        />
+      </div>
+
+      <!-- Bio Section -->
+      <div class="bio-section">
+        <p v-if="currentHint">{{ currentHint }}</p>
+        <p v-else-if="selectedCharacter.bio" class="bio-text">{{ selectedCharacter.bio }}</p>
+        <p v-else class="bio-placeholder">No description available.</p>
       </div>
     </div>
 
-    <!-- Column 2: Attributes -->
-    <div class="character-attributes-column">
+    <!-- Attribute Tabs -->
+    <div class="attribute-tabs-section">
       <CharacterAttributes
         v-if="selectedCharacter.attributes"
         :attributes="selectedCharacter.attributes"
+        :attributePoints="selectedCharacter.attributePoints"
         :current-hint="currentHint"
+        :selectedTab="selectedAttributeTab"
+        :characterId="selectedCharacter.id"
         @set-hint="$emit('set-hint', $event)"
+        @tab-selected="selectedAttributeTab = $event"
       />
       <div v-else class="no-attributes">
         No attribute data available.
       </div>
     </div>
 
-    <!-- Skills Section (Full Span Below Columns) -->
-    <div class="character-skills-row">
-      <CharacterSkills
-        v-if="selectedCharacter.skills && selectedCharacter.skills.length > 0"
-        :skills="selectedCharacter.skills"
-        :characterId="selectedCharacter.id"
-      />
+    <!-- Skills Section (Filtered by Selected Attribute) -->
+    <div class="character-skills-section">
+              <CharacterSkills
+          v-if="selectedCharacter.skills && selectedCharacter.skills.length > 0"
+          :skills="filteredSkills"
+          :characterId="selectedCharacter.id"
+          :skillPoints="selectedCharacter.skillPoints"
+          :specPoints="selectedCharacter.specPoints"
+          :selectedAttribute="selectedAttributeTab"
+        />
       <div v-else class="no-skills">
         No skills data available.
       </div>
@@ -58,12 +100,15 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { PropType, ref, computed } from 'vue';
 import CharacterAttributes from './CharacterAttributes.vue';
 import CharacterSkills from './CharacterSkills.vue';
+import XpProgressBar from '../shared/XpProgressBar.vue';
 import { SelectedCharacterInfo } from '../../types/uiTypes';
+import { globalInputQueue } from '../../logic/GameState';
+import type { CmdFireCharacter } from '../../logic/input/InputCommands';
 
-defineProps({
+const props = defineProps({
   selectedCharacter: {
     type: Object as PropType<SelectedCharacterInfo | null>,
     default: null,
@@ -74,8 +119,34 @@ defineProps({
   },
 });
 
-defineEmits(['set-hint']);
+const emit = defineEmits(['set-hint']);
 
+// Track selected attribute tab
+const selectedAttributeTab = ref<string>('physique'); // Default to physique initially
+
+// No automatic tab switching when character changes - let user's selection persist
+
+// Filter skills by the selected attribute
+const filteredSkills = computed(() => {
+  if (!props.selectedCharacter?.skills || !selectedAttributeTab.value) {
+    return props.selectedCharacter?.skills || [];
+  }
+  
+  // Filter skills by the selected attribute
+  return props.selectedCharacter.skills.filter(skill => 
+    skill.definition.attribute === selectedAttributeTab.value
+  );
+});
+
+const fireCharacter = () => {
+  if (props.selectedCharacter) {
+    const command: CmdFireCharacter = {
+      name: "CmdFireCharacter",
+      characterId: props.selectedCharacter.id
+    };
+    globalInputQueue.push(command);
+  }
+};
 </script>
 
 <style scoped>
@@ -90,121 +161,177 @@ defineEmits(['set-hint']);
   padding: 10px;
 }
 
-.character-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    "info attributes"
-    "skills skills";
-}
-
-.character-info-column {
-  grid-area: info;
+.character-details-container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding: 10px;
+  gap: 0;
+  padding: 8px;
+  height: 100%;
+  overflow: hidden;
 }
 
-.image-bio-row {
-  display: flex;
-  flex-direction: row;
-  gap: 15px; /* Space between image and bio */
-  align-items: flex-start; /* Align items to the top if heights differ */
-}
-
-.character-attributes-column {
-  grid-area: attributes;
-  padding: 10px;
-  padding-bottom: 0px;
-}
-
-.character-skills-row {
-  grid-area: skills;
-  margin-top: 0;
-  padding: 10px;
-  padding-top: 0px;
-}
-
-
-.character-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.character-header h3 {
-  margin: 0;
-  font-size: 1.6em;
-  color: #2c3e50;
-}
-
-.character-stats {
+.character-top-row {
   display: flex;
   gap: 12px;
+  align-items: flex-start;
 }
 
-.stat-badge {
-  background-color: #e9ecef;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 5px 10px;
-  font-size: 0.9em;
-  color: #495057;
-  white-space: nowrap;
-}
-
-.bio-section {
-  padding: 10px; /* Adjusted padding for consistency */
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  /* min-height: 60px; */ /* min-height might conflict with alignment, let content define height */
-  display: flex;
-  flex-direction: column;
-  /* justify-content: center; */ /* Removed justify content to align text to top */
-  font-size: 0.95em;
-  color: #333;
-  border: 1px solid #eee;
-  flex-grow: 1; /* Allow bio section to take available space next to image */
-  min-width: 0; /* Prevent overflow issues with flex-grow */
-}
-
-.bio-section p {
-    margin: 0 0 5px 0; /* Add some margin between paragraphs if multiple */
-    line-height: 1.4;
-}
-.bio-section p:last-child {
-    margin-bottom: 0;
-}
-
-
-.bio-placeholder { /* Renamed from hint-placeholder */
-  color: #6c757d;
-  font-style: italic;
+.portrait-section {
+  flex-shrink: 0;
 }
 
 .image-holder-placeholder {
-  width: 256px;
-  height: 256px;
+  width: 128px;
+  height: 128px;
   background-color: #e0e0e0;
   border: 1px dashed #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
   color: #888;
-  font-size: 0.9em;
+  font-size: 0.8em;
   border-radius: 4px;
-  flex-shrink: 0; /* Prevent image placeholder from shrinking */
+}
+
+.character-info-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.character-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.character-header h3 {
+  margin: 0;
+  font-size: 1.4em;
+  color: #2c3e50;
+}
+
+.unspent-points-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.unspent-points-badge {
+  background: linear-gradient(145deg, #32d74b, #28a745);
+  border: 1px solid #20c997;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.8em;
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.unspent-points-badge:hover {
+  background: linear-gradient(145deg, #3ae158, #32d74b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.unspent-points-badge:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(40, 167, 69, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.character-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.85em;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.fire-button {
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.85em;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.fire-button:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.bio-section {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #333;
+  border: 1px solid #eee;
+  max-height: 128px;
+  overflow-y: auto;
+}
+
+.bio-section p {
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.bio-section p:last-child {
+  margin-bottom: 0;
+}
+
+.bio-placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.bio-text {
+  color: #333;
+}
+
+.attribute-tabs-section {
+  margin-top: 8px;
+}
+
+.character-skills-section {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0 4px 4px 4px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .no-attributes,
 .no-skills {
-    color: #888;
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
-    /* margin-top: 20px; */ /* Handled by grid gap or specific row margin */
+  padding: 16px;
+  color: #888;
+  font-style: italic;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-top: 8px;
 }
 </style>

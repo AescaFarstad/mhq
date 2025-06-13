@@ -27,23 +27,24 @@ defineProps({
 
 <style scoped>
 .mini-task-display {
-  padding: 4px 6px; /* Reverted from 2px 4px */
+  padding: 6px 8px;
   font-size: 0.8em;
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Reverted from 2px */
+  gap: 4px;
   border: 1px solid #eee;
   border-radius: 3px;
-  margin-top: 5px; /* Reverted from 3px */
+  background-color: #f8f9fa; /* Slightly different background to distinguish from character info */
+  box-sizing: border-box; /* Ensure proper box model */
 }
 
 .task-name {
   font-weight: bold;
-  font-size: 0.9em; /* Reverted from 0.85em */
+  font-size: 0.9em;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 0; /* Reverted from 1px, original MiniTaskDisplay didn't have margin-bottom here */
+  margin-bottom: 0;
 }
 </style> 

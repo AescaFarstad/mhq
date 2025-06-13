@@ -2,13 +2,14 @@ import {
   ModifyResourceParams, 
   DiscoverParams, 
   AddCharacterParams,
-  DiscoverEffectParams
+  DiscoverEffectParams,
+  GivePointsParams
 } from '../lib/definitions/EventDefinition';
 
 // Define the shape of our events data
 interface EffectData {
   key: string;
-  params: ModifyResourceParams | DiscoverParams | AddCharacterParams | Record<string, any> | DiscoverEffectParams;
+  params: ModifyResourceParams | DiscoverParams | AddCharacterParams | Record<string, any> | DiscoverEffectParams | GivePointsParams;
 }
 
 interface EventData {
@@ -34,12 +35,13 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Castle" } },
       { key: "discover", params: { key: "Crew" } },
       { key: "discover", params: { key: "Debug" } },
-      //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
+      { key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
       { key: "startBehTree", params: { treeName: "cheatIntro" } },
       { key: "startBehTree", params: { treeName: "introSequence" } },
       { key: "discoverAll", params: {} },
       { key: "giveSkillsAndSpecs", params: {} },
+      { key: "givePoints", params: {attributePoints: 10, skillPoints: 10, specPoints: 10} },
     ]
   },
   "giveAllSkillsAndSpecs": {

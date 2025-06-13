@@ -336,8 +336,8 @@ const skills: RawSkillsData = {
       displayName: "Life Magic",
       description: "Harnessing positive energy to heal, protect, and bless",
       attribute: "spirit",
-      governedBy: ["attunement", "weaving"],
-      assistedBy: ["empathy", "resilience", "channeling"],
+      governedBy: ["attunement", "resilience"],
+      assistedBy: ["empathy", "weaving", "channeling"],
       specializations: {
         restoration: {
           displayName: "Restoration",
@@ -394,8 +394,8 @@ const skills: RawSkillsData = {
       displayName: "Chaos Magic",
       description: "Tapping into entropic forces, destruction, and fire",
       attribute: "spirit",
-      governedBy: ["attunement", "channeling"],
-      assistedBy: ["resilience", "willpower"],
+      governedBy: ["resilience", "channeling"],
+      assistedBy: ["willpower"],
       specializations: {
         unraveling: {
           displayName: "Unraveling",
@@ -415,7 +415,7 @@ const skills: RawSkillsData = {
       displayName: "Death Magic",
       description: "Mastery over negative energy, undeath, and decay",
       attribute: "spirit",
-      governedBy: ["attunement", "channeling", "authority"],
+      governedBy: ["weaving", "channeling", "authority"],
       assistedBy: ["willpower", "knowledge"],
       specializations: {
         necromancy: {
@@ -470,7 +470,7 @@ const skills: RawSkillsData = {
       displayName: "Elemental Magic",
       description: "Direct command over Air, Earth, Fire, and Water",
       attribute: "spirit",
-      governedBy: ["attunement", "channeling"],
+      governedBy: ["willpower", "channeling"],
       assistedBy: ["resilience", "knowledge"],
       specializations: {
         aeromancy: {
@@ -504,7 +504,7 @@ const skills: RawSkillsData = {
       description: "Theoretical knowledge of magical principles and history",
       attribute: "spirit", // Primarily Mind-driven, but core to Spirit theme
       governedBy: ["knowledge"],
-      assistedBy: ["attunement", "resilience"],
+      assistedBy: ["willpower", "resilience"],
       specializations: {
         arcane_sight: {
           displayName: "Arcane Sight",
@@ -566,7 +566,7 @@ const skills: RawSkillsData = {
       description: "Transmuting substances and brewing potent concoctions",
       attribute: "spirit", // Blends Mind and Spirit heavily
       governedBy: ["ingenuity", "knowledge"],
-      assistedBy: ["attunement", "weaving", "agility", "senses"],
+      assistedBy: ["attunement", "weaving", "senses"],
       specializations: {
         potions: {
           displayName: "Potions",
@@ -1212,7 +1212,7 @@ const skills: RawSkillsData = {
       displayName: "Insight",
       description: "Understanding people and social dynamics",
       attribute: "social",
-      governedBy: ["empathy", "wisdom"],
+      governedBy: ["empathy", "attunement"],
       assistedBy: ["senses", "composure"],
       specializations: {
         reading_emotions: {
@@ -1246,7 +1246,7 @@ const skills: RawSkillsData = {
       description: "Navigating formal social structures",
       attribute: "social",
       governedBy: ["knowledge", "composure"],
-      assistedBy: ["authority"],
+      assistedBy: ["authority", "willpower"],
       specializations: {
         noble_courts: {
           displayName: "Noble Courts",

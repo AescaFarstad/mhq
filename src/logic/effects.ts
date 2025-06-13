@@ -7,6 +7,7 @@ import {
     StartMinigameParams,
     ApplyIngressResultsParams,
     ApplyWelcomeResultsParams,
+    GivePointsParams,
     EventContext,
     EventDefinition
 } from './lib/definitions/EventDefinition';
@@ -221,9 +222,10 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
 
         // Apply bonuses
         Stats.modifyStat(character.xp, params.xpBonus * character.nextLevelXp.value * 0.01, state.connections);
+        console.log(`Applying xp: ${params.xpBonus} * ${character.nextLevelXp.value} * 0.01 = ${params.xpBonus * character.nextLevelXp.value * 0.01} to ${character.name}`);
         Stats.modifyStat(character.attributePoints, params.attributePoints, state.connections);
-        Stats.modifyStat(character.universalSkillPoints, params.skillPoints, state.connections);
-        Stats.modifyStat(character.universalSpecializationPoints, params.specPoints, state.connections);
+        Stats.modifyStat(character.skillPoints, params.skillPoints, state.connections);
+        Stats.modifyStat(character.specPoints, params.specPoints, state.connections);
 
         console.log(`Applied Ingress results to character: ${character.name}`);
     } else {
@@ -256,4 +258,18 @@ export function discoverAllAttributes(state: GameState): void {
 
 export function discoverAllTabs(state: GameState): void {
     ALL_TAB_IDS.forEach(tabId => state.markAsDiscovered(tabId));
+}
+
+export function givePoints(state: GameState, params: GivePointsParams): void {
+    if (!state.characters || state.characters.length === 0) {
+        console.warn("[givePoints]: No characters found in state. Cannot give points.");
+        return;
+    }
+
+    const firstCharacter = state.characters[0] as Character;
+    
+    // Apply the points to the first character
+    Stats.modifyStat(firstCharacter.attributePoints, params.attributePoints, state.connections);
+    Stats.modifyStat(firstCharacter.skillPoints, params.skillPoints, state.connections);
+    Stats.modifyStat(firstCharacter.specPoints, params.specPoints, state.connections);
 } 

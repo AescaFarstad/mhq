@@ -8,6 +8,7 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.03,
+        xpMult: 2,
     },
     dining_hall: {
         name: "Dining Hall",
@@ -16,6 +17,7 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.05,
+        xpMult: 0.5,
     },
     workshop: {
         name: "Workshop",
@@ -32,6 +34,8 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.12,
+
+        xpMult: 1.5,
     },
     dormitories: {
         name: "Dormitories",
@@ -88,6 +92,8 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.01,
+
+        xpMult: 2,
     },
     storage_vault: {
         name: "Storage Vault",
@@ -104,6 +110,8 @@ export const buildingDefinitions: Record<string, Omit<BuildingDefinition, 'id'>>
             gold: 10
         },
         clutterPerSecond: 0.09,
+
+        xpMult: 0.75,
     },
     stable: {
         name: "Stable",

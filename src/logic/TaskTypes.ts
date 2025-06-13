@@ -35,6 +35,10 @@ export interface GameTask {
     totalEffort: number;             // Total effort required, randomized from resolvedParentDefinition.effortMin/Max.
     investedEffort: number;          // Current progress towards totalEffort.
 
+    // Task level and pre-calculated XP multiplier
+    level: number;                   // Building level at time of task generation (for UI display)
+    xpMultiplier: number;           // Pre-computed final multiplier (level × buildingXpMult × EFFORT_TO_XP_RATIO)
+
     assignedCharacterIds: string[];  // IDs of characters currently working on this. Empty if not Processing.
     queuedForCharacterId?: string;   // Optional: If specifically queued for one character by the player.
 

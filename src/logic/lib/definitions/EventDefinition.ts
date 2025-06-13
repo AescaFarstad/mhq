@@ -62,6 +62,13 @@ export interface ApplyWelcomeResultsParams {
     locationId: string;
 }
 
+/** Represents parameters for giving character points */
+export interface GivePointsParams {
+    attributePoints: number;
+    skillPoints: number;
+    specPoints: number;
+}
+
 /**
  * Represents an effect that modifies the game state when an event triggers.
  * Specific effect types will implement this interface.

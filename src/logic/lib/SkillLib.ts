@@ -1,7 +1,7 @@
 import baseSkillsData from '../data/skills.ts';
 import { AllKeywords } from '../data/skillKeywordsLoader.ts';
 import { SkillsData, Skill, SkillSpecialization } from './definitions/SkillDefinition.ts';
-import { SkillCategoryUIInfo, SkillUIInfo, SkillSpecializationUIInfo } from '../../types/uiTypes';
+import { SkillCategoryUIInfo, SkillUIInfo } from '../../types/uiTypes';
 import { AttributeLib } from './AttributeLib';
 
 /**
@@ -188,36 +188,17 @@ export class SkillLib {
 
     Object.entries(attributeDefinitions).forEach(([attributeKey, categoryDef]) => {
       const skillsInThisCategory = this.getSkillsByAttribute(attributeKey);
-      const skillUiInfos: SkillUIInfo[] = Object.values(skillsInThisCategory).map(skill => {
-        const specializationsUiInfo: SkillSpecializationUIInfo[] = skill.specializations.map(specId => {
-          const spec = this.getSpecialization(specId);
-          return {
-            id: spec ? spec.id : specId,
-            displayName: spec ? spec.displayName : 'Unknown Spec',
-            description: spec ? spec.description : '',
-            level: 0, 
-            proficiency: 0 
-          };
-        });
-
-        return {
-          id: skill.id,
-          displayName: skill.displayName,
-          description: skill.description,
-          attribute: skill.attribute,
-          governedBy: skill.governedBy,
-          assistedBy: skill.assistedBy,
-          specializations: specializationsUiInfo,
-          level: 0, 
-          proficiency: 0 
-        };
-      });
-
-      if (skillUiInfos.length > 0) {
+      
+      // Note: This method creates categories for library browsing, not character-specific data
+      // The SkillUIInfo objects here would need actual character stats to be properly populated
+      // This is likely used for display purposes where skills don't have character-specific data yet
+      const skillUiInfos: SkillUIInfo[] = []; // Empty for now since we need actual character stats
+      
+      if (Object.keys(skillsInThisCategory).length > 0) {
         categories.push({
           attribute: attributeKey,
           displayName: categoryDef.displayName,
-          skills: skillUiInfos
+          skills: skillUiInfos, // Empty since this is for library browsing
         });
       }
     });

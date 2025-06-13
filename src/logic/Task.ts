@@ -9,35 +9,29 @@ import { Stats } from './core/Stats';
 import { IndependentStat } from './core/Stat';
 import { getWeightedRandomIndex } from './utils/mathUtils';
 import type { TaskNameDetails } from './lib/definitions/TaskDefinition';
+import { C } from './lib/C';
 
-export const CLUTTER_STEP = 10; // Example value, adjust as needed
+C.CLUTTER_STEP;
 
 // Constants for skill multipliers in task speed calculation
-export const SKILL_MULTIPLIERS: { [count: number]: number[] } = {
-    1: [1],
-    2: [0.6, 0.5],
-    3: [0.5, 0.5, 0.2],
-    4: [0.4, 0.4, 0.3, 0.2],
-};
-export const DEFAULT_LAST_SKILL_MULTIPLIER = 0.1;
 
 export function getSkillMultipliers(numSkills: number): number[] {
     if (numSkills <= 0) return [];
-    if (SKILL_MULTIPLIERS[numSkills as keyof typeof SKILL_MULTIPLIERS]) {
-        return SKILL_MULTIPLIERS[numSkills as keyof typeof SKILL_MULTIPLIERS];
+    if (C.SKILL_MULTIPLIERS[numSkills as keyof typeof C.SKILL_MULTIPLIERS]) {
+        return C.SKILL_MULTIPLIERS[numSkills as keyof typeof C.SKILL_MULTIPLIERS];
     }
     // For 5 or more skills
-    const baseKey = 4 as keyof typeof SKILL_MULTIPLIERS;
-    if (!SKILL_MULTIPLIERS[baseKey]) {
+    const baseKey = 4 as keyof typeof C.SKILL_MULTIPLIERS;
+    if (!C.SKILL_MULTIPLIERS[baseKey]) {
         // This case should ideally not be hit if SKILL_MULTIPLIERS[4] is always defined.
         // Consider logging an error or returning a default if it can occur.
         console.error("Base skill multipliers for 4 skills are not defined!");
-        return Array(numSkills).fill(DEFAULT_LAST_SKILL_MULTIPLIER);
+        return Array(numSkills).fill(C.DEFAULT_LAST_SKILL_MULTIPLIER);
     }
-    const base = SKILL_MULTIPLIERS[baseKey]; 
+    const base = C.SKILL_MULTIPLIERS[baseKey]; 
     const multipliers = [...base];
     for (let i = 4; i < numSkills; i++) {
-        multipliers.push(DEFAULT_LAST_SKILL_MULTIPLIER);
+        multipliers.push(C.DEFAULT_LAST_SKILL_MULTIPLIER);
     }
     return multipliers;
 }
@@ -78,12 +72,11 @@ function setNextStepEffortTarget(task: GameTask): void {
     const avgEffortPerRemainingStep = effortRemainingInTask / stepsLeftIncludingCurrent;
 
     // Apply +/- 25% randomization for this specific step's effort portion.
-    const randomizationFactor = 1 + (Math.random() * 0.5 - 0.25); // Random number between 0.75 and 1.25
+    const randomizationFactor = 1 + (Math.random() * (C.TASK_STEP_RANDOMIZATION_RANGE * 2) - C.TASK_STEP_RANDOMIZATION_RANGE);
     let effortForThisStep = avgEffortPerRemainingStep * randomizationFactor;
 
     // Ensure step effort isn't absurdly small (e.g., min 60 effort points, assuming 1 pt/sec is a baseline speed).
-    const minEffortForStep = 60; 
-    effortForThisStep = Math.max(effortForThisStep, minEffortForStep);
+    effortForThisStep = Math.max(effortForThisStep, C.MIN_EFFORT_FOR_STEP);
 
     // The target for the current step is current invested effort + calculated effort for this step.
     task.stepEffortTarget = effortAlreadyInvested + effortForThisStep;
@@ -131,6 +124,14 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
                 characterSpeed = speed; // Speed of this character for this task
                 task.assignedCharacterEffectiveScores = proficiencies; // Update scores each tick
                 cumulativeEffortThisTick += characterSpeed * gameState.workSpeed.value * deltaTime; // Apply workSpeed
+                
+                // Grant XP for the effort invested this tick
+                if (cumulativeEffortThisTick > 0) {
+                    const xpThisTick = cumulativeEffortThisTick * task.xpMultiplier;
+                    const currentXp = character.xp.value;
+                    const newXp = currentXp + xpThisTick;
+                    Stats.setIndependentStat(character.xp, newXp, gameState.connections);
+                }
             } else {
                  task.assignedCharacterEffectiveScores = {}; // Clear if character not found
             }
@@ -196,6 +197,8 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
                 }
             }
 
+
+
             gameState.completedTasks.push(task);
             console.log(`Task ${task.name} (UID: ${task.uid}) completed. Assigned characters: ${task.assignedCharacterIds.join(', ')} are now free.`);
             
@@ -208,8 +211,8 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
     }
     gameState.processingTasks = stillProcessingTasks;
 
-    if (gameState.completedTasks.length > 20) {
-        gameState.completedTasks = gameState.completedTasks.slice(-20);
+    if (gameState.completedTasks.length > C.MAX_COMPLETED_TASKS_HISTORY) {
+        gameState.completedTasks = gameState.completedTasks.slice(-C.MAX_COMPLETED_TASKS_HISTORY);
     }
 }
 
@@ -274,7 +277,7 @@ function generateSingleTaskStepDetails(
  */
 function updateMaintenance(gameState: GameState): void {
     const totalActiveTasks = gameState.availableTasks.length + gameState.queuedTasks.length + gameState.processingTasks.length;
-    if (totalActiveTasks >= 20) {
+    if (totalActiveTasks >= C.MAX_ACTIVE_MAINTENANCE_TASKS) {
         return;
     }
 
@@ -289,7 +292,7 @@ function updateMaintenance(gameState: GameState): void {
         .concat(gameState.availableTasks)
         .filter(task => task.type === GameTaskType.Maintenance && task.status !== GameTaskStatus.Complete);
 
-    if (clutterResource.current.value > CLUTTER_STEP * unfinishedMaintenanceTasks.length) {
+    if (clutterResource.current.value > C.CLUTTER_STEP * unfinishedMaintenanceTasks.length) {
         let potentialClutterReduction = 0;
         for (const task of unfinishedMaintenanceTasks) {
             if (task.resolvedParentDefinition?.reward?.clutterPerEffort) {
@@ -297,10 +300,9 @@ function updateMaintenance(gameState: GameState): void {
             }
         }
 
-        if (clutterResource.current.value - potentialClutterReduction > CLUTTER_STEP) {
+        if (clutterResource.current.value - potentialClutterReduction > C.CLUTTER_STEP) {
             let generatedTask: GameTask | undefined = undefined;
             let attempts = 0;
-            const MAX_ATTEMPTS = 5;
 
             const declutterTaskDef = gameState.lib.tasks.getTask('declutter');
             if (!declutterTaskDef || !(declutterTaskDef.reward?.clutterPerEffort && declutterTaskDef.reward.clutterPerEffort < 0)) {
@@ -323,7 +325,7 @@ function updateMaintenance(gameState: GameState): void {
                 return;
             }
 
-            while (!generatedTask && attempts < MAX_ATTEMPTS) {
+            while (!generatedTask && attempts < C.MAX_MAINTENANCE_ATTEMPTS) {
                 attempts++;
 
                 let randomClutterPoint = Math.random() * totalClutterGeneration;
@@ -380,7 +382,7 @@ function updateMaintenance(gameState: GameState): void {
                     return task.definitionPath.every((val, index) => val === chosenDefinitionPath![index]);
                 });
 
-                if (!isDuplicate || attempts === MAX_ATTEMPTS) {
+                if (!isDuplicate || attempts === C.MAX_MAINTENANCE_ATTEMPTS) {
                     const newTaskUid = getNextTaskUid(gameState);
                     const taskTotalEffort = Math.floor(Math.random() * (declutterTaskDef.effortMax - declutterTaskDef.effortMin) * 0.1) * 10 + declutterTaskDef.effortMin;
                     
@@ -391,17 +393,13 @@ function updateMaintenance(gameState: GameState): void {
                     let initialStepOptionIdx = -1;
 
                     if (intermediates.length > 0) {
-                        const minEffort = 100;
-                        const maxEffort = 3000;
-                        const minStepsBase = 3;
-                        const maxStepsBase = 30;
 
-                        const clampedEffort = Math.max(minEffort, Math.min(maxEffort, taskTotalEffort));
-                        const effortRatio = (clampedEffort - minEffort) / (maxEffort - minEffort);
-                        let calculatedSteps = minStepsBase + effortRatio * (maxStepsBase - minStepsBase);
-                        const randomizationFactor = 1 + (Math.random() * 0.5 - 0.25);
+                        const clampedEffort = Math.max(C.MIN_EXPECTED_TASK_EFFORT, Math.min(C.MAX_EXPECTED_TASK_EFFORT, taskTotalEffort));
+                        const effortRatio = (clampedEffort - C.MIN_EXPECTED_TASK_EFFORT) / (C.MAX_EXPECTED_TASK_EFFORT - C.MIN_EXPECTED_TASK_EFFORT);
+                        let calculatedSteps = C.MIN_TASK_STEPS_BASE + effortRatio * (C.MAX_TASK_STEPS_BASE - C.MIN_TASK_STEPS_BASE);
+                        const randomizationFactor = 1 + (Math.random() * (C.TASK_STEP_RANDOMIZATION_RANGE * 2) - C.TASK_STEP_RANDOMIZATION_RANGE);
                         calculatedSteps *= randomizationFactor;
-                        stepCount = Math.round(Math.max(minStepsBase, Math.min(maxStepsBase, calculatedSteps)));
+                        stepCount = Math.round(Math.max(C.MIN_TASK_STEPS_BASE, Math.min(C.MAX_TASK_STEPS_BASE, calculatedSteps)));
                         
                         // Generate details for the first step (stepIdx = 0)
                         const firstStepDetails = generateSingleTaskStepDetails(intermediates, chosenNameDetails);
@@ -417,6 +415,25 @@ function updateMaintenance(gameState: GameState): void {
                         }
                     } // If no intermediates, stepCount remains 0, and idx fields remain -1.
                     
+                    // Calculate building level and pre-computed XP multiplier at task generation time
+                    let taskLevel = 1; // Default level if no building found
+                    let taskXpMultiplier = C.EFFORT_TO_XP_RATIO; // Start with base ratio
+                    
+                    if (selectedBuildingId && selectedBuildingId !== 'generic') {
+                        // Find the building instance for level
+                        const building = gameState.buildings.find(b => b.buildingId === selectedBuildingId);
+                        if (building) {
+                            taskLevel = building.level.value;
+                            taskXpMultiplier *= building.level.value;
+                        }
+                        
+                        // Get the building definition for xpMult
+                        const buildingDef = gameState.lib.buildings.getBuilding(selectedBuildingId);
+                        if (buildingDef && buildingDef.xpMult) {
+                            taskXpMultiplier *= buildingDef.xpMult;
+                        }
+                    }
+
                     const newTask: GameTask = {
                         uid: newTaskUid,
                         type: GameTaskType.Maintenance,
@@ -427,6 +444,8 @@ function updateMaintenance(gameState: GameState): void {
                         name: chosenNameDetails.name || declutterTaskDef.id,
                         totalEffort: taskTotalEffort,
                         investedEffort: 0,
+                        level: taskLevel,
+                        xpMultiplier: taskXpMultiplier,
                         assignedCharacterIds: [],
                         startedAt: 0,
                         workTime: 0,
@@ -448,7 +467,7 @@ function updateMaintenance(gameState: GameState): void {
             if (generatedTask) {
                 gameState.availableTasks.push(generatedTask);
                 console.log(`Generated maintenance task '${generatedTask.name}' UID: ${generatedTask.uid} (${generatedTask.definitionPath[2]}.`);
-            } else if (attempts === MAX_ATTEMPTS) {
+            } else if (attempts === C.MAX_MAINTENANCE_ATTEMPTS) {
                 console.warn("Max attempts reached for generating a unique 'declutter' task. No task created or duplicate was kept if forced.");
             }
         }

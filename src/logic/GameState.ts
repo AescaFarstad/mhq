@@ -19,11 +19,14 @@ import type { ResourceUIData } from './UIStateManager';
 import type { BaseMinigame, MinigameType, MinigameState } from './minigames/MinigameTypes';
 import { Invoker } from './core/behTree/Invoker';
 import type { EventDefinition } from './lib/definitions/EventDefinition';
+import type { HypotheticalState } from './core/Hypothetical';
+
+import { C } from './lib/C';
 
 export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Debug'];
-export const DEFAULT_MIN_DELTA_TIME = 0.05;
-export const maintenanceSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 5, "maintenance_task_gen");
-export const assignmentSlowTickGlobal = new SlowTick(DEFAULT_MIN_DELTA_TIME, 1.5, "task_assignment_process");
+
+export const maintenanceSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.MAINTENANCE_SLOW_TICK_INTERVAL, "maintenance_task_gen");
+export const assignmentSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.ASSIGNMENT_SLOW_TICK_INTERVAL, "task_assignment_process");
 
 export const globalInputQueue: CmdInput[] = [];
 
@@ -36,6 +39,7 @@ export class GameState {
     public discoveredItems: Record<string, boolean> = {};
     public activeMinigame: BaseMinigame<MinigameState> | null = null;
     public invoker: Invoker = new Invoker();
+    public hypothetical: HypotheticalState | null = null;
 
     public gold! : Resource;
     public clutter! : Resource;
@@ -53,7 +57,7 @@ export class GameState {
 
     public locationId: string = "turfablie";
 
-    public minDeltaTime: number = DEFAULT_MIN_DELTA_TIME;
+    public minDeltaTime: number = C.DEFAULT_MIN_DELTA_TIME;
     public timeScale: { current: number; previous: number } = { current: 1.0, previous: 1.0 };
     public allowedUpdates: number = 0;
 
@@ -78,13 +82,14 @@ export class GameState {
         uiOpportunityTasks: GameTask[];
         uiEndeavourTasks: GameTask[];
         uiQuestTasks: GameTask[];
-        currentTimeScale: number; // Added for reactive time scale UI
-        uiWorkSpeed: number; // Added for BuffBar
-        uiClutterRatio: number; // Added for BuffBar
-        discoveredItemsCount: number; // Added for discovery system reactivity
+        currentTimeScale: number;
+        uiWorkSpeed: number;
+        uiClutterRatio: number;
+        discoveredItemsCount: number;
         activeMinigameType: MinigameType | null;
         activeMinigameState: MinigameState | null;
-        debugActiveTab: string; // Added for debug view tab persistence
+        debugActiveTab: string;
+        debugExploreInput: string;
     };
 
     constructor() {
@@ -118,6 +123,7 @@ export class GameState {
             activeMinigameType: null,
             activeMinigameState: null,
             debugActiveTab: 'main', // Initialize debug tab
+            debugExploreInput: '', // Initialize debug explore input
         });
 
         this.setupInitialResources();

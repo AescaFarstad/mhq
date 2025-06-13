@@ -8,7 +8,8 @@ import {
     Stat,
     StatFormula,
     FormulaParameter,
-    FormulaParameterFormula
+    FormulaParameterFormula,
+    GateParameter
 } from './Stat';
 
 /**
@@ -77,6 +78,21 @@ export namespace Stats {
     }
 
     /**
+     * Creates a new GateParameter stat and registers it.
+     * @param name Unique name for the stat.
+     * @param baseValue The base value added to input value before threshold comparison.
+     * @param isAboveThreshold True for >= threshold, false for <= threshold.
+     * @param connections The Connections manager instance.
+     * @returns The newly created GateParameter.
+     */
+    export function createGateParameter(name: string, baseValue: number, isAboveThreshold: boolean, connections: Connections): GateParameter {
+        const result = new GateParameter(name, baseValue, isAboveThreshold);
+        console.assert(!connections.connectablesByName.has(name), `Stat already exists: ${name}`);
+        connections.connectablesByName.set(name, result);
+        return result;
+    }
+
+    /**
      * Establishes a connection between two stats by their names.
      * @param fromName Name of the source stat.
      * @param toName Name of the target stat.
@@ -108,6 +124,20 @@ export namespace Stats {
         if (!connections.establishedConnections.has(fromName)) {
             connections.establishedConnections.set(fromName, []);
         }
+        
+        // Check if this exact connection already exists to prevent duplicates
+        const existingConnections = connections.establishedConnections.get(fromName)!;
+        const connectionExists = existingConnections.some(conn => 
+            conn.target === toName && 
+            conn.type === type && 
+            conn.inputName === inputName
+        );
+        
+        if (connectionExists) {
+            console.warn(`Connection already exists: ${fromName} -> ${toName} (type: ${type})`);
+            return; // Don't create duplicate connection
+        }
+        
         const connection = new Connection(toName, type, inputName); // Pass inputName here
         connections.establishedConnections.get(fromName)!.push(connection);
 
@@ -116,8 +146,11 @@ export namespace Stats {
                 console.error(`MULTY connection target ${toName} is not a Parameter.`);
                 return;
             }
-            (toStat as Parameter).multi.push(fromName);
-            updateMultiCache(toStat as Parameter, connections);
+            // Check if this connection already exists to prevent duplicates
+            if (!(toStat as Parameter).multi.includes(fromName)) {
+                (toStat as Parameter).multi.push(fromName);
+                updateMultiCache(toStat as Parameter, connections);
+            }
         } else if (type === ConnectionType.NAMED_INPUT) {
             if (!(toStat instanceof FormulaParameter)) {
                 console.error(`NAMED_INPUT connection target ${toName} is not a FormulaParameter.`);
@@ -140,8 +173,11 @@ export namespace Stats {
                 console.error(`DIV connection target ${toName} is not a Parameter.`);
                 return;
             }
-            (toStat as Parameter).divSources.push(fromName);
-            updateMultiCache(toStat as Parameter, connections);
+            // Check if this connection already exists to prevent duplicates
+            if (!(toStat as Parameter).divSources.includes(fromName)) {
+                (toStat as Parameter).divSources.push(fromName);
+                updateMultiCache(toStat as Parameter, connections);
+            }
         }
 
 
@@ -153,12 +189,12 @@ export namespace Stats {
     /**
      * Establishes a connection between two stat objects.
      * @param from Source Stat object.
-     * @param to Target Parameter, FormulaStat or FormulaParameter object.
+     * @param to Target Parameter, FormulaStat, FormulaParameter, or GateParameter object.
      * @param type Type of the connection.
      * @param connections The Connections manager instance.
      * @param inputName For NAMED_INPUT, the name of the input on the target FormulaParameter.
      */
-    export function connectStat(from: Stat, to: Parameter | FormulaStat | FormulaParameter, type: ConnectionType, connections: Connections, inputName?: string): void {
+    export function connectStat(from: Stat, to: Parameter | FormulaStat | FormulaParameter | GateParameter, type: ConnectionType, connections: Connections, inputName?: string): void {
         console.assert(!(to as any).independent, `Cannot connect to an IndependentStat: ${to.name}`);
         if (type === ConnectionType.NAMED_INPUT) {
             if (!(to instanceof FormulaParameter)) {
@@ -167,6 +203,12 @@ export namespace Stats {
             }
             if (!inputName) {
                 console.error(`inputName is required for NAMED_INPUT connection type to ${to.name}.`);
+                return;
+            }
+        }
+        if (type === ConnectionType.GATE_THRESHOLD || type === ConnectionType.GATE_VALUE) {
+            if (!(to instanceof GateParameter)) {
+                console.error(`Target for GATE_THRESHOLD/GATE_VALUE connection must be a GateParameter. Target: ${to.name}`);
                 return;
             }
         }
@@ -275,6 +317,16 @@ export namespace Stats {
         setStat(stat, newValue, connections);
     }
 
+    /**
+     * Recalculates the value of a GateParameter and propagates changes if the value changed.
+     * @param stat The GateParameter to recalculate.
+     * @param connections The Connections manager instance.
+     */
+    function recalculateGateParameterValue(stat: GateParameter, connections: Connections): void {
+        const combinedValue = stat.baseValue + stat.inputValue;
+        if (stat.isAboveThreshold === (combinedValue >= stat.threshold))
+            setStat(stat, stat.inputValue, connections);
+    }
 
     /**
      * Applies all outgoing connections from a changed stat.
@@ -304,7 +356,7 @@ export namespace Stats {
         if (!targetStat || targetStat.independent) return;
 
         // Type assertion needed as independent stats are filtered out
-        const pStat = targetStat as Parameter | FormulaStat | FormulaParameter; // Add FormulaParameter here
+        const pStat = targetStat as Parameter | FormulaStat | FormulaParameter | GateParameter;
 
         switch (connection.type) {
             case ConnectionType.ADD:
@@ -333,6 +385,14 @@ export namespace Stats {
                 (pStat as FormulaParameter).inputs[connection.inputName as string] = newValue;
                 recalculateFormulaParameterValue(pStat as FormulaParameter, connections);
                 break;
+            case ConnectionType.GATE_THRESHOLD:
+                (pStat as GateParameter).threshold = newValue;
+                recalculateGateParameterValue(pStat as GateParameter, connections);
+                break;
+            case ConnectionType.GATE_VALUE:
+                (pStat as GateParameter).inputValue = newValue;
+                recalculateGateParameterValue(pStat as GateParameter, connections);
+                break;
         }
     }
 
@@ -359,6 +419,68 @@ export namespace Stats {
             throw new Error(`Stat not found: ${name}`);
         }
         return stat as T;
+    }
+
+    /**
+     * Clones a Stat object.
+     * This is a helper function for cloneConnections.
+     * @param stat The Stat object to clone.
+     * @returns A new, cloned Stat object.
+     * @throws If the stat type is unknown.
+     */
+    function cloneStat(stat: Stat): Stat {
+        if (stat instanceof IndependentStat) {
+            const newIndependentStat = new IndependentStat(stat.name, 0);
+            (newIndependentStat as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newIndependentStat;
+        } else if (stat instanceof Parameter) {
+            const newParameter = new Parameter(stat.name);
+            newParameter.add = stat.add;
+            newParameter.multi = [...stat.multi];
+            newParameter.divSources = [...stat.divSources];
+            newParameter.multiCache = stat.multiCache;
+            (newParameter as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newParameter;
+        } else if (stat instanceof FormulaStat) {
+            const newFormulaStat = new FormulaStat(stat.name, stat.formula);
+            newFormulaStat.argument = stat.argument;
+            (newFormulaStat as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newFormulaStat;
+        } else if (stat instanceof FormulaParameter) {
+            const newFormulaParameter = new FormulaParameter(stat.name, stat.formula, { ...stat.inputs });
+            (newFormulaParameter as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newFormulaParameter;
+        } else if (stat instanceof GateParameter) {
+            const newGateParameter = new GateParameter(stat.name, stat.baseValue, stat.isAboveThreshold);
+            newGateParameter.threshold = stat.threshold;
+            newGateParameter.inputValue = stat.inputValue;
+            (newGateParameter as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newGateParameter;
+        }
+        throw new Error(`Unknown stat type for cloning: ${stat.name} of type ${stat.constructor.name}`);
+    }
+
+    /**
+     * Creates a deep clone of a Connections object.
+     * The cloned Connections object is completely independent of the original.
+     * @param connections The Connections object to clone.
+     * @returns A new, deep-cloned Connections object.
+     */
+    export function cloneConnections(connections: Connections): Connections {
+        const newConnections = new Connections();
+
+        // Clone all connectable stats
+        connections.connectablesByName.forEach((stat, name) => {
+            newConnections.connectablesByName.set(name, cloneStat(stat));
+        });
+
+        // Clone all established connections
+        connections.establishedConnections.forEach((conns, sourceName) => {
+            const newConns = conns.map(conn => new Connection(conn.target, conn.type, conn.inputName));
+            newConnections.establishedConnections.set(sourceName, newConns);
+        });
+
+        return newConnections;
     }
 
 } // namespace Stats 

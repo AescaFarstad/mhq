@@ -3,13 +3,17 @@
     :class="['character-item', { 'selected': isSelected }]"
     @click="$emit('select')"
   >
-    <div class="char-name">{{ character.name }}</div>
-    <div class="char-stats">
-      <span class="char-level">Level {{ character.level }}</span>
-      <span class="char-upkeep">Upkeep: {{ character.upkeep.toFixed(1) }}</span>
+    <!-- Character Info Section with padding -->
+    <div class="character-info">
+      <div class="char-name">{{ character.name }}</div>
+      <div class="char-stats">
+        <span class="char-level">Level {{ character.level }}</span>
+        <span class="char-upkeep">Upkeep: {{ character.upkeep.toFixed(1) }}</span>
+      </div>
     </div>
-    <!-- Assigned Task Display -->
-    <div v-if="assignedTask" class="assigned-task-container">
+    
+    <!-- Task Section - full width minus 1px on each side -->
+    <div v-if="assignedTask" class="task-section">
       <TaskCard v-if="isSelected" :task="assignedTask" />
       <MiniTaskDisplay v-else :task="assignedTask" />
     </div>
@@ -66,43 +70,50 @@ const assignedTask = computed(() => {
 .character-item {
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 8px 10px; /* Slightly increased padding */
   background-color: white;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow */
-  display: flex; /* Added to allow flex-direction */
-  flex-direction: column; /* Stack children vertically */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent content from spilling outside the card */
 }
 
 .character-item:hover {
   background-color: #f0f7ff;
   border-color: #a0c0ff;
-  transform: translateY(-1px); /* Slight lift effect */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.07); /* Increased shadow on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
 }
 
 .character-item.selected {
   background-color: #e0f0ff;
   border-color: #70a0ff;
-  box-shadow: 0 0 5px rgba(100, 150, 255, 0.3); /* Highlight shadow */
-  transform: translateY(0); /* Reset transform */
+  box-shadow: 0 0 5px rgba(100, 150, 255, 0.3);
+  transform: translateY(0);
+}
+
+/* Character info section with proper padding */
+.character-info {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .char-name {
   font-weight: bold;
-  margin-bottom: 5px; /* Increased spacing */
+  margin-bottom: 5px;
   color: #333;
-  white-space: nowrap; /* Prevent wrapping */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Add ellipsis if name is too long */
+  text-overflow: ellipsis;
 }
 
 .char-stats {
   display: flex;
   justify-content: space-between;
   font-size: 0.85em;
-  color: #555; /* Slightly darker grey */
+  color: #555;
 }
 
 .char-level {
@@ -113,17 +124,17 @@ const assignedTask = computed(() => {
     /* Specific styles for upkeep if needed */
 }
 
-.assigned-task-container {
-  margin-top: 8px; /* Add some space above the task display */
-  margin-right: -11px; /* Counteract parent padding-right */
-  margin-bottom: -8px; /* Counteract parent padding-bottom */
-  margin-left: -11px;  /* Counteract parent padding-left */
+/* Task section takes full width minus 1px on each side */
+.task-section {
+  margin: 0 1px 1px 1px; /* 1px margin on sides and bottom */
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
 }
 
-.assigned-task-container > * {
-  max-width: 100%;
-  box-sizing: border-box;
+/* Ensure task components don't add extra margins/borders that break layout */
+.task-section :deep(.task-card),
+.task-section :deep(.mini-task-display) {
+  margin: 0; /* Remove any external margins */
+  border-radius: 0 0 3px 3px; /* Match the parent card's bottom radius */
 }
 </style>

@@ -5,6 +5,7 @@ import type { GameState } from './GameState';
 
 export interface Building {
     buildingId: string;
+    level: IndependentStat;
     clutterGeneration: IndependentStat;
 }
 
@@ -23,6 +24,7 @@ export namespace Building {
 
         const newBuilding: Building = {
             buildingId: buildingDef.id,
+            level: Stats.createStat(`${idPrefix}level`, 1, gameState.connections),
             clutterGeneration: Stats.createStat(`${idPrefix}clutter_generation`, buildingDef.clutterPerSecond, gameState.connections)
         };
         

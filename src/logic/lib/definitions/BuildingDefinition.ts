@@ -12,4 +12,6 @@ export interface BuildingDefinition extends LibItem {
     cost: Record<string, number>;
     /** Amount of clutter generated per second by this building */
     clutterPerSecond: number;
+    /** XP multiplier for tasks performed in this building */
+    xpMult?: number;
 }

@@ -1,28 +1,31 @@
-import { IndependentStat, Parameter, Connections, ConnectionType, FormulaParameter, FormulaParameterFormula } from './core/Stat';
+import { IndependentStat, Parameter, Connections, ConnectionType, FormulaParameter, FormulaParameterFormula, FormulaStat, StatFormula, GateParameter } from './core/Stat';
 import { Stats } from './core/Stats';
 import { CHARACTER_STAT_PREFIX } from './core/statPrefixes';
 import type { GameState } from './GameState';
+import { C } from './lib/C';
 import * as UIStateManager from './UIStateManager';
 import type { Skill } from './lib/definitions/SkillDefinition';
 
-/**
- * Represents an active character instance in the game with dynamic stats.
- */
 export interface Character {
     characterId: string;
     name: string;
-    level: IndependentStat;
+    level: FormulaStat;
+    gatedXp: GateParameter;
+    lastAwardedLevel: IndependentStat;
     xp: IndependentStat;
-    nextLevelXp: IndependentStat;
+    nextLevelXp: FormulaStat;
+    nextLevelXpDelta: FormulaStat;
     baseUpkeep: IndependentStat;
     upkeep: Parameter;
     attributes: Record<string, IndependentStat>;
     attributePoints: IndependentStat;
+    skillPoints: IndependentStat;
+    specPoints: IndependentStat;
+    skillPointsByAttribute: Record<string, IndependentStat>;
     skills: Record<string, IndependentStat>;
-    universalSkillPoints: IndependentStat;
     specializations: Record<string, IndependentStat>;
-    universalSpecializationPoints: IndependentStat;
-    proficiencies: Record<string, Parameter>;
+    proficienciesRaw: Record<string, Parameter>;
+    proficiencies: Record<string, FormulaStat>;
     avgGovAttrStatsCache: Map<string, FormulaParameter>;
 }
 
@@ -31,13 +34,81 @@ export type LibAttributeDefinitions = Record<string, {
     attributes: Record<string, any>; // Attributes within the category
 }>;
 
+/**
+ * Calculates the total XP required to reach a specific level.
+ * Level 1 requires 0 XP (starting level)
+ * Level 2 requires BASE_LEVEL_XP XP
+ * Level 3 requires BASE_LEVEL_XP + (BASE_LEVEL_XP * XP_EXPONENT) XP
+ * etc.
+ * XP deltas are rounded to two most significant digits.
+ */
+function calculateTotalXpForLevel(level: number): number {
+    if (level <= 1) return 0;
+    
+    let totalXp = 0;
+    let currentLevelDelta = C.BASE_LEVEL_XP;
+    
+    for (let i = 2; i <= level; i++) {
+        totalXp += currentLevelDelta;
+        currentLevelDelta = roundToTwoSignificantDigits(currentLevelDelta * C.XP_EXPONENT);
+    }
+    
+    return totalXp;
+}
+
+/**
+ * Rounds a number to two most significant digits.
+ * Examples: 1210 → 1200, 1331 → 1300, 1464 → 1500
+ */
+function roundToTwoSignificantDigits(num: number): number {
+    if (num === 0) return 0;
+    
+    const magnitude = Math.floor(Math.log10(Math.abs(num)));
+    const divisor = Math.pow(10, magnitude - 1);
+    
+    return Math.round(num / divisor) * divisor;
+}
+
+/**
+ * Calculates the XP delta needed to reach a specific level from the previous level.
+ * Level 2: BASE_LEVEL_XP (1000 XP to go from level 1 to 2)
+ * Level 3: BASE_LEVEL_XP * XP_EXPONENT (1100 XP to go from level 2 to 3)
+ * etc.
+ * Results are rounded to two most significant digits.
+ */
+function calculateXpDeltaForLevel(level: number): number {
+    if (level <= 1) return 0; // No XP needed to reach level 1
+    if (level === 2) return C.BASE_LEVEL_XP; // 1000 XP to reach level 2
+    
+    let delta = C.BASE_LEVEL_XP;
+    for (let i = 3; i <= level; i++) {
+        delta = roundToTwoSignificantDigits(delta * C.XP_EXPONENT);
+    }
+    
+    return delta;
+}
+
+/**
+ * Calculates what level should be awarded based on current XP.
+ * Uses the same two significant digit rounding as the XP calculations.
+ */
+function calculateLevelFromXp(currentXp: number): number {
+    if (currentXp < 0) return 1;
+    
+    let level = 1;
+    let xpNeeded = 0;
+    let currentDelta = C.BASE_LEVEL_XP;
+    
+    while (currentXp >= xpNeeded + currentDelta) {
+        xpNeeded += currentDelta;
+        level++;
+        currentDelta = roundToTwoSignificantDigits(currentDelta * C.XP_EXPONENT);
+    }
+    
+    return level;
+}
 
 export namespace Character {
-    /**
-     * Creates and adds a new character to the game state.
-     * This function now resides in Character.ts and has GameState passed to it.
-     * It also inlines the logic from initializeBaseStats and addInitialAttributes.
-     */
     export function addCharacter(
         gameState: GameState,
         characterDefId: string
@@ -57,26 +128,51 @@ export namespace Character {
         const allSkillDefs = gameState.lib.skills.getAllSkills();
         const idPrefix = `${CHARACTER_STAT_PREFIX}${charDef.id}__`;
 
+        // Define formulas for next level calculations
+        const nextLevelXpFormula: StatFormula = (currentLevel: number) => {
+            return calculateTotalXpForLevel(currentLevel + 1);
+        };
+        
+        const nextLevelXpDeltaFormula: StatFormula = (currentLevel: number) => {
+            return calculateXpDeltaForLevel(currentLevel + 1);
+        };
+
         const newChar: Character = {
             characterId: charDef.id,
             name: charDef.name,
-            level: Stats.createStat(`${idPrefix}level`, charDef.initialLevel, gameState.connections),
+            level: Stats.createFormulaStat(`${idPrefix}level`, calculateLevelFromXp, gameState.connections),
+            gatedXp: Stats.createGateParameter(`${idPrefix}gatedXp`, 0, true, gameState.connections),
+            lastAwardedLevel: Stats.createStat(`${idPrefix}lastAwardedLevel`, charDef.initialLevel || 1, gameState.connections),
             xp: Stats.createStat(`${idPrefix}xp`, 0, gameState.connections),
-            nextLevelXp: Stats.createStat(`${idPrefix}nextLevelXp`, 1000, gameState.connections),
+            nextLevelXp: Stats.createFormulaStat(`${idPrefix}nextLevelXp`, nextLevelXpFormula, gameState.connections),
+            nextLevelXpDelta: Stats.createFormulaStat(`${idPrefix}nextLevelXpDelta`, nextLevelXpDeltaFormula, gameState.connections),
             baseUpkeep: Stats.createStat(`${idPrefix}base_upkeep`, charDef.baseUpkeep, gameState.connections),
             upkeep: Stats.createParameter(`${idPrefix}upkeep`, gameState.connections),
             attributes: {},
             attributePoints: Stats.createStat(`${idPrefix}attributePoints`, 0, gameState.connections),
+            skillPoints: Stats.createStat(`${idPrefix}skillPoints`, 0, gameState.connections),
+            specPoints: Stats.createStat(`${idPrefix}specPoints`, 0, gameState.connections),
+            skillPointsByAttribute: {},
             skills: {},
-            universalSkillPoints: Stats.createStat(`${idPrefix}universalSkillPoints`, 0, gameState.connections),
             specializations: {},
-            universalSpecializationPoints: Stats.createStat(`${idPrefix}universalSpecializationPoints`, 0, gameState.connections),
+            proficienciesRaw: {},
             proficiencies: {},
             avgGovAttrStatsCache: new Map<string, FormulaParameter>()
         };
 
         Stats.connectStat(newChar.baseUpkeep, newChar.upkeep, ConnectionType.ADD, gameState.connections);
         Stats.connectStat(newChar.level, newChar.upkeep, ConnectionType.MULTY, gameState.connections);
+        
+        // Connect XP to gatedXp, nextLevelXp as threshold
+        Stats.connectStat(newChar.xp, newChar.gatedXp, ConnectionType.GATE_VALUE, gameState.connections);
+        Stats.connectStat(newChar.nextLevelXp, newChar.gatedXp, ConnectionType.GATE_THRESHOLD, gameState.connections);
+        
+        // Connect gatedXp to level calculation 
+        Stats.connectStat(newChar.gatedXp, newChar.level, ConnectionType.FORMULA, gameState.connections);
+        
+        // Connect level to XP calculation stats (these calculate next level requirements)
+        Stats.connectStat(newChar.level, newChar.nextLevelXp, ConnectionType.FORMULA, gameState.connections);
+        Stats.connectStat(newChar.level, newChar.nextLevelXpDelta, ConnectionType.FORMULA, gameState.connections);
 
         for (const categoryKey in attributeDefs) {
             if (Object.prototype.hasOwnProperty.call(attributeDefs, categoryKey)) {
@@ -94,6 +190,14 @@ export namespace Character {
                         }
                     }
                 }
+            }
+        }
+
+        // Initialize skillPointsByAttribute for each primary attribute
+        for (const categoryKey in attributeDefs) {
+            if (Object.prototype.hasOwnProperty.call(attributeDefs, categoryKey)) {
+                const skillPointsStatId = `${idPrefix}skillPointsByAttribute_${categoryKey}`;
+                newChar.skillPointsByAttribute[categoryKey] = Stats.createStat(skillPointsStatId, 0, gameState.connections);
             }
         }
 
@@ -159,12 +263,14 @@ export namespace Character {
     ): void {
         const skillStatId = `${idPrefix}skill_${skillId}`;
         let skillStat = character.skills[skillId];
+        let isNewSkill = false;
 
         if (skillStat) {
             Stats.setIndependentStat(skillStat, level, connections);
         } else {
             skillStat = Stats.createStat(skillStatId, level, connections);
             character.skills[skillId] = skillStat;
+            isNewSkill = true;
         }
 
         // --- Average Governing Attribute Calculation for the Skill (remains FormulaParameter) ---
@@ -203,29 +309,46 @@ export namespace Character {
             // If avgGovAttrCalcStat_ForSkill already exists, its connections to attributes should already be live.
         }
 
-        // --- Skill Proficiency Calculation (now a Parameter) ---
-        const skillProficiencyStatId = `${idPrefix}prof_${skillId}`;
-        let skillProficiencyStat = character.proficiencies[skillId] as Parameter | undefined;
+        // --- Skill Proficiency Calculation (raw Parameter) ---
+        const skillProficiencyRawStatId = `${idPrefix}prof_raw_${skillId}`;
+        let skillProficiencyRawStat = character.proficienciesRaw[skillId];
+        let isNewProficiencyRaw = false;
 
-        if (skillProficiencyStat) {
+        if (skillProficiencyRawStat) {
             // Parameter exists, ensure its connections are correct if they could have changed (unlikely for this setup)
             // Its value will update automatically based on changes to skillStat and avgGovAttrCalcStat_ForSkill.
         } else {
-            skillProficiencyStat = Stats.createParameter(skillProficiencyStatId, connections);
-            character.proficiencies[skillId] = skillProficiencyStat;
+            skillProficiencyRawStat = Stats.createParameter(skillProficiencyRawStatId, connections);
+            character.proficienciesRaw[skillId] = skillProficiencyRawStat;
+            isNewProficiencyRaw = true;
         }
 
         // Initialize/ensure 'add' component is 1 for the (level + 1) part
-        if (skillProficiencyStat.add !== 1) {
-            const currentAdd = skillProficiencyStat.add;
-            Stats.modifyParameterADD(skillProficiencyStat, 1 - currentAdd, connections); // Adjust to make .add = 1
+        if (skillProficiencyRawStat.add !== 1) {
+            const currentAdd = skillProficiencyRawStat.add;
+            Stats.modifyParameterADD(skillProficiencyRawStat, 1 - currentAdd, connections); // Adjust to make .add = 1
         }
         
-        // Connect skill level (IndependentStat) to proficiency (Parameter) with ADD
-        Stats.connectStat(skillStat, skillProficiencyStat, ConnectionType.ADD, connections);
+        // Only establish connections when creating new stats to avoid duplicates
+        if (isNewSkill || isNewProficiencyRaw) {
+            // Connect skill level (IndependentStat) to raw proficiency (Parameter) with ADD
+            Stats.connectStat(skillStat, skillProficiencyRawStat, ConnectionType.ADD, connections);
 
-        // Connect average governing attributes (FormulaParameter) to proficiency (Parameter) with MULTY
-        Stats.connectStat(avgGovAttrCalcStat_ForSkill, skillProficiencyStat as Parameter, ConnectionType.MULTY, connections);
+            // Connect average governing attributes (FormulaParameter) to raw proficiency (Parameter) with MULTY
+            Stats.connectStat(avgGovAttrCalcStat_ForSkill, skillProficiencyRawStat, ConnectionType.MULTY, connections);
+        }
+
+        // --- Skill Proficiency (sqrt of raw) ---
+        const skillProficiencyStatId = `${idPrefix}prof_${skillId}`;
+        let skillProficiencyStat = character.proficiencies[skillId];
+
+        if (!skillProficiencyStat) {
+            skillProficiencyStat = Stats.createFormulaStat(skillProficiencyStatId,  Math.sqrt, connections);
+            character.proficiencies[skillId] = skillProficiencyStat;
+
+            // Connect raw proficiency to final proficiency
+            Stats.connectStat(skillProficiencyRawStat, skillProficiencyStat, ConnectionType.FORMULA, connections);
+        }
 
         // The Parameter's value will be automatically recalculated by the connections
     }
@@ -243,47 +366,66 @@ export namespace Character {
     ): void {
         const specStatId = `${idPrefix}spec_${specId}`;
         let specStat = character.specializations[specId];
+        let isNewSpec = false;
 
         if (specStat) {
             Stats.setIndependentStat(specStat, level, connections);
         } else {
             specStat = Stats.createStat(specStatId, level, connections);
             character.specializations[specId] = specStat;
+            isNewSpec = true;
         }
 
         const baseSkillId = baseSkillDefinitionFromLib.id;
         // const baseSkillStat = character.skills[baseSkillId]; // Not directly needed for proficiency connection anymore
-        const parentSkillProficiencyStat = character.proficiencies[baseSkillId]; // This is a Parameter
+        const parentSkillProficiencyRawStat = character.proficienciesRaw[baseSkillId]; // This is a Parameter
 
-        if (!parentSkillProficiencyStat) {
-            console.warn(`upsertSpecializationAndProficiency: Parent skill proficiency stat for ${baseSkillId} not found on character ${character.characterId} when upserting spec ${specId}. Spec proficiency will be incorrect.`);
+        if (!parentSkillProficiencyRawStat) {
+            console.warn(`upsertSpecializationAndProficiency: Parent skill raw proficiency stat for ${baseSkillId} not found on character ${character.characterId} when upserting spec ${specId}. Spec proficiency will be incorrect.`);
             // Optionally, could try to create/upsert parent skill proficiency here if truly missing,
             // but current flow assumes parent skill is processed first.
             return; 
         }
 
-        // --- Specialization Proficiency Calculation (now a Parameter) ---
-        const specProficiencyStatId = `${idPrefix}prof_${specId}`;
-        let specProficiencyStat = character.proficiencies[specId] as Parameter | undefined;
+        // --- Specialization Raw Proficiency Calculation (Parameter) ---
+        const specProficiencyRawStatId = `${idPrefix}prof_raw_${specId}`;
+        let specProficiencyRawStat = character.proficienciesRaw[specId];
+        let isNewSpecProficiencyRaw = false;
 
-        if (specProficiencyStat) {
+        if (specProficiencyRawStat) {
             // Parameter exists, value will update automatically from connections.
         } else {
-            specProficiencyStat = Stats.createParameter(specProficiencyStatId, connections);
-            character.proficiencies[specId] = specProficiencyStat;
+            specProficiencyRawStat = Stats.createParameter(specProficiencyRawStatId, connections);
+            character.proficienciesRaw[specId] = specProficiencyRawStat;
+            isNewSpecProficiencyRaw = true;
         }
 
         // Initialize/ensure 'add' component is 1 for the (spec_level + 1) part
-        if (specProficiencyStat.add !== 1) {
-            const currentAdd = specProficiencyStat.add;
-            Stats.modifyParameterADD(specProficiencyStat, 1 - currentAdd, connections); // Adjust to make .add = 1
+        if (specProficiencyRawStat.add !== 1) {
+            const currentAdd = specProficiencyRawStat.add;
+            Stats.modifyParameterADD(specProficiencyRawStat, 1 - currentAdd, connections); // Adjust to make .add = 1
         }
 
-        // Connect specialization level (IndependentStat) to its proficiency (Parameter) with ADD
-        Stats.connectStat(specStat, specProficiencyStat, ConnectionType.ADD, connections);
+        // Only establish connections when creating new stats to avoid duplicates
+        if (isNewSpec || isNewSpecProficiencyRaw) {
+            // Connect specialization level (IndependentStat) to its raw proficiency (Parameter) with ADD
+            Stats.connectStat(specStat, specProficiencyRawStat, ConnectionType.ADD, connections);
 
-        // Connect parent skill's proficiency (Parameter) to spec proficiency (Parameter) with MULTY
-        Stats.connectStat(parentSkillProficiencyStat, specProficiencyStat, ConnectionType.MULTY, connections);
+            // Connect parent skill's raw proficiency (Parameter) to spec raw proficiency (Parameter) with MULTY
+            Stats.connectStat(parentSkillProficiencyRawStat, specProficiencyRawStat, ConnectionType.MULTY, connections);
+        }
+
+        // --- Specialization Proficiency (sqrt of raw) ---
+        const specProficiencyStatId = `${idPrefix}prof_${specId}`;
+        let specProficiencyStat = character.proficiencies[specId];
+
+        if (!specProficiencyStat) {
+            specProficiencyStat = Stats.createFormulaStat(specProficiencyStatId,  Math.sqrt, connections);
+            character.proficiencies[specId] = specProficiencyStat;
+
+            // Connect raw proficiency to final proficiency
+            Stats.connectStat(specProficiencyRawStat, specProficiencyStat, ConnectionType.FORMULA, connections);
+        }
 
         // The Parameter's value will be automatically recalculated by the connections
     }
@@ -328,7 +470,7 @@ export namespace Character {
     ): number {
         const proficiencyStat = character.proficiencies[skillOrSpecId];
         if (proficiencyStat) {
-            return Math.sqrt(proficiencyStat.value);
+            return proficiencyStat.value; // No more sqrt here, it's built into the proficiency
         }
 
         // Proficiency stat not found, try fallbacks
@@ -340,8 +482,6 @@ export namespace Character {
             // Try to get parent skill's proficiency
             // The parentId on specDef is the skillId of the parent.
             if (specDef.parentId) {
-
-                // The square root will be applied by the recursive call.
                 return getProficiency(character, specDef.parentId, gameState);
             }
         }
@@ -385,3 +525,35 @@ export namespace Character {
         return 0;
     }
 }
+
+
+
+/**
+ * XP and Leveling System
+ * =====================
+ * 
+ * The character XP and leveling system works as follows:
+ * 
+ * - Characters start at level 1 with 0 XP
+ * - Base XP requirement for level 2 is 1000 XP
+ * - Each subsequent level requires XP_EXPONENT (1.1) times more XP than the previous level's delta
+ * - XP requirements are rounded to integers
+ * 
+ * Example progression:
+ * - Level 1: 0 XP (starting level)
+ * - Level 2: 1000 XP total (1000 XP delta)
+ * - Level 3: 2100 XP total (1100 XP delta) 
+ * - Level 4: 3310 XP total (1210 XP delta)
+ * 
+ * Stats involved:
+ * - xp: IndependentStat - current total XP earned
+ * - level: FormulaStat - true character level calculated automatically from XP
+ * - lastAwardedLevel: IndependentStat - level for which level-up events have occurred (manual)
+ * - nextLevelXp: FormulaStat - total XP needed to reach the next level (calculated)
+ * - nextLevelXpDelta: FormulaStat - XP needed just for the next level increment (calculated)
+ * 
+ * The level, nextLevelXp and nextLevelXpDelta are automatically recalculated when XP changes
+ * via the Stat system's FORMULA connections.
+ * 
+ * The difference between level and lastAwardedLevel indicates pending level-ups.
+ */

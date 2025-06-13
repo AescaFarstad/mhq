@@ -11,6 +11,7 @@ import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
 import { BehTreeLib } from './BehTreeLib';
 
+
 import eventsData from '../data/events';
 import mainCharacters from '../data/characters';
 import turfablieCharacters from '../data/turfablieCharacters';
@@ -34,6 +35,7 @@ export class Lib {
     public ingressWords: IngressWordsLib;
     public welcomeLocations: WelcomeLocationsLib;
     public behTrees: BehTreeLib;
+
     public isLoaded: boolean = false;
 
     constructor() {
@@ -115,38 +117,7 @@ export class Lib {
      * @param id The unique ID of the character.
      * @returns The character definition or undefined if not found.
      */
-    public getCharacter(id: string): CharacterDefinition | undefined {        return this.characters.getCharacter(id);    }
-    /** // Added block
-     * Retrieves the AttributeLib instance.     * @returns The AttributeLib instance.     */    public getAttributeLib(): AttributeLib {        return this.attributes;    }
-    /**
-     * Retrieves the SkillLib instance.
-     * @returns The SkillLib instance.
-     */
-    public getSkillLib(): SkillLib {
-        return this.skills;
-    }
-
-    /**
-     * Retrieves the TaskLib instance.
-     * @returns The TaskLib instance.
-     */
-    public getTaskLib(): TaskLib {
-        return this.tasks;
-    }
-
-    /**
-     * Retrieves the BuildingLib instance.
-     * @returns The BuildingLib instance.
-     */
-    public getBuildingLib(): BuildingLib {
-        return this.buildings;
-    }
-
-    /**
-     * Retrieves the IngressWordsLib instance.
-     * @returns The IngressWordsLib instance.
-     */
-    public getIngressWordsLib(): IngressWordsLib {
-        return this.ingressWords;
+    public getCharacter(id: string): CharacterDefinition | undefined {
+        return this.characters.getCharacter(id);
     }
 }
