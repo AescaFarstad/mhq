@@ -7,6 +7,7 @@ import { AttributeLib } from './AttributeLib';
 import { SkillLib } from './SkillLib';
 import { TaskLib } from './TaskLib';
 import { BuildingLib } from './BuildingLib';
+import { DiscoveryLib } from './DiscoveryLib';
 import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
 import { BehTreeLib } from './BehTreeLib';
@@ -31,6 +32,7 @@ export class Lib {
     public skills: SkillLib;
     public tasks: TaskLib = new TaskLib();
     public buildings: BuildingLib = new BuildingLib();
+    public discovery: DiscoveryLib;
     public techs: Map<string, LibItem> = new Map<string, LibItem>();
     public ingressWords: IngressWordsLib;
     public welcomeLocations: WelcomeLocationsLib;
@@ -44,6 +46,8 @@ export class Lib {
         this.welcomeLocations = new WelcomeLocationsLib();
         this.behTrees = new BehTreeLib();
         this.loadAllDefinitions();
+        // Initialize DiscoveryLib after other libs are loaded
+        this.discovery = new DiscoveryLib(this.skills, this.attributes, this.buildings);
     }
 
     private loadAllDefinitions(): void {

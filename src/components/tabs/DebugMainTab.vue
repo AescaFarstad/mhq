@@ -7,6 +7,7 @@
       <button @click="copyAttributeSkillStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'attributeStats' }">Attribute Skill Stats</button>
       <button @click="copyAllSkillNames($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNames' }">Skill Names</button>
       <button @click="copySkillKeywordStats($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillKeywords' }">Skill Keyword Stats</button>
+      <button @click="copyKeywordOverview($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'keywordOverview' }">Keyword Overview</button>
       <button @click="copySkillNamesAndDescriptions($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillNameDesc' }">Skill Names & Descriptions</button>
       <button @click="copySkillIds($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'skillIds' }">Skill IDs</button>
       <button @click="copyGameStateToClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameState' }">Game State (JSON)</button>
@@ -417,5 +418,67 @@ const copyCharacterNamesAndBios = (_event?: Event) => {
     });
 };
 
+// Function to copy keyword overview
+const copyKeywordOverview = (_event?: Event) => {
+  if (!gameState || !gameState.lib?.skills) {
+    console.error("GameState or SkillLib not available for keyword overview");
+    return;
+  }
+  const skillLib = (gameState.lib as any).skills;
+  const skillsData = skillLib.getAllSkills();
+
+  const uniqueKeywords = new Set<string>();
+  const skillSpecKeywordCounts: Record<string, number> = {};
+  let totalKeywords = 0;
+  let totalSkillsSpecs = 0;
+
+  Object.values(skillsData).forEach((skill: any) => {
+    const processItem = (item: any, name: string) => {
+      totalSkillsSpecs++;
+      let keywordCount = 0;
+      
+      if (item.keywords) {
+        const flatKeywords = item.keywords.flat();
+        keywordCount = flatKeywords.length;
+        totalKeywords += keywordCount;
+        
+        flatKeywords.forEach((kw: string) => {
+          uniqueKeywords.add(kw.toLowerCase());
+        });
+      }
+      
+      skillSpecKeywordCounts[name] = keywordCount;
+    };
+
+    processItem(skill, skill.displayName);
+    
+    skill.specializations?.forEach((id: string) => {
+      const spec = skillLib.getSpecialization(id);
+      if (spec) {
+        processItem(spec, `${skill.displayName} > ${spec.displayName}`);
+      }
+    });
+  });
+
+  const avgKeywordsPerSkillSpec = totalSkillsSpecs > 0 ? (totalKeywords / totalSkillsSpecs).toFixed(2) : '0';
+
+  let clipboardText = `Total Keywords: ${totalKeywords}\n`;
+  clipboardText += `Total Unique Keywords: ${uniqueKeywords.size}\n`;
+  clipboardText += `Average Keywords per Skill/Spec: ${avgKeywordsPerSkillSpec}\n`;
+  clipboardText += `Total Skills/Specs: ${totalSkillsSpecs}\n\n`;
+  
+  Object.entries(skillSpecKeywordCounts)
+    .sort(([, a], [, b]) => b - a)
+    .forEach(([name, count]) => {
+      clipboardText += `${name}:\t${count}\n`;
+    });
+
+  navigator.clipboard.writeText(clipboardText.trim())
+    .then(() => {
+      triggerCopyAnimation('keywordOverview');
+      displayContent(clipboardText.trim(), 'Keyword Overview');
+    })
+    .catch((err) => console.error('Failed to copy keyword overview to clipboard:', err));
+};
 
 </script> 

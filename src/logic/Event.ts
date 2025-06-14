@@ -1,6 +1,7 @@
 import { GameState } from './GameState';
 import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, EventContext, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams, GivePointsParams } from './lib/definitions/EventDefinition';
 import * as effects from './effects';
+import { discoverAll, discoverAllBuildings, discoverAllSkills, discoverAllResources, discoverAllAttributes, discoverAllTabs } from './Discovery';
 
 // Module-level queue for pending events
 const eventQueue: { eventDef: EventDefinition; context?: EventContext }[] = [];
@@ -75,22 +76,22 @@ export namespace EventProcessor {
                     effects.discover(state, effect.params as DiscoverEffectParams);
                     break;
                 case 'discoverAllBuildings':
-                    effects.discoverAllBuildings(state);
+                    discoverAllBuildings(state);
                     break;
                 case 'discoverAllSkills':
-                    effects.discoverAllSkills(state);
+                    discoverAllSkills(state);
                     break;
                 case 'discoverAllResources':
-                    effects.discoverAllResources(state);
+                    discoverAllResources(state);
                     break;
                 case 'discoverAllAttributes':
-                    effects.discoverAllAttributes(state);
+                    discoverAllAttributes(state);
                     break;
                 case 'discoverAllTabs':
-                    effects.discoverAllTabs(state);
+                    discoverAllTabs(state);
                     break;
                 case 'discoverAll':
-                    effects.discoverAll(state);
+                    discoverAll(state);
                     break;
                 case 'startDialog':
                     effects.startDialog();

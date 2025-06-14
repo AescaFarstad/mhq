@@ -3,6 +3,9 @@
  * This is a flat class with static constants for easy access.
  */
 export class C {
+    // === UI Constants ===
+    public static readonly ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Discover', 'Debug'];
+    
     // === Character & Leveling Constants ===
     public static readonly XP_EXPONENT = 1.1;
     public static readonly BASE_LEVEL_XP = 1000; // XP needed for level 1 to 2

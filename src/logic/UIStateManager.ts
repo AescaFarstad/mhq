@@ -463,6 +463,16 @@ export function syncCoreParameters(gameState: GameState): void {
 }
 
 /**
+ * Synchronizes the discovered items count to uiState.discoveredItemsCount
+ */
+export function syncDiscoveredItems(gameState: GameState): void {
+    const currentCount = gameState.discoveredItems.size;
+    if (gameState.uiState.discoveredItemsCount !== currentCount) {
+        gameState.uiState.discoveredItemsCount = currentCount;
+    }
+}
+
+/**
  * Synchronizes the active minigame's state to uiState.activeMinigameState
  */
 export function syncMinigameState(gameState: GameState): void {
@@ -496,6 +506,8 @@ export function sync(gameState: GameState): void {
     syncCoreParameters(gameState);
     // Always sync hypothetical state for previews
     syncHypotheticalState(gameState);
+    // Always sync discovered items count for UI reactivity
+    syncDiscoveredItems(gameState);
 
     // Sync data specific to the active tab
     const activeTab = gameState.uiState.activeTabName;

@@ -5,7 +5,10 @@
         <SkillBrowser />
       </div>
       <div class="crystal-ball-panel">
-        <CrystalBall />
+        <DiscoveryLog />
+        <div class="discovery-input-wrapper">
+          <DiscoveryInput />
+        </div>
       </div>
     </div>
   </div>
@@ -13,12 +16,9 @@
 
 <script setup lang="ts">
 import { defineComponent as _defineComponent } from "vue";
-import { inject } from 'vue';
-import type { GameState } from '../../logic/GameState';
-import CrystalBall from '../CrystalBall.vue';
 import SkillBrowser from '../discover/SkillBrowser.vue';
-
-const gameState = inject<GameState>('gameState');
+import DiscoveryInput from '../discover/DiscoveryInput.vue';
+import DiscoveryLog from '../discover/DiscoveryLog.vue';
 </script>
 
 <style scoped>
@@ -46,8 +46,12 @@ const gameState = inject<GameState>('gameState');
 .crystal-ball-panel {
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 100px;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+}
+
+.discovery-input-wrapper {
+  margin-top: auto; /* Push to bottom */
 }
 </style> 

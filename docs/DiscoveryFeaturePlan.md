@@ -127,3 +127,7 @@ graph TD
     4.  Generate the special "brainstorm" discovery message for the log inside `discoverItem`.
     5.  Update `SkillBrowser.vue` to display "stars" indicating the number of found keywords for each undiscovered item.
 *   **Testable Outcome:** The full loop is playable. The player enters keywords, sees stars appear on skills, and at 5 stars, the skill automatically unlocks with a special message. 
+
+
+##TODO:
+ResourceLib

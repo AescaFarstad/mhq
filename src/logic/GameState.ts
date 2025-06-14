@@ -23,8 +23,6 @@ import type { HypotheticalState } from './core/Hypothetical';
 
 import { C } from './lib/C';
 
-export const ALL_TAB_IDS = ['Castle', 'Crew', 'Quests', 'Tasks', 'Discover', 'Debug'];
-
 export const maintenanceSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.MAINTENANCE_SLOW_TICK_INTERVAL, "maintenance_task_gen");
 export const assignmentSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.ASSIGNMENT_SLOW_TICK_INTERVAL, "task_assignment_process");
 
@@ -131,17 +129,6 @@ export class GameState {
 
         this.setupInitialResources();
 
-        if (this.lib.isLoaded) {
-            const startGameEvent = this.lib.events.get("startGame");
-            if (startGameEvent) {
-                EventProcessor.processSingleEvent(startGameEvent, this);
-            } else {
-                console.error("GameState Constructor: 'startGame' event not found in Lib.");
-            }
-        } else {
-            console.error("Cannot run initial event processing: Lib failed to load.");
-        }
-
         UIStateManager.sync(this);
     }
 
@@ -229,13 +216,6 @@ export class GameState {
             Stats.modifyStat(stat as IndependentStat, delta, this.connections);
         } else {
             console.warn(`Cannot set stat ${statName}: not found or not independent`);
-        }
-    }
-
-    public markAsDiscovered(itemId: string): void {
-        if (!this.discoveredItems.has(itemId)) {
-            this.discoveredItems.add(itemId);
-            this.uiState.discoveredItemsCount = this.discoveredItems.size;
         }
     }
 

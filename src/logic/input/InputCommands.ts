@@ -46,5 +46,10 @@ export interface CmdSpendSpecPoint extends CmdInput {
   specId: string;
 }
 
+export interface CmdSubmitDiscovery extends CmdInput {
+  name: "CmdSubmitDiscovery";
+  input: string;
+}
+
 // Add other command interfaces here, e.g.:
 // export interface CmdOtherAction extends CmdInput { ... }

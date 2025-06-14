@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, inject, onMounted, computed } from 'vue';
-import { GameState, globalInputQueue, ALL_TAB_IDS } from './logic/GameState';
+import { GameState, globalInputQueue } from './logic/GameState';
+import { C } from './logic/lib/C';
 import type { CmdTimeScale, CmdTickOnce } from './logic/input/InputCommands';
 import ResourceDisplay from './components/ResourceDisplay.vue';
 import CastleView from './components/tabs/CastleView.vue';
@@ -22,10 +23,19 @@ const activeTab = ref('Castle');
 
 const displayedTabs = computed(() => {
   if (!gameState) return [];
-  return ALL_TAB_IDS.filter((tabId: string) => gameState.isDiscovered(tabId));
+  // Access discoveredItemsCount to make this computed reactive to discovery changes
+  if (gameState.uiState.discoveredItemsCount > 0){
+    const tabs = C.ALL_TAB_IDS.filter((tabId: string) => {
+      const isDiscovered = gameState.isDiscovered(tabId);
+      return isDiscovered;
+    });
+    return tabs;
+  }
+  return [];
 });
 
 // Use discoveredItemsCount to force UI refresh when discoveries happen
+// This is needed for tabs that show discovered content and need full refreshes
 const uiRefreshKey = computed(() => {
   return gameState?.uiState.discoveredItemsCount ?? 0;
 });
@@ -130,15 +140,16 @@ onMounted(() => {
             <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
           </div>
         </div>
-        <div class="tab-content" :key="uiRefreshKey">
-          <!-- Use the Tab components -->
-          <CastleView v-if="activeTab === 'Castle'" />
-          <CrewView v-if="activeTab === 'Crew'" />
-          <QuestsView v-if="activeTab === 'Quests'" />
-          <TasksView v-if="activeTab === 'Tasks'" />
+        <div class="tab-content">
+          <!-- Use the Tab components - apply refresh key selectively -->
+          <CastleView v-if="activeTab === 'Castle'" :key="`castle-${uiRefreshKey}`" />
+          <CrewView v-if="activeTab === 'Crew'" :key="`crew-${uiRefreshKey}`" />
+          <QuestsView v-if="activeTab === 'Quests'" :key="`quests-${uiRefreshKey}`" />
+          <TasksView v-if="activeTab === 'Tasks'" :key="`tasks-${uiRefreshKey}`" />
+          <!-- Discover tab does NOT get a refresh key to preserve component state -->
           <DiscoverView v-if="activeTab === 'Discover'" />
-          <!-- Add the DebugView component, passing the stats -->
-          <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" />
+          <!-- Debug tab gets refresh key to show updated discovery data -->
+          <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" :key="`debug-${uiRefreshKey}`" />
         </div>
       </div>
     </template>

@@ -52,12 +52,12 @@ const triggerCopyAnimation = (key: string) => {
 
 // ---------- Computed helpers ----------
 const hasDiscoveredItems = computed(() => {
-  return gameState && gameState.discoveredItems && Object.keys(gameState.discoveredItems).length > 0;
+  return gameState && gameState.discoveredItems && gameState.discoveredItems.size > 0;
 });
 
 const filteredDiscoveredItems = computed(() => {
   if (!gameState || !gameState.discoveredItems) return [];
-  let items = Object.keys(gameState.discoveredItems).filter((k) => gameState.discoveredItems[k]);
+  let items = Array.from(gameState.discoveredItems);
   isDiscoverIncludeRegexValid.value = true;
   if (discoverIncludeFilter.value.trim()) {
     try {
@@ -78,7 +78,7 @@ const clearDiscoverFilters = () => {
 
 const copyDiscoveredItemsToClipboard = (_e?: Event) => {
   if (!gameState || !gameState.discoveredItems) return;
-  const list = Object.keys(gameState.discoveredItems).filter((k) => gameState.discoveredItems[k]).sort();
+  const list = Array.from(gameState.discoveredItems).sort();
   let text = 'Discovered Items:\n\n' + list.join('\n');
   navigator.clipboard.writeText(text.trim())
     .then(() => triggerCopyAnimation('discoveredItems'))
@@ -87,18 +87,18 @@ const copyDiscoveredItemsToClipboard = (_e?: Event) => {
 
 const discoverAllItems = () => {
   if (!gameState) return;
-  import('../../logic/effects').then((eff) => eff.discoverAll(gameState));
+  import('../../logic/Discovery').then((discovery) => discovery.discoverAll(gameState));
 };
 
 const discoverNoneItems = () => {
   if (!gameState) return;
-  gameState.discoveredItems = {} as any;
+  gameState.discoveredItems.clear();
   gameState.uiState.discoveredItemsCount = 0;
 };
 
-const discoverSkills = () => gameState && import('../../logic/effects').then((eff) => eff.discoverAllSkills(gameState));
-const discoverBuildings = () => gameState && import('../../logic/effects').then((eff) => eff.discoverAllBuildings(gameState));
-const discoverResources = () => gameState && import('../../logic/effects').then((eff) => eff.discoverAllResources(gameState));
-const discoverAttributes = () => gameState && import('../../logic/effects').then((eff) => eff.discoverAllAttributes(gameState));
-const discoverTabs = () => gameState && import('../../logic/effects').then((eff) => eff.discoverAllTabs(gameState));
+const discoverSkills = () => gameState && import('../../logic/Discovery').then((discovery) => discovery.discoverAllSkills(gameState));
+const discoverBuildings = () => gameState && import('../../logic/Discovery').then((discovery) => discovery.discoverAllBuildings(gameState));
+const discoverResources = () => gameState && import('../../logic/Discovery').then((discovery) => discovery.discoverAllResources(gameState));
+const discoverAttributes = () => gameState && import('../../logic/Discovery').then((discovery) => discovery.discoverAllAttributes(gameState));
+const discoverTabs = () => gameState && import('../../logic/Discovery').then((discovery) => discovery.discoverAllTabs(gameState));
 </script> 
