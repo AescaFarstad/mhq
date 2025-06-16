@@ -30,19 +30,17 @@ watch(() => gameState?.uiState?.discoveredItemsCount ?? 0, () => {
 
 const hasDiscoveryEntries = computed(() => {
   // Force dependency on forceUpdate to ensure reactivity
-  const _ = forceUpdate.value;
-  const hasEntries = gameState && gameState.discoveryLog && gameState.discoveryLog.length > 0;
-  console.log(`[DiscoveryLog] hasDiscoveryEntries computed - forceUpdate: ${forceUpdate.value}, hasEntries: ${hasEntries}, logLength: ${gameState?.discoveryLog?.length ?? 0}`);
+  forceUpdate.value;
+  const hasEntries = gameState && gameState.uiState.discoveryLog && gameState.uiState.discoveryLog.length > 0;
   return hasEntries;
 });
 
 // Show the most recent 10 log entries, newest first
 const recentDiscoveryLog = computed(() => {
   // Force dependency on forceUpdate to ensure reactivity
-  const _ = forceUpdate.value;
-  if (!gameState || !gameState.discoveryLog) return [];
-  const entries = gameState.discoveryLog.slice(-10).reverse();
-  console.log(`[DiscoveryLog] recentDiscoveryLog computed - entries count: ${entries.length}`);
+  forceUpdate.value;
+  if (!gameState || !gameState.uiState.discoveryLog) return [];
+  const entries = gameState.uiState.discoveryLog.slice(-10).reverse();
   return entries;
 });
 

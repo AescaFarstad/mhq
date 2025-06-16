@@ -14,6 +14,7 @@ import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
 import { syncExampleUI } from './minigames/example/exampleUISync';
 import { EXAMPLE_TYPE } from './minigames/example/ExampleTypes';
 import { EventProcessor } from './logic/Event';
+import { runTests } from '../tests/testRunner';
 
 // import { setGlobalGameState } from './composables/useGameState'; // No longer needed
 
@@ -54,7 +55,8 @@ function initializeGame() {
     initializeDebugConsole(
         () => gameState
     );
-
+    
+    runTests();
 
 
     // Mount the Vue app

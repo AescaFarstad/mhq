@@ -60,7 +60,7 @@ const displaySkills = computed((): SkillBrowserData[] => {
   if (!gameState) return [];
 
   // Force reactivity dependency on our control variables
-  const _ = forceRecalculate.value;
+  forceRecalculate.value;
   
   const result: SkillBrowserData[] = [];
   const allSkills = gameState.lib.skills.getAllSkills();
@@ -121,7 +121,6 @@ const displaySkills = computed((): SkillBrowserData[] => {
 
 // Component lifecycle - calculate on mount
 onMounted(() => {
-  console.log('SkillBrowser mounted, calculating initial skills');
   if (gameState) {
     lastDiscoveredCount.value = gameState.uiState.discoveredItemsCount;
     forceRecalculate.value += 1; // Trigger initial calculation
@@ -131,7 +130,6 @@ onMounted(() => {
 // Watch for changes in discovered items count - only recalculate when this changes
 watch(() => gameState?.uiState.discoveredItemsCount, (newCount) => {
   if (newCount !== undefined && newCount !== lastDiscoveredCount.value) {
-    console.log(`SkillBrowser: Discovered items changed from ${lastDiscoveredCount.value} to ${newCount}, recalculating skills`);
     lastDiscoveredCount.value = newCount;
     forceRecalculate.value += 1; // Trigger recalculation
   }

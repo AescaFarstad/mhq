@@ -56,7 +56,7 @@ const submitDiscovery = async () => {
   }
   
   const inputBefore = discoveryInput.value.trim();
-  lastDiscoveryLogLength = gameState.discoveryLog.length;
+  lastDiscoveryLogLength = gameState.uiState.discoveryLog.length;
   
   const command: CmdSubmitDiscovery = {
     name: "CmdSubmitDiscovery",
@@ -69,11 +69,12 @@ const submitDiscovery = async () => {
   setTimeout(async () => {
     if (!gameState) return;
     
-    const hasNewEntry = gameState.discoveryLog.length > lastDiscoveryLogLength;
+    const hasNewEntry = gameState.uiState.discoveryLog.length > lastDiscoveryLogLength;
     
     if (hasNewEntry) {
-      const lastEntry = gameState.discoveryLog[gameState.discoveryLog.length - 1];
-      if (lastEntry.type === 'direct_discovery' || lastEntry.type === 'brainstorm_discovery') {
+      const lastEntry = gameState.uiState.discoveryLog[gameState.uiState.discoveryLog.length - 1];
+      
+      if (lastEntry.type === 'direct_discovery' || lastEntry.type === 'brainstorm_discovery' || lastEntry.type === 'keyword_found') {
         // Success - clear input, show success animation, maintain focus
         discoveryInput.value = '';
         showSuccess();

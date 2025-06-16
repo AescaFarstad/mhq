@@ -1,6 +1,6 @@
-import baseSkillsData from '../data/skills.ts';
-import { AllKeywords } from '../data/skillKeywordsLoader.ts';
-import { SkillsData, Skill, SkillSpecialization } from './definitions/SkillDefinition.ts';
+import baseSkillsData from '../data/skills';
+import { AllKeywords } from '../data/skillKeywordsLoader';
+import { SkillsData, Skill, SkillSpecialization } from './definitions/SkillDefinition';
 import { SkillCategoryUIInfo, SkillUIInfo } from '../../types/uiTypes';
 import { AttributeLib } from './AttributeLib';
 
@@ -26,49 +26,11 @@ function augmentSkillsWithKeywords(items: SkillsData, keywordsMap: ReadonlyMap<s
 }
 
 /**
- * Creates a reverse lookup map from keywords to technical skill/specialization names.
- * @param augmentedItems - The SkillsData object already augmented with keywords.
- * @returns A Map where keys are keywords and values are comma-separated technical names.
- */
-function createKeywordLookup(augmentedItems: SkillsData): Map<string, string> {
-    const lookup = new Map<string, string[]>(); // Temp map: keyword -> string[]
-
-    for (const itemId in augmentedItems) {
-        const item = augmentedItems[itemId];
-
-        if (item.keywords) {
-            for (const keywordGroup of item.keywords) {
-                for (const keyword of keywordGroup) {
-                    const lowerKeyword = keyword.toLowerCase(); // Normalize keyword
-                    if (!lookup.has(lowerKeyword)) {
-                        lookup.set(lowerKeyword, []);
-                    }
-                    const currentList = lookup.get(lowerKeyword);
-                    // Use item.id directly as it's globally unique
-                    if (currentList && !currentList.includes(item.id)) {
-                         currentList.push(item.id);
-                    }
-                }
-            }
-        }
-    }
-
-    // Convert the string[] to comma-separated string
-    const finalLookup = new Map<string, string>();
-    for (const [keyword, techNames] of lookup.entries()) {
-        finalLookup.set(keyword, techNames.join(','));
-    }
-
-    return finalLookup;
-}
-
-/**
  * Library for managing skill data
  */
 export class SkillLib {
   private _skills: SkillsData;
   private attributeLib: AttributeLib;
-  private _keywordLookup: ReadonlyMap<string, string>;
   
   id: string = 'skills';
   name: string = 'Skills Library';
@@ -118,9 +80,6 @@ export class SkillLib {
 
     // 2. Augment the transformed skills data IN PLACE with loaded keywords
     this._skills = augmentSkillsWithKeywords(this._skills, AllKeywords);
-
-    // 3. Create the reverse keyword lookup from the now-augmented data
-    this._keywordLookup = createKeywordLookup(this._skills);
   }
 
   /**
@@ -128,15 +87,6 @@ export class SkillLib {
    */
   get items(): SkillsData {
     return this._skills;
-  }
-
-  /**
-   * Gets the map allowing lookup of technical skill/specialization names by keyword.
-   * Keys are lowercase keywords.
-   * Values are comma-separated technical names (e.g., "melee_combat,unarmed_combat.striking").
-   */
-  get keywordLookup(): ReadonlyMap<string, string> {
-    return this._keywordLookup;
   }
 
   getSkill(skillId: string): Skill | undefined {

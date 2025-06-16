@@ -1,7 +1,7 @@
 Animal Companionship
 mindmeld familiar mental link imprint
 bond communicate train command protect guard assist scout fetch heel
-attack search retrieve carry hunt scout devote mate connect
+attack search retrieve carry hunt devote mate connect
 rapport lifelong loyal faithful friend companion companionship pet partner mutual relationship symbiosis union soulmate
 
 Wild Taming
@@ -129,7 +129,7 @@ Cleaning
 broom mop bucket rag cloth sponge brush duster feather polish
 soap lye vinegar water solution mixture compound formula recipe preparation
 dust dirt grime stain spot mark blemish mess clutter debris
-sweep scrub wash rinse wipe polish buff shine gleam sparkle
+sweep scrub wash rinse wipe buff shine gleam sparkle
 freshness cleanliness purity pristineness immaculateness flaw perfection neatness tidiness
 order arrangement technique routine laundry
 chamber room hall corridor stair floor wall ceiling window surface
@@ -162,7 +162,7 @@ sell pitch bargain close hawker peddler huckster barker hook impulse geasa
 persuade convince present demonstrate showcase highlight promote advertise endorse refer recommend upsell
 negotiate discount offer promotion guarantee warranty objection rebuttal competition value trust settle concede yield
 customer client order agreement contract commission revenue profit goods service product wares shop store showroom counter
-salesman salesperson merchant vendor agent road salesman prospect lead charm entice attract engage assure satisfy rapport reject skepticism feature smooth sample bundle quota
+salesman salesperson merchant vendor agent road prospect lead charm entice attract engage assure satisfy rapport reject skepticism feature smooth sample bundle quota
 
 Bookkeeping
 ledger abacus quill scroll strongbox oathmark tally sum scribe bursar  backroom
@@ -191,7 +191,7 @@ mercury sulfur crystal gem ore wood mithril dragonscale moonstone obsidian
 caravan wagon lane route bazaar emporium guild hub warehouse silo
 silk spice feather pelt fur hide gold pearl quartz wine caviar league charter marque
 trade commerce exchange buy sell profit wealth capital revenue growth prosper influence chain inventory resource demand cost price deficit surplus flow goods wares stock store market supply deal
-barter haggle bargain auction auction house merchant vendor business enterprise venture cartel monopoly oligopoly sanction blockade logistics tariff tax port harbor dock ship
+barter haggle bargain auction house merchant vendor business enterprise venture cartel monopoly oligopoly sanction blockade logistics tariff tax port harbor dock ship
 
 Gathering Rumors
 whisper gossip hearsay rumor tale story secret murmur word tidbit snippet scoop dirt scandal intrigue revelation truth lie fabrication
@@ -231,7 +231,7 @@ table felt baize deck shoe box cage wheel spinner ball cup thimble shell pea mar
 gambler sharper hustler mark pigeon sucker whale fish shark dealer croupier banker pit boss floor walker
 ace king queen wild deuce trey court pip spot
 bluff tell twitch sweat palm shuffle cut deal draw fold raise call check push shove string sandbagging
-den parlor hall pit room suite gallery loft cellar backroom alley dive joint establishment
+den parlor hall room suite gallery loft cellar backroom alley dive joint establishment
     
 Streetwise
 street alley lane way passage court yard square plaza market bazaar dock quarter district ward slum undercity sprawl maze warren labyrinth
@@ -271,7 +271,7 @@ aria ballad chanson madrigal motet hymn chant carol lullaby dirge
 pitch tone timbre register range octave interval scale mode key
 choir chorus ensemble soloist cantor precentor choirmaster vocalist songster
 cathedral chapel hall tavern court garden tower balcony street square
-lyric verse refrain chorus bridge coda hook melody harmony counterpoint
+lyric verse refrain bridge coda hook melody harmony counterpoint
 trill melisma coloratura portamento glissando staccato legato sostenuto
 emotion passion sorrow joy triumph lament praise devotion yearning
 acoustics echo reverberation projection volume power control technique
@@ -283,9 +283,9 @@ voice gesture expression pause emphasis inflection cadence rhythm flow
 tavern hearth campfire hall court library tower market square festival
 bard skald griot raconteur narrator chronicler scribe minstrel troubadour
 memory imagination embellishment exaggeration truth fiction allegory metaphor
-suspense tension mystery revelation twist moral lesson wisdom entertainment
+suspense tension mystery twist moral lesson wisdom entertainment
 audience listener crowd gathering circle assembly patron child elder
-scroll tome manuscript parchment ink quill memory tradition lore
+scroll tome manuscript parchment ink quill tradition lore
 beginning middle end prologue epilogue chapter verse stanza refrain
 
 Dancing
@@ -322,15 +322,15 @@ costume mask prop instrument voice body gesture expression movement sound
 emotion passion joy sorrow fear anger love hate triumph despair catharsis
 rehearsal practice preparation audition debut premiere finale curtain bow
 troupe company ensemble guild academy conservatory school tradition lineage
-drama comedy tragedy farce spectacle pageant ritual ceremony celebration
+drama comedy tragedy farce spectacle pageant ritual
 illusion magic transformation revelation connection communion experience moment
 rhythm timing delivery presence charisma magnetism chemistry energy vitality
-culture tradition heritage custom convention innovation rebellion revolution
+culture heritage custom convention innovation rebellion revolution
 light shadow spotlight torch candle lantern moon star fire glow
 
 Noble Courts
 crown scepter throne orb seal crest herald trumpet banner standard pavilion dais canopy
-court palace hall chamber salon gallery ballroom throne antechamber vestibule tower keep
+court palace hall chamber salon gallery ballroom antechamber vestibule tower keep
 duke duchess baron baroness count countess marquis earl viscount knight dame page squire chamberlain steward seneschal courtier
 nobility aristocracy peerage lineage bloodline pedigree precedence rank title honor dignity protocol ceremony ritual pageant
 brocade velvet ermine silk satin damask tapestry jewel coronet diadem signet medallion
@@ -358,7 +358,7 @@ technique method process procedure innovation improvement modification adaptatio
 metal wood leather cloth glass stone clay wax resin oil varnish polish glaze pigment dye
 quality standard specification tolerance precision accuracy detail finish texture pattern design
 commission contract order request proposal estimate quote invoice receipt ledger account
-tool jig fixture mold template pattern prototype model sample specimen demonstration exhibition
+tool jig fixture mold template prototype model sample specimen demonstration exhibition
 
 Merchant Guild Practices
 scale weight measure coin purse ledger abacus quill seal stamp charter license permit warrant
@@ -376,7 +376,7 @@ badge shield helm mail sword spear halberd whistle horn bell drum torch lantern 
 gate wall tower keep barracks armory stockade prison cell dungeon gallows block post pillory
 captain lieutenant sergeant corporal guard watchman sentinel warden constable bailiff sheriff marshal
 law code statute ordinance decree edict proclamation warrant summon citation arrest charge trial verdict sentence
-patrol beat round watch shift duty roster schedule assignment post station checkpoint barrier
+patrol beat round watch shift duty roster schedule assignment station checkpoint barrier
 order discipline rank file formation drill salute inspection ceremony parade review muster
 report log record witness testimony evidence proof confession statement deposition affidavit
 crime theft assault murder treason sedition smuggle fraud forgery riot breach violation offense infraction
@@ -388,7 +388,7 @@ thief rogue cutpurse pickpocket burglar fence smuggler forger assassin spy infor
 guild gang crew band ring syndicate family cartel outfit mob organization network cell
 cant sign signal mark symbol code cipher password phrase gesture whistle knock tap
 territory turf boundary border crossing neutral zone sanctuary haven refuge asylum protection
-heist job score mark target pigeon sucker fence loot swag take haul prize bounty reward
+heist job score target pigeon sucker loot swag take haul prize bounty reward
 shadow stealth silence darkness night fog mist smoke mirror illusion deception trick con scheme racket
 
 Temple Rites & Observances
@@ -404,15 +404,15 @@ faith devotion piety reverence worship veneration adoration praise glory honor v
 Etiquette
 manner custom tradition convention protocol courtesy politeness civility decorum propriety dignity grace refinement elegance sophistication
 respect deference honor esteem regard consideration tact diplomacy discretion prudence wisdom judgment discernment
-gesture bow curtsy nod salute handshake kiss embrace genuflection prostration obeisance homage tribute
-address title honorific rank precedence hierarchy status position station class caste order degree level
-ceremony ritual pageant procession parade reception banquet feast gala ball soiree levee audience presentation introduction
+gesture bow curtsy nod salute handshake kiss embrace genuflection prostration obeisance homage
+address title honorific rank precedence hierarchy status position station class caste degree level
+ceremony ritual pageant procession parade banquet feast gala ball soiree levee audience presentation introduction
 rule law code standard norm practice usage habit routine procedure formality requirement expectation obligation duty
 language speech discourse rhetoric eloquence diction pronunciation enunciation articulation accent dialect idiom phrase expression greeting farewell
 dress attire garb costume uniform livery regalia insignia badge emblem device heraldry blazon achievement
-invitation summon call request petition appeal plea supplication demand command order decree edict proclamation announcement
-gift present offering tribute donation contribution endowment bequest legacy inheritance patrimony dowry bride price ransom
-hospitality welcome reception entertainment accommodation courtesy favor patronage sponsorship protection sanctuary asylum refuge haven shelter
+invitation summon call request petition appeal plea supplication demand command decree edict proclamation announcement
+gift present offering donation contribution endowment bequest legacy inheritance patrimony dowry bride price ransom
+hospitality welcome entertainment accommodation favor patronage sponsorship protection sanctuary asylum refuge haven shelter
 
 Reading Emotions
 face mask veil facade surface depth layer mirror glass crystal orb
@@ -429,12 +429,12 @@ revelation discovery unveiling exposure confession admission acknowledgment reco
 
 Detecting Lies
 tell sign signal marker indicator flag warning bell alarm beacon
-voice tone pitch inflection cadence stutter hesitation pause gap silence
+voice tone pitch inflection cadence stutter hesitation pause silence
 sweat perspiration moisture dampness clamminess cold heat flush fever trembling
 truth serum potion elixir draught brew concoction mixture tonic philter charm
 interrogator inquisitor investigator detective spy agent provocateur informant mole traitor
 deception deceit fraud falsehood fabrication fiction tale story fable myth
-contradiction inconsistency discrepancy anomaly irregularity deviation variance divergence difference gap
+contradiction inconsistency discrepancy anomaly irregularity deviation variance divergence difference
 oath vow promise pledge word bond contract pact covenant agreement
 polygraph pendulum crystal sphere mirror pool scrying bowl rune stone
 guilt innocence conscience burden secret shame remorse regret denial evasion
@@ -445,38 +445,38 @@ desire want need craving hunger thirst appetite longing yearning aspiration
 goal aim objective target purpose intent intention design plan scheme
 fear phobia terror dread anxiety worry concern apprehension trepidation panic
 greed avarice lust gluttony envy pride wrath sloth vice sin
-love hate passion obsession infatuation devotion loyalty betrayal revenge vendetta
+love hate passion infatuation devotion loyalty betrayal revenge vendetta
 power control dominance submission rebellion defiance resistance compliance obedience servitude
 analyst philosopher scholar sage mentor teacher guide counselor advisor confidant
 root cause source origin genesis beginning foundation basis ground reason
 pattern habit routine ritual custom tradition practice behavior conduct action
-drive impulse urge compulsion addiction fixation mania obsession preoccupation fascination
+drive impulse urge compulsion addiction fixation mania preoccupation fascination
 catalyst trigger stimulus provocation incitement spark ignition fuel fire flame
 
 Social Prediction
 forecast prophecy divination augury omen portent sign vision dream premonition
-pattern cycle rhythm sequence chain reaction cascade ripple wave tide
+cycle rhythm sequence reaction cascade ripple wave tide
 chess board piece move gambit strategy tactic maneuver ploy feint
-scenario outcome result consequence effect aftermath fallout repercussion impact echo
+scenario outcome result consequence aftermath fallout repercussion impact echo
 probability likelihood chance odds risk gamble wager bet stake ante
 prophet seer oracle soothsayer fortune-teller mystic visionary sage astrologer haruspex
-future past present moment instant timeline thread web tapestry fabric
+future past present moment instant timeline thread tapestry fabric
 butterfly wing storm chaos order entropy balance equilibrium harmony discord
-domino effect chain link connection node network web matrix grid
+domino link connection node network matrix grid
 variable factor element component ingredient catalyst reagent mixture compound formula
-simulation model map chart diagram blueprint plan scheme design pattern
+simulation model map chart diagram blueprint plan scheme design
 
 Group Dynamics
 crowd mob horde swarm flock herd pack gang band troop
 leader follower alpha beta omega sheep wolf shepherd dog guardian
-hierarchy ladder pyramid tower structure order rank status position tier
-riot uprising rebellion revolt insurrection mutiny coup revolution movement wave
-consensus agreement discord dissent faction schism split rift divide gap
+hierarchy ladder pyramid tower structure rank status position tier
+riot uprising revolt insurrection mutiny coup revolution movement wave
+consensus agreement dissent faction schism split rift divide gap
 sociologist anthropologist ethnographer observer watcher spy infiltrator insider outsider
-tribe clan family house guild order brotherhood sisterhood fellowship alliance
+tribe clan family house guild brotherhood sisterhood fellowship alliance
 ritual ceremony tradition custom practice convention norm standard rule law
-influence pressure conformity rebellion independence autonomy sovereignty freedom bondage slavery
-synergy chemistry harmony discord tension conflict cooperation competition collaboration rivalry
+influence pressure conformity independence autonomy sovereignty freedom bondage slavery
+synergy chemistry harmony tension conflict cooperation competition collaboration rivalry
 momentum inertia resistance friction catalyst accelerant brake anchor weight ballast
 
 Profiling
@@ -491,20 +491,20 @@ background history past origin lineage ancestry heritage legacy tradition custom
 tendency inclination predisposition propensity proclivity bent leaning preference bias prejudice
 clue hint trace evidence sign signal indicator marker beacon flag
 type category class kind sort variety species breed strain stock
-puzzle piece fragment shard sliver bit part component element factor
+puzzle piece fragment shard sliver bit part component factor
 method technique approach style manner mode way fashion form shape
 
 Insight
-wisdom knowledge understanding comprehension grasp perception awareness consciousness enlightenment illumination
+wisdom knowledge understanding comprehension grasp perception awareness consciousness
 intuition instinct hunch feeling sense impression notion idea thought concept
 empathy sympathy compassion kindness warmth coldness distance detachment objectivity subjectivity
-observation scrutiny examination analysis study investigation research inquiry exploration discovery
-mirror lens prism filter kaleidoscope telescope microscope magnifier amplifier enhancer
+observation scrutiny examination analysis study investigation research inquiry exploration
+mirror prism filter kaleidoscope telescope microscope magnifier amplifier enhancer
 sage philosopher psychologist mentalist mystic oracle seer prophet visionary guru
 depth surface layer veil mask facade front appearance reality truth
 connection link bond tie thread web network matrix pattern design
-perspective viewpoint angle lens frame context background foreground figure ground
-revelation epiphany breakthrough discovery realization awakening enlightenment illumination clarity vision
+perspective viewpoint angle frame context background foreground figure ground
+revelation epiphany breakthrough realization awakening clarity vision
 barrier wall obstacle block resistance impediment hindrance limitation boundary constraint
 key door gate portal window opening passage bridge crossing threshold
 
@@ -520,26 +520,26 @@ medal ribbon award laurel crown wreath trophy accolade praise recognition reward
 inspiration spark kindle ignition awakening surge rise uplift boost revival
 
 Command
-baton scepter rod staff mace seal sigil crest badge rank chevron epaulet
+baton scepter rod staff mace seal sigil crest badge chevron epaulet
 order decree edict mandate directive proclamation summons call demand charge instruction
-authority power control dominion sovereignty supremacy hierarchy chain rank station position
+authority power control dominion sovereignty supremacy hierarchy chain station position
 general marshal captain lieutenant sergeant officer commander chief warlord strategist tactician
-battlefield fort garrison keep tower citadel rampart wall gate bridge chokepoint
-formation line column wedge phalanx square circle shield wall vanguard rear flank
+battlefield fort garrison keep tower citadel rampart gate bridge chokepoint
+formation line column wedge phalanx square circle shield vanguard rear flank
 discipline obedience compliance submission deference respect fear awe presence bearing
 signal beacon smoke mirror horn bell gong flag semaphore gesture sign code
 strategy tactic maneuver feint ambush siege assault defense retreat advance
 
 Delegation
 roster list scroll ledger chart diagram map plan blueprint scheme design layout
-task duty role function assignment mission quest charge responsibility burden obligation
+task duty role function mission quest charge responsibility burden obligation
 skill talent gift aptitude ability capacity strength weakness trait specialty expertise
 scribe clerk secretary aide assistant deputy lieutenant proxy agent representative emissary
-council chamber office bureau ministry department division section unit squad team
-allocation distribution division partition share portion quota ration measure balance load
+council chamber office bureau ministry department section unit squad team
+allocation distribution partition share portion quota ration measure load
 assessment evaluation judgment appraisal review analysis scrutiny examination test trial
-delegation appointment nomination selection choice pick assignment posting placement transfer
-efficiency optimization streamline coordination synchronization harmony balance flow rhythm
+delegation appointment nomination selection choice pick posting placement transfer
+efficiency optimization streamline coordination synchronization harmony flow rhythm
 
 Team Building
 bond chain link connection tie thread weave mesh network web lattice bridge
@@ -567,7 +567,7 @@ Recruitment
 poster notice announcement proclamation handbill flyer pamphlet broadsheet gazette herald bulletin
 bounty reward prize incentive bonus compensation wage salary pay coin gold silver
 tavern inn market square fair festival tournament joust arena coliseum theater
-scout recruiter agent headhunter envoy messenger courier ambassador herald crier barker
+scout recruiter agent headhunter envoy messenger courier ambassador crier barker
 talent skill gift ability potential promise prospect candidate applicant volunteer conscript
 persuasion charm charisma magnetism appeal allure attraction enticement lure bait hook
 contract pact agreement deal bargain arrangement understanding accord covenant bond oath
@@ -575,22 +575,22 @@ roster roll muster list registry ledger record archive catalog inventory census
 interview audition trial test examination assessment screening evaluation appraisal review
 
 Leadership
-crown throne scepter orb seal ring medallion chain badge star chevron insignia
+crown scepter orb seal ring medallion chain badge star chevron insignia
 authority command power influence dominion sovereignty reign rule governance control mastery
 king queen prince duke baron lord lady noble aristocrat patrician magnate potentate
-castle palace court hall chamber throne room gallery tower keep citadel fortress
-wisdom judgment vision foresight insight acumen sagacity prudence discretion discernment perception
+castle palace court hall chamber room gallery tower keep citadel fortress
+wisdom judgment foresight insight acumen sagacity prudence discretion discernment perception
 respect honor reverence deference loyalty allegiance fealty homage tribute devotion service
-strategy doctrine philosophy principle tenet creed dogma belief ideology vision mission
+strategy doctrine philosophy principle tenet creed dogma belief ideology
 charisma presence bearing dignity grace poise composure confidence assurance certainty conviction
 legacy heritage tradition precedent example model pattern template standard benchmark archetype
 burden responsibility duty obligation charge trust stewardship guardianship custody care protection
 council assembly senate parliament congress conclave synod convocation gathering summit conference
-inspiration guidance direction purpose meaning cause crusade quest mission campaign movement
+inspiration guidance direction purpose meaning cause crusade quest campaign movement
 
 Coercion
 whip chain shackle noose brand knife rope garrote collar leash
-threat ultimatum demand pressure deadline consequence penalty force compulsion duress
+threat ultimatum demand pressure deadline consequence penalty compulsion duress
 submission compliance obedience surrender capitulation yield acquiescence subjugation servitude conformity
 enforcer thug brute bully heavy muscle goon strongman henchman tough
 alley dungeon cell corner trap snare ambush checkpoint garrison blockade
@@ -598,52 +598,52 @@ leverage squeeze bind grip hold sway dominance supremacy coercion oppression
 fear violence harm danger peril jeopardy hazard risk menace dread
 scream whimper plea cry sob gasp tremor shudder quake flinch
 resistance defiance escape rebellion stubbornness will resolve courage hero martyr
-power control domination subjection tyranny despotism authority might strength force
+power control domination subjection tyranny despotism authority might strength
 
 Presence
 cloak armor insignia banner crown scepter helm gauntlet standard emblem medallion regalia sigil crest
-stance glare posture bearing mien carriage demeanor aspect visage countenance aura gravitas menace majesty
+stance glare posture bearing mien carriage demeanor aspect visage countenance aura gravitas menace
 awe dread respect submission deference reverence terror intimidation dismay trepidation apprehension unease disquiet alarm
 warlord tyrant overlord commander lord master sovereign potentate despot autocrat dictator ruler chieftain patriarch
 throne court fortress citadel tower keep hall chamber sanctum dais platform gallery balcony rampart
 authority nobility hierarchy station rank title precedence eminence stature dignity grandeur magnificence splendor pomp
 shadow chill silence hush stillness gloom darkness weight pressure atmosphere mood ambiance tension foreboding
 challenge mockery irreverence insolence defiance contempt scorn derision ridicule slight insult affront impudence audacity
-charisma dominion majesty supremacy sovereignty command leadership mastery ascendancy hegemony primacy preeminence superiority influence
+charisma dominion supremacy sovereignty command leadership mastery ascendancy hegemony primacy preeminence superiority influence
 
 Interrogation
 rack iron poker needle pliers vice wheel strap hook chain nail pin screw clamp brand
-torture question probe inquiry examination scrutiny grilling extraction confession revelation admission disclosure divulgence exposure
+torture question probe inquiry examination scrutiny grilling extraction revelation admission disclosure divulgence exposure
 inquisitor torturer interrogator examiner questioner investigator inspector magistrate judge prosecutor accuser informant spy agent
 chamber dungeon cell tower vault crypt catacomb oubliette pit cage stockade pillory scaffold block
 technique method practice procedure protocol system approach tactic strategy craft art science discipline specialty
-heresy trial inquisition ordeal tribunal judgment verdict sentence condemnation persecution purge witch-hunt crusade jihad
-scream blood sweat tear agony pain anguish torment suffering misery distress affliction tribulation ordeal
+heresy trial inquisition tribunal judgment verdict sentence condemnation persecution purge witch-hunt crusade jihad
+scream blood sweat tear agony pain anguish torment suffering misery distress affliction tribulation
 silence lie resistance stoicism endurance fortitude resolve determination obstinacy stubbornness defiance martyrdom heroism bravery
-truth secret intelligence information knowledge fact detail evidence proof testimony witness account report confession
+truth secret intelligence information knowledge fact detail evidence proof testimony witness account report
 
 Extortion & Blackmail
-letter document seal contract ledger note scroll parchment missive deed will testament record archive
+letter document seal contract ledger note scroll parchment missive deed will testament record
 scheme plot squeeze racket scam con fraud swindle hustle shake-down operation enterprise conspiracy cabal
 payment ransom tribute toll fee bribe hush-money protection coin gold silver jewel treasure fortune
 blackmailer extortionist schemer plotter conspirator manipulator exploiter parasite leech vulture predator opportunist crook
-tavern study vault office library archive den lair hideout safehouse backroom parlor salon brothel
-leverage dirt exposure scandal skeleton secret shame disgrace dishonor infamy notoriety reputation ruin
-whisper shadow secrecy stealth subtlety cunning guile craft deceit duplicity treachery betrayal backstab
-exposure betrayal counter-threat retaliation vengeance retribution payback consequence backlash blowback fallout repercussion aftermath
+tavern study vault office library den lair hideout safehouse backroom parlor salon brothel
+leverage dirt scandal skeleton secret shame disgrace dishonor infamy notoriety reputation ruin
+whisper shadow secrecy stealth subtlety cunning guile craft deceit duplicity treachery backstab
+counter-threat retaliation vengeance retribution payback consequence backlash blowback fallout repercussion aftermath
 vulnerability weakness flaw vice sin transgression indiscretion mistake error lapse failing shortcoming defect
 
 Intimidation
 mask hood gauntlet axe gallows guillotine stake pyre torch club mace flail hammer sword
-menace terror fright horror dread panic alarm dismay apprehension trepidation consternation perturbation disquiet
-fear panic flight paralysis submission compliance obedience deterrent example warning lesson display demonstration
+menace terror fright horror dread alarm dismay apprehension trepidation consternation perturbation disquiet
+fear flight paralysis submission compliance obedience lesson
 intimidator enforcer bully tyrant oppressor terrorizer bruiser roughneck ruffian hooligan vandal marauder reaver
 plaza scaffold gate bridge tower battlement courtyard market square crossroad checkpoint border threshold
-deterrent display example warning sign symbol portent omen threat message statement declaration proclamation
-punishment justice order law enforcement discipline control regulation rule dominion governance regime system
-tremor gasp hush whisper murmur rumor gossip tale legend myth story warning prophecy curse
+sign symbol portent omen threat message statement declaration proclamation
+punishment justice order law enforcement discipline regulation rule dominion governance regime system
+tremor gasp hush whisper murmur rumor gossip tale legend myth story prophecy curse
 courage hero rebellion revolution uprising insurrection mutiny revolt resistance defiance opposition dissent protest
-power control dominance authority influence sway command mastery superiority ascendancy hegemony supremacy sovereignty
+power dominance authority influence sway command mastery superiority ascendancy hegemony supremacy sovereignty
 
 Bluffing
 poker dice card chip ante token coin stake wager bet pot table

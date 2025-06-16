@@ -53,7 +53,7 @@ import DebugStatsTab from './DebugStatsTab.vue';
 import DebugDiscoverTab from './DebugDiscoverTab.vue';
 import DebugExploreTab from './DebugExploreTab.vue';
 
-const props = defineProps({
+defineProps({
   stats: {
     type: Object as PropType<Record<string, DebugStatInfo> | null | undefined>,
     required: true,

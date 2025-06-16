@@ -6,7 +6,7 @@ smithy foundry furnace hearth workshop armory
 blacksmith armorer weaponsmith farrier tinker metalworker
 temper alloy slag ingot bloom ore billet scale rivet weld solder flux patina rust
 spark smoke heat clang ring coal coke ember ash soot flame glow
-metal bar stock sheet wire rod bloom pig
+metal bar stock sheet wire rod pig
 
 Woodworking
 saw chisel plane lathe adze drawknife gouge rasp clamp vise auger bit gimlet froe mallet
@@ -22,7 +22,7 @@ Leatherworking
 awl needle punch knife burnisher skiver beveler groover stitcher last peg hammer
 hide pelt fur rawhide vellum suede chamois doeskin calfskin pigskin snakeskin dragonhide
 boot glove belt saddle harness sheath quiver pouch purse bag armor bracer jerkin
-tannery workshop cobbler shop
+tannery workshop shop
 tanner cobbler saddler leatherworker cordwainer furrier
 grain flesh chrome alum tannin lye lime bark oak gall
 tan cure dye oil wax buff burnish stamp emboss tool
@@ -61,8 +61,8 @@ commission order request contract charter patent warrant license permit seal mar
 wage fee price cost charge rate value worth merit payment compensation reward bounty
 flaw defect blemish imperfection mistake error fault crack chip dent scratch mar damage
 innovation invention discovery improvement advancement progress evolution revolution breakthrough
-tradition custom practice convention protocol ceremony ritual rite observance
-resource asset supply provision stock fund reserve wealth capital investment stake 
+custom convention protocol ceremony ritual rite observance
+resource asset provision fund wealth capital investment stake 
 
 Mining
 pickaxe hammer chisel lantern cart rope pulley winch drill spike crowbar bucket sluice pan screen dynamite
@@ -80,7 +80,7 @@ forest grove copse glade clearing timberline sawmill lumberyard woodlot thicket
 woodcutter lumberjack forester sawyer logger
 beam board stump chip sawdust shaving splinter cordwood firewood kindling
 rot beetle blight windfall deadfall
-thud crack snap grain texture ring whorl burr
+thud crack snap texture ring whorl burr
 
 Farming
 plow scythe sickle hoe rake shovel flail harrow yoke mill thresher silo granary
@@ -92,34 +92,34 @@ drought blight locust frost weed pest crow storm hail flood
 loam earth soil sweat dew stubble golden ripe
 
 Construction
-hammer trowel level plumb chisel mallet crane scaffold wheelbarrow mortar hod square rasp file
+hammer trowel level plumb chisel mallet crane wheelbarrow hod square rasp file
 stone brick mortar beam nail slate thatch lime sand gravel cement plaster timber joist rafter shingle wardstone skystone
-site foundation pit trench quarry brickyard yard scaffold frame skeleton shell
+site pit trench quarry brickyard yard frame skeleton shell
 mason carpenter builder laborer bricklayer roofer plasterer joiner wright
-wall arch column buttress foundation vault dome spire tower keep
+wall arch column buttress vault dome spire tower keep
 crack subsidence collapse settlement shift fault flaw weakness
 dust grit powder callus splinter ache thirst heat
 
 Hauling
 cart wagon wheel axle harness yoke rope pulley winch sledge dolly barrow strap chain hoist crane
 cargo crate barrel sack bundle bale load freight package coffer chest trunk
-road path trail dock warehouse depot wharf pier stable yard gate checkpoint toll bridge ford crossing
+road path trail dock warehouse depot wharf pier stable yard gate checkpoint bridge ford crossing
 carter teamster porter stevedore bearer carrier driver muleteer drayman
 delivery shipment consignment haul transport passage journey trek
-rut mud breakdown weight strain blockage congestion delay toll bandit
-creak groan rumble clatter strain sweat leather oil grease dust
+rut mud breakdown weight blockage congestion delay bandit
+creak groan rumble clatter sweat leather oil grease dust
 
 Labor
 shovel pick lever crowbar tong bellows mallet maul sledgehammer spade mattock anvil vise clamp jack tackle hoist
 toil effort strength muscle sinew sweat fatigue endurance stamina vigor brawn power force energy drive will grit backbone fortitude mettle
 wage shift task quota stint job work duty chore project undertaking commission contract indenture
 laborer worker hand journeyman apprentice artisan craftsman tradesman guildsman foreman overseer taskmaster steward bailiff
-back arm shoulder palm grip callus blister scar bruise ache pain strain sprain
+back arm shoulder palm grip callus blister scar bruise ache pain sprain
 dawn dusk noon bell hour break rest meal water shade relief respite sabbath holiday
 guild union brotherhood fellowship charter standard rule custom tradition ceremony initiation rank grade degree
 workshop yard forge dock mill factory foundry warehouse wharf loading site depot terminal station port
 product output result yield accomplishment achievement completion finish
-injury exhaustion strain accident hazard risk danger peril hardship burden load weight pressure demand toll cost price sacrifice
+injury exhaustion accident hazard risk danger peril hardship burden load weight pressure demand cost price sacrifice
 bread sustenance livelihood survival necessity purpose meaning dignity pride honor respect worth value contribution legacy heritage skill craft trade mastery expertise proficiency competence
 
 Equine Mounts
@@ -200,8 +200,8 @@ rod staff probe needle pin wire filament thread fiber strand
 scale leather silk velvet satin fur bristle quill spine barb thorn
 tremor pulse vibration texture heat cold warmth chill fever frost thaw temperature gradient
 thief locksmith safecracker burglar infiltrator assassin serpent snake viper cobra python adder
-floor wall door vault surface ground earth stone wood metal fabric cloth parchment
-pressure friction surface tension grip adhesion slip smoothness roughness bump ridge groove notch
+floor wall door vault ground earth stone wood metal fabric cloth parchment
+pressure friction tension grip adhesion slip smoothness roughness bump ridge groove notch
 numbness glove armor callus deadness paralysis insulation barrier shield padding cushion block
 
 Synesthesia
@@ -218,10 +218,10 @@ eye ear nose tongue skin finger nerve receptor antenna sensor detector scanner
 orb sphere pendant amulet charm talisman relic artifact totem fetish ward sigil rune
 guard detective investigator watchman sentry inspector examiner searcher finder seeker hunter sleuth
 awareness intuition instinct reflex reaction response sense feeling hunch premonition foreboding suspicion
-clue sign hint evidence trace mark signal beacon flag banner smoke fire light
+clue sign hint evidence trace mark flag banner smoke fire light
 illusion deception camouflage disguise mask veil shroud cloak glamour mirage phantom shadow
 observation detection discovery recognition identification discernment discrimination distinction differentiation analysis examination scrutiny
-alert warning alarm bell horn trumpet drum signal flare beacon torch lighthouse
+alert warning alarm bell horn trumpet drum flare torch lighthouse
 
 Sleight of Hand
 coin card dice cup shell handkerchief glove sleeve pocket pouch purse
@@ -236,7 +236,7 @@ guard witness exposure discovery accusation suspicion
 stealth subtlety finesse grace timing reflex speed
 
 Lockpicking
-pick rake tension wrench hook diamond ball snake decoder skeleton ward file probe shim
+pick rake tension wrench hook diamond ball snake decoder skeleton file probe shim
 locksmith burglar safecracker breaker intruder infiltrator
 torque click tumbler pin cylinder mechanism spring bolt latch hasp padlock deadbolt
 keyway plug core shackle chamber housing faceplate strike escutcheon
@@ -244,7 +244,7 @@ access entry breach opening penetration bypass
 steel brass iron copper bronze silver gold mithril
 door chest vault gate cell strongbox coffer safe cabinet drawer armoire
 shear binding seizure feedback resistance
-rust corrosion jam alarm trap ward glyph seal enchantment
+rust corrosion jam alarm trap glyph seal enchantment
 security barrier obstacle impediment protection defense
 
 Trap Handling
@@ -287,8 +287,8 @@ weight balance poise grace nimble agility
 Hiding
 cloak hood veil shroud curtain mantle cowl mask disguise
 shadow alcove niche corner recess crevice nook cranny hollow gap cavity
-assassin rogue stalker lurker shade phantom specter
-darkness shade gloom dusk twilight umbra penumbra eclipse
+assassin rogue stalker lurker phantom specter
+darkness gloom dusk twilight umbra penumbra eclipse
 concealment stillness patience breath heartbeat pulse
 light torch lantern candle flame glow beam ray moonlight sunlight
 cover refuge sanctuary hideout den lair bolt-hole cache stash
@@ -318,8 +318,8 @@ secrecy mystery enigma riddle cipher code signal whistle
 
 Pain Tolerance
 whip rack brand iron needle chain shackle rod lash scourge thorn spike nail barb
-agony torment anguish suffering ordeal threshold numbness fortitude callus scar welt bruise wound injury cut gash break fracture burn
-dungeon chamber scaffold arena pit stake post altar trial initiation penance ritual ordeal test tribulation
+agony torment anguish suffering threshold numbness fortitude callus scar welt bruise wound injury cut gash break fracture burn
+dungeon chamber scaffold arena pit stake post altar trial initiation penance ritual test tribulation
 torturer ascetic martyr gladiator monk flagellant penitent warrior berserker fanatic zealot
 leather salt ice fire acid blood sweat tear sinew nerve flesh bone marrow
 sting ache throb pierce crush pressure strain tension grip vice clamp
@@ -346,11 +346,11 @@ frostbite hypothermia heatstroke dehydration sunburn windburn chap crack blister
 Immunity
 antidote herb tonic salve potion elixir remedy cure balm serum vaccine inoculation ward charm amulet talisman
 resistance antibody health vitality vigor constitution recovery regeneration healing restoration renewal rejuvenation
-venom poison plague miasma contagion toxin pathogen disease malady ailment sickness illness fever infection corruption taint blight rot decay pestilence
-swamp sewer bog marsh fen mire cesspool pit hospice infirmary lazaretto apothecary herbarium laboratory
-healer physician alchemist druid shaman witch doctor apothecary herbalist immunizer plague doctor
+venom poison miasma contagion toxin pathogen disease malady ailment sickness illness infection corruption taint rot decay pestilence
+swamp sewer bog marsh fen mire cesspool pit hospice infirmary lazaretto herbarium laboratory
+healer physician alchemist druid shaman witch immunizer
 metabolism digestion absorption filtration purification cleansing detoxification neutralization
-pox plague fever flux ague consumption blight curse hex jinx
+pox flux ague consumption curse hex jinx
 
 Hardiness
 fortitude resilience toughness durability ruggedness robustness sturdiness vigor vitality constitution
@@ -371,11 +371,11 @@ grace stability precision mastery control finesse
 
 Tumbling
 mat pad springboard hoop ring vault cushion sawdust canvas
-roll flip somersault cartwheel handspring backflip frontflip twist spin rotation dive leap bound
+roll flip somersault cartwheel handspring backflip frontflip spin rotation dive leap bound
 tumbler acrobat gymnast performer jester fool entertainer
 floor stage arena circus tent pavilion courtyard plaza
 landing recovery momentum impact trajectory arc curve parabola inversion
-bruise sprain strain twist injury crash collision thud
+bruise sprain strain injury crash collision thud
 agility reflex instinct timing rhythm flow
 
 Escapology
@@ -413,8 +413,8 @@ Running
 boot shoe sandal cleat spike wrap bandage brace strap timer bell horn flag pennant
 sprint dash rush burst stride pace gait jog trot gallop flight bolt
 speed velocity swiftness record victory medal trophy ribbon prize glory fame
-leather cloth silk canvas track sand gravel cobblestone dirt mud clay dust
-track field path road avenue alley course circuit stadium arena plaza courtyard
+leather cloth silk canvas sand gravel cobblestone dirt mud clay dust
+field path road avenue alley course circuit stadium arena plaza courtyard
 runner sprinter courier messenger herald scout racer athlete
 tempo cadence rhythm form technique breathing style posture balance
 race marathon relay competition festival tournament championship
@@ -423,43 +423,42 @@ cramp fatigue stitch strain sprain blister ache burn exhaustion
 momentum acceleration endurance stamina vigor energy force power drive
 
 Climbing
-rope hook harness piton hammer spike anchor pulley carabiner chalk powder glove grip claw grapnel
-ascent grip hold reach pull rappel scramble scale traverse haul hoist
-summit peak height vantage perch lookout view perspective conquest achievement mastery
+rope hook harness piton hammer spike anchor pulley carabiner chalk powder glove claw grapnel
+ascent hold reach pull rappel scramble scale haul hoist
+summit peak vantage perch lookout view perspective achievement mastery
 stone rock granite limestone sandstone marble bark vine moss lichen ice snow
 cliff wall tower spire tree scaffold battlement parapet rampart precipice crag outcrop ledge
 climber mountaineer scout burglar thief acrobat spider assassin ranger
-belay pitch traverse overhang foothold handhold route grade chimney crack slab face
-conquest challenge exploration adventure pilgrimage ascension elevation
-texture roughness vertigo exposure wind chill height fear thrill
+belay pitch overhang foothold handhold route grade chimney crack slab face
+challenge exploration adventure pilgrimage ascension
+texture roughness vertigo exposure wind chill fear thrill
 fall slip avalanche rockfall fatigue weakness tremor
-elevation altitude gradient angle incline vertical horizon freedom escape
+altitude gradient angle incline vertical horizon freedom escape
 
 Swimming
-fin goggle float buoy paddle raft cork bladder oil wax seal
-stroke dive plunge paddle float drift glide wade splash kick propel
-speed distance depth breath endurance survival rescue pearl treasure salvage
-water salt brine kelp algae foam spray mist current foam bubble
+fin goggle buoy raft cork bladder oil wax seal
+stroke plunge drift glide wade splash kick propel
+speed distance breath endurance survival rescue pearl treasure salvage
+water salt brine kelp algae spray mist bubble
 pool lake river ocean moat canal harbor cove lagoon spring fountain bath cistern reservoir
 swimmer diver pearl-diver sailor mariner fisherman lifeguard triton merfolk
-current tide wave eddy undertow backstroke breaststroke butterfly freestyle surface dive
-baptism cleansing purification ritual blessing ceremony immersion
-cold wet pressure buoyancy weightlessness flow resistance chill
+tide wave eddy undertow backstroke breaststroke butterfly freestyle
+baptism cleansing purification ritual blessing ceremony
+cold wet weightlessness chill
 cramp drowning whirlpool riptide shark jellyfish hypothermia panic
-flow resistance propulsion buoyancy displacement immersion submersion depth pressure
 
 Jumping
 pole springboard mat platform plank board cushion pad net
-leap bound vault hop spring launch catapult hurdle skip bounce pounce
-distance height clearance landing record achievement feat accomplishment
+leap bound vault hop spring launch catapult skip bounce pounce
+distance clearance record achievement feat accomplishment
 sand sawdust straw hay leather wood canvas rope
-pit gap chasm ravine precipice ditch moat wall fence barrier hurdle obstacle
+pit gap chasm ravine precipice ditch moat wall fence barrier obstacle
 jumper acrobat vaulter athlete gymnast dancer performer artist
-takeoff trajectory arc momentum impulse angle approach run-up landing technique
+takeoff trajectory arc approach run-up technique
 freedom flight escape transcendence liberation breakthrough triumph
-weightlessness suspension air rush impact thud crash landing
+weightlessness suspension air rush impact thud crash
 misjudgment fall injury sprain fracture miscalculation fear hesitation
-gravity force angle velocity parabola projection elevation momentum impulse
+gravity force velocity parabola projection elevation
 
 Athletics
 muscle sinew tendon ligament bone joint heart lung nerve reflex instinct
@@ -503,11 +502,11 @@ buckler pavise heater kite tower targe roundshield aspis scutum
 wood iron steel bronze hide leather oak pine brass copper
 armory smithy battlefield phalanx gatehouse rampart
 guardian defender knight hoplite shieldbearer crusader templar paladin
-boss rim strap grip handle spike stud rivet brace
+boss rim strap grip handle spike stud rivet
 heraldry emblem crest sigil banner standard coat device
 thud crash impact slam boom reverberation
 splinter dent crack weight fatigue strain burden
-stance brace formation line aegis ward sanctuary refuge shelter
+stance formation line aegis ward sanctuary refuge shelter
 
 Armor
 protection coverage resistance fortification shell carapace
@@ -522,7 +521,7 @@ rust dent gap tear puncture corrosion fatigue encumbrance
 endurance burden mobility flexibility adaptation hardness temper alloy composition
 
 Defense
-ward guard protection preservation survival resistance immunity
+ward guard protection survival resistance immunity
 fortress wall moat gate portcullis barbican
 warrior defender guardian sentinel watchman protector champion knight paladin
 stance posture readiness alertness vigilance caution preparation
@@ -530,37 +529,37 @@ aegis sanctuary haven refuge shelter bastion stronghold citadel
 resilience fortitude endurance stamina constitution toughness hardiness
 barrier shield armor helm mail plate buckler pavise
 combat battle siege warfare skirmish duel melee
-safety security preservation conservation safeguard custody
+safety security conservation safeguard custody
 threat danger peril hazard risk jeopardy menace assault
 
 Striking
 fist knuckle palm elbow knee heel shin forearm foot toe forehead skull
 jab hook uppercut haymaker roundhouse cross combo strike blow punch kick slam
 knockout bruise fracture stun daze concussion blackout pain impact force trauma welt swelling
-wrap bandage pad glove guard leather strap
+wrap bandage pad glove leather strap
 ring pit arena tavern alley courtyard stage platform
 pugilist boxer brawler monk fighter striker
 stance form technique rhythm timing reach distance angle momentum speed power
 tournament duel bout match contest challenge championship prize
 thud crack smack crunch snap pop echo
-guard block counter dodge weave slip parry defense vulnerability opening weakness fatigue
+block counter dodge weave slip parry defense vulnerability opening weakness fatigue
 
 Grappling
-hold lock throw pin submission chokehold armbar takedown slam toss flip grab clutch squeeze grip
+hold lock throw pin chokehold armbar takedown slam toss flip grab clutch squeeze grip
 joint limb neck shoulder waist hip ankle wrist spine torso arm leg
-submission tap break dislocation strain sprain immobilization control dominance surrender defeat
+tap break dislocation sprain immobilization dominance surrender defeat
 mat floor ground dirt sand mud canvas rope oil sweat chalk dust
 wrestler grappler clincher holder strangler
-leverage balance position control pressure weight center gravity technique clinch mount sprawl escape reversal counter transition
+leverage balance position pressure weight center gravity technique clinch mount transition
 tradition ritual ceremony initiation trial ordeal test
-grunt strain effort struggle resistance tension release
-escape reversal sprawl defense flexibility rigidity fatigue exhaustion cramp
+grunt effort struggle resistance tension release
+defense flexibility rigidity exhaustion cramp
 
 Improvised Weaponry
-chair bottle stool mug tankard pole brick rock chain rope fork ladle pot pan cane umbrella book candlestick pitcher vase plank nail hammer shovel broom torch lantern shard glass splinter
+chair bottle stool mug tankard pole brick rock chain rope fork ladle pot pan cane umbrella book candlestick pitcher vase plank nail hammer shovel broom torch lantern shard glass
 tavern alley street kitchen workshop market stable yard dock warehouse cellar attic
 scrapper opportunist improviser survivor thug ruffian
-shatter break splinter crack smash bash dent bend snap fragment debris wreckage ruin
+shatter break crack smash bash dent bend snap fragment debris wreckage ruin
 creativity improvisation adaptation ingenuity resourcefulness desperation opportunity environment surrounding circumstance
 crash clatter bang boom tinkle rattle thump
 fragility availability weight balance durability predictability recognition concealment surprise
@@ -576,16 +575,16 @@ street courtyard hall plaza square dock wharf bridge tower dungeon cell cage den
 drill spar practice training exercise routine regimen conditioning preparation warmup cooldown meditation focus concentration awareness mindfulness breath energy chi ki spirit soul essence will determination courage fear respect
 
 Archery
-longbow shortbow recurve arrow shaft head broadhead bodkin quiver bracer tab sight rest nock fletching vane bowstring limb riser grip draw anchor release aim shot volley barrage hit bullseye pierce wound penetration yew sinew feather horn gut resin wax range target butt field tower battlement parapet archer bowman marksman ranger scout hunter cant tiller serving spine paradox draw weight cast brace height twang whistle thud tension wind rain fatigue tremor precision patience focus discipline flight trajectory arc
+longbow shortbow recurve arrow shaft head broadhead bodkin quiver bracer tab sight rest nock fletching vane bowstring limb riser grip anchor release aim shot volley barrage hit bullseye pierce wound penetration yew sinew feather horn gut resin wax range target butt field tower battlement parapet archer bowman marksman ranger scout hunter cant tiller serving spine paradox weight cast brace height twang whistle thud tension wind rain fatigue tremor precision patience focus discipline flight trajectory arc
 
 Crossbows
 crossbow arbalest bolt quarrel windlass cranequin goatsfoot nut trigger stock prod stirrup groove track rail cock span loose reload penetration impact puncture steel iron bronze hemp silk cord loophole embrasure wall fortress keep crossbowman arbalist sniper mercenary powerstroke latch pawl rack ratchet guild charter ban prohibition click snap whir thunk weight maintenance misfire jam mechanism engineering force leverage power torque tension string
 
 Throwing Weapons
-dagger knife axe hatchet javelin dart sling bullet stone pellet pouch atlatl spear pilum shuriken chakram bolas throw hurl cast spin whirl rotation strike stun embed impact leather lead clay bronze iron arena pit alley courtyard slinger peltast skirmisher gladiator trajectory grip release balance rotation whoosh thunk whistle weight distance momentum arc physics velocity angle parabola champion contest
+dagger knife axe hatchet javelin dart sling bullet stone pellet pouch atlatl spear pilum shuriken chakram bolas throw hurl cast spin whirl strike stun embed impact leather lead clay bronze iron arena pit alley courtyard slinger peltast skirmisher gladiator trajectory grip release balance whoosh thunk whistle weight distance momentum arc physics velocity angle parabola champion contest
 
 Siege Weaponry
-ballista catapult trebuchet onager mangonel scorpion springald ram tower engine launch bombardment barrage salvo breach demolition destruction rubble crater timber rope sinew boulder stone iron chain siege wall gate bastion fortress engineer artillerist bombardier sapper torsion counterweight arm frame beam axle wheel crash rumble groan thunder range accuracy crew ammunition payload leverage power physics warfare destruction
+ballista catapult trebuchet onager mangonel scorpion springald ram tower engine launch bombardment barrage salvo breach demolition rubble crater timber rope sinew boulder stone iron chain siege wall gate bastion fortress engineer artillerist bombardier sapper torsion counterweight arm frame beam axle wheel crash rumble groan thunder range accuracy crew ammunition payload leverage power physics warfare
 
 Ranged Combat
 projectile missile ammunition shot arrow bolt stone bullet trajectory ballistics windage elevation range accuracy precision distance volley barrage salvo bombardment suppression cover concealment hit miss graze kill wound strike impact penetration velocity force marksman sniper gunner archer slinger artillerist sight scope aim lead deflection visibility weather obstacle barrier shield armor evasion dodge timing anticipation prediction calculation instinct reflex coordination breath control patience discipline focus concentration warfare tactics strategy skirmish ambush
@@ -608,10 +607,10 @@ iron steel bronze lead weight spike flange head haft handle grip leather cord wr
 warrior barbarian berserker crusader paladin cleric priest templar enforcer thug brute
 strength power force impact momentum swing arc followthrough
 forge smithy armory battlefield siege gate breach wall tower dungeon torture chamber
-bone skull fracture concussion trauma bruise swelling blood tooth splinter
+bone skull fracture concussion trauma bruise swelling blood tooth
 thud crunch snap crash boom clatter rattle shake tremor vibration echo reverberation
 flanged spiked studded ridged grooved etched blessed consecrated cursed enchanted rune glyph sigil
-momentum inertia mass velocity acceleration deceleration torque leverage fulcrum pivot
+inertia mass velocity acceleration deceleration torque leverage fulcrum pivot
 
 Two-Handed Weapons
 greatsword zweihander claymore flamberge greataxe battleaxe maul sledgehammer greathammer poleaxe bardiche
@@ -627,7 +626,7 @@ weight mass heft burden encumbrance momentum inertia gravity arc trajectory para
 
 Polearms
 spear pike lance halberd glaive partisan voulge guisarme fauchard naginata trident javelin pilum
-thrust pierce impale skewer puncture penetrate reach extend ward zone control distance
+thrust pierce impale skewer puncture penetrate extend ward control
 ash oak yew hickory bamboo steel iron bronze silver mithril dragonbone horn tusk
 pikeman lancer hoplite phalanx legionnaire guard sentinel watchman yeoman militia footman soldier
 formation rank file column line square circle wedge turtle testudo shield wall bristle hedge
@@ -635,18 +634,18 @@ courtyard gate bridge pass canyon ravine ridge hilltop rampart parapet battlemen
 lung heart liver kidney intestine bowel stomach diaphragm aorta vena cava jugular carotid
 whistle whoosh thrum vibration hum buzz drone song hymn chant prayer mantra incantation
 banner standard ensign pennant guidon colors regiment battalion company squad platoon cohort century
-reach advantage leverage distance spacing interval gap zone perimeter radius diameter circumference
+advantage leverage spacing interval gap perimeter radius diameter circumference
 
 Flails & Chains
 flail chain morningstar meteor nunchaku kusarigama manriki whip scourge cat chuí
-swing whirl spin rotate revolve orbit gyrate centrifuge cyclone vortex maelstrom tempest
+swing whirl spin rotate revolve gyrate centrifuge cyclone vortex maelstrom tempest
 iron steel lead brass bronze copper silver gold platinum mithril adamantine meteorite
 gladiator retiarius thresher harvester inquisitor torturer executioner flagellant penitent zealot fanatic
 rhythm tempo cadence beat pulse throb oscillation pendulum metronome synchrony harmony resonance
 arena pit colosseum dungeon chamber cell rack wheel stake pyre gallows scaffold block
 joint socket ligament tendon cartilage disc vertebrae rib sternum clavicle scapula humerus
 whoosh whistle crack snap pop bang clatter rattle jingle chime ring peal toll
-momentum inertia centripetal centrifugal angular velocity acceleration torque fulcrum pivot axis orbit
+momentum inertia centripetal centrifugal angular velocity acceleration torque fulcrum pivot axis
 chaos entropy disorder turbulence unpredictable erratic random stochastic fractal butterfly storm
 
 Melee Combat
@@ -654,15 +653,15 @@ warrior fighter soldier knight paladin barbarian berserker gladiator champion du
 battle combat duel skirmish brawl melee fray clash engagement encounter confrontation showdown
 sword axe mace spear shield armor helm gauntlet greave pauldron gorget mail plate leather
 strike blow hit attack assault offense defense parry block dodge evade counter riposte
-strength power might force prowess skill technique form stance footwork balance agility
+strength power might force skill technique form stance footwork balance agility
 battlefield arena colosseum pit ring circle square courtyard plaza bridge gate tower
-blood wound scar gash cut bruise fracture break sprain tear rupture hemorrhage trauma
+wound scar gash cut bruise fracture break sprain rupture hemorrhage trauma
 steel iron bronze copper brass silver gold mithril adamantine dragonscale dragonbone obsidian
 veteran master instructor trainer captain general marshal warlord hero legend myth saga
-honor glory valor courage bravery prowess reputation fame infamy notoriety legacy heritage
-rage fury wrath anger bloodlust fervor zeal passion intensity focus concentration discipline
-clang crash thud crack snap crunch rip tear scream roar bellow grunt gasp wheeze
+honor glory valor courage bravery reputation fame infamy notoriety legacy heritage
+rage fury wrath anger bloodlust fervor zeal passion intensity focus concentration
+clang crash thud crack snap crunch rip scream roar bellow grunt gasp wheeze
 victory defeat triumph conquest surrender yield capitulation rout massacre slaughter carnage butchery
-adrenaline endorphin testosterone cortisol sweat blood tears pain agony ecstasy euphoria rush
-tactics strategy formation maneuver feint gambit ploy trick trap ambush surprise flanking
-war conflict strife discord chaos order discipline rank file column line formation phalanx
+adrenaline endorphin testosterone cortisol sweat tears pain agony ecstasy euphoria rush
+tactics strategy maneuver feint gambit ploy trick trap ambush surprise flanking
+war conflict strife discord chaos order rank file column line phalanx

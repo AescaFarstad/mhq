@@ -3,7 +3,7 @@ anvil hammer chisel tong forge bellows grindstone whetstone crucible needle file
 rune glyph sigil essence crystal dust oil reagent flux catalyst powder resin lacquer varnish
 sword armor helm shield gauntlet pauldron greave mail plate leather buckler cuirass
 enhancement blessing ward protection sharpness fortitude resilience durability might aegis bulwark vigor
-forge workshop armory smithy foundry arsenal
+workshop armory smithy foundry arsenal
 enchanter runesmith armorsmith weaponsmith artificer
 augment affix property attribute potency temper etch inscription reinforcement treatment
 flaw crack fracture resistance instability decay corrosion weakness brittleness
@@ -23,7 +23,7 @@ impurity occlusion cloudiness dissonance overload fracture
 Scribing
 quill stylus nib inkwell vellum parchment papyrus scroll reed brush palette knife scraper
 ink pigment dye blood ichor sap resin gum mercury cinnabar lampblack gall ochre vermillion
-scroll manuscript tome codex folio sheet page grimoire treatise compendium
+manuscript tome codex folio sheet page grimoire treatise compendium
 scribe calligrapher illuminator copyist scholar sage
 glyph sigil script cipher notation character symbol letter mark ideogram pictograph
 transcription illumination preservation translation
@@ -33,9 +33,9 @@ margin border illustration initial miniature decoration gilt
 
 Implement Crafting
 lathe carver chisel gouge saw plane file sandpaper vise clamp burnisher polisher
-wood crystal bone metal core heartwood gem focus lens sphere prism shard
+wood crystal bone metal heartwood gem focus lens sphere prism shard
 wand staff orb rod scepter cane baton crook flail mace
-wandwright staffwright artificer carver jeweler
+wandwright staffwright artificer jeweler
 core channel conduit resonator amplifier catalyst matrix node junction
 yew oak ash elder willow hazel holly birch rowan thorn pine cedar
 dragon phoenix unicorn griffin basilisk demon angel fey
@@ -70,15 +70,15 @@ Potions
 cauldron vial flask bottle phial ampoule cork stopper ladle funnel mortar pestle strainer filter press decanter
 herb root leaf berry flower petal seed bark moss fungus mushroom essence extract tincture oil water spring dew honey nectar sap resin balsam
 elixir brew draught philtre tonic balm salve potion cure remedy antidote panacea cordial infusion decoction syrup liquor spirit
-herbarium apothecary garden greenhouse conservatory stillroom
-herbalist apothecary healer witch shaman druid
+herbarium garden greenhouse conservatory stillroom
+herbalist healer witch shaman druid
 aroma fragrance vapor steam bubble foam froth effervescence
 spoilage contamination dosage potency expiration fermentation precipitation
 vitality restoration rejuvenation healing regeneration purification blessing
 
 Toxicology
-needle syringe dart blade fang stinger venom sac extractor pipette dropper lancet
-venom poison toxin bane nightshade hemlock wolfsbane arsenic mercury cyanide belladonna aconite mandrake strychnine ricin oleander foxglove monkshood cobra viper scorpion spider toadstool
+needle syringe dart blade fang stinger sac extractor pipette dropper lancet
+poison toxin bane nightshade hemlock wolfsbane arsenic mercury cyanide belladonna aconite mandrake strychnine ricin oleander foxglove monkshood cobra viper scorpion spider toadstool
 paralysis death antidote antivenin immunity necrosis seizure coma convulsion asphyxiation
 serpentarium laboratory morgue crypt dungeon
 assassin poisoner toxicologist alchemist murderer spy
@@ -98,8 +98,8 @@ change adaptation corruption enhancement augmentation transcendence blasphemy
 
 Incendiaries
 fuse wick timer detonator casing shell bomb grenade flask pot jar barrel keg
-sulfur saltpeter phosphorus naphtha pitch oil powder nitroglycerin charcoal resin tar dynamite wildfire dragonfire alchemist fire greek fire
-explosion blast flame fire smoke shrapnel crater inferno conflagration combustion ignition detonation immolation incineration
+sulfur saltpeter phosphorus naphtha pitch oil powder nitroglycerin charcoal resin tar dynamite wildfire dragonfire alchemist greek fire
+blast flame smoke shrapnel crater inferno conflagration combustion ignition detonation immolation incineration
 arsenal armory magazine bunker forge workshop battlefield
 bombardier sapper pyromancer arsonist demolitionist engineer
 flash boom heat scorch blaze crackle roar whistle
@@ -107,51 +107,51 @@ misfire dud backfire premature accident chain reaction
 destruction chaos warfare siege sabotage terror annihilation
 
 Transmutation
-crucible furnace athanor retort alembic kiln forge bellows tong hammer anvil mold matrix seal circle pentagram
-lead gold silver mercury copper tin iron bronze brass platinum mithril adamantine orichalcum philosopher stone prima materia quintessence azoth alkahest
+crucible furnace athanor retort alembic kiln bellows tong hammer anvil mold matrix seal circle pentagram
+lead gold silver mercury copper tin iron bronze brass platinum mithril adamantine orichalcum stone prima materia quintessence azoth alkahest
 transformation conversion sublimation calcination dissolution coagulation fixation projection multiplication fermentation distillation conjunction
-laboratory sanctum forge temple observatory tower vault
-transmuter philosopher sage magus adept master thaumaturge
+laboratory sanctum temple observatory tower vault
+transmuter sage magus adept master thaumaturge
 glow shimmer flux radiance resonance vibration hum crystallization
 failure reversion decay instability imbalance contamination impurity
 perfection unity harmony balance enlightenment ascension immortality
 
 Alchemy
 alembic retort crucible athanor furnace kiln flask beaker vial bottle jar pot cauldron mortar pestle scale weight measure thermometer hourglass bellows tong ladle funnel filter siphon pump valve burner lamp candle
-acid base salt sulfur mercury phosphorus arsenic antimony bismuth vitriol aqua regia aqua vitae alkahest azoth philosopher stone prima materia quintessence element reagent compound mixture solution suspension precipitate crystal powder dust ash char coal tar resin oil wax tallow fat grease
-transmutation distillation sublimation calcination fermentation putrefaction dissolution coagulation fixation multiplication projection combustion explosion reaction synthesis decomposition purification refinement extraction infusion decoction tincture elixir essence concentrate precipitate residue
-laboratory workshop apothecary tower sanctum forge foundry mill mine quarry market guild academy library vault cellar attic
-alchemist apothecary philosopher sage scholar apprentice journeyman master adept magus artificer
+acid base salt sulfur mercury phosphorus arsenic antimony bismuth vitriol regia vitae alkahest azoth stone prima materia quintessence element reagent compound mixture solution suspension crystal powder dust ash char coal tar resin oil wax tallow fat grease
+transmutation distillation sublimation calcination fermentation putrefaction dissolution coagulation fixation multiplication projection combustion reaction synthesis decomposition purification refinement extraction infusion decoction tincture elixir essence concentrate residue
+laboratory workshop tower sanctum foundry mill mine quarry market guild academy library vault cellar attic
+alchemist scholar apprentice journeyman master adept magus artificer
 smoke steam vapor fume bubble fizz spark flame glow shimmer crystallization precipitation effervescence
-contamination failure explosion fire poisoning madness bankruptcy heresy blasphemy
+contamination failure poisoning madness bankruptcy heresy blasphemy
 transformation creation destruction knowledge power immortality gold wealth secret mystery art science magic nature philosophy theology cosmology astronomy medicine metallurgy chemistry
 
 Precognition
-prophecy omen portent augury vision dream nightmare premonition warning forecast glimpse flash future tomorrow destiny fate path timeline possibility probability chance outcome event horizon dawn threshold moment hour day year epoch era oracle prophet seer soothsayer sibyl pythoness sage mystic crystal orb sphere mirror glass smoke incense tea leaf rune card deck tarot pendulum chime bell gong drum heartbeat pulse tempo rhythm cycle pattern wave flux change shift turn twist fork branch divergence paradox loop recursion causality consequence ripple echo shadow phantom specter wraith mist fog haze veil curtain window portal gate door threshold sanctum tower observatory temple shrine altar chamber vault crypt
+prophecy omen portent augury vision dream nightmare premonition warning forecast glimpse flash future tomorrow destiny fate path timeline possibility probability chance outcome event horizon dawn moment hour day year epoch era oracle prophet seer soothsayer sibyl pythoness sage mystic crystal orb sphere mirror glass smoke incense tea leaf rune card deck tarot pendulum chime bell gong drum heartbeat pulse tempo rhythm cycle pattern wave flux change shift turn twist fork branch divergence paradox loop recursion causality consequence ripple echo shadow phantom specter wraith mist fog haze veil curtain window portal gate door sanctum tower observatory temple shrine altar chamber vault crypt
 
 Retrocognition
 memory echo imprint trace residue ghost phantom specter shadow past yesterday history chronicle record archive scroll tome codex tablet stone bone relic artifact heirloom token memento keepsake antiquity age epoch era century millennium antiquarian archaeologist chronicler historian scribe recorder keeper curator archivist sage elder ancestor spirit shade wraith remnant vestige fragment shard splinter dust ash ember coal char ruin debris rubble wreck decay erosion weathering patina rust tarnish fade blur dim flicker glimpse flash vision dream reverie nostalgia melancholy longing yearning regret sorrow joy triumph glory defeat battle war peace treaty pact covenant oath vow promise betrayal secret mystery enigma riddle puzzle cipher code symbol mark seal sigil glyph rune inscription epitaph monument memorial tomb crypt catacomb ossuary necropolis graveyard cemetery barrow mound cairn
 
 Clairvoyance
-sight vision eye gaze stare glimpse view vista panorama horizon distance space span reach range scope breadth expanse void gap chasm gulf abyss mirror lens crystal orb sphere globe bowl basin pool water reflection refraction prism spectrum light ray beam shaft glow gleam glimmer shimmer sparkle flash flare burst pulse wave ripple echo sound voice whisper murmur hum drone buzz vibration resonance frequency tone pitch note chord harmony discord static interference noise barrier wall ward shield veil curtain mist fog haze cloud shadow darkness blind spot void null zone dead zone spy scout watcher sentinel observer witness spectator audience viewer seer visionary prophet oracle medium channeler conduit vessel instrument tool device apparatus mechanism contraption gadget nexus node hub center focus point locus axis pivot fulcrum tower spire minaret lighthouse beacon watchtower observatory perch vantage lookout post station outpost
+sight vision eye gaze stare glimpse view vista panorama horizon distance space span reach range scope breadth expanse gap chasm gulf abyss mirror lens crystal orb sphere globe bowl basin pool water reflection refraction prism spectrum light ray beam shaft glow gleam glimmer shimmer sparkle flash flare burst pulse wave ripple echo sound voice whisper murmur hum drone buzz vibration resonance frequency tone pitch note chord harmony discord static interference noise barrier wall ward shield veil curtain mist fog haze cloud shadow darkness blind spot null dead spy scout watcher sentinel observer witness spectator audience viewer seer visionary prophet oracle medium channeler conduit vessel instrument tool device apparatus mechanism contraption gadget nexus node hub center focus point locus axis pivot fulcrum tower spire minaret lighthouse beacon watchtower observatory perch vantage lookout post station outpost
 
 Psychometry
-aura field energy vibration resonance frequency wavelength pulse beat rhythm pattern signature imprint mark trace residue echo emanation radiation emission discharge flow current stream tide wave ripple bubble sphere shell layer barrier shield ward protection defense armor plate mail scale hide skin membrane film veil curtain mask disguise camouflage cloak shroud cover blanket fog mist haze cloud shadow darkness void null zone dead spot empath sensitive psychic medium channeler conduit vessel receptor antenna sensor detector scanner probe gauge meter instrument tool device apparatus mechanism leyline node nexus hub center focus point locus axis meridian channel pathway route circuit loop cycle spiral helix coil spring tension stress strain pressure force power might strength weakness vulnerability flaw crack fissure breach gap hole void empty hollow cavity chamber room space area zone region domain realm sphere territory jurisdiction copper silver gold platinum mithril adamantine crystal quartz amethyst sapphire ruby emerald diamond gem jewel stone rock mineral ore metal alloy compound mixture blend fusion synthesis harmony discord balance imbalance chaos order entropy decay growth change transformation mutation evolution
+aura field energy vibration resonance frequency wavelength pulse beat rhythm pattern signature imprint mark trace residue echo emanation radiation emission discharge flow current stream tide wave ripple bubble shell layer barrier shield ward protection defense armor plate mail scale hide skin membrane film veil curtain mask disguise camouflage cloak shroud cover blanket fog mist haze cloud shadow darkness null dead spot empath sensitive psychic medium channeler conduit vessel receptor antenna sensor detector scanner probe gauge meter instrument tool device apparatus mechanism leyline node nexus hub center focus point locus axis meridian channel pathway route circuit loop cycle spiral helix coil spring tension stress strain pressure force power might strength weakness vulnerability flaw crack fissure breach gap hole empty hollow cavity chamber room space area region domain realm territory jurisdiction copper silver gold platinum mithril adamantine crystal quartz amethyst sapphire ruby emerald diamond gem jewel stone rock mineral ore metal alloy compound mixture blend fusion synthesis harmony discord balance imbalance chaos order entropy decay growth change transformation mutation evolution
 
 Divination
-truth knowledge wisdom insight revelation epiphany discovery answer question query riddle enigma mystery secret hidden occult arcane esoteric mystic mysticism magic sorcery wizardry witchcraft thaumaturgy miracle wonder marvel phenomenon omen sign signal portent augury auspice token symbol mark seal sigil glyph rune letter word name title epithet motto maxim axiom principle law rule code cipher key lock door gate portal window mirror lens prism crystal ball orb sphere globe deck card die bone knuckle tooth claw scale feather wing entrail liver heart blood ash salt herb root leaf flower petal stem branch twig stick wand rod staff scepter crown circlet diadem tiara helm mask veil hood cloak robe mantle cape shroud altar circle pentagram hexagram star moon sun planet comet meteor eclipse conjunction alignment convergence divergence crossroad intersection junction nexus node hub center focus point locus axis pivot fulcrum balance scale weight measure gauge meter instrument tool device apparatus mechanism oracle augur haruspex diviner soothsayer seer prophet sibyl pythoness sage mystic mage wizard witch warlock sorcerer enchanter medium channeler conduit vessel receptor antenna sensor detector scanner probe temple shrine sanctuary sanctum grove glade clearing meadow hill mountain peak summit crest ridge valley dale hollow cave cavern grotto chamber vault crypt tomb sepulcher
+truth knowledge wisdom insight revelation epiphany discovery answer question query riddle enigma mystery secret hidden occult arcane esoteric mysticism magic sorcery wizardry witchcraft thaumaturgy miracle wonder marvel phenomenon omen sign signal portent augury auspice token symbol mark seal sigil glyph rune letter word name title epithet motto maxim principle law rule code cipher key lock door gate portal window mirror lens prism crystal ball orb globe deck card die bone knuckle tooth claw feather wing entrail liver heart blood ash salt herb root leaf flower petal stem branch twig stick wand rod staff scepter crown circlet diadem tiara helm mask veil hood cloak robe mantle cape shroud altar circle pentagram hexagram star moon sun planet comet meteor eclipse conjunction alignment convergence divergence crossroad intersection junction nexus node hub center focus point locus axis pivot fulcrum balance weight measure gauge meter instrument tool device apparatus mechanism oracle augur haruspex diviner soothsayer seer prophet sibyl pythoness sage mage wizard witch warlock sorcerer enchanter medium channeler conduit vessel receptor antenna sensor detector scanner probe temple shrine sanctuary sanctum grove glade clearing meadow hill mountain peak summit crest ridge valley dale hollow cave cavern grotto chamber vault crypt tomb sepulcher
 
 Arcane Sight
 aura shimmer glow emanation residue trace signature pulse flicker radiance halo corona nimbus phosphorescence luminescence afterglow
 eye lens orb crystal prism monocle spectacle scope viewer detector mirror glass sphere focus amplifier
-detection revelation discovery identification recognition perception observation scrutiny examination inspection analysis divination scrying
+detection revelation discovery identification recognition observation scrutiny examination inspection analysis divination scrying
 veil illusion glamour disguise mask ward barrier shield cloak concealment obfuscation distortion mirage phantasm
 spectrum wavelength frequency resonance vibration oscillation pattern matrix weave thread filament strand fiber lattice
 seer oracle diviner scryer observer watcher sentinel inspector examiner investigator scholar sage mystic visionary
-sight vision glimpse glance gaze stare perception awareness consciousness intuition instinct sensation feeling impression
+sight vision glimpse glance gaze stare awareness consciousness intuition instinct sensation feeling impression
 
 Arcane Principles
-law axiom theorem postulate principle rule formula equation balance equilibrium harmony symmetry order chaos entropy
+law theorem postulate principle rule formula equation balance equilibrium harmony symmetry order chaos entropy
 essence mana ether flux quintessence element energy force power potential charge polarity field current flow
 transmutation transformation conversion alteration modification adaptation evolution mutation change shift transition metamorphosis sublimation
 catalyst reagent component ingredient substrate medium conductor insulator amplifier dampener stabilizer neutralizer inhibitor modifier
@@ -172,9 +172,9 @@ Magical Item Analysis
 enchantment charm hex curse blessing ward glyph sigil seal inscription engraving etching mark brand tattoo
 amulet talisman pendant medallion ring bracelet circlet crown scepter staff wand rod orb crystal gem
 property attribute quality characteristic trait feature aspect facet dimension parameter variable constant coefficient factor element
-appraisal evaluation assessment examination inspection investigation study research analysis diagnosis test probe scan assay calibration
+appraisal evaluation assessment examination inspection investigation study research analysis diagnosis test probe scan assay
 artificer enchanter smith wright crafter artisan jeweler runesmith spellwright inscriber etcher carver sculptor forger
-resonance attunement synchronization alignment calibration tuning harmonization balance equilibrium stability volatility instability decay degradation
+resonance attunement synchronization alignment tuning harmonization balance equilibrium stability volatility instability decay degradation
 power potency strength intensity magnitude amplitude capacity charge reservoir battery core heart nexus focus conduit
 
 Monster Lore
@@ -187,31 +187,31 @@ venom poison toxin acid bile ichor blood plasma lymph secretion pheromone musk s
 weakness vulnerability resistance immunity susceptibility allergy phobia aversion attraction compulsion instinct reflex response reaction pattern
 
 Cosmology
-plane dimension realm sphere layer stratum tier level zone region domain territory province kingdom empire dominion
-portal gateway door threshold passage corridor tunnel bridge nexus junction intersection convergence divergence node vertex hub
+plane dimension realm layer stratum tier level region domain territory province kingdom empire dominion
+portal gateway door passage corridor tunnel bridge nexus vertex hub
 void abyss chaos limbo purgatory paradise hell heaven nirvana valhalla elysium tartarus gehenna sheol hades underworld
 traveler wanderer explorer navigator pilot guide pathfinder wayfarer journeyman pilgrim nomad vagrant drifter seeker questor
-anchor tether chain link bond connection junction intersection convergence divergence bifurcation fork split merger fusion fission
-astral ethereal shadow elemental material prime inner outer transitive border edge boundary margin periphery liminal threshold
+anchor tether chain link bond connection bifurcation fork split merger fusion fission
+astral ethereal shadow elemental material prime inner outer transitive border edge boundary margin periphery liminal
 constellation star sun moon planet comet asteroid meteor galaxy nebula quasar pulsar singularity horizon event wormhole
 
 Runes
-glyph sigil character symbol mark sign ideogram pictogram hieroglyph cuneiform script cipher code alphabet syllabary
+glyph sigil character symbol mark sign ideogram pictogram hieroglyph cuneiform script code alphabet syllabary
 stone tablet obelisk monolith stele pillar column monument marker cairn dolmen menhir cromlech henge circle
 inscription carving etching engraving chisel hammer stylus quill brush ink pigment dye paint blood ochre
 translation interpretation decipherment reading comprehension understanding meaning significance import connotation denotation etymology root morpheme
 scribe scholar linguist translator interpreter cryptographer codebreaker runemaster glyphomancer sigillographer epigraphist paleographer calligrapher illuminator
-power word name essence truth secret mystery riddle enigma puzzle cipher key lock seal ward protection
+power word name essence truth secret mystery riddle enigma puzzle key lock seal ward protection
 pattern sequence series progression permutation combination arrangement configuration constellation formation structure matrix lattice grid network
 
 Magical Lore
 knowledge wisdom understanding comprehension enlightenment illumination revelation epiphany insight intuition gnosis awareness consciousness transcendence ascension
 library archive repository vault sanctum academy college university lyceum athenaeum observatory laboratory workshop atelier studio
-theory hypothesis conjecture speculation postulate axiom theorem lemma corollary proof derivation deduction induction inference conclusion
+theory hypothesis conjecture speculation postulate theorem lemma corollary proof derivation deduction induction inference conclusion
 tradition heritage legacy inheritance custom practice ritual ceremony rite observance convention protocol etiquette decorum propriety
 scholar sage magus wizard mage sorcerer enchanter warlock witch mystic occultist esotericist hermeticist cabalist theosophist
 mystery secret enigma riddle puzzle paradox contradiction anomaly aberration deviation exception outlier irregularity peculiarity oddity
-foundation principle law rule axiom truth universal constant variable parameter factor element component constituent ingredient
+foundation principle law rule truth universal constant variable parameter factor element component constituent ingredient
 
 Aeromancy
 wind gust breeze gale storm hurricane tornado cyclone vortex whirlwind zephyr
@@ -297,9 +297,9 @@ phenomenon anomaly paradox mystery enigma secret
 transformation transmutation manipulation channeling shaping molding
 
 Augmentation
-catalyst enhancer amplifier booster sigil glyph rune charm amulet talisman totem focus conduit
+catalyst amplifier booster sigil glyph rune charm amulet talisman totem focus conduit
 quicksilver essence elixir tonic philter draught infusion potion serum extract nectar ambrosia
-augmenter enhancer empowerer fortifier blessing benediction boon gift enhancement improvement boost surge potency prowess
+augmenter empowerer fortifier blessing benediction boon gift enhancement improvement boost surge potency prowess
 strength speed vigor might grace acuity vitality endurance resilience stamina fortitude dexterity
 buff ward enchantment empowerment fortification reinforcement amplification magnification intensification
 burnout overload backlash exhaustion drain fatigue depletion weakness drawback limitation threshold
@@ -334,24 +334,24 @@ instability turbulence paradox anomaly distortion flux vortex maelstrom singular
 labyrinth maze limbo purgatory astral ethereal shadow mirror parallel alternate
 
 Abjuration
-ward seal glyph barrier shield aegis bulwark rampart bastion circle pentagram hexagram
+ward seal glyph barrier shield aegis bulwark rampart circle pentagram hexagram
 salt iron silver crystal chalk incense sage cedar ash bone dust mercury sulfur
 abjurer warder protector guardian sentinel keeper defender champion paladin custodian
 protection immunity resistance nullification cancellation negation dispersion banishment purification
 counterspell antimagic dispel exorcism cleansing sanctification consecration benediction
 purity sanctity defense repulsion reflection absorption deflection dissipation dissolution
 penetration corruption breach erosion invasion contamination taint curse hex jinx affliction
-sanctuary haven bastion fortress citadel stronghold temple monastery cloister refuge asylum
+sanctuary haven fortress citadel stronghold temple monastery cloister refuge asylum
 
 Order Magic
 staff wand rod tome codex grimoire scroll sigil pentacle array matrix lattice diagram schema blueprint
-crystal gem rune glyph symbol mandala pattern formula equation theorem axiom principle algorithm
+crystal gem rune glyph symbol mandala formula equation theorem principle algorithm
 magister arcanist wizard mage sage scholar artificer theorist practitioner adept master savant hierophant
-structure pattern law logic harmony symmetry balance precision regulation discipline methodology system
+structure law logic harmony symmetry balance precision discipline methodology system
 arcana configuration alignment calibration attunement resonance frequency vibration oscillation modulation
 tower academy library laboratory observatory atheneum sanctum spire pinnacle citadel lyceum collegium archive
 chaos entropy disruption instability paradox contradiction anomaly aberration deviation distortion corruption
-order control mastery dominion regulation authority governance supremacy sovereignty command jurisdiction
+order control mastery dominion authority governance supremacy sovereignty command jurisdiction
 ritual ceremony protocol procedure doctrine dogma canon tradition convention practice custom rite liturgy
 
 Necromancy
@@ -396,13 +396,13 @@ light torch flame candle lantern lamp beacon lighthouse star sun moon dawn ray b
 
 Death Magic
 death demise end cessation termination expiration extinction annihilation oblivion void null entropy decay rot decomposition dissolution
-negative energy necrosis drain siphon leech absorption consumption depletion exhaustion enervation weakness fatigue lethargy torpor
-scythe sickle reaper hourglass timer clock tombstone grave marker monument epitaph eulogy dirge requiem funeral pyre cremation
+negative necrosis drain siphon leech absorption consumption depletion exhaustion enervation weakness fatigue lethargy torpor
+scythe sickle hourglass timer clock tombstone grave marker monument epitaph eulogy dirge requiem funeral pyre cremation
 underworld afterlife limbo purgatory hell hades erebus styx acheron lethe cocytus phlegethon tartarus elysium asphodel netherworld
-deathknight reaper harvester psychopomp ferryman undertaker coroner embalmer thanatologist mortician gravedigger cryptkeeper tomblord
+deathknight harvester psychopomp ferryman undertaker coroner embalmer thanatologist mortician gravedigger cryptkeeper tomblord
 mortality finality inevitability fate destiny doom cycle rebirth reincarnation resurrection immortality undeath lich vampire wraith
 cold chill frost ice bone pale gray ashen pallor rigor stiff rigid motionless still silent quiet peace rest sleep slumber eternal
-life vitality vigor health wellness strength energy chi prana breath pulse heartbeat warmth color flush bloom growth renewal spring
+life vitality vigor health wellness strength chi prana breath pulse heartbeat warmth color flush bloom growth renewal spring
 
 Unraveling
 bolt ray beam blast explosion detonation implosion shatter fracture rupture decay rot entropy dissolution disintegration collapse ruin devastation annihilation obliteration 
@@ -458,9 +458,9 @@ wolf bear hawk eagle raven owl stag boar lynx fox badger otter
 pack herd flock pride murder swarm brood clutch
 den lair nest burrow roost warren hollow cave
 summon call bond tame command loyalty instinct territory
-fur feather scale hide claw fang talon horn tusk antler
+fur feather scale hide claw fang talon tusk antler
 beastmaster ranger falconer hunter tracker shepherd
-whistle horn collar leash muzzle saddle bridle cage trap bait lure
+whistle collar leash muzzle saddle bridle cage trap bait lure
 alpha omega matriarch migration hibernation
 totem familiar spirit chimera griffin wyvern
 howl growl roar screech hiss musk pheromone spoor track
@@ -500,7 +500,7 @@ foundation stability permanence ancient endurance strength solid
 Bloom
 vigor vitality energy life force essence spirit renewal rebirth regeneration
 herb flower petal nectar honey pollen resin balm salve tonic elixir potion
-spring fountain pool oasis meadow pasture field sanctuary grove shrine
+fountain pool oasis meadow pasture field sanctuary grove shrine
 heal mend restore refresh rejuvenate revive resurrect purify cleanse
 growth youth prime peak health wellness wholeness
 healer physician herbalist alchemist druid shaman witch
@@ -514,17 +514,17 @@ cycle season phase moon sun dawn dusk solstice equinox
 Nature Magic
 forest wood jungle grove meadow marsh swamp fen bog moor heath prairie steppe savanna tundra
 tree plant animal beast bird insect fish reptile amphibian
-earth water air fire spirit essence element primal ancient wild untamed feral savage
+earth water air fire element untamed feral savage
 druid shaman witch ranger hunter tracker scout herbalist alchemist healer sage hermit
 staff wand rod orb crystal amulet talisman totem fetish charm ward rune glyph sigil
 ritual ceremony rite invocation chant prayer meditation trance vision dream
 cycle season moon sun star planet comet eclipse solstice equinox tide
 growth decay birth death renewal transformation evolution adaptation mutation
 symbiosis harmony balance ecosystem web chain network connection bond link
-sanctuary refuge haven shelter sanctuary preserve reserve domain realm territory
-power force energy magic mana essence spirit soul heart core
-ancient primal eternal timeless ageless immortal undying evergreen perennial
-wild free untamed unbound natural pure raw fierce gentle nurturing protective
+refuge haven shelter preserve reserve domain realm territory
+power force energy magic mana soul heart core
+eternal timeless ageless immortal undying evergreen perennial
+free unbound natural pure raw fierce gentle nurturing protective
 
 Restoration
 wound injury ailment malady affliction sickness plague fever toxin venom corruption blight trauma fracture lesion gash
@@ -557,12 +557,12 @@ anointment consecration dedication ordination coronation investiture enthronemen
 Spirit Bonding
 familiar companion ally partner comrade confidant friend kindred soulmate twin double shadow reflection echo mirror
 bond link connection tie attachment union fusion merger synthesis symbiosis rapport empathy telepathy communion understanding
-pact covenant contract agreement treaty alliance accord compact pledge vow oath promise commitment devotion loyalty
+pact covenant contract agreement treaty alliance compact pledge vow oath promise commitment devotion loyalty
 totem fetish idol effigy statue figurine doll puppet mannequin vessel container receptacle conduit channel medium
 grove glade clearing meadow dell vale hollow glen copse thicket wood forest jungle wilderness sanctuary
 shaman druid beastmaster ranger warden keeper handler tamer whisperer caller summoner binder enchanter charmer
 soul spirit essence anima psyche consciousness awareness sentience intelligence wisdom intuition instinct nature temperament
-harmony unity concord accord consonance resonance synchrony attunement alignment balance equilibrium symmetry order peace
+harmony unity concord consonance resonance synchrony attunement alignment balance equilibrium symmetry order peace
 
 Anti-Undead
 undead zombie skeleton wraith specter phantom ghost ghoul wight lich revenant shade banshee poltergeist spirit
@@ -575,7 +575,7 @@ corruption decay rot putrefaction decomposition pestilence miasma taint blight c
 redemption salvation deliverance liberation emancipation release freedom absolution forgiveness mercy grace clemency pardon amnesty
 
 Life Magic
-life vitality essence spirit soul anima vigor energy force power radiance light luminescence glow aura
+life vitality soul anima vigor energy force power radiance light luminescence glow aura
 magic sorcery wizardry thaumaturgy miracle wonder marvel phenomenon manifestation revelation epiphany vision apparition presence
 healer cleric priest paladin oracle prophet sage elder shaman druid monk abbot bishop saint
 temple shrine sanctuary cathedral basilica abbey monastery convent priory hermitage retreat sanctum altar chapel
@@ -583,7 +583,7 @@ blessing curse ward shield protection barrier aegis defense immunity resistance 
 sun moon star dawn dusk twilight aurora rainbow prism spectrum ray beam shaft gleam glimmer
 crystal gem stone jewel pearl amber jade opal quartz diamond ruby emerald sapphire amethyst topaz
 prayer hymn chant mantra litany invocation benediction consecration ritual ceremony rite sacrament communion eucharist
-nature creation birth growth bloom flower blossom spring summer harvest abundance fertility fecundity prosperity
-phoenix unicorn angel seraph cherub archangel valkyrie guardian spirit familiar totem patronus guide mentor
-water spring fountain well pool lake river stream brook creek cascade waterfall rain dew mist
-herb root leaf bark flower seed fruit berry nut grain wheat corn rice barley oat
+nature creation birth growth bloom blossom summer harvest abundance fertility fecundity prosperity
+phoenix unicorn angel seraph cherub archangel valkyrie guardian familiar totem patronus guide mentor
+water well pool lake river stream brook creek cascade waterfall rain dew mist
+herb root leaf bark seed fruit berry nut grain wheat corn rice barley oat

@@ -15,7 +15,6 @@ import { analyzeInput } from './DiscoveryTextwork';
  * @param gameState - The game state to modify
  */
 export function processDiscoveryAttempt(input: string, gameState: GameState): void {
-    
     // Analyze the input to get discovery actions
     const actions = analyzeInput(input, gameState.lib.discovery, gameState);
     
@@ -38,8 +37,20 @@ function processDiscoveryAction(action: DiscoveryAction, gameState: GameState): 
             break;
             
         case 'ADD_ACTIVE_KEYWORD':
-            // For Step 2, we only implement direct discovery
-            // Keyword logic will be implemented in Step 3
+            // Add keyword to active keywords map
+            gameState.activeKeywords.set(action.keyword, action.relatedItemIds);
+            addDiscoveryLogEntry(gameState, {
+                type: 'keyword_found',
+                details: {
+                    keyword: action.keyword,
+                    relatedItemCount: action.relatedItemIds.length
+                }
+            });
+            break;
+            
+        case 'ADD_DISCARDED_KEYWORD':
+            // Add keyword to discarded keywords set
+            gameState.discardedKeywords.add(action.keyword);
             break;
             
         default:
@@ -84,8 +95,36 @@ export function discoverItem(
         });
     }
     
-    // TODO: Update keyword states (for Step 3)
-    // This would involve checking if any active keywords should be moved to discarded
+    // Update keyword states - check if any active keywords should be moved to discarded
+    updateKeywordStates(gameState);
+}
+
+/**
+ * Updates keyword states after an item is discovered.
+ * Moves keywords from active to discarded if they no longer relate to any undiscovered items.
+ */
+function updateKeywordStates(gameState: GameState): void {
+    const keywordsToDiscard: string[] = [];
+    
+    // Check each active keyword
+    for (const [keyword, relatedItemIds] of gameState.activeKeywords) {
+        // Filter to only undiscovered items
+        const undiscoveredItemIds = relatedItemIds.filter(itemId => !gameState.isDiscovered(itemId));
+        
+        if (undiscoveredItemIds.length === 0) {
+            // No more undiscovered items for this keyword, move it to discarded
+            keywordsToDiscard.push(keyword);
+        } else {
+            // Update the active keyword with the filtered list
+            gameState.activeKeywords.set(keyword, undiscoveredItemIds);
+        }
+    }
+    
+    // Move keywords to discarded
+    for (const keyword of keywordsToDiscard) {
+        gameState.activeKeywords.delete(keyword);
+        gameState.discardedKeywords.add(keyword);
+    }
 }
 
 /**

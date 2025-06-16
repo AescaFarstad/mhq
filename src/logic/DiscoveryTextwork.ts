@@ -34,9 +34,19 @@ export function analyzeInput(
     
     // Handle based on word count
     if (wordCount === 1) {
-        // For Step 1: Only implement direct name search for single words
-        // Keyword search will be added in Step 3
-        return performDirectNameSearch(cleanedInput, discoveryLib, gameState);
+        // Single word: perform both direct name search and keyword search
+        const directResults = performDirectNameSearch(cleanedInput, discoveryLib, gameState);
+        
+        // If direct search succeeded, return it (direct discovery takes precedence)
+        if (directResults.length > 0 && directResults[0].type === 'DIRECT_DISCOVERY') {
+            return directResults;
+        }
+        
+        // If direct search failed or returned already discovered, try keyword search
+        const keywordResults = performKeywordSearch(cleanedInput, discoveryLib, gameState);
+        
+        // Return keyword results if found, otherwise return the direct results (which could be NO_MATCH)
+        return keywordResults.length > 0 ? keywordResults : directResults;
     } else if (wordCount === 2) {
         // Two words: only perform direct name search
         return performDirectNameSearch(cleanedInput, discoveryLib, gameState);
@@ -84,11 +94,59 @@ function performDirectNameSearch(
 }
 
 /**
+ * Performs keyword search against discoverable items
+ */
+function performKeywordSearch(
+    cleanedInput: string,
+    discoveryLib: DiscoveryLib,
+    gameState: GameState
+): DiscoveryAction[] {
+    // Get items that have this keyword
+    const relatedItemIds = discoveryLib.getItemIdsByKeyword(cleanedInput);
+    
+    if (relatedItemIds.length === 0) {
+        return []; // No keyword match found
+    }
+    
+    // Filter out already discovered items
+    const undiscoveredItemIds = relatedItemIds.filter(itemId => !gameState.isDiscovered(itemId));
+    
+    // Check if this keyword is already in active or discarded state
+    const isActive = gameState.activeKeywords.has(cleanedInput);
+    const isDiscarded = gameState.discardedKeywords.has(cleanedInput);
+    
+    if (isActive) {
+        return [{ type: 'KEYWORD_ALREADY_ACTIVE', keyword: cleanedInput }];
+    }
+    
+    if (isDiscarded) {
+        return [{ type: 'KEYWORD_ALREADY_DISCARDED', keyword: cleanedInput }];
+    }
+    
+    // If no undiscovered items relate to this keyword, add it to discarded
+    if (undiscoveredItemIds.length === 0) {
+        return [{ type: 'ADD_DISCARDED_KEYWORD', keyword: cleanedInput }];
+    }
+    
+    // Add keyword to active keywords
+    return [{ 
+        type: 'ADD_ACTIVE_KEYWORD', 
+        keyword: cleanedInput, 
+        relatedItemIds: undiscoveredItemIds 
+    }];
+}
+
+/**
  * Cleans the input string by normalizing whitespace and converting to lowercase
+ * Applies the same transformations as DiscoveryLib.createSearchableName for consistency
  */
 function cleanInput(input: string): string {
     return input
         .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' '); // Normalize multiple spaces to single space
+        .replace(/ and /g, ' ') // Replace ' and ' with single space
+        .replace(/&/g, '') // Remove ampersands 
+        .replace(/-/g, ' ') // Replace hyphens with spaces
+        .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+        .trim()
+        .toLowerCase();
 } 

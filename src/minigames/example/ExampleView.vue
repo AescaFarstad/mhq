@@ -1,36 +1,12 @@
 <script setup lang="ts">
-import { inject, computed } from 'vue';
+import { inject } from 'vue';
 import type { GameState } from '../../logic/GameState';
-import { EXAMPLE_TYPE, type ExampleState } from './ExampleTypes';
-import type { ExampleGame } from './ExampleGame';
 
 const gameState = inject<GameState>('gameState');
-
-const exampleState = computed(() => {
-  if (gameState?.activeMinigame?.type === EXAMPLE_TYPE && gameState.uiState.activeMinigameState) {
-    return gameState.uiState.activeMinigameState as ExampleState;
-  }
-  return null;
-});
-
-const exampleGame = computed(() => {
-  if (gameState?.activeMinigame?.type === EXAMPLE_TYPE) {
-    return gameState.activeMinigame as ExampleGame;
-  }
-  return null;
-});
 
 const exitMinigame = () => {
   if (gameState) { // gameState is already checked by inject, but good practice
     gameState.exitMinigame();
-  }
-};
-
-// Example of an action that could call a method on the ExampleGame instance
-const performExampleAction = () => {
-  if (exampleGame.value) {
-    // exampleGame.value.someExampleSpecificMethod(); // Example call
-    console.log('Example action performed via exampleGame.value');
   }
 };
 

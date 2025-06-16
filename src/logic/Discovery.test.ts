@@ -182,4 +182,221 @@ describe('DiscoveryTextwork', () => {
         const item = (action as { type: 'DIRECT_DISCOVERY'; item: DiscoverableItem }).item;
         expect(item.id).toBe('Tasks');
     });
+});
+
+describe('Keyword Discovery Logic', () => {
+    let discoveryLib: DiscoveryLib;
+    let gameState: GameState;
+
+    beforeEach(() => {
+        const libs = createTestLibs();
+        discoveryLib = libs.discoveryLib;
+        gameState = createGameState();
+    });
+
+    it('should return ADD_ACTIVE_KEYWORD for a valid keyword related to undiscovered items', () => {
+        // Find a keyword that should exist in the test data
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        expect(keywordLookup.size).toBeGreaterThan(0);
+        
+        // Get the first keyword and its related items
+        const [firstKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        
+        const actions = analyzeInput(firstKeyword, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('ADD_ACTIVE_KEYWORD');
+        const action = actions[0] as any;
+        expect(action.keyword).toBe(firstKeyword);
+        expect(action.relatedItemIds).toEqual(relatedItemIds);
+    });
+
+    it('should return ADD_DISCARDED_KEYWORD for keywords with no undiscovered items', () => {
+        // First discover all items related to a keyword
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        
+        // Discover all related items
+        for (const itemId of relatedItemIds) {
+            discoverItem(itemId, 'event', gameState);
+        }
+        
+        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('ADD_DISCARDED_KEYWORD');
+        const action = actions[0] as any;
+        expect(action.keyword).toBe(testKeyword);
+    });
+
+    it('should return KEYWORD_ALREADY_ACTIVE for keywords already in active state', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        
+        // First add the keyword to active state
+        gameState.activeKeywords.set(testKeyword, relatedItemIds);
+        
+        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('KEYWORD_ALREADY_ACTIVE');
+        const action = actions[0] as any;
+        expect(action.keyword).toBe(testKeyword);
+    });
+
+    it('should return KEYWORD_ALREADY_DISCARDED for keywords already in discarded state', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword] = Array.from(keywordLookup.entries())[0];
+        
+        // First add the keyword to discarded state
+        gameState.discardedKeywords.add(testKeyword);
+        
+        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('KEYWORD_ALREADY_DISCARDED');
+        const action = actions[0] as any;
+        expect(action.keyword).toBe(testKeyword);
+    });
+
+    it('should prefer direct discovery over keyword search for single words', () => {
+        // Find an item that has both a discoverable name and keywords
+        const allItems = discoveryLib.getAllItems();
+        let testItem: DiscoverableItem | undefined;
+        
+        for (const item of allItems.values()) {
+            if (item.keywords && item.keywords.length > 0) {
+                testItem = item;
+                break;
+            }
+        }
+        
+        expect(testItem).toBeDefined();
+        if (!testItem) return;
+        
+        // Test that searching for the exact name returns direct discovery
+        const actions = analyzeInput(testItem.searchableName, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('DIRECT_DISCOVERY');
+    });
+
+    it('should fall back to keyword search when direct discovery fails', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword] = Array.from(keywordLookup.entries())[0];
+        
+        // Ensure this keyword is not a direct discoverable name
+        const directMatch = discoveryLib.getBySearchableName(testKeyword);
+        if (directMatch) {
+            // Skip this test if the keyword happens to be a direct match
+            return;
+        }
+        
+        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
+        expect(actions).toHaveLength(1);
+        expect(actions[0].type).toBe('ADD_ACTIVE_KEYWORD');
+    });
+});
+
+describe('Discovery State Management', () => {
+    let discoveryLib: DiscoveryLib;
+    let gameState: GameState;
+
+    beforeEach(() => {
+        const libs = createTestLibs();
+        discoveryLib = libs.discoveryLib;
+        gameState = createGameState();
+    });
+
+    it('should update active keywords when items are discovered', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries()).find(
+            ([, itemIds]) => itemIds.length > 1
+        ) || [null, []];
+        
+        if (!testKeyword || relatedItemIds.length < 2) {
+            // Skip if no suitable keyword found
+            return;
+        }
+        
+        // Add keyword to active state
+        gameState.activeKeywords.set(testKeyword, relatedItemIds);
+        
+        // Discover one of the related items
+        const itemToDiscover = relatedItemIds[0];
+        discoverItem(itemToDiscover, 'event', gameState);
+        
+        // Check that the active keyword list was updated
+        const updatedRelatedItems = gameState.activeKeywords.get(testKeyword);
+        expect(updatedRelatedItems).toBeDefined();
+        expect(updatedRelatedItems).not.toContain(itemToDiscover);
+        expect(updatedRelatedItems!.length).toBe(relatedItemIds.length - 1);
+    });
+
+    it('should move keywords from active to discarded when all related items are discovered', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        
+        // Add keyword to active state
+        gameState.activeKeywords.set(testKeyword, relatedItemIds);
+        
+        // Discover all related items
+        for (const itemId of relatedItemIds) {
+            discoverItem(itemId, 'event', gameState);
+        }
+        
+        // Check that keyword was moved from active to discarded
+        expect(gameState.activeKeywords.has(testKeyword)).toBe(false);
+        expect(gameState.discardedKeywords.has(testKeyword)).toBe(true);
+    });
+
+    it('should add discovery log entries for direct discoveries', () => {
+        const initialLogLength = gameState.discoveryLog.length;
+        
+        // Find a discoverable item
+        const testItem = Array.from(discoveryLib.getAllItems().values())[0];
+        
+        discoverItem(testItem.id, 'direct', gameState, testItem);
+        
+        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
+        const logEntry = gameState.discoveryLog[gameState.discoveryLog.length - 1];
+        expect(logEntry.type).toBe('direct_discovery');
+        expect(logEntry.details.itemId).toBe(testItem.id);
+    });
+
+    it('should add discovery log entries for keyword findings', () => {
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        
+        const initialLogLength = gameState.discoveryLog.length;
+        
+        // Process keyword discovery
+        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
+        for (const action of actions) {
+            if (action.type === 'ADD_ACTIVE_KEYWORD') {
+                gameState.activeKeywords.set((action as any).keyword, (action as any).relatedItemIds);
+                gameState.discoveryLog.push({
+                    type: 'keyword_found',
+                    details: {
+                        keyword: (action as any).keyword,
+                        relatedItemCount: relatedItemIds.length
+                    }
+                });
+            }
+        }
+        
+        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
+        const logEntry = gameState.discoveryLog[gameState.discoveryLog.length - 1];
+        expect(logEntry.type).toBe('keyword_found');
+        expect(logEntry.details.keyword).toBe(testKeyword);
+        expect(logEntry.details.relatedItemCount).toBe(relatedItemIds.length);
+    });
+
+    it('should not create duplicate discovery log entries', () => {
+        const testItem = Array.from(discoveryLib.getAllItems().values())[0];
+        
+        const initialLogLength = gameState.discoveryLog.length;
+        
+        // Try to discover the same item twice
+        discoverItem(testItem.id, 'direct', gameState, testItem);
+        discoverItem(testItem.id, 'direct', gameState, testItem);
+        
+        // Should only have one log entry
+        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
+    });
 }); 

@@ -91,6 +91,10 @@ export class GameState {
         activeMinigameState: MinigameState | null;
         debugActiveTab: string;
         debugExploreInput: string;
+        // Discovery system reactive state
+        activeKeywords: Map<string, string[]>;
+        discardedKeywords: Set<string>;
+        discoveryLog: any[];
     };
 
     constructor() {
@@ -125,6 +129,9 @@ export class GameState {
             activeMinigameState: null,
             debugActiveTab: 'main', // Initialize debug tab
             debugExploreInput: '', // Initialize debug explore input
+            activeKeywords: new Map(),
+            discardedKeywords: new Set(),
+            discoveryLog: [],
         });
 
         this.setupInitialResources();

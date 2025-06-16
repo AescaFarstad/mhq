@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue';
 import { GameState } from '../logic/GameState';
-import { obfuscateString } from '../utils/stringUtils';
 // No need for Resource type import since we're using the simplified UI data
 
 // Inject the game state

@@ -19,13 +19,15 @@ export interface DiscoverableItem {
  */
 export interface DiscoveryEvent {
     /** Type of discovery event */
-    type: 'direct_discovery' | 'brainstorm_discovery';
+    type: 'direct_discovery' | 'brainstorm_discovery' | 'keyword_found';
     /** Additional details */
     details?: {
         itemId?: string;
         itemName?: string;
         itemType?: string;
         keywords?: string[];
+        keyword?: string;
+        relatedItemCount?: number;
     };
 }
 

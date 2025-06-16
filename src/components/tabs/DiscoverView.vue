@@ -6,6 +6,7 @@
       </div>
       <div class="crystal-ball-panel">
         <DiscoveryLog />
+        <ActiveKeywords />
         <div class="discovery-input-wrapper">
           <DiscoveryInput />
         </div>
@@ -19,6 +20,7 @@ import { defineComponent as _defineComponent } from "vue";
 import SkillBrowser from '../discover/SkillBrowser.vue';
 import DiscoveryInput from '../discover/DiscoveryInput.vue';
 import DiscoveryLog from '../discover/DiscoveryLog.vue';
+import ActiveKeywords from '../discover/ActiveKeywords.vue';
 </script>
 
 <style scoped>

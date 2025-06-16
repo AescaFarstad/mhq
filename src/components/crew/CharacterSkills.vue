@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { defineProps } from 'vue';
 import { SkillUIInfo } from '../../types/uiTypes'; 
 import SkillItem from './SkillItem.vue'; // Import the new component
 
@@ -12,38 +12,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['set-hint']);
-
-// Computed property to determine what points text to show
-const pointsText = computed(() => {
-  const hasSkillPoints = props.skillPoints > 0;
-  const hasSpecPoints = props.specPoints > 0;
-  
-  if (hasSkillPoints && hasSpecPoints) {
-    return `skill points: ${props.skillPoints} spec points: ${props.specPoints}`;
-  } else if (hasSkillPoints) {
-    return `skill points: ${props.skillPoints}`;
-  } else if (hasSpecPoints) {
-    return `spec points: ${props.specPoints}`;
-  }
-  return '';
-});
-
-// Computed property for header text
-const headerText = computed(() => {
-  if (props.selectedAttribute) {
-    const attributeDisplayNames: Record<string, string> = {
-      'physique': 'Physique',
-      'mind': 'Mind', 
-      'social': 'Social',
-      'spirit': 'Spirit'
-    };
-    const displayName = attributeDisplayNames[props.selectedAttribute] || props.selectedAttribute;
-    return `${displayName} Skills:`;
-  }
-  return 'Skills:';
-});
-
-// currentHint, formatValue, showSkillHint, showSpecializationHint, clearHint are removed.
 </script>
 
 <template>

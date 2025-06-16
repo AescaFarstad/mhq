@@ -55,7 +55,6 @@ export class Lib {
             return;
         }
 
-        console.log("Processing library definitions...");
         try {
             this.events = this._processDataDefinitions<EventDefinition>(eventsData);
             this.characters.loadCharacters(mainCharacters);
@@ -66,7 +65,6 @@ export class Lib {
             this.tasks.loadTasks(taskDefinitions);
             this.tasks.verifyAllTasks(this.skills, this.buildings);
             this.isLoaded = true;
-            console.log("Library definitions processed successfully.");
         } catch (error) {
             console.error("Failed to process library definitions:", error);
             this.isLoaded = false;

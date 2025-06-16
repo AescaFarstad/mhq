@@ -11,6 +11,7 @@ import { C } from './C';
 export class DiscoveryLib {
     private _byId: Map<string, DiscoverableItem> = new Map();
     private _bySearchableName: Map<string, DiscoverableItem> = new Map();
+    private _keywordLookup: Map<string, string[]> = new Map();
     
     id: string = 'discovery';
     name: string = 'Discovery Library';
@@ -18,6 +19,7 @@ export class DiscoveryLib {
     
     constructor(skillLib: SkillLib, attributeLib: AttributeLib, buildingLib: BuildingLib) {
         this.aggregateDiscoverableItems(skillLib, attributeLib, buildingLib);
+        this.createKeywordLookup();
         this.verifyNameWordCounts();
         this.verifyKeywordUniqueness();
     }
@@ -48,6 +50,23 @@ export class DiscoveryLib {
      */
     public getSearchableNameIndex(): ReadonlyMap<string, DiscoverableItem> {
         return this._bySearchableName;
+    }
+    
+    /**
+     * Gets item IDs that relate to a given keyword
+     * @param keyword - The keyword to look up (will be normalized to lowercase)
+     * @returns Array of item IDs that have this keyword, or empty array if none
+     */
+    public getItemIdsByKeyword(keyword: string): string[] {
+        return this._keywordLookup.get(keyword.toLowerCase()) || [];
+    }
+    
+    /**
+     * Gets the complete keyword lookup map
+     * Keys are lowercase keywords, values are arrays of item IDs
+     */
+    public getKeywordLookup(): ReadonlyMap<string, string[]> {
+        return this._keywordLookup;
     }
     
     /**
@@ -247,10 +266,12 @@ export class DiscoveryLib {
             if (item.type === 'skill' || item.type === 'skill_specialization') {
                 const keywords = item.keywords || [];
                 if (keywords.length > 0) {
-                    const uniqueKeywords = new Set(keywords);
-                    if (uniqueKeywords.size !== keywords.length) {
+                    // Flatten the keywords array since keywords are stored as string[][]
+                    const flatKeywords = keywords.flat();
+                    const uniqueKeywords = new Set(flatKeywords);
+                    if (uniqueKeywords.size !== flatKeywords.length) {
                         const originalName = item.originalItem.displayName || item.originalItem.name || id;
-                        const duplicates = keywords.filter((keyword, index) => keywords.indexOf(keyword) !== index);
+                        const duplicates = flatKeywords.filter((keyword, index) => flatKeywords.indexOf(keyword) !== index);
                         errors.push(`${item.type} "${id}" (${originalName}) has duplicate keywords: [${duplicates.join(', ')}]`);
                     }
                 }
@@ -261,6 +282,29 @@ export class DiscoveryLib {
             console.error('DiscoveryLib: Skills/specializations with duplicate keywords detected:');
             errors.forEach(error => console.error('  ' + error));
             throw new Error(`DiscoveryLib: ${errors.length} skills/specializations have duplicate keywords. See console for details.`);
+        }
+    }
+    
+    /**
+     * Creates a keyword lookup map
+     */
+    private createKeywordLookup(): void {
+        for (const [id, item] of this._byId) {
+            if (item.keywords && item.keywords.length > 0) {
+                for (const keywordGroup of item.keywords) {
+                    for (const keyword of keywordGroup) {
+                        const lowerKeyword = keyword.toLowerCase();
+                        
+                        if (!this._keywordLookup.has(lowerKeyword)) {
+                            this._keywordLookup.set(lowerKeyword, []);
+                        }
+                        const keywordItems = this._keywordLookup.get(lowerKeyword);
+                        if (keywordItems && !keywordItems.includes(id)) {
+                            keywordItems.push(id);
+                        }
+                    }
+                }
+            }
         }
     }
 } 

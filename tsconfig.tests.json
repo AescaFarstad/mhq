@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "outDir": "./dist-tests",
+    "rootDir": ".",
+    "noEmit": false,
+    "declaration": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "resolveJsonModule": true,
+    "lib": ["ES2022", "DOM"],
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": false
+  },
+  "include": [
+    "tests/**/*.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.vue",
+    "dist",
+    "dist-tests",
+    "node_modules"
+  ]
+} 

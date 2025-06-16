@@ -7,7 +7,6 @@ export class BehTreeLib {
     constructor() {
         this.trees = behTreeDefinitions;
         if (this.trees) {
-            console.log(`BehTreeLib loaded ${Object.keys(this.trees).length} tree definitions.`);
         } else {
             console.error("BehTreeLib: Tree definitions not found.");
             this.trees = {};

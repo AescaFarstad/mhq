@@ -487,6 +487,49 @@ export function syncMinigameState(gameState: GameState): void {
 }
 
 /**
+ * Synchronizes discovery state to uiState.
+ * Optimized to avoid copying when discoveredItems count and array lengths haven't changed.
+ */
+export function syncDiscoveryState(gameState: GameState): void {
+    const discoveredItemsCount = gameState.discoveredItems.size;
+    const activeKeywordsSize = gameState.activeKeywords.size;
+    const discardedKeywordsSize = gameState.discardedKeywords.size;
+    const discoveryLogLength = gameState.discoveryLog.length;
+    
+    // Check if we need to sync activeKeywords
+    if (gameState.uiState.activeKeywords.size !== activeKeywordsSize || 
+        gameState.uiState.discoveredItemsCount !== discoveredItemsCount) {
+        
+        // Clear and rebuild activeKeywords
+        gameState.uiState.activeKeywords.clear();
+        for (const [keyword, itemIds] of gameState.activeKeywords) {
+            gameState.uiState.activeKeywords.set(keyword, [...itemIds]);
+        }
+    }
+    
+    // Check if we need to sync discardedKeywords
+    if (gameState.uiState.discardedKeywords.size !== discardedKeywordsSize) {
+        // Clear and rebuild discardedKeywords
+        gameState.uiState.discardedKeywords.clear();
+        for (const keyword of gameState.discardedKeywords) {
+            gameState.uiState.discardedKeywords.add(keyword);
+        }
+    }
+    
+    // Check if we need to sync discoveryLog (test latest item for equality)
+    const uiLogLength = gameState.uiState.discoveryLog.length;
+    if (uiLogLength !== discoveryLogLength || 
+        (discoveryLogLength > 0 && uiLogLength > 0 && 
+            gameState.uiState.discoveryLog[uiLogLength - 1] !== 
+            gameState.discoveryLog[discoveryLogLength - 1])) {
+        
+        // Copy the discovery log
+        gameState.uiState.discoveryLog.length = 0;
+        gameState.uiState.discoveryLog.push(...gameState.discoveryLog);
+    }
+}
+
+/**
  * Central synchronization function to update UI state based on active tab and global needs.
  */
 export function sync(gameState: GameState): void {
@@ -518,6 +561,8 @@ export function sync(gameState: GameState): void {
     } else if (activeTab === 'Castle') {
         syncConstructedBuildings(gameState);
     } else if (activeTab === 'Tasks') {
-        syncTasksView(gameState); // Called only when Tasks tab is active
+        syncTasksView(gameState);
+    } else if (activeTab === 'Discover') {
+        syncDiscoveryState(gameState);
     }
 } 
