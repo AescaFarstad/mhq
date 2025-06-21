@@ -117,7 +117,7 @@ export class GameState {
 
         this.clutterRatio = Stats.createParameter("clutterRatio", this.connections);
 
-        this.discoveryThreshold = Stats.createStat("discovery_threshold", 5, this.connections);
+        this.discoveryThreshold = Stats.createStat("discovery_threshold", C.DISCOVERY_THRESHOLD, this.connections);
 
         this.uiState = reactive({
             resources: {},

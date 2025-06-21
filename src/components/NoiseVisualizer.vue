@@ -131,7 +131,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { initOpenSimplex2F, openSimplex1D, octaveOpenSimplex1D } from '../logic/utils/openSimplex2F';
-import { seededRandom, advanceSeed } from '../logic/utils/mathUtils';
+import { seededRandom } from '../logic/utils/mathUtils';
 
 // Canvas reference
 const canvas = ref<HTMLCanvasElement>();

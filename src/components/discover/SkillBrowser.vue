@@ -20,46 +20,66 @@
         </label>
       </div>
     </div>
-    <div class="skill-grid">
+    
+    <div class="skills-container">
       <div 
         v-for="skillData in displaySkills" 
         :key="skillData.id"
-        class="skill-box"
-        :class="{ 'not-leveled': !skillData.hasLevels }"
+        class="skill-card"
       >
-        <div class="skill-header"
-             :class="{
-               [`keyword-level-${skillData.keywordStars}`]: skillData.keywordStars > 0 && !skillData.isDiscovered
-             }">
-          {{ skillData.displayName }}
-          <span 
-            v-if="skillData.relationCount > 0 && !skillData.isDiscovered" 
-            class="relation-badge"
-            @mouseenter="showTooltip($event, skillData.relationDetails)"
-            @mouseleave="hideTooltip"
-          >
-            {{ skillData.relationCount }}
-          </span>
+        <!-- Main Skill -->
+        <div class="skill-main">
+          <div class="skill-title">
+            <div class="level-badge-container">
+              <span 
+                v-if="skillData.keywordStars > 0" 
+                class="keyword-badge"
+                :class="`keyword-level-${skillData.keywordStars}`"
+              >
+                {{ skillData.keywordStars }}
+              </span>
+            </div>
+            <span class="skill-name">{{ skillData.displayName }}</span>
+            <div class="relation-badge-container">
+              <span 
+                v-if="skillData.relationCount > 0 && !skillData.isDiscovered" 
+                class="relation-badge"
+                @mouseenter="showTooltip($event, skillData.relationDetails)"
+                @mouseleave="hideTooltip"
+              >
+                {{ skillData.relationCount }}
+              </span>
+            </div>
+          </div>
         </div>
+        
+        <!-- Specializations -->
         <div v-if="skillData.specializations.length > 0" class="specializations">
           <div 
             v-for="spec in skillData.specializations"
             :key="spec.id"
             class="specialization"
-            :class="{ 
-              'not-leveled': !spec.hasLevels,
-              [`keyword-level-${spec.keywordStars}`]: spec.keywordStars > 0 && !spec.isDiscovered
-            }"
           >
-            {{ spec.displayName }}
-            <span 
-              v-if="spec.relationCount > 0 && !spec.isDiscovered" 
-              class="relation-badge"
-              @mouseenter="showTooltip($event, spec.relationDetails)"
-              @mouseleave="hideTooltip"
-            >
-              {{ spec.relationCount }}
-            </span>
+            <div class="level-badge-container">
+              <span 
+                v-if="spec.keywordStars > 0" 
+                class="keyword-badge"
+                :class="`keyword-level-${spec.keywordStars}`"
+              >
+                {{ spec.keywordStars }}
+              </span>
+            </div>
+            <span class="spec-name">{{ spec.displayName }}</span>
+            <div class="relation-badge-container">
+              <span 
+                v-if="spec.relationCount > 0 && !spec.isDiscovered" 
+                class="relation-badge"
+                @mouseenter="showTooltip($event, spec.relationDetails)"
+                @mouseleave="hideTooltip"
+              >
+                {{ spec.relationCount }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -74,7 +94,7 @@
   >
     <div v-for="relation in tooltipContent" :key="`${relation.type}-${relation.name}`" class="tooltip-item">
       <span v-if="relation.type === 'character'">
-        Mastered by {{ relation.name }} (Lv {{ relation.level }})
+        Mastered by <span class="tooltip-item-name">{{ relation.name }}</span> (Lv {{ relation.level }})
       </span>
       <span v-else>
         Relevant to: <span class="tooltip-item-name">{{ relation.name }}</span>
@@ -139,12 +159,14 @@ const tooltipPosition = ref<{ x: number; y: number }>({ x: 0, y: 0 });
  */
 function getObfuscationPercentage(keywordCount: number): number {
   switch (keywordCount) {
-    case 0: return 1.0;   // 100%
-    case 1: return 0.85;  // 85%
-    case 2: return 0.70;  // 70%
-    case 3: return 0.60;  // 60%
-    case 4: return 0.50;  // 50%
-    default: return 0.50; // 50% for 5+ keywords
+    case 0: return 1.0;
+    case 1: return 0.85;
+    case 2: return 0.75;
+    case 3: return 0.65;
+    case 4: return 0.55;
+    case 5: return 0.45;
+    case 6: return 0.35;
+    default: return 0.20; // for 7+ keywords
   }
 }
 
@@ -433,180 +455,216 @@ watch(() => gameState?.uiState.activeKeywords.size, (newCount) => {
 
 <style scoped>
 .skill-browser {
-  width: fit-content;
+  width: 100%;
   height: 100%;
   overflow-y: auto;
+  background: #1e2832;
 }
 
 .skill-browser-header {
-  width: 562px; /* Same width as skill-grid (4 * 140px) */
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  width: 100%;
+  background: #34495e;
+  border: 1px solid #566a80;
   border-bottom: none;
-  padding: 8px;
+  padding: 12px;
   margin-bottom: 0;
 }
 
 .settings-row {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.85em;
-  color: #495057;
+  gap: 6px;
+  font-size: 0.9em;
+  color: #e2e8f0;
   cursor: pointer;
   user-select: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .checkbox-label input[type="checkbox"] {
   margin: 0;
   cursor: pointer;
+  width: 16px;
+  height: 16px;
 }
 
-.skill-grid {
+.skills-container {
   display: grid;
-  grid-template-columns: repeat(4, 140px); /* Fixed width columns for uniform boxes */
-  grid-auto-rows: min-content; /* Auto-size rows based on content */
-  border: 1px solid #dee2e6;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #566a80;
   border-top: none;
+  border-bottom: none;
+  background: #1e2832;
 }
 
-.skill-box {
-  border: 1px solid #dee2e6;
-  border-radius: 2px;
-  background: #ffffff;
-  padding: 0px 0px 0px 2px;
-  margin: 2px;
-  min-height: 40px;
+.skill-card {
+  background: #2c3e50;
+  border: 1px solid #566a80;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.skill-main {
+  padding: 8px 12px;
+  background: #34495e;
+}
+
+.skill-title {
   display: flex;
-  flex-direction: column;
-  position: relative; /* Add relative positioning for badge placement */
+  align-items: center;
+  min-height: 20px;
 }
 
-.skill-box.not-leveled {
-  color: #888;
-  background: #f8f9fa;
+.level-badge-container {
+  width: 28px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-.skill-header {
-  font-weight: bold;
-  font-size: 0.8em;
-  border-bottom: 1px solid #e9ecef;
-  padding-bottom: 2px;
-  padding-top: 2px;
-  color: #2c3e50;
-  position: relative; /* Add relative positioning for badge placement */
+.skill-name {
+  font-weight: 600;
+  font-size: 0.85em;
+  color: #e2e8f0;
+  flex-grow: 1;
+  margin: 0 6px;
 }
 
-.skill-box.not-leveled .skill-header {
-  border-bottom-color: #dee2e6;
-  color: #6c757d;
+.relation-badge-container {
+  width: 28px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-/* Keyword-based background colors for skill headers */
-.skill-header.keyword-level-1 {
-  background: #ffe4cc; /* Light orange */
+.keyword-badge {
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 0.7em;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.2;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.skill-header.keyword-level-2 {
-  background: #fff4cc; /* Light yellow */
+/* Keyword level colors - muted progression building to vivid levels 5-6 */
+.keyword-badge.keyword-level-1 {
+  background: #4a3c2a; /* Dark somber brown */
 }
 
-.skill-header.keyword-level-3 {
-  background: #e6f7e6; /* Light green */
+.keyword-badge.keyword-level-2 {
+  background: #6b4c2a; /* Slightly brighter brown - muted */
 }
 
-.skill-header.keyword-level-4,
-.skill-header.keyword-level-5 {
-  background: #e6f2ff; /* Light blue */
+.keyword-badge.keyword-level-3 {
+  background: #7a5730; /* Medium brown - muted */
+}
+
+.keyword-badge.keyword-level-4 {
+  background: #8b6332; /* Light brown - muted */
+}
+
+.keyword-badge.keyword-level-5 {
+  background: #d35020; /* VIVID ORANGE - attention-grabbing */
+}
+
+.keyword-badge.keyword-level-6 {
+  background: #ffd700; /* LOUD YELLOW - most attention-grabbing */
+  color: #2c3e50; /* Dark text for better contrast on yellow */
+}
+
+.relation-badge {
+  background: #5dade2;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 5px;
+  font-size: 0.7em;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.2;
+  transition: background-color 0.2s;
+  border: 1px solid #4a90c2;
+}
+
+.relation-badge:hover {
+  background: #4a90c2;
 }
 
 .specializations {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  background: #2c3e50;
+  border-top: 1px solid #566a80;
 }
 
 .specialization {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-bottom: 1px solid rgba(86, 106, 128, 0.3);
+  min-height: 22px;
+}
+
+.specialization:last-child {
+  border-bottom: none;
+}
+
+.spec-name {
   font-size: 0.75em;
-  padding: 2px 2px;
-  color: #555;
-  line-height: 1.1;
-  position: relative; /* Add relative positioning for badge placement */
-  border-top: 1px solid #e9ecef;
-}
-
-.specialization.not-leveled {
-  color: #6c757d;
-}
-
-/* Keyword-based background colors for specializations */
-.specialization.keyword-level-1 {
-  background: #ffe4cc; /* Light orange */
-}
-
-.specialization.keyword-level-2 {
-  background: #fff4cc; /* Light yellow */
-}
-
-.specialization.keyword-level-3 {
-  background: #e6f7e6; /* Light green */
-}
-
-.specialization.keyword-level-4,
-.specialization.keyword-level-5 {
-  background: #e6f2ff; /* Light blue */
-}
-
-/* Relation Badge Styles */
-.relation-badge {
-  background: #818181; /* Dark gray instead of bright blue */
-  color: white;
-  border-radius: 2px; /* Square corners instead of circular */
-  padding: 2px 6px;
-  font-size: 0.7em;
-  font-weight: bold;
-  cursor: default;
-  display: inline-block;
-  min-width: 16px;
-  text-align: center;
-  line-height: 1;
-  position: absolute;
-  right: 0px;
-  top: 0px;
+  color: #bdc3c7;
+  flex-grow: 1;
+  font-weight: 500;
+  margin: 0 6px;
 }
 
 /* Tooltip Styles */
 .relation-tooltip {
   position: fixed;
-  background: #333;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
+  background: #2c3e50;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
   font-size: 0.85em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid #566a80;
   z-index: 1000;
-  max-width: 450px;
+  max-width: 350px;
   pointer-events: none;
 }
 
 .tooltip-item {
-  margin: 2px 0;
-  line-height: 1.3;
+  margin: 4px 0;
+  line-height: 1.4;
 }
 
 .tooltip-item:not(:last-child) {
-  border-bottom: 1px solid #555;
-  padding-bottom: 4px;
-  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(86, 106, 128, 0.3);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .tooltip-item-name {
   color: #ffd700;
+  font-weight: 600;
 }
 </style> 

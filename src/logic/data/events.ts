@@ -35,13 +35,15 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Debug" } },
       //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
-      { key: "startBehTree", params: { treeName: "cheatIntro" } },
+
+      //{ key: "startBehTree", params: { treeName: "cheatIntro" } },
+
       //{ key: "discoverAll", params: {} },
       //{ key: "addCharacterByName", params: { characterId: "ingress_aeiga_reika_secret_seer" } },
       //{ key: "addCharacterByName", params: { characterId: "ingress_sequoiter_sky_pathfinder" } },
       { key: "startBehTree", params: { treeName: "introSequence" } },
       //{ key: "giveSkillsAndSpecs", params: {} },
-      { key: "givePoints", params: {attributePoints: 10, skillPoints: 10, specPoints: 10} },
+      //{ key: "givePoints", params: {attributePoints: 10, skillPoints: 10, specPoints: 10} },
     ]
   },
   "giveAllSkillsAndSpecs": {

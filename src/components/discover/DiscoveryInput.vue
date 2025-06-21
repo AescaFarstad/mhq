@@ -126,7 +126,7 @@ const showSuccess = () => {
     if (inputInteractionState.value === 'success') {
       inputInteractionState.value = 'default';
     }
-  }, 700); // Match the animation duration
+  }, 2100); // Match the animation duration (3x longer)
 };
 </script>
 
@@ -196,15 +196,22 @@ const showSuccess = () => {
 .discovery-input {
   flex: 1;
   padding: 12px 16px;
-  border: 2px solid #ddd;
+  border: 2px solid #566a80;
   border-radius: 8px;
   font-size: 16px;
+  background-color: #34495e;
+  color: #e2e8f0;
   transition: border-color 0.2s, background-color 0.2s;
+}
+
+.discovery-input::placeholder {
+  color: #95a5a6;
 }
 
 .discovery-input:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: #3498db;
+  background-color: #2c3e50;
 }
 
 .discovery-input.input-error-highlight {
@@ -219,7 +226,7 @@ const showSuccess = () => {
 
 .discovery-submit-btn {
   padding: 12px 24px;
-  background: #4a90e2;
+  background: #3498db;
   color: white;
   border: none;
   border-radius: 8px;
@@ -229,7 +236,7 @@ const showSuccess = () => {
 }
 
 .discovery-submit-btn:hover {
-  background: #357abd;
+  background: #2980b9;
 }
 
 /* Enhanced animations matching IngressInputArea */
@@ -259,11 +266,11 @@ const showSuccess = () => {
 }
 
 .flash-green-animation {
-  animation: flashGreenBorder 0.7s ease-out;
+  animation: flashGreenBorder 2.1s ease-out;
 }
 
 .flash-green-animation .discovery-input {
-  animation: flashGreenBorder 0.7s ease-out;
+  animation: flashGreenBorder 2.1s ease-out;
 }
 
 .crystal-count-badge {

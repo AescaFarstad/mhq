@@ -25,6 +25,14 @@ export class C {
     public static readonly MAX_EXPECTED_TASK_EFFORT = 3000;
     public static readonly MIN_TASK_STEPS_BASE = 3;
     public static readonly MAX_TASK_STEPS_BASE = 30;
+
+
+    public static readonly DISCOVERY_THRESHOLD = 7;
+    
+    // === UI Discovery Identifiers ===
+    public static readonly DISCOVERY_SKILL_BROWSER = 'ui_skill_browser';
+    public static readonly DISCOVERY_INNER_COSMOS = 'ui_inner_cosmos';
+    public static readonly DISCOVERY_CRYSTAL_BALL = 'ui_crystal_ball';
     
     // === Game Timing Constants ===
     public static readonly DEFAULT_MIN_DELTA_TIME = 0.05;

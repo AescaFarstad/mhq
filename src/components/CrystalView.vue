@@ -81,8 +81,8 @@ const closeCrystalView = () => {
   right: 0;
   bottom: 0;
   height: 60vh; /* Only take 60% of viewport height */
-  background: linear-gradient(135deg, rgba(26, 26, 46, 0.85), rgba(22, 33, 62, 0.85)); /* Semi-transparent background */
-  border: 2px solid #4a5568;
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95)); /* Dark theme background */
+  border: 2px solid #566a80;
   border-radius: 20px 20px 0 0; /* Rounded corners only on top */
   box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.8); /* Shadow pointing upward */
   overflow-y: auto;
@@ -148,9 +148,9 @@ const closeCrystalView = () => {
   max-height: 200px;
   overflow-y: auto;
   padding: 15px;
-  border: 1px solid #4a5568;
+  border: 1px solid #566a80;
   border-radius: 10px;
-  background: rgba(26, 32, 44, 0.5);
+  background: rgba(44, 62, 80, 0.7);
 }
 
 .crystal-word {

@@ -107,8 +107,8 @@ const getAdditionalInfo = (action: DiscoveryAction & { isBrainstorm?: boolean; l
 
 const showTooltip = (event: MouseEvent, action: DiscoveryAction & { isBrainstorm?: boolean; leadingKeywords?: string[] }) => {
   const rect = (event.target as HTMLElement).getBoundingClientRect();
-  tooltipX.value = rect.left - 200; // Position to the left of the icon
-  tooltipY.value = rect.top - 10; // Slightly above the icon
+  tooltipX.value = rect.left + rect.width / 2 - 100; // Center above the icon
+  tooltipY.value = rect.top - 60; // Position well above the icon
   tooltipContent.value = getAdditionalInfo(action);
   tooltipVisible.value = true;
 };
@@ -127,23 +127,23 @@ const formatActionMessage = (action: DiscoveryAction & { isBrainstorm?: boolean 
       
       // Check if this is a brainstorm discovery
       if (action.isBrainstorm) {
-        return `Brainstormed: ${itemName} (+5 XP)`;
+        return `Brainstormed: <span class="discovered-item-name">${itemName}</span>`;
       }
       
       if (itemType === 'skill_specialization') {
-        return `New specialization: ${itemName} (+10 XP)`;
+        return `New specialization: <span class="discovered-item-name">${itemName}</span>`;
       } else if (itemType === 'skill') {
-        return `New skill: ${itemName} (+10 XP)`;
+        return `New skill: <span class="discovered-item-name">${itemName}</span>`;
       } else if (itemType === 'building') {
-        return `New building: ${itemName} (+10 XP)`;
+        return `New building: <span class="discovered-item-name">${itemName}</span>`;
       } else if (itemType === 'attribute' || itemType === 'attribute_category') {
-        return `New attribute: ${itemName} (+10 XP)`;
+        return `New attribute: <span class="discovered-item-name">${itemName}</span>`;
       } else if (itemType === 'resource') {
-        return `New resource: ${itemName} (+10 XP)`;
+        return `New resource: <span class="discovered-item-name">${itemName}</span>`;
       } else if (itemType === 'tab') {
-        return `New tab: ${itemName} (+10 XP)`;
+        return `New tab: <span class="discovered-item-name">${itemName}</span>`;
       } else {
-        return `Discovery: ${itemName} (+10 XP)`;
+        return `Discovery: <span class="discovered-item-name">${itemName}</span>`;
       }
       
     case 'ADD_ACTIVE_KEYWORD':
@@ -151,11 +151,11 @@ const formatActionMessage = (action: DiscoveryAction & { isBrainstorm?: boolean 
       
     case 'ALREADY_DISCOVERED':
       const discoveredItemName = action.item.originalItem.displayName || action.item.originalItem.name || action.item.id;
-      return `Already discovered: ${discoveredItemName}`;
+      return `Already discovered: <span class="discovered-item-name">${discoveredItemName}</span>`;
       
     case 'KEYWORD_ALREADY_ACTIVE':
-      const relatedItems = gameState?.activeKeywords.get(action.keyword) || [];
-      return `Keyword <span class="keyword-highlight">${action.keyword}</span> is already active with <span class="number-highlight">${relatedItems.length}</span> related items`;
+
+      return `Keyword <span class="keyword-highlight">${action.keyword}</span> is already active`;
       
     case 'KEYWORD_ALREADY_DISCARDED':
       return `Keyword <span class="keyword-highlight">${action.keyword}</span> was previously discarded`;
@@ -218,41 +218,17 @@ const getActionClass = (action: DiscoveryAction): string => {
 .analysis-entry-group.multiple-actions::before {
   content: '';
   position: absolute;
-  left: -12px;
+  left: -6px;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 2px;
   background-color: #4a90e2;
-  border-radius: 2px;
-}
-
-.analysis-entry-group.multiple-actions::after {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 0;
-  height: 8px;
-  width: 8px;
-  border-left: 3px solid #4a90e2;
-  border-top: 3px solid #4a90e2;
-  border-radius: 3px 0 0 0;
-}
-
-.analysis-entry-group.multiple-actions .analysis-entry:last-child::after {
-  content: '';
-  position: absolute;
-  left: -12px;
-  bottom: 0;
-  height: 8px;
-  width: 8px;
-  border-left: 3px solid #4a90e2;
-  border-bottom: 3px solid #4a90e2;
-  border-radius: 0 0 0 3px;
+  border-radius: 1px;
 }
 
 .analysis-entry {
   position: relative;
-  color: #333;
+  color: #e2e8f0;
   font-size: 14px;
   text-align: center;
   margin: 0;
@@ -262,7 +238,7 @@ const getActionClass = (action: DiscoveryAction): string => {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(52, 73, 94, 0.3);
   transition: all 0.3s ease;
   animation: slideInUp 0.3s ease-out;
 }
@@ -279,23 +255,28 @@ const getActionClass = (action: DiscoveryAction): string => {
 }
 
 .analysis-success {
-  background-color: rgba(46, 204, 113, 0.1);
-  color: #333;
+  background-color: rgba(46, 204, 113, 0.2);
+  color: #e2e8f0;
 }
 
 .analysis-info {
-  background-color: rgba(52, 152, 219, 0.1);
-  color: #333;
+  background-color: rgba(52, 152, 219, 0.2);
+  color: #e2e8f0;
 }
 
 .analysis-error {
-  background-color: rgba(231, 76, 60, 0.1);
-  color: #333;
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e2e8f0;
 }
 
 .analysis-entry :deep(.keyword-highlight) {
   font-weight: bold;
-  color: #007bff;
+  color: #5dade2; /* Brighter blue for better visibility */
+}
+
+.analysis-entry :deep(.discovered-item-name) {
+  font-weight: bold;
+  color: #ffd700; /* Yellow highlight for discovered items */
 }
 
 .analysis-entry :deep(.number-highlight) {
@@ -304,7 +285,7 @@ const getActionClass = (action: DiscoveryAction): string => {
 
 .analysis-entry :deep(.error-highlight) {
   font-weight: bold;
-  color: #dc3545;
+  color: #e74c3c;
 }
 
 .info-icon-container {

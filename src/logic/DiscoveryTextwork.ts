@@ -49,7 +49,7 @@ export function analyzeInput(
         
         // Add keyword results if found
         if (keywordResults.length > 0 && 
-            ['ADD_ACTIVE_KEYWORD', 'ADD_DISCARDED_KEYWORD'].includes(keywordResults[0].type)) {
+            ['ADD_ACTIVE_KEYWORD', 'ADD_DISCARDED_KEYWORD', 'KEYWORD_ALREADY_ACTIVE', 'KEYWORD_ALREADY_DISCARDED'].includes(keywordResults[0].type)) {
             combinedResults.push(...keywordResults);
         }
         
