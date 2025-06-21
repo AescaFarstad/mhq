@@ -21,24 +21,13 @@ import { runTests } from '../tests/testRunner';
 // --- Synchronous Initialization ---
 function initializeGame() {
 
-    // Create the game state instance
     // This will also synchronously load the Lib definitions
     const gameState = new GameState();
-    // const eventProcessorInstance = new EventProcessor(gameState.lib); // No longer needed, EventProcessor is a namespace
-
-    // Set the global game state for the composable
-    // setGlobalGameState(gameState); // No longer needed
-
-    // Check if Lib loading was successful (optional but good practice)
     if (!gameState.lib.isLoaded) {
         console.error("Initialization failed: Could not process library definitions.");
         document.getElementById('app')!.innerHTML = '<h1 style="color: red;">Error processing game data. Please check console.</h1>';
         return; // Stop initialization
     }
-
-    // Lib is loaded, proceed
-
-    // Create the Vue app instance
     const app = createApp(App);
 
     // Provide the gameState to the Vue application

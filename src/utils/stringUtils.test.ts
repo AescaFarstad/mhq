@@ -32,6 +32,29 @@ function testEdgeCases() {
     assertEquals(obfuscateString('A', 0.4), "A", "Single char should not be obfuscated below threshold");
     assertEquals(obfuscateString('Hello', 0), 'Hello', "0% obfuscation should return original string");
 }
+
+function testSymbolsMode() {
+    // Test with symbols (default behavior)
+    const withSymbols = obfuscateString('Programming', 1.0, 0, true);
+    assertEquals(withSymbols[0], "¿", "First character should be ¿ with symbols");
+    assertEquals(withSymbols[withSymbols.length - 1], "?", "Last character should be ? with symbols");
+    
+    // Test without symbols (new behavior)
+    const withoutSymbols = obfuscateString('Programming', 1.0, 0, false);
+    assertEquals(withoutSymbols, "□□□□□□□□□□□", "All characters should be □ without symbols");
+    
+    // Test partial obfuscation consistency
+    const text = 'Programming';
+    const partial1 = obfuscateString(text, 0.5, 0, true);
+    const partial2 = obfuscateString(text, 0.5, 0, false);
+    
+    // Check that same positions are revealed/hidden
+    for (let i = 0; i < text.length; i++) {
+        const revealed1 = partial1[i] === text[i];
+        const revealed2 = partial2[i] === text[i];
+        assertEquals(revealed1, revealed2, `Same reveal pattern at position ${i}: "${text[i]}"`);
+    }
+}
 /*
 function testStandardObfuscation() { //This is left here on purpose. Ignore.
     const testString = 'The quick brown fox jumps over the lazy dog.';
@@ -164,6 +187,7 @@ function testStatisticalDistribution() {
 export function runTests() {
     try {
         testEdgeCases();
+        testSymbolsMode();
         //testStandardObfuscation();
         testProgressiveObfuscation();
         testStability();

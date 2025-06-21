@@ -38,7 +38,15 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatIngress', (_node, state: GameState) => {
-            effects.applyIngressResults(state, { characterId: "ingress_aeiga_reika_chaos_artificer", characterName: undefined, xpBonus: 25, attributePoints: 1, skillPoints: 1, specPoints: 1 });
+            effects.applyIngressResults(state, { 
+                characterId: "ingress_aeiga_reika_chaos_artificer", 
+                characterName: undefined, 
+                xpBonus: 29, 
+                attributePoints: 1, 
+                skillPoints: 1, 
+                specPoints: 1,
+                allSubmittedWords: ["aesca", "link", "mind", "stone", "heart", "soul", "mantra", "hypnosys", "book", "word", "death", "live", "life", "plant", "cross", "symbol", "path", "trail", "structure", "castle", "mage", "guild", "magic", "craft", "master", "detail", "cog", "fog", "part", "pact", "gear"]
+            });
             state.exitMinigame();
         }),
     ])

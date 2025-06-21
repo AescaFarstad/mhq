@@ -5,10 +5,13 @@ import { WelcomeLib } from './lib/WelcomeLib';
 import type { WelcomeLocationDefinition } from './lib/definitions/WelcomeLocationDefinition';
 import * as effects from '../../logic/effects';
 import type { ApplyWelcomeResultsParams } from '../../logic/lib/definitions/EventDefinition';
+import { generalNoise } from '../../logic/utils/mathUtils';
 
 export const WELCOME_TYPE: MinigameType = 'Welcome';
 
-export const EXPLORATION_RATE = 0.07; // Progress per second
+export const EXPLORATION_RATE = 0.07; // Base progress per second
+export const EXPLORATION_RANDOMNESS = 0.8; // How much randomness to apply (0 = linear, 1 = fully random)
+export const NOISE_SCALE = 100.3; // Scale for Perlin noise sampling
 export const THRESHOLD_DESCRIPTION_OBFUSCATED_REVEAL = 0.4;
 export const THRESHOLD_PROS_CONS_TITLES_REVEAL = 0.5;
 // Thresholds for individual pros/cons will be dynamic
@@ -44,6 +47,7 @@ export interface ExplorableWelcomeChoice extends WelcomeChoice {
   revealedProsCount: number;
   revealedConsCount: number;
   canBeSelected: boolean;
+  explorationTime: number; // Time spent exploring this choice (for noise generation)
 }
 
 export class WelcomeGame implements BaseMinigame<WelcomeState> {
@@ -93,6 +97,7 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
                 revealedProsCount: 0,
                 revealedConsCount: 0,
                 canBeSelected: false,
+                explorationTime: 0, // Initialize exploration time
             });
         });
     }
@@ -107,12 +112,16 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
         const choice = this.state.explorableChoices.find(c => c.id === choiceId);
         if (choice) {
             choice.isExploring = false;
+            // Reset exploration time when stopping to avoid noise drift
+            choice.explorationTime = 0;
         }
     }
 
     public stopAllExplorations(): void {
         this.state.explorableChoices.forEach(choice => {
             choice.isExploring = false;
+            // Reset exploration time when stopping to avoid noise drift
+            choice.explorationTime = 0;
         });
     }
 
@@ -135,7 +144,24 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
     update(_gameState: GameState, deltaTime: number): void {
         this.state.explorableChoices.forEach(choice => {
             if (choice.isExploring && choice.explorationProgress < 1) {
-                choice.explorationProgress = Math.min(1, choice.explorationProgress + EXPLORATION_RATE * deltaTime);
+                choice.explorationTime += deltaTime;
+                
+                // Generate random exploration rate using simplex noise
+                // Use time and choice ID as coordinates for consistent but varying noise
+                const noiseX = choice.explorationTime * NOISE_SCALE;
+                const noiseY = choice.id.length * 123.456; // Use choice ID as a seed-like value
+                const noiseValue = generalNoise.noise2DXBeforeY(noiseX, noiseY);
+                
+                // Convert noise [-1, 1] to [0, 2] for rate multiplier
+                const randomMultiplier = (noiseValue + 1);
+                
+                // Interpolate between linear (1.0) and fully random based on EXPLORATION_RANDOMNESS
+                const linearMultiplier = 1.0;
+                const finalMultiplier = linearMultiplier * (1 - EXPLORATION_RANDOMNESS) + randomMultiplier * EXPLORATION_RANDOMNESS;
+                
+                const randomizedRate = EXPLORATION_RATE * finalMultiplier;
+                
+                choice.explorationProgress = Math.min(1, choice.explorationProgress + randomizedRate * deltaTime);
 
                 // Update based on thresholds with gradual deobfuscation
                 

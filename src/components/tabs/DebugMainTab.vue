@@ -14,6 +14,8 @@
       <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
       <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
       <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
+      <button @click="findSharedKeywordPairs($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'sharedKeywordPairs' }">Find 5 Shared Keywords</button>
+      <button @click="showNoiseVisualizer" class="action-btn visualizer-btn">Show Noise Visualizer</button>
     </div>
     
     <!-- Display area for copied content -->
@@ -28,6 +30,12 @@
     <div v-else class="no-content-message">
       <p>Click any copy button above to display its content here.</p>
     </div>
+
+    <!-- Noise Visualizer Overlay -->
+    <div v-if="showVisualizer" class="visualizer-overlay">
+      <button @click="hideNoiseVisualizer" class="close-visualizer-btn">✕ Close Visualizer</button>
+      <NoiseVisualizer />
+    </div>
   </div>
 </template>
 
@@ -35,6 +43,7 @@
 import { ref, inject } from 'vue';
 import { GameState } from '../../logic/GameState';
 import { CharacterLib } from '../../logic/lib/CharacterLib';
+import NoiseVisualizer from '../NoiseVisualizer.vue';
 
 const gameState = inject<GameState>('gameState');
 
@@ -49,6 +58,9 @@ const triggerCopyAnimation = (buttonId: string) => {
 const displayedContent = ref<string>('');
 const displayedContentTitle = ref<string>('');
 
+// Noise visualizer state
+const showVisualizer = ref<boolean>(false);
+
 // Helper function to display content
 const displayContent = (content: string, title: string) => {
   displayedContent.value = content;
@@ -61,6 +73,15 @@ const clearDisplayedContent = () => {
   displayedContentTitle.value = '';
 };
 
+// Noise visualizer functions
+const showNoiseVisualizer = () => {
+  showVisualizer.value = true;
+};
+
+const hideNoiseVisualizer = () => {
+  showVisualizer.value = false;
+};
+
 // ---------- Clipboard helper functions (copied from original DebugView) ----------
 // Function to copy skills to clipboard (using gameState now)
 const copySkillsToClipboard = (includeAttributes: boolean, _event?: Event) => {
@@ -69,8 +90,8 @@ const copySkillsToClipboard = (includeAttributes: boolean, _event?: Event) => {
     return;
   }
   let clipboardText = '';
-  const skillLib = (gameState.lib as any).getSkillLib();
-  const attributeLib = (gameState.lib as any).getAttributeLib();
+  const skillLib = gameState.lib.skills;
+  const attributeLib = gameState.lib.attributes;
   const skillsData = skillLib.getAllSkills();
   const attributeDefinitions = attributeLib.getAttributeDefinitions();
 
@@ -119,7 +140,7 @@ const copyAttributesToClipboard = (_event?: Event) => {
     console.error("GameState or AttributeLib not available via getter");
     return;
   }
-  const attributeDefinitions = (gameState.lib as any).getAttributeLib().getAttributeDefinitions();
+  const attributeDefinitions = gameState.lib.attributes.getAttributeDefinitions();
   let clipboardText = '';
 
   Object.values(attributeDefinitions).forEach((cat: any) => {
@@ -144,9 +165,9 @@ const copyAttributeSkillStats = (_event?: Event) => {
     console.error("GameState, SkillLib, or AttributeLib not available via getters");
     return;
   }
-  const skillLib = (gameState.lib as any).getSkillLib();
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
-  const attributeDefinitions = (gameState.lib as any).getAttributeLib().getAttributeDefinitions();
+  const attributeDefinitions = gameState.lib.attributes.getAttributeDefinitions();
 
   const attributeStats: Record<string, { governs: number; assists: number }> = {};
   Object.values(attributeDefinitions).forEach((cat: any) => {
@@ -204,7 +225,7 @@ const copyAllSkillNames = (_event?: Event) => {
     console.error("GameState or SkillLib not available");
     return;
   }
-  const skillLib = (gameState.lib as any).skills;
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
   let clipboardText = '';
   Object.values(skillsData).forEach((skill: any) => {
@@ -228,9 +249,9 @@ const copySkillKeywordStats = (_event?: Event) => {
     console.error("GameState or SkillLib not available for keyword stats");
     return;
   }
-  const skillLib = (gameState.lib as any).skills;
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
-  const keywordLookup = skillLib.keywordLookup;
+  const keywordLookup = gameState.lib.discovery.getKeywordLookup();
 
   const keywordCounts: Record<string, number> = {};
   const keywordToSkills: Record<string, string[]> = {};
@@ -285,7 +306,7 @@ const copySkillNamesAndDescriptions = (_event?: Event) => {
     console.error("GameState or SkillLib not available for skill names and descriptions.");
     return;
   }
-  const skillLib = (gameState.lib as any).skills;
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
   let clipboardText = '';
   Object.values(skillsData).forEach((skill: any) => {
@@ -310,7 +331,7 @@ const copySkillIds = (_event?: Event) => {
     console.error("GameState or SkillLib not available for skill IDs.");
     return;
   }
-  const skillLib = (gameState.lib as any).getSkillLib();
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
   let clipboardText = '';
   Object.values(skillsData).forEach((skill: any) => {
@@ -355,7 +376,7 @@ const replaceSkillNamesWithIdsInClipboard = async (_event?: Event) => {
   }
   try {
     let text = await navigator.clipboard.readText();
-    const skillLib = (gameState.lib as any).skills;
+    const skillLib = gameState.lib.skills;
     const skillsData = skillLib.getAllSkills();
     const replacements: { search: string; id: string }[] = [];
     Object.values(skillsData).forEach((skill: any) => {
@@ -395,12 +416,12 @@ const simplifyClipboardText = async (_event?: Event) => {
 
 // Copy character names & bios
 const copyCharacterNamesAndBios = (_event?: Event) => {
-  if (!gameState || !(gameState.lib as any)?.characters) {
+  if (!gameState || !gameState.lib?.characters) {
     console.error('GameState, Lib, or CharacterLib not available for character names and bios.');
     triggerCopyAnimation('characterNamesAndBiosError');
     return;
   }
-  const characterLib: CharacterLib = (gameState.lib as any).characters;
+  const characterLib: CharacterLib = gameState.lib.characters;
   let text = '';
   for (const c of characterLib.values()) {
     text += `Name: ${c.name}\n`;
@@ -424,7 +445,7 @@ const copyKeywordOverview = (_event?: Event) => {
     console.error("GameState or SkillLib not available for keyword overview");
     return;
   }
-  const skillLib = (gameState.lib as any).skills;
+  const skillLib = gameState.lib.skills;
   const skillsData = skillLib.getAllSkills();
 
   const uniqueKeywords = new Set<string>();
@@ -481,4 +502,260 @@ const copyKeywordOverview = (_event?: Event) => {
     .catch((err) => console.error('Failed to copy keyword overview to clipboard:', err));
 };
 
-</script> 
+// Function to find 5 keywords shared by the same 2 skills/specs
+const findSharedKeywordPairs = (_event?: Event) => {
+  if (!gameState || !gameState.lib?.skills) {
+    console.error("GameState or SkillLib not available for shared keyword analysis");
+    return;
+  }
+  
+  const skillLib = gameState.lib.skills;
+  const skillsData = skillLib.getAllSkills();
+  
+  // Build a map of keyword -> array of skill/spec items that have it
+  const keywordToItems: Record<string, Array<{id: string, name: string, type: 'skill' | 'spec'}>> = {};
+  
+  Object.values(skillsData).forEach((skill: any) => {
+    const processItem = (item: any, id: string, name: string, type: 'skill' | 'spec') => {
+      if (item.keywords) {
+        const flatKeywords = item.keywords.flat();
+        flatKeywords.forEach((kw: string) => {
+          const lowerKw = kw.toLowerCase();
+          if (!keywordToItems[lowerKw]) {
+            keywordToItems[lowerKw] = [];
+          }
+          keywordToItems[lowerKw].push({ id, name, type });
+        });
+      }
+    };
+    
+    processItem(skill, skill.id, skill.displayName, 'skill');
+    
+    skill.specializations?.forEach((specId: string) => {
+      const spec = skillLib.getSpecialization(specId);
+      if (spec) {
+        processItem(spec, specId, `${skill.displayName} > ${spec.displayName}`, 'spec');
+      }
+    });
+  });
+  
+  // Find keywords that are shared by exactly 2 items
+  const pairwiseKeywords: Record<string, string[]> = {}; // "item1,item2" -> [keywords]
+  
+  Object.entries(keywordToItems).forEach(([keyword, items]) => {
+    if (items.length === 2) {
+      // Create a consistent pair key (sorted by id)
+      const sortedItems = [...items].sort((a, b) => a.id.localeCompare(b.id));
+      const pairKey = `${sortedItems[0].id},${sortedItems[1].id}`;
+      
+      if (!pairwiseKeywords[pairKey]) {
+        pairwiseKeywords[pairKey] = [];
+      }
+      pairwiseKeywords[pairKey].push(keyword);
+    }
+  });
+  
+  // Find pairs that share exactly 5 or more keywords
+  let found = false;
+  let clipboardText = 'Analysis of Skills/Specs that share exactly 5+ keywords:\n\n';
+  
+  Object.entries(pairwiseKeywords)
+    .filter(([, keywords]) => keywords.length >= 5)
+    .sort(([, a], [, b]) => b.length - a.length)
+    .forEach(([pairKey, keywords]) => {
+      found = true;
+      const [id1, id2] = pairKey.split(',');
+      
+      // Get the actual items to display their names
+      let name1 = id1, name2 = id2;
+      Object.values(skillsData).forEach((skill: any) => {
+        if (skill.id === id1) name1 = skill.displayName;
+        if (skill.id === id2) name2 = skill.displayName;
+        
+        skill.specializations?.forEach((specId: string) => {
+          const spec = skillLib.getSpecialization(specId);
+          if (spec) {
+            if (specId === id1) name1 = `${skill.displayName} > ${spec.displayName}`;
+            if (specId === id2) name2 = `${skill.displayName} > ${spec.displayName}`;
+          }
+        });
+      });
+      
+      clipboardText += `${name1}\n`;
+      clipboardText += `${name2}\n`;
+      clipboardText += `Shared Keywords (${keywords.length}): ${keywords.join(', ')}\n\n`;
+    });
+  
+  if (!found) {
+    clipboardText += 'No pairs of skills/specs found that share exactly 5 or more keywords.\n\n';
+    
+    // Show the top pairs anyway
+    clipboardText += 'Top pairs by shared keyword count:\n\n';
+    Object.entries(pairwiseKeywords)
+      .sort(([, a], [, b]) => b.length - a.length)
+      .slice(0, 10)
+      .forEach(([pairKey, keywords]) => {
+        const [id1, id2] = pairKey.split(',');
+        
+        let name1 = id1, name2 = id2;
+        Object.values(skillsData).forEach((skill: any) => {
+          if (skill.id === id1) name1 = skill.displayName;
+          if (skill.id === id2) name2 = skill.displayName;
+          
+          skill.specializations?.forEach((specId: string) => {
+            const spec = skillLib.getSpecialization(specId);
+            if (spec) {
+              if (specId === id1) name1 = `${skill.displayName} > ${spec.displayName}`;
+              if (specId === id2) name2 = `${skill.displayName} > ${spec.displayName}`;
+            }
+          });
+        });
+        
+        clipboardText += `${name1} & ${name2}\n`;
+        clipboardText += `Shared Keywords (${keywords.length}): ${keywords.join(', ')}\n\n`;
+      });
+  }
+  
+  navigator.clipboard.writeText(clipboardText.trim())
+    .then(() => {
+      triggerCopyAnimation('sharedKeywordPairs');
+      displayContent(clipboardText.trim(), 'Shared Keyword Analysis');
+    })
+    .catch((err) => console.error('Failed to copy shared keyword analysis to clipboard:', err));
+};
+
+</script>
+
+<style scoped>
+.tab-content {
+  position: relative;
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #0056b3;
+}
+
+.action-btn.copy-success {
+  background: #28a745;
+  animation: copySuccess 1s ease-out;
+}
+
+.visualizer-btn {
+  background: #6f42c1;
+}
+
+.visualizer-btn:hover {
+  background: #5a2d91;
+}
+
+@keyframes copySuccess {
+  0% { background: #28a745; }
+  100% { background: #007bff; }
+}
+
+.content-display {
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #e9ecef;
+  border-bottom: 1px solid #ccc;
+  border-radius: 4px 4px 0 0;
+}
+
+.content-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.clear-content-btn {
+  padding: 4px 8px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-content-btn:hover {
+  background: #c82333;
+}
+
+.content-text {
+  padding: 15px;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  background: white;
+}
+
+.no-content-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+.visualizer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.close-visualizer-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 10000;
+  transition: background 0.2s;
+}
+
+.close-visualizer-btn:hover {
+  background: #c82333;
+}
+</style>

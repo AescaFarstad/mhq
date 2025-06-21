@@ -54,6 +54,11 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.blankWords = [...logicState.blankWords]; 
         }
 
+        // Sync comprehensive word storage
+        if (logicState.allSubmittedWords !== uiState.allSubmittedWords) {
+            uiState.allSubmittedWords = [...logicState.allSubmittedWords];
+        }
+
         // Sync upgrades
         if (JSON.stringify(logicState.upgrades) !== JSON.stringify(uiState.upgrades)) {
             uiState.upgrades = JSON.parse(JSON.stringify(logicState.upgrades));

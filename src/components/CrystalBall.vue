@@ -1,5 +1,9 @@
 <template>
-  <div class="crystal-ball-container">
+  <div 
+    class="crystal-ball-container"
+    :class="{ 'clickable': hasWords, 'glowing': hasWords }"
+    @click="handleClick"
+  >
     <div class="crystal-ball">
       <img src="/img/ball.webp" alt="Crystal Ball Layer 1" class="ball-layer layer-1" />
       <img src="/img/ball (1).webp" alt="Crystal Ball Layer 2" class="ball-layer layer-2" />
@@ -11,7 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent as _defineComponent } from "vue";
+import { computed, inject } from 'vue';
+import type { GameState } from '../logic/GameState';
+
+const gameState = inject<GameState>('gameState');
+
+const hasWords = computed(() => {
+  return gameState?.uiState.crystalBallWords.length ?? 0 > 0;
+});
+
+const handleClick = () => {
+  if (hasWords.value && gameState) {
+    gameState.toggleCrystalView();
+  }
+};
 </script>
 
 <style scoped>
@@ -21,6 +38,20 @@ import { defineComponent as _defineComponent } from "vue";
   align-items: center;
   width: 100%;
   height: 300px;
+  transition: all 0.3s ease;
+}
+
+.crystal-ball-container.clickable {
+  cursor: pointer;
+}
+
+.crystal-ball-container.glowing {
+  filter: drop-shadow(0 0 20px rgba(147, 112, 219, 0.6));
+}
+
+.crystal-ball-container.clickable:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 25px rgba(147, 112, 219, 0.8));
 }
 
 .crystal-ball {
@@ -64,6 +95,34 @@ import { defineComponent as _defineComponent } from "vue";
 .layer-5 {
   z-index: 5;
   animation: rotate-clockwise-very-fast 6s linear infinite, opacity-pulse-5 9s ease-in-out infinite;
+}
+
+.clickable .layer-1,
+.clickable .layer-2,
+.clickable .layer-3,
+.clickable .layer-4,
+.clickable .layer-5 {
+  transition: opacity 0.3s ease;
+}
+
+.clickable:hover .layer-1 {
+  animation: rotate-clockwise-slow 15s linear infinite, opacity-pulse-1 6s ease-in-out infinite;
+}
+
+.clickable:hover .layer-2 {
+  animation: rotate-counter-clockwise-medium 12s linear infinite, opacity-pulse-2 4s ease-in-out infinite;
+}
+
+.clickable:hover .layer-3 {
+  animation: rotate-clockwise-fast 8s linear infinite, opacity-pulse-3 5s ease-in-out infinite;
+}
+
+.clickable:hover .layer-4 {
+  animation: rotate-counter-clockwise-fast 6s linear infinite, opacity-pulse-4 3s ease-in-out infinite;
+}
+
+.clickable:hover .layer-5 {
+  animation: rotate-clockwise-very-fast 4s linear infinite, opacity-pulse-5 7s ease-in-out infinite;
 }
 
 /* Rotation animations */
@@ -130,11 +189,5 @@ import { defineComponent as _defineComponent } from "vue";
   60% { opacity: 0.05; }
   90% { opacity: 0.4; }
   100% { opacity: 0.1; }
-}
-
-/* Optional: Add a subtle glow effect */
-.crystal-ball:hover {
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
-  transition: filter 0.3s ease;
 }
 </style> 

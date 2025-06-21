@@ -5,4 +5,7 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
   base: '/mhq/',
   plugins: [vue()],
+  build: {
+    target: 'esnext'
+  }
 }); 

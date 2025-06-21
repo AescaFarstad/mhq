@@ -6,6 +6,7 @@ import { BuildingLib } from './lib/BuildingLib';
 import { analyzeInput } from './DiscoveryTextwork';
 import { GameState } from './GameState';
 import { discoverItem } from './Discovery';
+import { processDiscoveryAttempt, countActiveKeywordsForItem } from './Discovery';
 import type { DiscoverableItem } from '../types/discoveryTypes';
 
 // =================================================================
@@ -346,57 +347,156 @@ describe('Discovery State Management', () => {
     });
 
     it('should add discovery log entries for direct discoveries', () => {
-        const initialLogLength = gameState.discoveryLog.length;
+        const initialLogLength = gameState.discoveryAnalysisLog.length;
         
         // Find a discoverable item
         const testItem = Array.from(discoveryLib.getAllItems().values())[0];
         
         discoverItem(testItem.id, 'direct', gameState, testItem);
         
-        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
-        const logEntry = gameState.discoveryLog[gameState.discoveryLog.length - 1];
-        expect(logEntry.type).toBe('direct_discovery');
-        expect(logEntry.details.itemId).toBe(testItem.id);
+        // Direct discoveries don't automatically add to analysis log - they're added via processDiscoveryAttempt
+        expect(gameState.discoveryAnalysisLog.length).toBe(initialLogLength);
+        // But the item should be discovered
+        expect(gameState.discoveredItems.has(testItem.id)).toBe(true);
     });
 
-    it('should add discovery log entries for keyword findings', () => {
+    it('should add discovery analysis entries for keyword findings via processDiscoveryAttempt', () => {
         const keywordLookup = discoveryLib.getKeywordLookup();
         const [testKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
         
-        const initialLogLength = gameState.discoveryLog.length;
+        const initialLogLength = gameState.discoveryAnalysisLog.length;
         
-        // Process keyword discovery
-        const actions = analyzeInput(testKeyword, discoveryLib, gameState);
-        for (const action of actions) {
-            if (action.type === 'ADD_ACTIVE_KEYWORD') {
-                gameState.activeKeywords.set((action as any).keyword, (action as any).relatedItemIds);
-                gameState.discoveryLog.push({
-                    type: 'keyword_found',
-                    details: {
-                        keyword: (action as any).keyword,
-                        relatedItemCount: relatedItemIds.length
-                    }
-                });
-            }
+        // Process keyword discovery via processDiscoveryAttempt
+        processDiscoveryAttempt(testKeyword, gameState);
+        
+        expect(gameState.discoveryAnalysisLog.length).toBe(initialLogLength + 1);
+        const logEntry = gameState.discoveryAnalysisLog[gameState.discoveryAnalysisLog.length - 1];
+        const firstAction = logEntry[0];
+        expect(firstAction.type).toBe('ADD_ACTIVE_KEYWORD');
+        if (firstAction.type === 'ADD_ACTIVE_KEYWORD') {
+            expect(firstAction.keyword).toBe(testKeyword);
         }
-        
-        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
-        const logEntry = gameState.discoveryLog[gameState.discoveryLog.length - 1];
-        expect(logEntry.type).toBe('keyword_found');
-        expect(logEntry.details.keyword).toBe(testKeyword);
-        expect(logEntry.details.relatedItemCount).toBe(relatedItemIds.length);
     });
 
-    it('should not create duplicate discovery log entries', () => {
+    it('should not create duplicate analysis log entries for same discovery attempt', () => {
         const testItem = Array.from(discoveryLib.getAllItems().values())[0];
         
-        const initialLogLength = gameState.discoveryLog.length;
+        const initialLogLength = gameState.discoveryAnalysisLog.length;
         
-        // Try to discover the same item twice
-        discoverItem(testItem.id, 'direct', gameState, testItem);
-        discoverItem(testItem.id, 'direct', gameState, testItem);
+        // Try to discover the same item twice via discovery attempts
+        processDiscoveryAttempt(testItem.searchableName, gameState);
+        processDiscoveryAttempt(testItem.searchableName, gameState);
         
-        // Should only have one log entry
-        expect(gameState.discoveryLog.length).toBe(initialLogLength + 1);
+        // Should have two analysis log entries (first success, second "already discovered")
+        expect(gameState.discoveryAnalysisLog.length).toBe(initialLogLength + 2);
+    });
+});
+
+describe('Brainstorm Discovery Logic', () => {
+    let discoveryLib: DiscoveryLib;
+    let gameState: GameState;
+
+    beforeEach(() => {
+        const libs = createTestLibs();
+        discoveryLib = libs.discoveryLib;
+        gameState = createGameState();
+    });
+
+    it('should trigger brainstorm discovery when an item accumulates enough keywords', () => {
+        // Set threshold to 3 for testing
+        gameState.discoveryThreshold = { value: 3 } as any;
+        
+        // Find an item with at least 3 keywords
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        let testItemId: string | null = null;
+        const testKeywords: string[] = [];
+        
+        // Find an item that has at least 3 different keywords
+        for (const [, relatedItemIds] of keywordLookup.entries()) {
+            for (const itemId of relatedItemIds) {
+                // Count how many keywords this item has
+                let keywordCount = 0;
+                const itemKeywords: string[] = [];
+                for (const [kw, relIds] of keywordLookup.entries()) {
+                    if (relIds.includes(itemId)) {
+                        keywordCount++;
+                        itemKeywords.push(kw);
+                    }
+                }
+                if (keywordCount >= 3) {
+                    testItemId = itemId;
+                    testKeywords.push(...itemKeywords.slice(0, 3));
+                    break;
+                }
+            }
+            if (testItemId) break;
+        }
+        
+        if (!testItemId) {
+            console.log('No item found with 3+ keywords, skipping test');
+            return;
+        }
+        
+        const initialLogLength = gameState.discoveryAnalysisLog.length;
+        
+        // Add the first two keywords - should not trigger discovery
+        gameState.activeKeywords.set(testKeywords[0], [testItemId]);
+        gameState.activeKeywords.set(testKeywords[1], [testItemId]);
+        
+        // Process a dummy discovery to trigger the check (simulating real usage)
+        processDiscoveryAttempt(testKeywords[0], gameState);
+        
+        expect(gameState.isDiscovered(testItemId)).toBe(false);
+        
+        // Add the third keyword - should trigger brainstorm discovery
+        gameState.activeKeywords.set(testKeywords[2], [testItemId]);
+        processDiscoveryAttempt(testKeywords[2], gameState);
+        
+        expect(gameState.isDiscovered(testItemId)).toBe(true);
+        expect(gameState.discoveryAnalysisLog.length).toBeGreaterThan(initialLogLength);
+        
+        // Check that there's at least one brainstorm discovery in the analysis log
+        const hasBrainstormEntry = gameState.discoveryAnalysisLog.some(actionsArray => 
+            actionsArray.some(action => 
+                action.type === 'DIRECT_DISCOVERY' && 
+                'isBrainstorm' in action && 
+                (action as any).isBrainstorm
+            )
+        );
+        expect(hasBrainstormEntry).toBe(true);
+    });
+
+    it('should count active keywords correctly for items', () => {
+        // Add some keywords
+        gameState.activeKeywords.set('sword', ['meleeweapons', 'combat']);
+        gameState.activeKeywords.set('blade', ['meleeweapons']);
+        gameState.activeKeywords.set('fight', ['combat', 'meleeweapons']);
+        
+        // meleeweapons should have 3 keywords, combat should have 2
+        expect(countActiveKeywordsForItem('meleeweapons', gameState)).toBe(3);
+        expect(countActiveKeywordsForItem('combat', gameState)).toBe(2);
+        expect(countActiveKeywordsForItem('nonexistent', gameState)).toBe(0);
+    });
+
+    it('should not trigger brainstorm discovery for already discovered items', () => {
+        // Set threshold to 2 for testing
+        gameState.discoveryThreshold = { value: 2 } as any;
+        
+        const keywordLookup = discoveryLib.getKeywordLookup();
+        const [firstKeyword, relatedItemIds] = Array.from(keywordLookup.entries())[0];
+        const testItemId = relatedItemIds[0];
+        
+        // Discover the item first
+        discoverItem(testItemId, 'direct', gameState);
+        
+        const initialLogLength = gameState.discoveryAnalysisLog.length;
+        
+        // Add keywords - should not trigger another discovery
+        gameState.activeKeywords.set(firstKeyword, [testItemId]);
+        gameState.activeKeywords.set('test_keyword', [testItemId]);
+        processDiscoveryAttempt(firstKeyword, gameState);
+        
+        // Should not have added new discovery log entries
+        expect(gameState.discoveryAnalysisLog.length).toBe(initialLogLength);
     });
 }); 

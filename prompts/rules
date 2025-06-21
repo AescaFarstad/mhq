@@ -1,0 +1,2 @@
+
+Running tests for obfuscation and discovery system is 'npx tsc --project tsconfig.tests.json && node dist-tests/tests/testRunner.js'.

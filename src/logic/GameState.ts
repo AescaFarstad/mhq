@@ -20,6 +20,8 @@ import type { BaseMinigame, MinigameType, MinigameState } from './minigames/Mini
 import { Invoker } from './core/behTree/Invoker';
 import type { EventDefinition } from './lib/definitions/EventDefinition';
 import type { HypotheticalState } from './core/Hypothetical';
+import type { DiscoveryAction } from '../types/discoveryTypes';
+import { markExistingDiscoveredItemsAsEncountered } from './Discovery';
 
 import { C } from './lib/C';
 
@@ -35,12 +37,15 @@ export class GameState {
     public characters: Character[] = [];
     public buildings: Building[] = [];
     public discoveredItems: Set<string> = new Set();
+    public encounteredItems: Set<string> = new Set();
     public activeKeywords: Map<string, string[]> = new Map();
     public discardedKeywords: Set<string> = new Set();
-    public discoveryLog: any[] = []; // This will be a structured type, e.g., DiscoveryEvent[]
+    public discoveryAnalysisLog: DiscoveryAction[][] = [];
     public activeMinigame: BaseMinigame<MinigameState> | null = null;
     public invoker: Invoker = new Invoker();
     public hypothetical: HypotheticalState | null = null;
+    public ingressGameResults: { [sessionId: string]: any } = {}; // Store results from completed ingress games
+    public crystalBallWords: string[] = []; // Words from ingress sessions for crystal ball
 
     public gold! : Resource;
     public clutter! : Resource;
@@ -50,6 +55,7 @@ export class GameState {
     public taskUidCounter: IndependentStat;
     public workSpeed: Parameter;
     public clutterRatio: Parameter;
+    public discoveryThreshold: IndependentStat;
 
     public dateStarted: number = Date.now();
     public dateModified: number = Date.now();
@@ -87,6 +93,7 @@ export class GameState {
         uiWorkSpeed: number;
         uiClutterRatio: number;
         discoveredItemsCount: number;
+        encounteredItemsCount: number;
         activeMinigameType: MinigameType | null;
         activeMinigameState: MinigameState | null;
         debugActiveTab: string;
@@ -94,7 +101,10 @@ export class GameState {
         // Discovery system reactive state
         activeKeywords: Map<string, string[]>;
         discardedKeywords: Set<string>;
-        discoveryLog: any[];
+        discoveryAnalysisLog: DiscoveryAction[][];
+        // Crystal ball state
+        crystalBallWords: string[];
+        showCrystalView: boolean;
     };
 
     constructor() {
@@ -106,6 +116,8 @@ export class GameState {
         Stats.modifyParameterADD(this.workSpeed, 1, this.connections);
 
         this.clutterRatio = Stats.createParameter("clutterRatio", this.connections);
+
+        this.discoveryThreshold = Stats.createStat("discovery_threshold", 5, this.connections);
 
         this.uiState = reactive({
             resources: {},
@@ -125,18 +137,23 @@ export class GameState {
             uiWorkSpeed: 0, // Initialize uiWorkSpeed
             uiClutterRatio: 0, // Initialize uiClutterRatio
             discoveredItemsCount: 0, // Initialize discoveredItemsCount
+            encounteredItemsCount: 0, // Initialize encounteredItemsCount
             activeMinigameType: null,
             activeMinigameState: null,
             debugActiveTab: 'main', // Initialize debug tab
             debugExploreInput: '', // Initialize debug explore input
             activeKeywords: new Map(),
             discardedKeywords: new Set(),
-            discoveryLog: [],
+            discoveryAnalysisLog: [],
+            crystalBallWords: [],
+            showCrystalView: false,
         });
 
         this.setupInitialResources();
 
         UIStateManager.sync(this);
+
+        markExistingDiscoveredItemsAsEncountered(this);
     }
 
     public update(deltaTime: number): void {
@@ -230,6 +247,24 @@ export class GameState {
         return this.discoveredItems.has(itemId);
     }
 
+    public isEncountered(itemId: string): boolean {
+        return this.encounteredItems.has(itemId);
+    }
+
+    public markAsEncountered(itemId: string): void {
+        if (this.encounteredItems.has(itemId)) {
+            return; // Already encountered
+        }
+        
+        this.encounteredItems.add(itemId);
+        
+        // If this is a specialization, also mark its parent skill as encountered
+        const specDefinition = this.lib.skills.getSpecialization(itemId);
+        if (specDefinition && specDefinition.parentId) {
+            this.encounteredItems.add(specDefinition.parentId);
+        }
+    }
+
     // --- Minigame Management ---
     public startMinigame(minigame: BaseMinigame<MinigameState>): void {
         if (this.activeMinigame) {
@@ -258,5 +293,13 @@ export class GameState {
             };
             EventProcessor.processSingleEvent(completionEvent, this);
         }
+    }
+
+    public toggleCrystalView(): void {
+        this.uiState.showCrystalView = !this.uiState.showCrystalView;
+    }
+
+    public closeCrystalView(): void {
+        this.uiState.showCrystalView = false;
     }
 }

@@ -36,6 +36,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
             usefulWords: [],
             offensiveWords: [],
             blankWords: [],
+            allSubmittedWords: [],
             possessionCharges: 0,
             totalPossessionCharges: 0,
             chargesBarRevealed: false,
@@ -124,6 +125,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
                  this.state.blankWords.push(cleanedWord);
                  isNew = true;
             }
+            // Add to comprehensive storage
+            if (!this.state.allSubmittedWords.includes(word.trim())) {
+                this.state.allSubmittedWords.push(word.trim());
+            }
             return { classification: 'blank', pointsEarned: 0, submittedWord: word.trim(), isNewAddition: isNew };
         }
 
@@ -133,6 +138,14 @@ export class IngressGame implements BaseMinigame<IngressState> {
             if (!this.state.offensiveWords.includes(offensiveWordToStore)) {
                 this.state.offensiveWords.push(offensiveWordToStore);
                 isNew = true;
+            }
+            // Add to comprehensive storage
+            if (!this.state.allSubmittedWords.includes(word.trim())) {
+                this.state.allSubmittedWords.push(word.trim());
+            }
+            // Also add the matched word if it's different from the original
+            if (definition.name !== word.trim() && !this.state.allSubmittedWords.includes(definition.name)) {
+                this.state.allSubmittedWords.push(definition.name);
             }
             return { classification: 'offensive', pointsEarned: 0, submittedWord: word.trim(), isNewAddition: isNew };
         }
@@ -163,9 +176,18 @@ export class IngressGame implements BaseMinigame<IngressState> {
                 definition: definition,
                 pointsEarned: pointsToAdd,
                 wasTypo: wasTypo,
-                sourceCharacterIds: sourceCharacterIds
+                sourceCharacterIds: sourceCharacterIds,
+                originalTypedWord: word.trim()
             };
             this.state.usefulWords.push(submittedWord);
+            // Add to comprehensive storage
+            if (!this.state.allSubmittedWords.includes(word.trim())) {
+                this.state.allSubmittedWords.push(word.trim());
+            }
+            // Also add the corrected word if it was a typo and different from original
+            if (wasTypo && definition.name !== word.trim() && !this.state.allSubmittedWords.includes(definition.name)) {
+                this.state.allSubmittedWords.push(definition.name);
+            }
             this.state.possessionCharges += pointsToAdd;
             this.state.totalPossessionCharges += pointsToAdd;
             
@@ -207,6 +229,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
         if (!this.state.blankWords.includes(cleanedWord)) {
             this.state.blankWords.push(cleanedWord);
             isNewFallback = true;
+        }
+        // Add to comprehensive storage
+        if (!this.state.allSubmittedWords.includes(word.trim())) {
+            this.state.allSubmittedWords.push(word.trim());
         }
         return { classification: 'blank', pointsEarned: 0, submittedWord: word.trim(), isNewAddition: isNewFallback };
     }
@@ -366,6 +392,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
             attributePoints: this.state.upgrades.char_attribute_point ? 1 : 0,
             skillPoints: this.state.upgrades.char_skill_point ? 1 : 0,
             specPoints: this.state.upgrades.char_spec_point ? 1 : 0,
+            allSubmittedWords: [...this.state.allSubmittedWords],
         };
 
         effects.applyIngressResults(gameState, params);

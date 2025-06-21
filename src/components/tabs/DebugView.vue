@@ -296,7 +296,6 @@ p {
 }
 
 .tab-content {
-  margin-top: 5px;
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -455,11 +454,11 @@ p {
 
 .content-text {
   flex: 1;
-  padding: 15px;
+  padding: 5px;
   margin: 0;
   font-family: 'Courier New', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.2;
   color: #212529;
   background-color: white;
   overflow: auto;

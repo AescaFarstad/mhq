@@ -55,6 +55,7 @@ export interface ApplyIngressResultsParams {
     attributePoints: number;
     skillPoints: number;
     specPoints: number;
+    allSubmittedWords?: string[]; // All words entered during the game
 }
 
 /** Represents the results of the Welcome minigame */

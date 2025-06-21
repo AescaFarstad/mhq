@@ -1,7 +1,7 @@
 import { advanceSeed, seedToRandom } from '../logic/utils/mathUtils';
 
 const MYSTERIOUS_CHARS: string[] = [
-    'Ձ', 'Ճ', 'Յ', 'Շ', 'Վ', 'Ֆ', 'Ր', 'Ջ', 'Հ', 'ຢ', 'Ն', 'ລ', 'ກ', 'ຊ', 'ы', 'ю', 'ч', 'з', 'ь', '☋', '☡', 'ɻ', 'ɷ', 'ɕ', 'ɗ', 'ⵛ', 'ʋ', 'ɲ', 'ɦ', 'ⵓ', 'ଌ', 'ଓ', 'ઇ', 'ມ', 'Թ', 'Ո'
+    'Ձ', 'Ճ', 'Յ', 'Շ', 'Վ', 'Ֆ', 'Ր', 'Ջ', 'Հ', 'ຢ', 'Ն', 'ລ', 'ກ', 'ຊ', 'ы', 'ю', 'ч', 'з', 'ь', '☋', '☡', 'ɻ', 'ɷ', 'ɕ', 'ɗ', 'ⵛ', 'ʋ', 'ɲ', 'ɦ', 'ⵓ', 'ଌ', 'ઇ', 'ມ', 'Թ', 'Ո'
 ];
 
 /**
@@ -14,9 +14,10 @@ const MYSTERIOUS_CHARS: string[] = [
  * @param text The input string.
  * @param obfuscationPercentage The percentage of characters to obfuscate (0-1, default 1 for 100%).
  * @param progressivity A value from 0 to 1 that controls how much character position influences obfuscation. A value of 0 results in uniform obfuscation. A value of 0.5 mimics the old 'progressive' behavior. At 1, obfuscation is almost entirely dependent on position (more likely at the end).
+ * @param useSymbols Whether to use mysterious symbols (true) or plain squares (false, default true).
  * @returns The obfuscated string.
  */
-export function obfuscateString(text: string, obfuscationPercentage: number = 1, progressivity: number = 0): string {
+export function obfuscateString(text: string, obfuscationPercentage: number = 1, progressivity: number = 0, useSymbols: boolean = true): string {
     if (!text) {
         return "";
     }
@@ -64,21 +65,28 @@ export function obfuscateString(text: string, obfuscationPercentage: number = 1,
         }
 
         // Always generate threshold for this character position
-        thresholdSeed = advanceSeed(thresholdSeed, i * 37);
+        // Mix in position-based entropy before advancing
+        thresholdSeed = advanceSeed(thresholdSeed ^ (i * 37));
         const threshold = seedToRandom(thresholdSeed);
 
         // Always advance obfuscation seed and pre-generate obfuscation character
         const originalCharCode: number = text.charCodeAt(i) || 1;
-        obfuscationSeed = advanceSeed(obfuscationSeed, originalCharCode);
+        // Mix in character-based entropy before advancing
+        obfuscationSeed = advanceSeed(obfuscationSeed ^ originalCharCode);
         
         let obfuscatedChar: string;
-        if (i === 0) {
-            obfuscatedChar = "¿";
-        } else if (i === len - 1) {
-            obfuscatedChar = "?";
+        if (useSymbols) {
+            if (i === 0) {
+                obfuscatedChar = "¿";
+            } else if (i === len - 1) {
+                obfuscatedChar = "?";
+            } else {
+                const charIndex = (obfuscationSeed & 0x7FFFFFFF) % MYSTERIOUS_CHARS.length;
+                obfuscatedChar = MYSTERIOUS_CHARS[charIndex];
+            }
         } else {
-            const charIndex = (obfuscationSeed & 0x7FFFFFFF) % MYSTERIOUS_CHARS.length;
-            obfuscatedChar = MYSTERIOUS_CHARS[charIndex];
+            // Use simple square symbol for all positions
+            obfuscatedChar = "▫";
         }
 
         // Decide whether to use original or obfuscated character

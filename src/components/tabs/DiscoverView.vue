@@ -3,11 +3,13 @@
     <div class="discover-layout">
       <div class="skill-browser-panel">
         <SkillBrowser />
+        <!-- Crystal View positioned over skill browser -->
+        <CrystalView v-if="showCrystalView" />
       </div>
       <div class="crystal-ball-panel">
-        <DiscoveryLog />
         <ActiveKeywords />
         <div class="discovery-input-wrapper">
+          <DiscoveryLog />
           <DiscoveryInput />
         </div>
       </div>
@@ -16,11 +18,19 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent as _defineComponent } from "vue";
+import { computed, inject } from 'vue';
+import type { GameState } from '../../logic/GameState';
 import SkillBrowser from '../discover/SkillBrowser.vue';
 import DiscoveryInput from '../discover/DiscoveryInput.vue';
 import DiscoveryLog from '../discover/DiscoveryLog.vue';
 import ActiveKeywords from '../discover/ActiveKeywords.vue';
+import CrystalView from '../CrystalView.vue';
+
+const gameState = inject<GameState>('gameState');
+
+const showCrystalView = computed(() => {
+  return gameState?.uiState.showCrystalView ?? false;
+});
 </script>
 
 <style scoped>
@@ -43,6 +53,7 @@ import ActiveKeywords from '../discover/ActiveKeywords.vue';
   background: #f8f9fa;
   border-right: 1px solid #dee2e6;
   overflow: hidden;
+  position: relative; /* Enable positioning for CrystalView */
 }
 
 .crystal-ball-panel {
@@ -55,5 +66,8 @@ import ActiveKeywords from '../discover/ActiveKeywords.vue';
 
 .discovery-input-wrapper {
   margin-top: auto; /* Push to bottom */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style> 

@@ -129,5 +129,5 @@ graph TD
 *   **Testable Outcome:** The full loop is playable. The player enters keywords, sees stars appear on skills, and at 5 stars, the skill automatically unlocks with a special message. 
 
 
-##TODO:
-ResourceLib
+## TODO:
+*   **ResourceLib**

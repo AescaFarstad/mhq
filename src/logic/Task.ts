@@ -460,6 +460,10 @@ function updateMaintenance(gameState: GameState): void {
                     if (declutterTaskDef.reward?.clutterPerEffort && declutterTaskDef.reward.clutterPerEffort < 0) {
                         newTask.clutterReduction = declutterTaskDef.reward.clutterPerEffort * newTask.totalEffort;
                     }
+                    
+                    // Mark required skills as encountered
+                    markTaskSkillsAsEncountered(newTask, gameState);
+                    
                     generatedTask = newTask;
                 }
             }
@@ -508,6 +512,20 @@ function calculateCharacterTaskSpeed(character: Character, task: GameTask, gameS
     }
 
     return { speed: totalSpeed > 0 ? totalSpeed : 0, proficiencies };
+}
+
+/**
+ * Marks all skills required by a task as encountered
+ * @param task The task whose required skills should be marked as encountered
+ * @param gameState The game state to update
+ */
+function markTaskSkillsAsEncountered(task: GameTask, gameState: GameState): void {
+    const requiredSkillNames = task.resolvedDefinitionDetails.skills;
+    if (requiredSkillNames && requiredSkillNames.length > 0) {
+        for (const skillOrSpecName of requiredSkillNames) {
+            gameState.markAsEncountered(skillOrSpecName);
+        }
+    }
 }
 
 /**

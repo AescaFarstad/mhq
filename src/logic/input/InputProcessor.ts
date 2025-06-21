@@ -1,6 +1,6 @@
 import type { GameState } from '../GameState';
 import { globalInputQueue } from '../GameState'; // Import globalInputQueue
-import type { CmdInput, CmdCheatSkillUp, CmdConstructBuilding, CmdTimeScale, CmdFireCharacter, CmdSpendAttributePoint, CmdSpendSkillPoint, CmdSpendSpecPoint, CmdSubmitDiscovery } from './InputCommands';
+import type { CmdInput, CmdCheatSkillUp, CmdConstructBuilding, CmdTimeScale, CmdFireCharacter, CmdSpendAttributePoint, CmdSpendSkillPoint, CmdSpendSpecPoint, CmdSubmitDiscovery, CmdRemoveCrystalWord } from './InputCommands';
 import { Stats } from '../core/Stats';
 import type { IndependentStat } from '../core/Stat';
 import { Building } from '../Building'; // Import Building namespace
@@ -18,6 +18,7 @@ handlersByName.set("CmdSpendAttributePoint", handleSpendAttributePoint);
 handlersByName.set("CmdSpendSkillPoint", handleSpendSkillPoint);
 handlersByName.set("CmdSpendSpecPoint", handleSpendSpecPoint);
 handlersByName.set("CmdSubmitDiscovery", handleSubmitDiscovery);
+handlersByName.set("CmdRemoveCrystalWord", handleRemoveCrystalWord);
 
 /**
  * Processes all queued commands in the GameState.
@@ -190,6 +191,14 @@ function handleSpendSpecPoint(gameState: GameState, command: CmdInput): void {
 function handleSubmitDiscovery(gameState: GameState, command: CmdInput): void {
     const specificCommand = command as CmdSubmitDiscovery;
     processDiscoveryAttempt(specificCommand.input, gameState);
+}
+
+function handleRemoveCrystalWord(gameState: GameState, command: CmdInput): void {
+    const specificCommand = command as CmdRemoveCrystalWord;
+    const wordIndex = gameState.crystalBallWords.indexOf(specificCommand.word);
+    if (wordIndex > -1) {
+        gameState.crystalBallWords.splice(wordIndex, 1);
+    }
 }
 
 // Add other handlers here as top-level functions, e.g.:

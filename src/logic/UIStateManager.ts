@@ -488,13 +488,13 @@ export function syncMinigameState(gameState: GameState): void {
 
 /**
  * Synchronizes discovery state to uiState.
- * Optimized to avoid copying when discoveredItems count and array lengths haven't changed.
+ * Ensures active keywords are updated when items are discovered so counts reflect undiscovered items only.
  */
 export function syncDiscoveryState(gameState: GameState): void {
     const discoveredItemsCount = gameState.discoveredItems.size;
+    const encounteredItemsCount = gameState.encounteredItems.size;
     const activeKeywordsSize = gameState.activeKeywords.size;
     const discardedKeywordsSize = gameState.discardedKeywords.size;
-    const discoveryLogLength = gameState.discoveryLog.length;
     
     // Check if we need to sync activeKeywords
     if (gameState.uiState.activeKeywords.size !== activeKeywordsSize || 
@@ -507,6 +507,9 @@ export function syncDiscoveryState(gameState: GameState): void {
         }
     }
     
+    // Update encountered items count
+    gameState.uiState.encounteredItemsCount = encounteredItemsCount;
+    
     // Check if we need to sync discardedKeywords
     if (gameState.uiState.discardedKeywords.size !== discardedKeywordsSize) {
         // Clear and rebuild discardedKeywords
@@ -516,16 +519,24 @@ export function syncDiscoveryState(gameState: GameState): void {
         }
     }
     
-    // Check if we need to sync discoveryLog (test latest item for equality)
-    const uiLogLength = gameState.uiState.discoveryLog.length;
-    if (uiLogLength !== discoveryLogLength || 
-        (discoveryLogLength > 0 && uiLogLength > 0 && 
-            gameState.uiState.discoveryLog[uiLogLength - 1] !== 
-            gameState.discoveryLog[discoveryLogLength - 1])) {
+    // Check if we need to sync discoveryAnalysisLog
+    const uiAnalysisLogLength = gameState.uiState.discoveryAnalysisLog.length;
+    const sourceAnalysisLogLength = gameState.discoveryAnalysisLog.length;
+    
+    if (uiAnalysisLogLength !== sourceAnalysisLogLength || 
+        (sourceAnalysisLogLength > 0 && uiAnalysisLogLength > 0 && 
+         gameState.uiState.discoveryAnalysisLog[uiAnalysisLogLength - 1] !== 
+         gameState.discoveryAnalysisLog[sourceAnalysisLogLength - 1])) {
         
-        // Copy the discovery log
-        gameState.uiState.discoveryLog.length = 0;
-        gameState.uiState.discoveryLog.push(...gameState.discoveryLog);
+        // Copy the analysis log (each entry is an array of DiscoveryActions)
+        gameState.uiState.discoveryAnalysisLog.length = 0;
+        gameState.uiState.discoveryAnalysisLog.push(...gameState.discoveryAnalysisLog);
+    }
+
+    // Sync crystal ball words
+    if (gameState.uiState.crystalBallWords.length !== gameState.crystalBallWords.length ||
+        !gameState.uiState.crystalBallWords.every((word, index) => word === gameState.crystalBallWords[index])) {
+        gameState.uiState.crystalBallWords = [...gameState.crystalBallWords];
     }
 }
 
@@ -549,8 +560,6 @@ export function sync(gameState: GameState): void {
     syncCoreParameters(gameState);
     // Always sync hypothetical state for previews
     syncHypotheticalState(gameState);
-    // Always sync discovered items count for UI reactivity
-    syncDiscoveredItems(gameState);
 
     // Sync data specific to the active tab
     const activeTab = gameState.uiState.activeTabName;
@@ -565,4 +574,7 @@ export function sync(gameState: GameState): void {
     } else if (activeTab === 'Discover') {
         syncDiscoveryState(gameState);
     }
+    
+    // Sync discovered items count AFTER discovery state to allow proper comparison
+    syncDiscoveredItems(gameState);
 } 

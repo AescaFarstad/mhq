@@ -1,34 +1,121 @@
+import { OpenSimplex2F } from './openSimplex2F';
+
+// PCG constants for PCG-XSH-RR algorithm (64-bit state, 32-bit output)
+const PCG_MULTIPLIER = 6364136223846793005n; // 64-bit multiplier
+const PCG_INCREMENT = 1442695040888963407n;  // 64-bit increment (arbitrary odd constant)
+
 /**
- * Advances a seed using Linear Congruential Generator and returns the new seed.
- * @param seed The current seed value
- * @param entropy Optional additional entropy to mix in
- * @returns The new seed value
+ * 32-bit right rotation helper function for PCG algorithm
+ * @param x 32-bit value to rotate
+ * @param r Number of positions to rotate right
+ * @returns Rotated 32-bit value
  */
-export function advanceSeed(seed: number, entropy: number = 0): number {
-    return (seed * 1664525 + 1013904223 + entropy) & 0xFFFFFFFF;
+function rotr32(x: number, r: number): number {
+    r = r & 31; // Ensure r is in range [0, 31]
+    return ((x >>> r) | (x << (32 - r))) >>> 0;
 }
 
 /**
- * Converts a seed value to a random number between 0 and 1.
+ * Converts a 64-bit BigInt state to a 32-bit PCG output using PCG-XSH-RR algorithm
+ * @param state 64-bit state as BigInt
+ * @returns 32-bit PCG output as regular number
+ */
+function pcgStateToOutput(state: bigint): number {
+    // Extract rotation count from high bits (bits 63-59)
+    const count = Number(state >> 59n) & 31;
+    
+    // Apply XOR-shift: x ^= x >> 18 (18 = (64 - 27)/2)
+    let x = state ^ (state >> 18n);
+    
+    // Extract middle bits (bits 58-27) and apply rotation
+    const middle32 = Number((x >> 27n) & 0xFFFFFFFFn);
+    return rotr32(middle32, count);
+}
+
+/**
+ * Advances a seed using Permuted Congruential Generator (PCG) algorithm.
+ * Uses 64-bit state internally but accepts/returns regular JavaScript numbers.
+ * @param seed The current seed value (will be converted to 64-bit state)
+ * @returns The new seed value (converted back from 64-bit state)
+ */
+export function advanceSeed(seed: number): number {
+    // Convert seed to proper 64-bit state
+    let state = seedToState(seed);
+    
+    // Apply PCG state advancement: state = state * multiplier + increment
+    state = (state * PCG_MULTIPLIER + PCG_INCREMENT) & 0xFFFFFFFFFFFFFFFFn;
+    
+    // Convert back to number (using the high 32 bits to avoid loss of entropy)
+    return Number(state >> 32n);
+}
+
+/**
+ * Converts a seed value to a random number between 0 and 1 (exclusive of 1).
+ * Uses PCG algorithm for better statistical properties than LCG.
  * @param seed The seed value
- * @returns A number between 0 and 1
+ * @returns A number between 0 and 1 (exclusive of 1)
  */
 export function seedToRandom(seed: number): number {
-    return (seed & 0x7FFFFFFF) / 0x7FFFFFFF;
+    // Convert seed to proper 64-bit state
+    const state = seedToState(seed);
+    
+    // Generate PCG output
+    const output = pcgStateToOutput(state);
+    
+    // Convert 32-bit output to [0, 1) range
+    return output / 0x100000000; // Divide by 2^32
 }
 
 /**
- * Generates a seeded random number and advances the seed.
- * @param seed The current seed (will be modified)
- * @param entropy Optional additional entropy
+ * Converts a regular number seed to a proper 64-bit PCG state
+ * @param seed Input seed value
+ * @returns 64-bit state suitable for PCG algorithm
+ */
+function seedToState(seed: number): bigint {
+    // Use a better mixing function to convert 32-bit-ish seeds to 64-bit states
+    // This ensures different seeds produce significantly different states
+    const s = BigInt(Math.abs(seed)) & 0xFFFFFFFFn; // Ensure 32-bit range
+    
+    // Mix the seed to create a 64-bit state with good distribution
+    // This is similar to SplitMix64 hash function
+    let state = (s ^ 0x9E3779B97F4A7C15n) * 0xBF58476D1CE4E5B9n;
+    state = (state ^ (state >> 30n)) * 0x94D049BB133111EBn;
+    state = (state ^ (state >> 27n)) * 0x9E3779B97F4A7C15n;
+    return state ^ (state >> 31n);
+}
+
+/**
+ * Generates a seeded random number and advances the seed using PCG algorithm.
+ * @param seed The current seed
  * @returns Object with the random number and new seed
  */
-export function seededRandom(seed: number, entropy: number = 0): { value: number; newSeed: number } {
-    const newSeed = advanceSeed(seed, entropy);
-    return { 
-        value: seedToRandom(newSeed), 
-        newSeed 
-    };
+export function seededRandom(seed: number): { value: number; newSeed: number } {
+    // Convert seed to proper 64-bit state
+    let state = seedToState(seed);
+    
+    // Generate output from current state
+    const output = pcgStateToOutput(state);
+    const value = output / 0x100000000; // Convert to [0, 1)
+    
+    // Advance state for next iteration
+    state = (state * PCG_MULTIPLIER + PCG_INCREMENT) & 0xFFFFFFFFFFFFFFFFn;
+    const newSeed = Number(state >> 32n);
+    
+    return { value, newSeed };
+}
+
+/**
+ * Generates a seeded random integer in the range [min, max] (inclusive).
+ * @param seed The current seed
+ * @param min Minimum value (inclusive)
+ * @param max Maximum value (inclusive)
+ * @returns Object with the random integer and new seed
+ */
+export function seededRandomInt(seed: number, min: number, max: number): { value: number; newSeed: number } {
+    const { value, newSeed } = seededRandom(seed);
+    const range = max - min + 1;
+    const randomInt = Math.floor(value * range) + min;
+    return { value: randomInt, newSeed };
 }
 
 /**
@@ -61,4 +148,7 @@ export function getWeightedRandomIndex(weights: number[]): number {
 
     // Should not be reached if totalWeight > 0
     return weights.length - 1; 
-} 
+}
+
+// General-purpose noise instance
+export let generalNoise = new OpenSimplex2F(12345);

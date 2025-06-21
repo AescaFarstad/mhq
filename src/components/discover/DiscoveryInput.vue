@@ -1,9 +1,11 @@
 <template>
   <div class="discovery-input-section">
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div class="input-container">
       <div class="crystal-ball-mini">
         <CrystalBall />
+        <div v-if="crystalWordCount > 0" class="crystal-count-badge">
+          {{ crystalWordCount }}
+        </div>
       </div>
       <div
         class="input-area"
@@ -35,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, inject } from 'vue';
+import { ref, nextTick, inject, computed } from 'vue';
 import type { GameState } from '../../logic/GameState';
 import { globalInputQueue } from '../../logic/GameState';
 import type { CmdSubmitDiscovery } from '../../logic/input/InputCommands';
@@ -45,18 +47,21 @@ const gameState = inject<GameState>('gameState');
 const discoveryInput = ref('');
 const inputElementRef = ref<HTMLInputElement | null>(null);
 const inputInteractionState = ref<'default' | 'error' | 'success' | 'typing'>('default');
-const errorMessage = ref('');
 
-let lastDiscoveryLogLength = 0;
+const crystalWordCount = computed(() => {
+  return gameState?.uiState.crystalBallWords?.length ?? 0;
+});
+
+let lastAnalysisLogLength = 0;
 
 const submitDiscovery = async () => {
   if (!gameState || !discoveryInput.value.trim()) {
-    await showError("Please enter something to discover");
+    await showError();
     return;
   }
   
   const inputBefore = discoveryInput.value.trim();
-  lastDiscoveryLogLength = gameState.uiState.discoveryLog.length;
+  lastAnalysisLogLength = gameState.uiState.discoveryAnalysisLog.length;
   
   const command: CmdSubmitDiscovery = {
     name: "CmdSubmitDiscovery",
@@ -69,24 +74,25 @@ const submitDiscovery = async () => {
   setTimeout(async () => {
     if (!gameState) return;
     
-    const hasNewEntry = gameState.uiState.discoveryLog.length > lastDiscoveryLogLength;
+    const hasNewEntry = gameState.uiState.discoveryAnalysisLog.length > lastAnalysisLogLength;
     
     if (hasNewEntry) {
-      const lastEntry = gameState.uiState.discoveryLog[gameState.uiState.discoveryLog.length - 1];
+      const lastEntry = gameState.uiState.discoveryAnalysisLog[gameState.uiState.discoveryAnalysisLog.length - 1];
+      const firstAction = lastEntry[0];
       
-      if (lastEntry.type === 'direct_discovery' || lastEntry.type === 'brainstorm_discovery' || lastEntry.type === 'keyword_found') {
+      if (firstAction && (firstAction.type === 'DIRECT_DISCOVERY' || firstAction.type === 'ADD_ACTIVE_KEYWORD')) {
         // Success - clear input, show success animation, maintain focus
         discoveryInput.value = '';
         showSuccess();
         await nextTick();
         inputElementRef.value?.focus();
       } else {
-        // This shouldn't happen with current DiscoveryEvent types, but just in case
-        await showError(`No matches found for "${inputBefore}"`);
+        // Error or other result
+        await showError();
       }
     } else {
-      // No new entry means no match found
-      await showError(`No matches found for "${inputBefore}"`);
+      // No new entry means no success
+      await showError();
     }
   }, 100);
 };
@@ -95,15 +101,13 @@ const onInputChange = () => {
   // Clear error state when user starts typing
   if (inputInteractionState.value === 'error' || inputInteractionState.value === 'success') {
     inputInteractionState.value = 'typing';
-    errorMessage.value = '';
   }
 };
 
-const showError = async (message: string) => {
-  errorMessage.value = message;
+const showError = async () => {
   inputInteractionState.value = 'error';
   
-  // Select the input text and maintain focus
+  // Select the input text and maintain focus for errors
   await nextTick();
   inputElementRef.value?.select();
   inputElementRef.value?.focus();
@@ -134,18 +138,6 @@ const showSuccess = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.error-message {
-  color: #e74c3c;
-  font-size: 14px;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .input-container {
@@ -272,5 +264,21 @@ const showSuccess = () => {
 
 .flash-green-animation .discovery-input {
   animation: flashGreenBorder 0.7s ease-out;
+}
+
+.crystal-count-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  pointer-events: none;
 }
 </style> 

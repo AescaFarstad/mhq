@@ -180,6 +180,28 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
         Stats.modifyStat(character.skillPoints, params.skillPoints, state.connections);
         Stats.modifyStat(character.specPoints, params.specPoints, state.connections);
 
+        // Store ingress word data if provided
+        if (params.allSubmittedWords) {
+            const sessionId = `${params.characterId}_${Date.now()}`;
+            state.ingressGameResults[sessionId] = {
+                characterId: params.characterId,
+                characterName: params.characterName,
+                completedAt: Date.now(),
+                allSubmittedWords: params.allSubmittedWords,
+                xpBonus: params.xpBonus,
+                attributePoints: params.attributePoints,
+                skillPoints: params.skillPoints,
+                specPoints: params.specPoints,
+            };
+
+            // Add unique words to crystal ball storage
+            for (const word of params.allSubmittedWords) {
+                if (!state.crystalBallWords.includes(word)) {
+                    state.crystalBallWords.push(word);
+                }
+            }
+        }
+
         console.log(`Applied Ingress results to character: ${character.name}`);
     } else {
         console.warn(`Effect 'ApplyIngressResults': Could not find or add character with ID "${params.characterId}".`);
@@ -207,4 +229,12 @@ export function givePoints(state: GameState, params: GivePointsParams): void {
     Stats.modifyStat(firstCharacter.attributePoints, params.attributePoints, state.connections);
     Stats.modifyStat(firstCharacter.skillPoints, params.skillPoints, state.connections);
     Stats.modifyStat(firstCharacter.specPoints, params.specPoints, state.connections);
+}
+
+export function addCrystalBallWords(state: GameState, params: { words: string[] }): void {
+    for (const word of params.words) {
+        if (!state.crystalBallWords.includes(word)) {
+            state.crystalBallWords.push(word);
+        }
+    }
 } 

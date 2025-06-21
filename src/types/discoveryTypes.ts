@@ -42,4 +42,6 @@ export type DiscoveryAction =
     | { type: 'INVALID_INPUT'; input: string; reason: string }
     | { type: 'ALREADY_DISCOVERED'; item: DiscoverableItem }
     | { type: 'KEYWORD_ALREADY_ACTIVE'; keyword: string }
-    | { type: 'KEYWORD_ALREADY_DISCARDED'; keyword: string }; 
+    | { type: 'KEYWORD_ALREADY_DISCARDED'; keyword: string };
+
+ 

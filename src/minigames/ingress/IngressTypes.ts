@@ -8,7 +8,11 @@ export interface SubmittedWord {
     pointsEarned: number;
     wasTypo: boolean;
     sourceCharacterIds?: string[];
+    originalTypedWord: string; // The word actually typed by the user
 }
+
+// Simple array to store all words entered during the game as strings
+export type AllSubmittedWords = string[];
 
 export type IngressUpgradeId = 
     | 'char_attribute_point'
@@ -55,6 +59,7 @@ export interface IngressState extends MinigameState {
     usefulWords: SubmittedWord[];
     offensiveWords: string[];
     blankWords: string[];
+    allSubmittedWords: AllSubmittedWords; // Comprehensive storage of all words entered
     possessionCharges: number;
     totalPossessionCharges: number; // Total charges earned over time
     chargesBarRevealed: boolean;

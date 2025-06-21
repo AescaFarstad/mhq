@@ -1,6 +1,7 @@
 import { DiscoveryAction } from '../types/discoveryTypes';
 import { DiscoveryLib } from './lib/DiscoveryLib';
 import { GameState } from './GameState';
+import { wordify } from '../utils/stringUtils';
 
 /**
  * Stateless module for analyzing player input and returning discovery actions.
@@ -36,17 +37,33 @@ export function analyzeInput(
     if (wordCount === 1) {
         // Single word: perform both direct name search and keyword search
         const directResults = performDirectNameSearch(cleanedInput, discoveryLib, gameState);
+        const keywordResults = performKeywordSearch(cleanedInput, discoveryLib, gameState);
         
-        // If direct search succeeded, return it (direct discovery takes precedence)
+        // Combine results - direct discoveries should come first, then keywords
+        const combinedResults: DiscoveryAction[] = [];
+        
+        // Add direct discovery if it's a new discovery
         if (directResults.length > 0 && directResults[0].type === 'DIRECT_DISCOVERY') {
+            combinedResults.push(...directResults);
+        }
+        
+        // Add keyword results if found
+        if (keywordResults.length > 0 && 
+            ['ADD_ACTIVE_KEYWORD', 'ADD_DISCARDED_KEYWORD'].includes(keywordResults[0].type)) {
+            combinedResults.push(...keywordResults);
+        }
+        
+        // If we have combined results, return them
+        if (combinedResults.length > 0) {
+            return combinedResults;
+        }
+        
+        // Otherwise, return the most informative result
+        if (directResults.length > 0) {
             return directResults;
         }
         
-        // If direct search failed or returned already discovered, try keyword search
-        const keywordResults = performKeywordSearch(cleanedInput, discoveryLib, gameState);
-        
-        // Return keyword results if found, otherwise return the direct results (which could be NO_MATCH)
-        return keywordResults.length > 0 ? keywordResults : directResults;
+        return keywordResults.length > 0 ? keywordResults : [{ type: 'NO_MATCH', input: cleanedInput }];
     } else if (wordCount === 2) {
         // Two words: only perform direct name search
         return performDirectNameSearch(cleanedInput, discoveryLib, gameState);
@@ -71,26 +88,47 @@ function performDirectNameSearch(
     discoveryLib: DiscoveryLib,
     gameState: GameState
 ): DiscoveryAction[] {
-    // Try to find an exact match by searchable name
-    const item = discoveryLib.getBySearchableName(cleanedInput);
+    const results: DiscoveryAction[] = [];
+    const wordVariations = wordify(cleanedInput);
+    let originalWordAlreadyDiscovered = false;
     
-    if (!item) {
-        return [{ type: 'NO_MATCH', input: cleanedInput }];
+    // Try all word variations and collect successful discoveries
+    for (const variation of wordVariations) {
+        const item = discoveryLib.getBySearchableName(variation);
+        if (item) {
+            if (gameState.isDiscovered(item.id)) {
+                // Track if the original word was already discovered
+                if (variation === cleanedInput) {
+                    originalWordAlreadyDiscovered = true;
+                }
+                // Don't add already discovered items to results
+            } else {
+                // Found a new item to discover
+                results.push({ 
+                    type: 'DIRECT_DISCOVERY', 
+                    item: item
+                });
+            }
+        }
     }
     
-    // Check if the item is already discovered
-    if (gameState.isDiscovered(item.id)) {
+    // If we found successful discoveries, return them
+    if (results.length > 0) {
+        return results;
+    }
+    
+    // No successful discoveries - report appropriate failure
+    if (originalWordAlreadyDiscovered) {
+        // The original word matched an already discovered item
+        const originalItem = discoveryLib.getBySearchableName(cleanedInput);
         return [{ 
             type: 'ALREADY_DISCOVERED', 
-            item: item
+            item: originalItem!
         }];
     }
     
-    // Found a new item to discover
-    return [{ 
-        type: 'DIRECT_DISCOVERY', 
-        item: item
-    }];
+    // No matches found for any variation
+    return [{ type: 'NO_MATCH', input: cleanedInput }];
 }
 
 /**
@@ -101,39 +139,54 @@ function performKeywordSearch(
     discoveryLib: DiscoveryLib,
     gameState: GameState
 ): DiscoveryAction[] {
-    // Get items that have this keyword
-    const relatedItemIds = discoveryLib.getItemIdsByKeyword(cleanedInput);
+    const allRelatedItemIds = new Set<string>();
+    const matchedKeywords = new Set<string>();
+    const wordVariations = wordify(cleanedInput);
     
-    if (relatedItemIds.length === 0) {
-        return []; // No keyword match found
+    // Collect all related items from all word variations
+    for (const variation of wordVariations) {
+        const relatedItemIds = discoveryLib.getItemIdsByKeyword(variation);
+        if (relatedItemIds.length > 0) {
+            matchedKeywords.add(variation);
+            relatedItemIds.forEach(id => allRelatedItemIds.add(id));
+        }
     }
     
-    // Filter out already discovered items
-    const undiscoveredItemIds = relatedItemIds.filter(itemId => !gameState.isDiscovered(itemId));
-    
-    // Check if this keyword is already in active or discarded state
-    const isActive = gameState.activeKeywords.has(cleanedInput);
-    const isDiscarded = gameState.discardedKeywords.has(cleanedInput);
-    
-    if (isActive) {
-        return [{ type: 'KEYWORD_ALREADY_ACTIVE', keyword: cleanedInput }];
+    if (allRelatedItemIds.size === 0) {
+        return []; // No keyword match found for any variation
     }
     
-    if (isDiscarded) {
-        return [{ type: 'KEYWORD_ALREADY_DISCARDED', keyword: cleanedInput }];
+    // Process each matched keyword and separate successes from errors
+    const successfulActions: DiscoveryAction[] = [];
+    const errorActions: DiscoveryAction[] = [];
+    
+    for (const keyword of matchedKeywords) {
+        const relatedItemIds = discoveryLib.getItemIdsByKeyword(keyword);
+        const undiscoveredItemIds = relatedItemIds.filter(itemId => !gameState.isDiscovered(itemId));
+        
+        // Check if this keyword is already in active or discarded state
+        const isActive = gameState.activeKeywords.has(keyword);
+        const isDiscarded = gameState.discardedKeywords.has(keyword);
+        
+        if (isActive) {
+            errorActions.push({ type: 'KEYWORD_ALREADY_ACTIVE', keyword: keyword });
+        } else if (isDiscarded) {
+            errorActions.push({ type: 'KEYWORD_ALREADY_DISCARDED', keyword: keyword });
+        } else if (undiscoveredItemIds.length === 0) {
+            // If no undiscovered items relate to this keyword, add it to discarded
+            successfulActions.push({ type: 'ADD_DISCARDED_KEYWORD', keyword: keyword });
+        } else {
+            // Add keyword to active keywords
+            successfulActions.push({ 
+                type: 'ADD_ACTIVE_KEYWORD', 
+                keyword: keyword, 
+                relatedItemIds: undiscoveredItemIds 
+            });
+        }
     }
     
-    // If no undiscovered items relate to this keyword, add it to discarded
-    if (undiscoveredItemIds.length === 0) {
-        return [{ type: 'ADD_DISCARDED_KEYWORD', keyword: cleanedInput }];
-    }
-    
-    // Add keyword to active keywords
-    return [{ 
-        type: 'ADD_ACTIVE_KEYWORD', 
-        keyword: cleanedInput, 
-        relatedItemIds: undiscoveredItemIds 
-    }];
+    // Return successful actions if any exist, otherwise return error actions
+    return successfulActions.length > 0 ? successfulActions : errorActions;
 }
 
 /**

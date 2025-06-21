@@ -51,5 +51,10 @@ export interface CmdSubmitDiscovery extends CmdInput {
   input: string;
 }
 
+export interface CmdRemoveCrystalWord extends CmdInput {
+  name: "CmdRemoveCrystalWord";
+  word: string;
+}
+
 // Add other command interfaces here, e.g.:
 // export interface CmdOtherAction extends CmdInput { ... }

@@ -206,7 +206,7 @@ export namespace Character {
                 if (Object.prototype.hasOwnProperty.call(charDef.initialSkills, skillId) && allSkillDefs[skillId]) {
                     const skillData = charDef.initialSkills[skillId];
                     const skillDef = allSkillDefs[skillId];
-                    addInitialSkillWithSpecializations(newChar, skillId, skillData, skillDef, idPrefix, gameState.connections);
+                    addInitialSkillWithSpecializations(newChar, skillId, skillData, skillDef, idPrefix, gameState.connections, gameState);
                 }
             }
         }
@@ -236,15 +236,26 @@ export namespace Character {
         skillDefinitionFromLib: Skill,
         idPrefix: string,
         connections: Connections,
+        gameState?: GameState // Optional parameter for marking as encountered
     ): void {
-        upsertSkillAndProficiency(character, skillId, initialSkillData.level, skillDefinitionFromLib, idPrefix, connections);
+        upsertSkillAndProficiency(character, skillId, initialSkillData.level, skillDefinitionFromLib, idPrefix, connections, gameState);
+        
+        // Mark skill as encountered if gameState is provided
+        if (gameState) {
+            gameState.markAsEncountered(skillId);
+        }
 
         if (initialSkillData.specializations && skillDefinitionFromLib.specializations) {
             for (const specId of skillDefinitionFromLib.specializations) {
                 // Since all IDs are globally unique, check if this specialization ID exists in initial data
                 if (Object.prototype.hasOwnProperty.call(initialSkillData.specializations, specId)) {
                     const specLevel = initialSkillData.specializations[specId];
-                    upsertSpecializationAndProficiency(character, specId, specLevel, skillDefinitionFromLib, idPrefix, connections);
+                    upsertSpecializationAndProficiency(character, specId, specLevel, skillDefinitionFromLib, idPrefix, connections, gameState);
+                    
+                    // Mark specialization as encountered if gameState is provided
+                    if (gameState) {
+                        gameState.markAsEncountered(specId);
+                    }
                 }
             }
         }
@@ -259,7 +270,8 @@ export namespace Character {
         level: number,
         skillDefinitionFromLib: Skill,
         idPrefix: string,
-        connections: Connections
+        connections: Connections,
+        gameState?: GameState // Optional parameter for marking as encountered
     ): void {
         const skillStatId = `${idPrefix}skill_${skillId}`;
         let skillStat = character.skills[skillId];
@@ -271,6 +283,11 @@ export namespace Character {
             skillStat = Stats.createStat(skillStatId, level, connections);
             character.skills[skillId] = skillStat;
             isNewSkill = true;
+            
+            // Mark skill as encountered if it's newly added and gameState is provided
+            if (gameState) {
+                gameState.markAsEncountered(skillId);
+            }
         }
 
         // --- Average Governing Attribute Calculation for the Skill (remains FormulaParameter) ---
@@ -362,7 +379,8 @@ export namespace Character {
         level: number,
         baseSkillDefinitionFromLib: Skill, // Definition of the parent skill
         idPrefix: string,
-        connections: Connections
+        connections: Connections,
+        gameState?: GameState // Optional parameter for marking as encountered
     ): void {
         const specStatId = `${idPrefix}spec_${specId}`;
         let specStat = character.specializations[specId];
@@ -374,6 +392,11 @@ export namespace Character {
             specStat = Stats.createStat(specStatId, level, connections);
             character.specializations[specId] = specStat;
             isNewSpec = true;
+            
+            // Mark specialization as encountered if it's newly added and gameState is provided
+            if (gameState) {
+                gameState.markAsEncountered(specId);
+            }
         }
 
         const baseSkillId = baseSkillDefinitionFromLib.id;
