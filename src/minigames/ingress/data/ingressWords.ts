@@ -3,6 +3,7 @@ type IngressWordsData = {
         trivial: string[];
         minor: string[];
         major: string[];
+        special: string[];
         cheat: string[];
     };
     offensive: string[];
@@ -10,6 +11,9 @@ type IngressWordsData = {
 
 export const ingressWordDefinitions: IngressWordsData = {
     useful: {
+        special: [
+            "luck"
+        ],
         major: [
             "channel", "commune", "conduit", "ego", "empathy", "essence", "fusion", "insight", "intellect", "intent", "medium", "mental", "merge", "presence", "psyche", "psychic", "rapport", "resonance", "sentience", "sigil", "spiritual", "sway", "sync", "telepathy", "trance", "union", "fractionation", "hypnosys", "id", "sanity", "madness", "abyss", "being", "vessel", "breach", "host", "meld", "mantra", "dominance", "leash", "subjugation", "subject"
         ],
@@ -28,6 +32,10 @@ export const ingressWordDefinitions: IngressWordsData = {
         'dick',
         'asshole',
         'bastard',
-        'bitch'
+        'bitch',
+        'whore',
+        'slut',
+        'boredom',
+        'dispair',
     ]
 } 

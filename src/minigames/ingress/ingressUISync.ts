@@ -31,12 +31,17 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.characterOptions = JSON.parse(JSON.stringify(logicState.characterOptions));
         }
 
+        // Sync invision state
+        if (logicState.charactersAvailableToInvision !== uiState.charactersAvailableToInvision) {
+            uiState.charactersAvailableToInvision = logicState.charactersAvailableToInvision;
+        }
+        if (logicState.hasInvisioned !== uiState.hasInvisioned) {
+            uiState.hasInvisioned = logicState.hasInvisioned;
+        }
+
         // Sync inspection state
         if (logicState.inspectingCharacterId !== uiState.inspectingCharacterId) {
             uiState.inspectingCharacterId = logicState.inspectingCharacterId;
-        }
-        if (logicState.bioObfuscation !== uiState.bioObfuscation) {
-            uiState.bioObfuscation = logicState.bioObfuscation;
         }
 
         // Sync useful words
@@ -87,6 +92,10 @@ export const syncIngressUI: MinigameUISyncFn = (
 
         if (logicState.engagementCompletionTime !== uiState.engagementCompletionTime) {
             uiState.engagementCompletionTime = logicState.engagementCompletionTime;
+        }
+
+        if (logicState.characterBioObfuscation !== uiState.characterBioObfuscation) {
+            uiState.characterBioObfuscation = logicState.characterBioObfuscation;
         }
 
         // Add other properties from IngressState that need to be kept in sync

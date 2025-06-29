@@ -1,8 +1,7 @@
 <template>
   <div 
     class="crystal-ball-container"
-    :class="{ 'clickable': hasWords, 'glowing': hasWords }"
-    @click="handleClick"
+    :class="{ 'clickable': true, 'glowing': true }"
   >
     <div class="crystal-ball">
       <img src="/img/ball.webp" alt="Crystal Ball Layer 1" class="ball-layer layer-1" />
@@ -13,23 +12,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, inject } from 'vue';
-import type { GameState } from '../logic/GameState';
-
-const gameState = inject<GameState>('gameState');
-
-const hasWords = computed(() => {
-  return gameState?.uiState.crystalBallWords.length ?? 0 > 0;
-});
-
-const handleClick = () => {
-  if (hasWords.value && gameState) {
-    gameState.toggleCrystalView();
-  }
-};
-</script>
 
 <style scoped>
 .crystal-ball-container {

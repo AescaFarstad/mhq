@@ -110,7 +110,7 @@ const modifyStat = (name: string, delta: number) => {
   if (!gameState) return;
   const stat = gameState.connections.connectablesByName.get(name);
   if (stat && 'independent' in stat && stat.independent) {
-    gameState.modifyIndependentStat(name, delta);
+    Stats.modifyStat(stat as IndependentStat, delta, gameState.connections);
     statInputValues[name] = String(stat.value + delta);
   }
 };

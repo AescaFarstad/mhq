@@ -195,6 +195,12 @@ const handleEngageHover = (rect: DOMRect | null) => {
     }
 };
 
+const handleInvisionCharacters = () => {
+    if (ingressGame.value && gameState) {
+        ingressGame.value.invisionCharacters(gameState);
+    }
+};
+
 </script>
 
 <template>
@@ -221,6 +227,15 @@ const handleEngageHover = (rect: DOMRect | null) => {
             :upgrades="ingressState.upgrades"
             :show-progress="true"
           />
+          <div v-if="ingressState && ingressState.charactersAvailableToInvision > 0 && !ingressState.hasInvisioned && ingressState.engaged" class="invision-button-container">
+              <button 
+                  class="invision-button"
+                  :disabled="ingressState.possessionCharges < 2"
+                  @click="handleInvisionCharacters"
+              >
+                  Invision possible characters (takes ☆☆)
+              </button>
+          </div>
           <div v-if="ingressState && ingressState.characterOptions.length > 0 && ingressState.engaged" class="character-options-container">
               <IngressCharacterCard
                   v-for="option in ingressState.characterOptions"
@@ -272,7 +287,7 @@ const handleEngageHover = (rect: DOMRect | null) => {
     >
         <div class="word-item">
           <span class="word-name">{{ animationState.wordName }}</span>
-          <span class="stars" v-if="animationState.wordPoints > 0">{{ '★'.repeat(Math.min(animationState.wordPoints, 4)) }}</span>
+          <span class="stars" v-if="animationState.wordPoints > 0">{{ '★'.repeat(Math.min(animationState.wordPoints, 5)) }}</span>
         </div>
         <div v-if="animationState.wordWasTypo" class="typo-sticker">TYPO</div>
     </div>
@@ -449,6 +464,35 @@ const handleEngageHover = (rect: DOMRect | null) => {
     gap: 20px;
     width: 85%;
     max-width: 1100px;
+}
+
+.invision-button-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.invision-button {
+    background-color: #f1c40f;
+    color: #2c3e50;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.invision-button:hover:not(:disabled) {
+    background-color: #f39c12;
+}
+
+.invision-button:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
 }
 
 .character-options-container {

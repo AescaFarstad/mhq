@@ -1,6 +1,9 @@
 // Define a generic type for formula functions used by FormulaStat
 export type StatFormula = (argument: number) => number;
 
+// Define a type for event dispatcher lambdas using any to avoid circular dependency
+export type EventDispatcherLambda = (stat: EventDispatcherParameter, gameState: any) => void;
+
 /**
  * Manages connections between stats.
  * Stores references to all connectable stats and the established links.
@@ -10,6 +13,8 @@ export class Connections {
     public connectablesByName: Map<string, Stat> = new Map<string, Stat>();
     /** Maps the name of the source stat to an array of its outgoing connections. */
     public establishedConnections: Map<string, Array<Connection>> = new Map<string, Array<Connection>>();
+    /** Queue of EventDispatcherParameter stats that have crossed their threshold and need processing. */
+    public eventDispatcherQueue: EventDispatcherParameter[] = [];
 }
 
 /**
@@ -32,8 +37,6 @@ export class Connection {
         this.inputName = inputName;
     }
 }
-
-
 
 /**
  * Defines the types of connections between stats.
@@ -168,5 +171,22 @@ export class GateParameter implements Stat {
         this.isAboveThreshold = isAboveThreshold;
         // Initialize with base value
         (this as { -readonly [K in keyof this]: this[K] })['value'] = baseValue;
+    }
+}
+
+/**
+ * An event-dispatching stat that extends GateParameter.
+ * When the value crosses the threshold, it adds itself to the event dispatcher queue
+ * for processing during the next GameState update cycle.
+ */
+export class EventDispatcherParameter extends GateParameter {
+    /** The function to call when the threshold is crossed. */
+    public lambda: EventDispatcherLambda;
+    /** Flag to prevent duplicate queue entries. */
+    public isQueued: boolean = false;
+
+    constructor(name: string, baseValue: number, isAboveThreshold: boolean, lambda: EventDispatcherLambda) {
+        super(name, baseValue, isAboveThreshold);
+        this.lambda = lambda;
     }
 } 

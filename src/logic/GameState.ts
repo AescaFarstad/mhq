@@ -1,4 +1,4 @@
-import { Connections, Parameter, IndependentStat, ConnectionType } from './core/Stat';
+import { Connections, Parameter, IndependentStat, ConnectionType, EventDispatcherParameter } from './core/Stat';
 import { Lib } from './lib/Lib';
 import { EventProcessor } from './Event';
 import { Resource, updateAllResources, addResource } from './Resource';
@@ -20,8 +20,9 @@ import type { BaseMinigame, MinigameType, MinigameState } from './minigames/Mini
 import { Invoker } from './core/behTree/Invoker';
 import type { EventDefinition } from './lib/definitions/EventDefinition';
 import type { HypotheticalState } from './core/Hypothetical';
-import type { DiscoveryAction } from '../types/discoveryTypes';
-import { markExistingDiscoveredItemsAsEncountered } from './Discovery';
+import type { DiscoveryAttempt } from '../types/discoveryTypes';
+import { markExistingDiscoveredItemsAsEncountered, handleInspirationLevelUp } from './Discovery';
+import type { DialogState } from './Dialog';
 
 import { C } from './lib/C';
 
@@ -40,12 +41,14 @@ export class GameState {
     public encounteredItems: Set<string> = new Set();
     public activeKeywords: Map<string, string[]> = new Map();
     public discardedKeywords: Set<string> = new Set();
-    public discoveryAnalysisLog: DiscoveryAction[][] = [];
+    public discoveryAnalysisLog: DiscoveryAttempt[] = [];
     public activeMinigame: BaseMinigame<MinigameState> | null = null;
     public invoker: Invoker = new Invoker();
     public hypothetical: HypotheticalState | null = null;
     public ingressGameResults: { [sessionId: string]: any } = {}; // Store results from completed ingress games
     public crystalBallWords: string[] = []; // Words from ingress sessions for crystal ball
+    public dialogs: Record<string, DialogState> = {};
+    public currentDialogNodeId?: string; // Track the current node in active dialog
 
     public gold! : Resource;
     public clutter! : Resource;
@@ -56,6 +59,11 @@ export class GameState {
     public workSpeed: Parameter;
     public clutterRatio: Parameter;
     public discoveryThreshold: IndependentStat;
+    public inspiration: IndependentStat;
+    public inspirationLevel: IndependentStat;
+    public inspirationCharges: IndependentStat;
+    public inspirationMax: Parameter;
+    public inspirationLevelUpDispatcher: EventDispatcherParameter;
 
     public dateStarted: number = Date.now();
     public dateModified: number = Date.now();
@@ -101,10 +109,12 @@ export class GameState {
         // Discovery system reactive state
         activeKeywords: Map<string, string[]>;
         discardedKeywords: Set<string>;
-        discoveryAnalysisLog: DiscoveryAction[][];
+                    discoveryAnalysisLog: DiscoveryAttempt[];
         // Crystal ball state
         crystalBallWords: string[];
         showCrystalView: boolean;
+        // Dialog state
+        currentDialogNode: any; // Will be DialogNode | undefined
     };
 
     constructor() {
@@ -118,6 +128,27 @@ export class GameState {
         this.clutterRatio = Stats.createParameter("clutterRatio", this.connections);
 
         this.discoveryThreshold = Stats.createStat("discovery_threshold", C.DISCOVERY_THRESHOLD, this.connections);
+
+        this.inspiration = Stats.createStat("inspiration", 0, this.connections);
+        this.inspirationLevel = Stats.createStat("inspiration_level", 1, this.connections);
+        this.inspirationCharges = Stats.createStat("inspiration_charges", 0, this.connections);
+        this.inspirationMax = Stats.createParameter("inspiration_max", this.connections);
+        
+        // Create inspiration level-up dispatcher using static function from Discovery.ts
+        this.inspirationLevelUpDispatcher = Stats.createEventDispatcherParameter(
+            "inspiration_level_up_dispatcher", 
+            0, // baseValue
+            true, // isAboveThreshold (trigger when inspiration >= inspirationMax)
+            handleInspirationLevelUp,
+            this.connections
+        );
+        
+        Stats.modifyParameterADD(this.inspirationMax, C.INSPIRATION_MAX_PER_LEVEL, this.connections);
+        Stats.connectStat(this.inspirationLevel, this.inspirationMax, ConnectionType.MULTY, this.connections);
+        
+        // Connect inspiration to dispatcher input and inspirationMax to dispatcher threshold
+        Stats.connectStat(this.inspiration, this.inspirationLevelUpDispatcher, ConnectionType.GATE_VALUE, this.connections);
+        Stats.connectStat(this.inspirationMax, this.inspirationLevelUpDispatcher, ConnectionType.GATE_THRESHOLD, this.connections);
 
         this.uiState = reactive({
             resources: {},
@@ -147,6 +178,7 @@ export class GameState {
             discoveryAnalysisLog: [],
             crystalBallWords: [],
             showCrystalView: false,
+            currentDialogNode: undefined,
         });
 
         this.setupInitialResources();
@@ -166,6 +198,9 @@ export class GameState {
 
         updateAllResources(this.resources, deltaTime, this.connections);
         processTasks(this, deltaTime);
+        
+        // Process event dispatcher queue
+        Stats.processEventDispatcherQueue(this.connections, this);
         
         // Update active minigame if present
         if (this.activeMinigame) {
@@ -234,14 +269,7 @@ export class GameState {
 
     public setActiveTab(tabName: string): void { this.uiState.activeTabName = tabName; }
 
-    public modifyIndependentStat(statName: string, delta: number): void {
-        const stat = this.connections.connectablesByName.get(statName);
-        if (stat && 'independent' in stat && stat.independent) {
-            Stats.modifyStat(stat as IndependentStat, delta, this.connections);
-        } else {
-            console.warn(`Cannot set stat ${statName}: not found or not independent`);
-        }
-    }
+
 
     public isDiscovered(itemId: string): boolean {
         return this.discoveredItems.has(itemId);
@@ -301,5 +329,10 @@ export class GameState {
 
     public closeCrystalView(): void {
         this.uiState.showCrystalView = false;
+    }
+
+    public addInspiration(amount: number): void {
+        Stats.modifyStat(this.inspiration, amount, this.connections);
+        // Level-up logic is now handled automatically by inspirationLevelUpDispatcher
     }
 }

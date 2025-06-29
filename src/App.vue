@@ -14,12 +14,23 @@ import ClickCounterView from './minigames/click_counter/ClickCounterView.vue';
 import WelcomeView from './minigames/welcome/WelcomeView.vue';
 import IngressView from './minigames/ingress/IngressView.vue';
 import ExampleView from './minigames/example/ExampleView.vue';
+import IntroView from './minigames/intro/IntroView.vue';
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
 
-// Tab management
-const activeTab = ref('Castle');
+// Inject the FPS metrics provided in main.ts
+const fpsMetrics = inject('fpsMetrics', { currentFPS: 0, averageFPS: 0, maxFrameTime: 0 });
+
+// Tab management - make it reactive to GameState
+const activeTab = computed({
+  get: () => gameState?.uiState.activeTabName || 'Castle',
+  set: (value: string) => {
+    if (gameState) {
+      gameState.setActiveTab(value);
+    }
+  }
+});
 
 const displayedTabs = computed(() => {
   if (!gameState) return [];
@@ -67,6 +78,8 @@ const currentTimeScaleDisplay = computed(() => {
   return '1.00'; // Default display if gameState is not yet available
 });
 
+
+
 const queueTimeScaleCommand = (scale: number) => {
   if (gameState) {
     const command: CmdTimeScale = { name: "CmdTimeScale", scale: scale };
@@ -84,9 +97,6 @@ const queueTickOnceCommand = () => {
 // Notify GameState when tab changes
 const setActiveTab = (tabName: string) => {
   activeTab.value = tabName;
-  if (gameState) {
-    gameState.setActiveTab(tabName);
-  }
 };
 
 // Dialog visibility
@@ -98,9 +108,9 @@ onMounted(() => {
     return; // Stop setup if no game state
   }
 
-  // Set initial active tab in GameState
-  if (gameState) {
-    gameState.setActiveTab(activeTab.value);
+  // Set initial active tab in GameState if not already set
+  if (gameState && !gameState.uiState.activeTabName) {
+    gameState.setActiveTab('Castle');
   }
 });
 
@@ -128,6 +138,11 @@ onMounted(() => {
             {{ tab }}
           </button>
           <div class="time-controls">
+            <div class="fps-display">
+              <span class="fps-avg">{{ fpsMetrics.averageFPS }}</span>
+              <span class="fps-separator">|</span>
+              <span class="fps-frame-time">{{ fpsMetrics.maxFrameTime }}</span>
+            </div>
             <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
             <button
               v-for="control in timeControlScales"
@@ -166,6 +181,9 @@ onMounted(() => {
     </div>
     <div v-else-if="activeMinigameType === 'Example'" class="minigame-overlay-container">
       <ExampleView />
+    </div>
+    <div v-else-if="activeMinigameType === 'Intro'" class="minigame-overlay-container">
+      <IntroView />
     </div>
     <!-- Add other minigame views here with v-else-if, wrapped in the overlay container -->
 
@@ -243,6 +261,39 @@ onMounted(() => {
   margin-left: auto; /* Pushes controls to the right */
   display: flex;
   align-items: center;
+}
+
+.fps-display {
+  display: flex;
+  align-items: center;
+  font-size: 0.8em;
+  margin-right: 15px;
+  color: #666;
+  font-family: monospace;
+}
+
+.fps-label {
+  margin-right: 4px;
+  font-weight: bold;
+}
+
+.fps-current {
+  color: #007bff;
+  margin-right: 4px;
+}
+
+.fps-avg {
+  color: #28a745;
+  margin-right: 4px;
+}
+
+.fps-frame-time {
+  color: #dc3545;
+}
+
+.fps-separator {
+  margin: 0 4px;
+  color: #999;
 }
 
 .time-controls button {

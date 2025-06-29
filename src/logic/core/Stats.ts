@@ -9,7 +9,9 @@ import {
     StatFormula,
     FormulaParameter,
     FormulaParameterFormula,
-    GateParameter
+    GateParameter,
+    EventDispatcherParameter,
+    EventDispatcherLambda
 } from './Stat';
 
 /**
@@ -87,6 +89,22 @@ export namespace Stats {
      */
     export function createGateParameter(name: string, baseValue: number, isAboveThreshold: boolean, connections: Connections): GateParameter {
         const result = new GateParameter(name, baseValue, isAboveThreshold);
+        console.assert(!connections.connectablesByName.has(name), `Stat already exists: ${name}`);
+        connections.connectablesByName.set(name, result);
+        return result;
+    }
+
+    /**
+     * Creates a new EventDispatcherParameter stat and registers it.
+     * @param name Unique name for the stat.
+     * @param baseValue The base value added to input value before threshold comparison.
+     * @param isAboveThreshold True for >= threshold, false for <= threshold.
+     * @param lambda The function to call when the threshold is crossed.
+     * @param connections The Connections manager instance.
+     * @returns The newly created EventDispatcherParameter.
+     */
+    export function createEventDispatcherParameter(name: string, baseValue: number, isAboveThreshold: boolean, lambda: EventDispatcherLambda, connections: Connections): EventDispatcherParameter {
+        const result = new EventDispatcherParameter(name, baseValue, isAboveThreshold, lambda);
         console.assert(!connections.connectablesByName.has(name), `Stat already exists: ${name}`);
         connections.connectablesByName.set(name, result);
         return result;
@@ -189,12 +207,12 @@ export namespace Stats {
     /**
      * Establishes a connection between two stat objects.
      * @param from Source Stat object.
-     * @param to Target Parameter, FormulaStat, FormulaParameter, or GateParameter object.
+     * @param to Target Parameter, FormulaStat, FormulaParameter, GateParameter, or EventDispatcherParameter object.
      * @param type Type of the connection.
      * @param connections The Connections manager instance.
      * @param inputName For NAMED_INPUT, the name of the input on the target FormulaParameter.
      */
-    export function connectStat(from: Stat, to: Parameter | FormulaStat | FormulaParameter | GateParameter, type: ConnectionType, connections: Connections, inputName?: string): void {
+    export function connectStat(from: Stat, to: Parameter | FormulaStat | FormulaParameter | GateParameter | EventDispatcherParameter, type: ConnectionType, connections: Connections, inputName?: string): void {
         console.assert(!(to as any).independent, `Cannot connect to an IndependentStat: ${to.name}`);
         if (type === ConnectionType.NAMED_INPUT) {
             if (!(to instanceof FormulaParameter)) {
@@ -329,6 +347,26 @@ export namespace Stats {
     }
 
     /**
+     * Recalculates the value of an EventDispatcherParameter and adds it to the queue if threshold is crossed.
+     * @param stat The EventDispatcherParameter to recalculate.
+     * @param connections The Connections manager instance.
+     */
+    function recalculateEventDispatcherParameterValue(stat: EventDispatcherParameter, connections: Connections): void {
+        const combinedValue = stat.baseValue + stat.inputValue;
+        const shouldTrigger = stat.isAboveThreshold === (combinedValue >= stat.threshold);
+        
+        if (shouldTrigger) {
+            setStat(stat, stat.inputValue, connections);
+            
+            // Add to event dispatcher queue if not already queued
+            if (!stat.isQueued) {
+                connections.eventDispatcherQueue.push(stat);
+                stat.isQueued = true;
+            }
+        }
+    }
+
+    /**
      * Applies all outgoing connections from a changed stat.
      * @param fromStat The stat whose value changed.
      * @param oldValue The previous value.
@@ -356,7 +394,7 @@ export namespace Stats {
         if (!targetStat || targetStat.independent) return;
 
         // Type assertion needed as independent stats are filtered out
-        const pStat = targetStat as Parameter | FormulaStat | FormulaParameter | GateParameter;
+        const pStat = targetStat as Parameter | FormulaStat | FormulaParameter | GateParameter | EventDispatcherParameter;
 
         switch (connection.type) {
             case ConnectionType.ADD:
@@ -387,11 +425,19 @@ export namespace Stats {
                 break;
             case ConnectionType.GATE_THRESHOLD:
                 (pStat as GateParameter).threshold = newValue;
+                if (pStat instanceof EventDispatcherParameter) {
+                    recalculateEventDispatcherParameterValue(pStat, connections);
+                } else {
                 recalculateGateParameterValue(pStat as GateParameter, connections);
+                }
                 break;
             case ConnectionType.GATE_VALUE:
                 (pStat as GateParameter).inputValue = newValue;
+                if (pStat instanceof EventDispatcherParameter) {
+                    recalculateEventDispatcherParameterValue(pStat, connections);
+                } else {
                 recalculateGateParameterValue(pStat as GateParameter, connections);
+                }
                 break;
         }
     }
@@ -450,6 +496,13 @@ export namespace Stats {
             const newFormulaParameter = new FormulaParameter(stat.name, stat.formula, { ...stat.inputs });
             (newFormulaParameter as { -readonly [K in 'value']: number })['value'] = stat.value;
             return newFormulaParameter;
+        } else if (stat instanceof EventDispatcherParameter) {
+            const newEventDispatcherParameter = new EventDispatcherParameter(stat.name, stat.baseValue, stat.isAboveThreshold, stat.lambda);
+            newEventDispatcherParameter.threshold = stat.threshold;
+            newEventDispatcherParameter.inputValue = stat.inputValue;
+            newEventDispatcherParameter.isQueued = false; // Reset queue status in clone
+            (newEventDispatcherParameter as { -readonly [K in 'value']: number })['value'] = stat.value;
+            return newEventDispatcherParameter;
         } else if (stat instanceof GateParameter) {
             const newGateParameter = new GateParameter(stat.name, stat.baseValue, stat.isAboveThreshold);
             newGateParameter.threshold = stat.threshold;
@@ -481,6 +534,25 @@ export namespace Stats {
         });
 
         return newConnections;
+    }
+
+    /**
+     * Processes all EventDispatcherParameter stats in the queue, calls their lambda functions, and clears the queue.
+     * This should be called during GameState update.
+     * @param connections The Connections manager instance.
+     * @param gameState The GameState instance to pass to lambda functions.
+     */
+    export function processEventDispatcherQueue(connections: Connections, gameState: any): void {
+        while (connections.eventDispatcherQueue.length > 0) {
+            const stat = connections.eventDispatcherQueue.shift()!;
+            stat.isQueued = false;
+            
+            try {
+                stat.lambda(stat, gameState);
+            } catch (error) {
+                console.error(`Error processing EventDispatcherParameter ${stat.name}:`, error);
+            }
+        }
     }
 
 } // namespace Stats 

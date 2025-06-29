@@ -61,5 +61,16 @@ export interface CmdDiscover extends CmdInput {
   identifier: string;
 }
 
+export interface CmdInspirationChoice extends CmdInput {
+  name: "CmdInspirationChoice";
+  choiceType: "rarest" | "juicy" | "random";
+}
+
+export interface CmdDialogChoice extends CmdInput {
+  name: "CmdDialogChoice";
+  dialogName: string;
+  choiceId: string;
+}
+
 // Add other command interfaces here, e.g.:
 // export interface CmdOtherAction extends CmdInput { ... }

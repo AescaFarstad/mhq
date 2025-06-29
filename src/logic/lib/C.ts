@@ -29,10 +29,30 @@ export class C {
 
     public static readonly DISCOVERY_THRESHOLD = 7;
     
+    // === Inspiration System Constants ===
+    public static readonly INSPIRATION_MAX_PER_LEVEL = 10;
+    public static readonly INSPIRATION_CHOICE_RAREST_COUNT = 7;
+    public static readonly INSPIRATION_CHOICE_JUICY_COUNT = 5;
+    public static readonly INSPIRATION_CHOICE_RANDOM_COUNT = 12;
+    
+    // === Discovery XP Rewards ===
+    public static readonly DISCOVERY_XP_BRAINSTORM_SPECIALIZATION = 2;
+    public static readonly DISCOVERY_XP_BRAINSTORM_SKILL = 5;
+    public static readonly DISCOVERY_XP_DIRECT_SPECIALIZATION = 3;
+    public static readonly DISCOVERY_XP_DIRECT_SKILL = 7;
+    public static readonly DISCOVERY_XP_DIRECT_ATTRIBUTE = 10;
+    public static readonly DISCOVERY_XP_DIRECT_ATTRIBUTE_CATEGORY = 15;
+    public static readonly DISCOVERY_XP_DIRECT_BUILDING = 12;
+    public static readonly DISCOVERY_XP_KEYWORDS_OVERFLOW = 5;
+    
     // === UI Discovery Identifiers ===
     public static readonly DISCOVERY_SKILL_BROWSER = 'ui_skill_browser';
     public static readonly DISCOVERY_INNER_COSMOS = 'ui_inner_cosmos';
     public static readonly DISCOVERY_CRYSTAL_BALL = 'ui_crystal_ball';
+    public static readonly DISCOVERY_KEYWORDS_OVERFLOW = 'ui_keywords_overflow';
+    
+    // === Keyword Constants ===
+    public static readonly KEYWORDS_HEADER_HIDE_THRESHOLD = 50;
     
     // === Game Timing Constants ===
     public static readonly DEFAULT_MIN_DELTA_TIME = 0.05;
@@ -47,7 +67,11 @@ export class C {
         4: [0.4, 0.4, 0.3, 0.2],
     };
     
+    // === Dialog System Constants ===
+    public static readonly DEFAULT_DIALOG_TREE = 'dialog';
+    
     // === Debug Constants ===
     public static readonly DEBUG_MODE = false;
     public static readonly LOG_LEVEL = "info";
+    public static readonly DEBUG_EFFECTS = false;
 } 

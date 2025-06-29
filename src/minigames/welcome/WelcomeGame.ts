@@ -103,9 +103,10 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
     }
 
     public startExploration(choiceId: string): void {
-        this.state.explorableChoices.forEach(choice => {
-            choice.isExploring = choice.id === choiceId;
-        });
+        const choice = this.state.explorableChoices.find(c => c.id === choiceId);
+        if (choice) {
+            choice.isExploring = true;
+        }
     }
 
     public stopExploration(choiceId: string): void {

@@ -1,3 +1,4 @@
+import { C } from '../lib/C';
 import { 
   ModifyResourceParams, 
   DiscoverParams, 
@@ -33,9 +34,14 @@ const events: EventsDataType = {
       { key: "discover", params: { key: "Castle" } },
       { key: "discover", params: { key: "Crew" } },
       { key: "discover", params: { key: "Debug" } },
+
+      { key: "discover", params: { key: C.DISCOVERY_SKILL_BROWSER } },
+      { key: "discover", params: { key: C.DISCOVERY_INNER_COSMOS } },
       //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
+      { key: "modifyIndependentStat", params: { statName: "inspiration_charges", amount: 3 } },
 
+      // { key: "startBehTree", params: { treeName: "cheatWelcome" } },
       //{ key: "startBehTree", params: { treeName: "cheatIntro" } },
 
       //{ key: "discoverAll", params: {} },

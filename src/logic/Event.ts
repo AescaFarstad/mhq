@@ -123,6 +123,12 @@ export namespace EventProcessor {
                 case 'givePoints':
                     effects.givePoints(state, effect.params as GivePointsParams);
                     break;
+                case 'skipIngressEngagement':
+                    effects.skipIngressEngagement(state);
+                    break;
+                case 'modifyIndependentStat':
+                    effects.modifyIndependentStat(state, effect.params as { statName: string; amount: number });
+                    break;
                 default:
                     console.warn(`Unknown effect key: ${effect.key}`);
             }

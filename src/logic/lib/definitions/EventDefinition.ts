@@ -27,7 +27,8 @@ export interface DiscoverParams {
 
 /** Represents parameters for starting a dialog */
 export interface StartDialogParams {
-    dialogId: string;
+    definitionId: string;
+    dialogName: string;
 }
 
 /** Represents parameters for adding a character by name */

@@ -15,6 +15,7 @@ export class IngressWordsLib {
             trivial: 1,
             minor: 2,
             major: 3,
+            special: 4,
             cheat: 100
         };
 

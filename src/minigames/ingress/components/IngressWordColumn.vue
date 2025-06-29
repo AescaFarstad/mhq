@@ -58,7 +58,7 @@ const getStars = (word: SubmittedWord | string): number => {
   if (typeof word === 'string') {
     return 0;
   }
-  return Math.min(word.pointsEarned, 4);
+  return Math.min(word.pointsEarned, 5);
 };
 
 const wasTypo = (word: SubmittedWord | string): boolean => {

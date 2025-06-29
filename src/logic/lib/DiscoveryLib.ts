@@ -25,6 +25,21 @@ export class DiscoveryLib {
     }
     
     /**
+     * Cleans and normalizes input text for discovery matching.
+     * This is the canonical cleaning function.
+     */
+    public static getSearchableName(input: string): string {
+        return input
+            .trim()
+            .toLowerCase()
+            .replace(/ and /g, ' ') // Replace ' and ' with single space
+            .replace(/&/g, '') // Remove ampersands 
+            .replace(/-/g, ' ') // Replace hyphens with spaces
+            .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+            .trim();
+    }
+    
+    /**
      * Gets a discoverable item by its ID
      */
     public getById(id: string): DiscoverableItem | undefined {
@@ -99,11 +114,13 @@ export class DiscoveryLib {
         for (const [skillId, skillItem] of Object.entries(allSkills)) {
             if (skillItem.type === 'skill') {
                 const skill = skillItem as any; // Cast to access properties
+                const searchableName = this.createSearchableName(skill.displayName);
+                
                 const discoverableSkill: DiscoverableItem = {
                     id: skillId,
                     type: 'skill',
                     originalItem: skill,
-                    searchableName: this.createSearchableName(skill.displayName),
+                    searchableName: searchableName,
                     keywords: skill.keywords || []
                 };
                 
@@ -180,8 +197,7 @@ export class DiscoveryLib {
         // Tab items - these are the main UI tabs
         const tabs = C.ALL_TAB_IDS.map(tabId => ({
             id: tabId,
-            displayName: tabId,
-            description: `${tabId} management and overview`
+            displayName: tabId
         }));
         
         for (const tab of tabs) {
@@ -197,8 +213,8 @@ export class DiscoveryLib {
         
         // Resource items - basic game resources
         const resources = [
-            { id: 'gold', displayName: 'Gold', description: 'Primary currency' },
-            { id: 'clutter', displayName: 'Clutter', description: 'Mess and disorder in the castle' }
+            { id: 'gold', displayName: 'Gold' },
+            { id: 'clutter', displayName: 'Clutter' }
         ];
         
         for (const resource of resources) {
@@ -210,6 +226,22 @@ export class DiscoveryLib {
             };
             
             this.addDiscoverableItem(discoverableResource);
+        }
+
+        // UI state discovery items - for tracking UI state changes
+        const uiDiscoveryItems = [
+            { id: C.DISCOVERY_KEYWORDS_OVERFLOW, displayName: 'Keywords Overflow' }
+        ];
+        
+        for (const uiItem of uiDiscoveryItems) {
+            const discoverableUIItem: DiscoverableItem = {
+                id: uiItem.id,
+                type: 'ui_state',
+                originalItem: uiItem,
+                searchableName: this.createSearchableName(uiItem.displayName)
+            };
+            
+            this.addDiscoverableItem(discoverableUIItem);
         }
     }
     
@@ -225,13 +257,7 @@ export class DiscoveryLib {
      * Creates a searchable name from a display name by cleaning and normalizing it
      */
     private createSearchableName(displayName: string): string {
-        return displayName
-            .replace(/ and /g, ' ') // Replace ' and ' with single space
-            .replace(/&/g, '') // Remove ampersands 
-            .replace(/-/g, ' ') // Replace hyphens with spaces
-            .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
-            .trim()
-            .toLowerCase();
+        return DiscoveryLib.getSearchableName(displayName);
     }
     
     /**

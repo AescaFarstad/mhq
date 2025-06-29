@@ -127,14 +127,19 @@ state.invoker.handleEvent(eventDef, state, context);
    new WaitNode({ durationMin: 1, durationMax: 5, name: 'random_delay' }) // waits between 1 and 5 seconds
    ```
 
+### Specialized Dialog Nodes
+
+1. **CheckDNTypeNode** - Type checking for dialog nodes
+   ```typescript
+   new CheckDNTypeNode('checkMessage', 'message')
+   new CheckDNTypeNode('checkChoice', 'choice')
+   ```
+
 ### Planned Nodes
 
 - **TickerNode** - Subscribes to updates until condition met
-- **SelectorNode** - Tries children until one succeeds
-- **ConditionalNode** - Branches based on condition
 - **RandomSelectorNode** - Randomly selects a child
 - **ParallelNode** variants (Any/All/Exhaust)
-- **RepeatNode** - Loops through children
 - **SelectNode** - Jumps to named node
 
 ## Error Handling
@@ -171,31 +176,28 @@ const tutorialTree = new BehTree('tutorial', [
 ]);
 ```
 
-### Branching Dialog
-```typescript
-const dialogTree = new BehTree('merchant_dialog', [
-    new ExecNode((n, s) => s.showDialog('merchant_greeting')),
-    new AwaitEventNode('dialogChoice', (n, e) => {
-        n.root.blackboard.choice = e.params.choiceId;
-    }),
-    new ConditionalNode(
-        (s) => n.root.blackboard.choice === 'buy',
-        new SequencerNode([
-            new ConditionalNode(
-                (s) => s.resources.gold.value >= 100,
-                new ExecNode((n, s) => {
-                    s.resources.gold.value -= 100; //note, this is not how resources are actually handled
-                    s.showDialog('purchase_complete');
-                }),
-                new ExecNode((n, s) => s.showDialog('insufficient_funds'))
-            )
-        ])
-    )
-]);
-```
 
 ## Best Practices
 
 1. **Name nodes descriptively**: Use the hierarchical path for debugging
 3. **Use blackboard wisely**: Temporary state may go in blackboard if convenient, but the primary place for game state is in gameState! 
 4. **Plan for interruption**: Any node might be exited early
+
+## Dialog System Integration
+
+### Starting Dialogs
+```typescript
+// In game code
+startDialog('introDialog', 'player_intro_1', gameState);
+// This will:
+// 1. Create DialogState with empty history and unique name
+// 2. Start the 'dialog' (or other specified) behavior tree
+// 3. Set dialogName in tree blackboard
+```
+
+### Dialog Flow
+1. **Initialization**: `initDialog` adds starting node to `DialogState.nodes`
+2. **Processing**: Tree checks last node type and responds accordingly
+3. **State Management**: `DialogState.nodes` maintains complete conversation history
+4. **Choice Handling**: `makeDialogChoice()` adds choice to `choicesMade` and triggers event
+5. **Completion**: When no next node exists, `dialogFinished` event is dispatched

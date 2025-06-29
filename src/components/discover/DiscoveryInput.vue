@@ -1,7 +1,7 @@
 <template>
   <div class="discovery-input-section">
     <div class="input-container">
-      <div class="crystal-ball-mini">
+      <div class="crystal-ball-mini" @click="toggleCrystalView">
         <CrystalBall />
         <div v-if="crystalWordCount > 0" class="crystal-count-badge">
           {{ crystalWordCount }}
@@ -42,6 +42,7 @@ import type { GameState } from '../../logic/GameState';
 import { globalInputQueue } from '../../logic/GameState';
 import type { CmdSubmitDiscovery } from '../../logic/input/InputCommands';
 import CrystalBall from '../CrystalBall.vue';
+import { isSuccessfulDiscoveryAction } from '../../logic/Discovery';
 
 const gameState = inject<GameState>('gameState');
 const discoveryInput = ref('');
@@ -52,7 +53,14 @@ const crystalWordCount = computed(() => {
   return gameState?.uiState.crystalBallWords?.length ?? 0;
 });
 
-let lastAnalysisLogLength = 0;
+// Function to toggle crystal view when crystal ball is clicked
+const toggleCrystalView = () => {
+  if (gameState) {
+    gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
+  }
+};
+
+let lastAnalysisLogEntry: any = null;
 
 const submitDiscovery = async () => {
   if (!gameState || !discoveryInput.value.trim()) {
@@ -61,7 +69,9 @@ const submitDiscovery = async () => {
   }
   
   const inputBefore = discoveryInput.value.trim();
-  lastAnalysisLogLength = gameState.uiState.discoveryAnalysisLog.length;
+  // Store reference to the current last entry (or null if log is empty)
+  const currentLog = gameState.uiState.discoveryAnalysisLog;
+  lastAnalysisLogEntry = currentLog.length > 0 ? currentLog[currentLog.length - 1] : null;
   
   const command: CmdSubmitDiscovery = {
     name: "CmdSubmitDiscovery",
@@ -74,13 +84,17 @@ const submitDiscovery = async () => {
   setTimeout(async () => {
     if (!gameState) return;
     
-    const hasNewEntry = gameState.uiState.discoveryAnalysisLog.length > lastAnalysisLogLength;
+    const currentLog = gameState.uiState.discoveryAnalysisLog;
+    const currentLastEntry = currentLog.length > 0 ? currentLog[currentLog.length - 1] : null;
     
-    if (hasNewEntry) {
-      const lastEntry = gameState.uiState.discoveryAnalysisLog[gameState.uiState.discoveryAnalysisLog.length - 1];
-      const firstAction = lastEntry[0];
+    // Check if we have a new entry by comparing object references
+    const hasNewEntry = currentLastEntry !== lastAnalysisLogEntry;
+    
+    if (hasNewEntry && currentLastEntry) {
+      // Check if ANY action in the entry represents a success
+      const hasSuccessAction = currentLastEntry.actions.some(isSuccessfulDiscoveryAction);
       
-      if (firstAction && (firstAction.type === 'DIRECT_DISCOVERY' || firstAction.type === 'ADD_ACTIVE_KEYWORD')) {
+      if (hasSuccessAction) {
         // Success - clear input, show success animation, maintain focus
         discoveryInput.value = '';
         showSuccess();
@@ -114,7 +128,8 @@ const showError = async () => {
   
   // Keep the error state longer to ensure animation completes
   setTimeout(() => {
-    if (inputInteractionState.value === 'error') {
+    // Reset to default if we're still in error state OR if we're stuck in typing state
+    if (inputInteractionState.value === 'error' || inputInteractionState.value === 'typing') {
       inputInteractionState.value = 'default';
     }
   }, 600); // Match the animation duration
@@ -123,7 +138,8 @@ const showError = async () => {
 const showSuccess = () => {
   inputInteractionState.value = 'success';
   setTimeout(() => {
-    if (inputInteractionState.value === 'success') {
+    // Reset to default if we're still in success state OR if we're stuck in typing state
+    if (inputInteractionState.value === 'success' || inputInteractionState.value === 'typing') {
       inputInteractionState.value = 'default';
     }
   }, 2100); // Match the animation duration (3x longer)
@@ -133,7 +149,7 @@ const showSuccess = () => {
 <style scoped>
 .discovery-input-section {
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -156,6 +172,13 @@ const showSuccess = () => {
   align-items: center;
   justify-content: center;
   position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crystal-ball-mini:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
 }
 
 .crystal-ball-mini :deep(.crystal-ball-container) {
@@ -221,7 +244,7 @@ const showSuccess = () => {
 
 .discovery-input.input-typing-highlight {
   border-color: #2ecc71;
-  background-color: #f0f9f0;
+  background-color: #2c3e50; /* Use the same dark background as focus state */
 }
 
 .discovery-submit-btn {

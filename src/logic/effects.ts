@@ -12,6 +12,7 @@ import {
     EventDefinition
 } from './lib/definitions/EventDefinition';
 import { Stats } from './core/Stats';
+import { IndependentStat } from './core/Stat';
 import { Character } from './Character';
 import { Character as CharacterOps } from './Character';
 import type { Skill } from './lib/definitions/SkillDefinition';
@@ -21,19 +22,29 @@ import { ClickCounterGame } from '../minigames/click_counter/ClickCounterGame';
 import { WelcomeGame } from '../minigames/welcome/WelcomeGame';
 import { IngressGame } from '../minigames/ingress/IngressGame';
 import { ExampleGame } from '../minigames/example/ExampleGame';
+import { IntroGame } from '../minigames/intro/IntroGame';
 import { EventProcessor } from './Event';
 import { discoverItem } from './Discovery';
+import { C } from './lib/C';
 
 export function giveResource(state: GameState, params: ModifyResourceParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'giveResource':`, params);
+    }
+    
     const res = getResource(state.resources, params.resource);
     if (res) {
         Stats.modifyStat(res.current, params.amount, state.connections);
     } else {
-        console.warn(`Effect 'giveResource': Resource "${params.resource}" not found.`);
+        console.warn(`E 'giveResource': Resource "${params.resource}" not found.`);
     }
 }
 
 export function giveMaxResource(state: GameState, params: ModifyResourceParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'giveMaxResource':`, params);
+    }
+    
     let res = getResource(state.resources, params.resource);
     if (!res) {
         res = addResource(state.resources, params.resource, 0, 0, state.connections);
@@ -44,35 +55,55 @@ export function giveMaxResource(state: GameState, params: ModifyResourceParams):
 }
 
 export function addResourceIncome(state: GameState, params: ModifyResourceIncomeParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'addResourceIncome':`, params);
+    }
+    
     const res = getResource(state.resources, params.resource);
     if (res) {
         Stats.modifyParameterADD(res.income, params.amount, state.connections);
     } else {
-        console.warn(`Effect 'addResourceIncome': Resource "${params.resource}" not found.`);
+        console.warn(`E 'addResourceIncome': Resource "${params.resource}" not found.`);
     }
 }
 
 export function discover(state: GameState, params: DiscoverEffectParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'discover':`, params);
+    }
+    
     discoverItem(params.key, 'event', state);
 }
 
 export function startDialog(): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'startDialog':`, {});
+    }
+    
     // const params = effect.params as StartDialogParams;
 }
 
 export function addCharacterByName(state: GameState, params: AddCharacterParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'addCharacterByName':`, params);
+    }
+    
     const charDef = state.lib.characters.getCharacter(params.characterId);
     if (charDef) {
         Character.addCharacter(state, charDef.id);
     } else {
-        console.warn(`Effect 'addCharacterByName': Character definition "${params.characterId}" not found in Lib.`);
+        console.warn(`E 'addCharacterByName': Character definition "${params.characterId}" not found in Lib.`);
     }
 }
 
 export function giveAllSkillsAndSpecsEffect(state: GameState, context: EventContext): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'giveAllSkillsAndSpecsEffect':`);
+        console.dir(context);
+    }
+    
     if (!context || !('characterId' in context) || !('skills' in context) || !('specializations' in context)) {
-        console.warn("[giveAllSkillsAndSpecsEffect]: Invalid character context provided (must be a Character object):");
-        console.log(context);
+        console.warn("[giveAllSkillsAndSpecsEffect]: Invalid character context provided (must be a Character object):", context);
         return;
     }
     const character = context as Character; // context is expected to be Character here
@@ -95,28 +126,40 @@ export function giveAllSkillsAndSpecsEffect(state: GameState, context: EventCont
 }
 
 export function giveSkillsAndSpecs(state: GameState, _params: any, _context?: EventContext): void {
-    if (!state.characters || state.characters.length === 0) {
-        console.warn("[giveSkillsAndSpecs]: No characters found in state. Cannot give skills.");
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'giveSkillsAndSpecs':`, _params);
+    }
+    
+    const protagonist = Character.getProtagonistCharacter(state);
+    if (!protagonist) {
+        console.warn("[giveSkillsAndSpecs]: No protagonist character found. Cannot give skills.");
         return;
     }
-
-    const firstCharacter = state.characters[0] as Character;
     
     // Replicating the nested effect call without circular dependency
-    giveAllSkillsAndSpecsEffect(state, firstCharacter);
+    giveAllSkillsAndSpecsEffect(state, protagonist);
 }
 
 export function construct(state: GameState, params: { building: string }): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'construct':`, params);
+    }
+    
     if (params.building) {
         Building.addBuilding(state, params.building);
     } else {
-        console.warn(`Effect 'construct': Missing 'building' parameter.`);
+        console.warn(`E 'construct': Missing 'building' parameter.`);
     }
 }
 
 export function startMinigame(state: GameState, params: StartMinigameParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'startMinigame':`);
+        console.dir(params);
+    }
+    
     if (state.activeMinigame) {
-        console.warn(`Effect 'startMinigame': Minigame '${state.activeMinigame.type}' already active. Cannot start '${params.name}'.`);
+        console.warn(`E 'startMinigame': Minigame '${state.activeMinigame.type}' already active. Cannot start '${params.name}'.`);
         return;
     }
     let minigameInstance;
@@ -131,8 +174,10 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
         minigameInstance = new IngressGame(`event-${params.name}-${Date.now()}`);
     } else if (params.name === 'Example') {
         minigameInstance = new ExampleGame(`event-${params.name}-${Date.now()}`);
+    } else if (params.name === 'Intro') {
+        minigameInstance = new IntroGame(`event-${params.name}-${Date.now()}`);
     } else {
-        console.warn(`Effect 'startMinigame': Unknown minigame name '${params.name}'.`);
+        console.warn(`E 'startMinigame': Unknown minigame name '${params.name}'.`);
         return;
     }
     
@@ -150,17 +195,27 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
 }
 
 export function startBehTree(state: GameState, params: { treeName: string }): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'startBehTree':`, params);
+    }
+    
     const treeDef = state.lib.behTrees.getTree(params.treeName);
     if (treeDef) {
         const treeInstance = treeDef();
         state.invoker.addTree(treeInstance, state);
     } else {
-        console.warn(`Effect 'startBehTree': Tree definition "${params.treeName}" not found.`);
+        console.warn(`E 'startBehTree': Tree definition "${params.treeName}" not found.`);
     }
 }
 
 export function applyIngressResults(state: GameState, params: ApplyIngressResultsParams): void {
-    console.log(`Applying ingress results:`, params);
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'applyIngressResults':`);
+        console.dir(params);
+    }
+    
+    console.log(`Applying ingress results:`);
+    console.dir(params);
     let character = state.characters.find(c => c.characterId === params.characterId);
 
     if (!character) {
@@ -173,6 +228,8 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
         if (params.characterName) {
             character.name = params.characterName;
         }
+
+        character.isProtagonist = true;
 
         // Apply bonuses
         Stats.modifyStat(character.xp, params.xpBonus * character.nextLevelXp.value * 0.01, state.connections);
@@ -202,39 +259,94 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
             }
         }
 
-        console.log(`Applied Ingress results to character: ${character.name}`);
+        console.log(`Applied Ingress results to character:`, {
+            name: character.name,
+            characterId: character.characterId,
+            xpBonus: params.xpBonus,
+            attributePoints: params.attributePoints,
+            skillPoints: params.skillPoints,
+            specPoints: params.specPoints
+        });
     } else {
-        console.warn(`Effect 'ApplyIngressResults': Could not find or add character with ID "${params.characterId}".`);
+        console.warn(`E 'ApplyIngressResults': Could not find or add character with ID "${params.characterId}".`);
     }
 }
 
 export function applyWelcomeResults(state: GameState, params: ApplyWelcomeResultsParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'applyWelcomeResults':`, params);
+    }
+    
     console.log(`Applying welcome results:`, params);
     if (params.locationId) {
         state.locationId = params.locationId;
     } else {
-        console.warn(`Effect 'applyWelcomeResults': Missing 'locationId' parameter.`);
+        console.warn(`E 'applyWelcomeResults': Missing 'locationId' parameter.`);
     }
 }
 
 export function givePoints(state: GameState, params: GivePointsParams): void {
-    if (!state.characters || state.characters.length === 0) {
-        console.warn("[givePoints]: No characters found in state. Cannot give points.");
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'givePoints':`, params);
+    }
+    
+    const protagonist = Character.getProtagonistCharacter(state);
+    if (!protagonist) {
+        console.warn("[givePoints]: No protagonist character found. Cannot give points.");
         return;
     }
-
-    const firstCharacter = state.characters[0] as Character;
     
-    // Apply the points to the first character
-    Stats.modifyStat(firstCharacter.attributePoints, params.attributePoints, state.connections);
-    Stats.modifyStat(firstCharacter.skillPoints, params.skillPoints, state.connections);
-    Stats.modifyStat(firstCharacter.specPoints, params.specPoints, state.connections);
+    // Apply the points to the protagonist character
+    Stats.modifyStat(protagonist.attributePoints, params.attributePoints, state.connections);
+    Stats.modifyStat(protagonist.skillPoints, params.skillPoints, state.connections);
+    Stats.modifyStat(protagonist.specPoints, params.specPoints, state.connections);
 }
 
 export function addCrystalBallWords(state: GameState, params: { words: string[] }): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'addCrystalBallWords':`);
+        console.dir(params);
+    }
+    
     for (const word of params.words) {
         if (!state.crystalBallWords.includes(word)) {
             state.crystalBallWords.push(word);
         }
+    }
+}
+
+export function skipIngressEngagement(state: GameState): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'skipIngressEngagement':`, {});
+    }
+    
+    if (state.activeMinigame?.type === 'Ingress') {
+        const ingressGame = state.activeMinigame as IngressGame;
+        if (!ingressGame.state.engaged) {
+            ingressGame.engage();
+        }
+    } else {
+        console.warn('Effect skipIngressEngagement: No active Ingress minigame found.');
+    }
+}
+
+export function switchToTab(state: GameState, params: { tabName: string }): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'switchToTab':`, params);
+    }
+    
+    state.setActiveTab(params.tabName);
+}
+
+export function modifyIndependentStat(state: GameState, params: { statName: string; amount: number }): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'modifyIndependentStat':`, params);
+    }
+    
+    const stat = state.connections.connectablesByName.get(params.statName);
+    if (stat?.independent) {
+        Stats.modifyStat(stat as IndependentStat, params.amount, state.connections);
+    } else {
+        console.warn(`Cannot set stat ${params.statName}: not found or not independent`);
     }
 } 

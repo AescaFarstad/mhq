@@ -473,6 +473,73 @@ export function syncDiscoveredItems(gameState: GameState): void {
 }
 
 /**
+ * Lightweight function to update only XP data for characters in the UI state.
+ * Used for the Discover tab where we only need reactive XP progress.
+ */
+export function syncCharacterXpData(gameState: GameState): void {
+    // Update XP data for each character in UI state
+    for (const uiChar of gameState.uiState.characters) {
+        const gameChar = gameState.characters.find(c => c.characterId === uiChar.id);
+        if (gameChar) {
+            const currentXp = gameChar.xp.value;
+            const currentLevel = gameChar.level.value;
+            const nextLevelXp = gameChar.nextLevelXp.value;
+            const nextLevelXpDelta = gameChar.nextLevelXpDelta.value;
+            const xpProgress = currentXp - (nextLevelXp - nextLevelXpDelta);
+
+            // Only update if values have changed to avoid unnecessary reactivity triggers
+            if (uiChar.xp.current !== currentXp || 
+                uiChar.xp.progress !== xpProgress || 
+                uiChar.xp.nextLevelDelta !== nextLevelXpDelta) {
+                uiChar.xp.current = currentXp;
+                uiChar.xp.progress = xpProgress;
+                uiChar.xp.nextLevelDelta = nextLevelXpDelta;
+            }
+
+            // Also update level if it changed
+            if (uiChar.level !== currentLevel) {
+                uiChar.level = currentLevel;
+            }
+        }
+    }
+}
+
+/**
+ * Syncs inspiration data to UI state for reactive updates.
+ */
+export function syncInspirationData(gameState: GameState): void {
+    const inspirationProgress = gameState.inspiration.value;
+    const inspirationMax = gameState.inspirationMax.value;
+    const inspirationLevel = gameState.inspirationLevel.value;
+    const inspirationCharges = gameState.inspirationCharges.value;
+    
+    // Add inspiration data to UI state if it doesn't exist
+    if (!(gameState.uiState as any).inspiration) {
+        (gameState.uiState as any).inspiration = {
+            progress: inspirationProgress,
+            max: inspirationMax,
+            level: inspirationLevel,
+            charges: inspirationCharges
+        };
+    } else {
+        // Update existing inspiration data
+        const uiInspiration = (gameState.uiState as any).inspiration;
+        if (uiInspiration.progress !== inspirationProgress) {
+            uiInspiration.progress = inspirationProgress;
+        }
+        if (uiInspiration.max !== inspirationMax) {
+            uiInspiration.max = inspirationMax;
+        }
+        if (uiInspiration.level !== inspirationLevel) {
+            uiInspiration.level = inspirationLevel;
+        }
+        if (uiInspiration.charges !== inspirationCharges) {
+            uiInspiration.charges = inspirationCharges;
+        }
+    }
+}
+
+/**
  * Synchronizes the active minigame's state to uiState.activeMinigameState
  */
 export function syncMinigameState(gameState: GameState): void {
@@ -497,9 +564,10 @@ export function syncDiscoveryState(gameState: GameState): void {
     const discardedKeywordsSize = gameState.discardedKeywords.size;
     
     // Check if we need to sync activeKeywords
-    if (gameState.uiState.activeKeywords.size !== activeKeywordsSize || 
-        gameState.uiState.discoveredItemsCount !== discoveredItemsCount) {
-        
+    const needActiveKeywordsSync = gameState.uiState.activeKeywords.size !== activeKeywordsSize || 
+        gameState.uiState.discoveredItemsCount !== discoveredItemsCount;
+    
+    if (needActiveKeywordsSync) {
         // Clear and rebuild activeKeywords
         gameState.uiState.activeKeywords.clear();
         for (const [keyword, itemIds] of gameState.activeKeywords) {
@@ -511,7 +579,8 @@ export function syncDiscoveryState(gameState: GameState): void {
     gameState.uiState.encounteredItemsCount = encounteredItemsCount;
     
     // Check if we need to sync discardedKeywords
-    if (gameState.uiState.discardedKeywords.size !== discardedKeywordsSize) {
+    const needDiscardedKeywordsSync = gameState.uiState.discardedKeywords.size !== discardedKeywordsSize;
+    if (needDiscardedKeywordsSync) {
         // Clear and rebuild discardedKeywords
         gameState.uiState.discardedKeywords.clear();
         for (const keyword of gameState.discardedKeywords) {
@@ -523,19 +592,23 @@ export function syncDiscoveryState(gameState: GameState): void {
     const uiAnalysisLogLength = gameState.uiState.discoveryAnalysisLog.length;
     const sourceAnalysisLogLength = gameState.discoveryAnalysisLog.length;
     
-    if (uiAnalysisLogLength !== sourceAnalysisLogLength || 
+    // Only sync if length differs or if there are entries and the last tick differs
+    const needAnalysisLogSync = uiAnalysisLogLength !== sourceAnalysisLogLength || 
         (sourceAnalysisLogLength > 0 && uiAnalysisLogLength > 0 && 
-         gameState.uiState.discoveryAnalysisLog[uiAnalysisLogLength - 1] !== 
-         gameState.discoveryAnalysisLog[sourceAnalysisLogLength - 1])) {
-        
+         gameState.uiState.discoveryAnalysisLog[uiAnalysisLogLength - 1].tick !== 
+         gameState.discoveryAnalysisLog[sourceAnalysisLogLength - 1].tick);
+    
+    if (needAnalysisLogSync) {
         // Copy the analysis log (each entry is an array of DiscoveryActions)
         gameState.uiState.discoveryAnalysisLog.length = 0;
         gameState.uiState.discoveryAnalysisLog.push(...gameState.discoveryAnalysisLog);
     }
 
     // Sync crystal ball words
-    if (gameState.uiState.crystalBallWords.length !== gameState.crystalBallWords.length ||
-        !gameState.uiState.crystalBallWords.every((word, index) => word === gameState.crystalBallWords[index])) {
+    const needCrystalBallSync = gameState.uiState.crystalBallWords.length !== gameState.crystalBallWords.length ||
+        !gameState.uiState.crystalBallWords.every((word, index) => word === gameState.crystalBallWords[index]);
+        
+    if (needCrystalBallSync) {
         gameState.uiState.crystalBallWords = [...gameState.crystalBallWords];
     }
 }
@@ -573,6 +646,8 @@ export function sync(gameState: GameState): void {
         syncTasksView(gameState);
     } else if (activeTab === 'Discover') {
         syncDiscoveryState(gameState);
+        syncCharacterXpData(gameState); // Lightweight XP update for XP bar
+        syncInspirationData(gameState); // Sync inspiration data for inspiration bar
     }
     
     // Sync discovered items count AFTER discovery state to allow proper comparison

@@ -11,6 +11,8 @@ import { DiscoveryLib } from './DiscoveryLib';
 import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
 import { BehTreeLib } from './BehTreeLib';
+import { DialogLib } from './DialogLib';
+import type { DialogDefinition } from '../Dialog';
 
 
 import eventsData from '../data/events';
@@ -20,6 +22,7 @@ import aeigareikaCharacters from '../data/aeigareikaCharacters';
 import sequoiterCharacters from '../data/sequoiterCharacters';
 import { taskDefinitions } from '../data/tasks';
 import { buildingDefinitions } from '../data/buildings';
+import { storyDialogsRaw } from '../data/storyDialogs';
 
 /**
  * The Lib class is a container for all the game's static data definitions.
@@ -37,6 +40,7 @@ export class Lib {
     public ingressWords: IngressWordsLib;
     public welcomeLocations: WelcomeLocationsLib;
     public behTrees: BehTreeLib;
+    public dialogs: DialogLib;
 
     public isLoaded: boolean = false;
 
@@ -45,6 +49,7 @@ export class Lib {
         this.ingressWords = new IngressWordsLib();
         this.welcomeLocations = new WelcomeLocationsLib();
         this.behTrees = new BehTreeLib();
+        this.dialogs = new DialogLib();
         this.loadAllDefinitions();
         // Initialize DiscoveryLib after other libs are loaded
         this.discovery = new DiscoveryLib(this.skills, this.attributes, this.buildings);
@@ -64,6 +69,7 @@ export class Lib {
             this.buildings.loadBuildings(buildingDefinitions);
             this.tasks.loadTasks(taskDefinitions);
             this.tasks.verifyAllTasks(this.skills, this.buildings);
+            this.dialogs.loadRawDialogs(storyDialogsRaw);
             this.isLoaded = true;
         } catch (error) {
             console.error("Failed to process library definitions:", error);
@@ -121,5 +127,15 @@ export class Lib {
      */
     public getCharacter(id: string): CharacterDefinition | undefined {
         return this.characters.getCharacter(id);
+    }
+
+    /**
+     * Retrieves a specific dialog definition by its ID.
+     *
+     * @param id The unique ID of the dialog.
+     * @returns The dialog definition or undefined if not found.
+     */
+    public getDialog(id: string): DialogDefinition | undefined {
+        return this.dialogs.getDialog(id);
     }
 }

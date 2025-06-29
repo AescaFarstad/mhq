@@ -10,7 +10,6 @@ import { wordify } from '../utils/stringUtils';
 
 /**
  * Analyzes player input and returns an array of discovery actions.
- * For Step 1: Only implements direct name search logic.
  * 
  * @param input - The raw input string from the player
  * @param discoveryLib - The discovery library for lookups
@@ -64,18 +63,56 @@ export function analyzeInput(
         }
         
         return keywordResults.length > 0 ? keywordResults : [{ type: 'NO_MATCH', input: cleanedInput }];
-    } else if (wordCount === 2) {
-        // Two words: only perform direct name search
-        return performDirectNameSearch(cleanedInput, discoveryLib, gameState);
-    } else if (wordCount === 3) {
-        // Three words: only perform direct name search
-        return performDirectNameSearch(cleanedInput, discoveryLib, gameState);
+    } else if (wordCount === 2 || wordCount === 3) {
+        // Two or three words: perform direct name search AND keyword search for each word
+        const combinedResults: DiscoveryAction[] = [];
+        
+        // First, try direct name search on the full phrase
+        const directResults = performDirectNameSearch(cleanedInput, discoveryLib, gameState);
+        
+        // Add direct discovery if it's a new discovery
+        if (directResults.length > 0 && directResults[0].type === 'DIRECT_DISCOVERY') {
+            combinedResults.push(...directResults);
+        }
+        
+        // ALWAYS continue processing individual words, even if direct search succeeded
+        // Then, try both direct name search AND keyword search on each individual word
+        for (const word of words) {
+            // Try direct name search on this word (with wordify applied to this single word)
+            const wordDirectResults = performDirectNameSearch(word, discoveryLib, gameState);
+            
+            // Add direct discovery if it's a new discovery
+            if (wordDirectResults.length > 0 && wordDirectResults[0].type === 'DIRECT_DISCOVERY') {
+                combinedResults.push(...wordDirectResults);
+            }
+            
+            // Try keyword search on this word (with wordify applied to this single word)
+            const keywordResults = performKeywordSearch(word, discoveryLib, gameState);
+            
+            // Add keyword results if found
+            if (keywordResults.length > 0 && 
+                ['ADD_ACTIVE_KEYWORD', 'ADD_DISCARDED_KEYWORD', 'KEYWORD_ALREADY_ACTIVE', 'KEYWORD_ALREADY_DISCARDED'].includes(keywordResults[0].type)) {
+                combinedResults.push(...keywordResults);
+            }
+        }
+        
+        // If we have combined results, return them
+        if (combinedResults.length > 0) {
+            return combinedResults;
+        }
+        
+        // Otherwise, return the most informative result from direct search
+        if (directResults.length > 0) {
+            return directResults;
+        }
+        
+        return [{ type: 'NO_MATCH', input: cleanedInput }];
     } else {
-        // More than 3 words: invalid input
+        // More than 3 words: too many words error
         return [{ 
-            type: 'INVALID_INPUT', 
+            type: 'TOO_MANY_WORDS', 
             input, 
-            reason: `Input has ${wordCount} words, maximum is 3` 
+            wordCount: wordCount
         }];
     }
 }
@@ -89,12 +126,31 @@ function performDirectNameSearch(
     gameState: GameState
 ): DiscoveryAction[] {
     const results: DiscoveryAction[] = [];
+    
+    // First, try the exact cleaned input
+    const exactItem = discoveryLib.getBySearchableName(cleanedInput);
+    
+    if (exactItem) {
+        if (gameState.isDiscovered(exactItem.id)) {
+            return [{ type: 'ALREADY_DISCOVERED', item: exactItem }];
+        } else {
+            return [{ type: 'DIRECT_DISCOVERY', item: exactItem }];
+        }
+    }
+    
+    // Then try word variations (only for single words)
     const wordVariations = wordify(cleanedInput);
     let originalWordAlreadyDiscovered = false;
     
     // Try all word variations and collect successful discoveries
     for (const variation of wordVariations) {
+        // Skip if this variation is the same as the exact input we already tried
+        if (variation === cleanedInput) {
+            continue;
+        }
+        
         const item = discoveryLib.getBySearchableName(variation);
+        
         if (item) {
             if (gameState.isDiscovered(item.id)) {
                 // Track if the original word was already discovered
@@ -127,7 +183,6 @@ function performDirectNameSearch(
         }];
     }
     
-    // No matches found for any variation
     return [{ type: 'NO_MATCH', input: cleanedInput }];
 }
 
@@ -191,15 +246,8 @@ function performKeywordSearch(
 
 /**
  * Cleans the input string by normalizing whitespace and converting to lowercase
- * Applies the same transformations as DiscoveryLib.createSearchableName for consistency
+ * Uses the shared cleaning function from DiscoveryLib for consistency
  */
 function cleanInput(input: string): string {
-    return input
-        .trim()
-        .replace(/ and /g, ' ') // Replace ' and ' with single space
-        .replace(/&/g, '') // Remove ampersands 
-        .replace(/-/g, ' ') // Replace hyphens with spaces
-        .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
-        .trim()
-        .toLowerCase();
+    return DiscoveryLib.getSearchableName(input);
 } 

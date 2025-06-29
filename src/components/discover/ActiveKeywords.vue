@@ -1,6 +1,6 @@
 <template>
   <div v-if="activeKeywords.length > 0" class="active-keywords-container">
-    <h3 class="keywords-title">Active Keywords</h3>
+    <h3 v-if="!shouldHideHeader" class="keywords-title">Active Keywords</h3>
     <div class="keywords-grid">
       <div 
         v-for="[keyword, relatedItemIds] in activeKeywords" 
@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useGameState } from '../../composables/useGameState';
+import { C } from '../../logic/lib/C';
 
 const { gameState } = useGameState();
 
@@ -30,59 +31,71 @@ const activeKeywords = computed(() => {
   
   return keywords;
 });
+
+const shouldHideHeader = computed(() => {
+  if (!gameState.value) {
+    return false;
+  }
+  
+  // Depend on discoveredItemsCount for reactivity
+  // Trigger reactivity on discoveredItemsCount changes
+  gameState.value.uiState.discoveredItemsCount;
+  
+  // Check if the specific keywords overflow discovery has been triggered
+  return gameState.value.isDiscovered(C.DISCOVERY_KEYWORDS_OVERFLOW);
+});
 </script>
 
 <style scoped>
 .active-keywords-container {
   background: #2c3e50;
-  border: 1px solid #566a80;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .keywords-title {
-  margin: 0 0 10px 0;
-  font-size: 1em;
+  margin: 0 0 6px 0;
+  font-size: 0.9em;
   font-weight: 600;
   color: #e2e8f0;
   text-align: center;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   border-bottom: 1px solid rgba(86, 106, 128, 0.3);
 }
 
 .keywords-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 3px;
 }
 
 .keyword-entry {
   display: inline-flex;
   align-items: center;
-  background: rgba(52, 152, 219, 0.15);
-  border: 1px solid rgba(93, 173, 226, 0.3);
-  border-radius: 14px;
-  padding: 3px 8px;
+  background: rgba(60, 153, 215, 0.138);
+  border-radius: 6px;
+  padding: 2px 6px;
   font-size: 0.85em;
   transition: all 0.2s ease;
+  min-height: 18px;
 }
 
 .keyword-text {
-  font-weight: 600;
-  color: #5dade2;
-  margin-right: 6px;
+  font-weight: 500;
+  color: #93c2df;
+  margin-right: 4px;
+  line-height: 1.1;
 }
 
 .keyword-count {
-  background: rgba(93, 173, 226, 0.8);
-  color: white;
-  padding: 1px 5px;
-  border-radius: 10px;
-  font-size: 0.75em;
-  font-weight: 700;
-  min-width: 16px;
+  background: rgba(51, 136, 192, 0.6);
+  color: #e8f4f8;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: 600;
+  min-width: 14px;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 </style> 

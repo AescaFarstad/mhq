@@ -52,10 +52,11 @@ const locationDef = computed(() => {
 });
 
 const obfuscatedBio = computed(() => {
-    if (!characterDef.value?.bio || ingressState.value === null) {
+    if (!characterDef.value?.bio || ingressState.value === null || !ingressState.value.inspectingCharacterId) {
         return '';
     }
-    return obfuscateString(characterDef.value.bio, ingressState.value.bioObfuscation, 0.4);
+    const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+    return obfuscateString(characterDef.value.bio, bioObfuscation, 0.4);
 });
 
 const handleDeobfuscate = () => {
@@ -101,9 +102,10 @@ const handleRename = () => {
 };
 
 const deobfuscateButtonLabel = computed(() => {
-    if (!ingressState.value) return 'See through';
+    if (!ingressState.value || !ingressState.value.inspectingCharacterId) return 'See through';
     // Based on the logic in IngressGame.ts deobfuscateBio
-    const steps = Math.round(ingressState.value.bioObfuscation * 5);
+    const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+    const steps = Math.round(bioObfuscation * 5);
     switch (steps) {
         case 5: return 'Squint';
         case 3: return 'Grasp';
@@ -148,7 +150,7 @@ const deobfuscateButtonLabel = computed(() => {
                 </div>
                 <div class="actions-container">
                     <button 
-                        v-if="ingressState && ingressState.bioObfuscation > 0"
+                        v-if="ingressState && ingressState.inspectingCharacterId && (ingressState.characterBioObfuscation[ingressState.inspectingCharacterId] ?? 1.0) > 0"
                         @click="handleDeobfuscate" 
                         :disabled="ingressState.possessionCharges < 1"
                         class="action-button deobfuscate-button"

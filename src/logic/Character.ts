@@ -9,6 +9,7 @@ import type { Skill } from './lib/definitions/SkillDefinition';
 export interface Character {
     characterId: string;
     name: string;
+    isProtagonist: boolean;
     level: FormulaStat;
     gatedXp: GateParameter;
     lastAwardedLevel: IndependentStat;
@@ -140,6 +141,7 @@ export namespace Character {
         const newChar: Character = {
             characterId: charDef.id,
             name: charDef.name,
+            isProtagonist: false,
             level: Stats.createFormulaStat(`${idPrefix}level`, calculateLevelFromXp, gameState.connections),
             gatedXp: Stats.createGateParameter(`${idPrefix}gatedXp`, 0, true, gameState.connections),
             lastAwardedLevel: Stats.createStat(`${idPrefix}lastAwardedLevel`, charDef.initialLevel || 1, gameState.connections),
@@ -546,6 +548,15 @@ export namespace Character {
 
         console.warn(`Proficiency for ${skillOrSpecId} not found, and no governing attributes defined or found for fallback calculation. Returning 0.`);
         return 0;
+    }
+
+    /**
+     * Finds the protagonist character in the game state.
+     * @param gameState - The game state containing characters
+     * @returns The protagonist character, or undefined if none found
+     */
+    export function getProtagonistCharacter(gameState: GameState): Character | undefined {
+        return gameState.characters.find(char => char.isProtagonist);
     }
 }
 

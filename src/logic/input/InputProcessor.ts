@@ -1,10 +1,13 @@
 import type { GameState } from '../GameState';
 import { globalInputQueue } from '../GameState'; // Import globalInputQueue
-import type { CmdInput, CmdCheatSkillUp, CmdConstructBuilding, CmdTimeScale, CmdFireCharacter, CmdSpendAttributePoint, CmdSpendSkillPoint, CmdSpendSpecPoint, CmdSubmitDiscovery, CmdRemoveCrystalWord, CmdDiscover } from './InputCommands';
+import type { CmdInput, CmdCheatSkillUp, CmdConstructBuilding, CmdTimeScale, CmdFireCharacter, CmdSpendAttributePoint, CmdSpendSkillPoint, CmdSpendSpecPoint, CmdSubmitDiscovery, CmdRemoveCrystalWord, CmdDiscover, CmdInspirationChoice, CmdDialogChoice } from './InputCommands';
 import { Stats } from '../core/Stats';
 import type { IndependentStat } from '../core/Stat';
 import { Building } from '../Building'; // Import Building namespace
 import { processDiscoveryAttempt } from '../Discovery';
+import { C } from '../lib/C';
+import { getRarestKeywords, getJuicyKeywords, getRandomKeywords } from '../DiscoveryCals';
+import { makeDialogChoice } from '../Dialog';
 
 
 // Map of handlers
@@ -20,6 +23,8 @@ handlersByName.set("CmdSpendSpecPoint", handleSpendSpecPoint);
 handlersByName.set("CmdSubmitDiscovery", handleSubmitDiscovery);
 handlersByName.set("CmdRemoveCrystalWord", handleRemoveCrystalWord);
 handlersByName.set("CmdDiscover", handleDiscover);
+handlersByName.set("CmdInspirationChoice", handleInspirationChoice);
+handlersByName.set("CmdDialogChoice", handleDialogChoice);
 
 /**
  * Processes all queued commands in the GameState.
@@ -212,6 +217,54 @@ function handleDiscover(gameState: GameState, command: CmdInput): void {
     
     console.log(`Discovered UI element: ${specificCommand.identifier}`);
 }
+
+function handleInspirationChoice(gameState: GameState, command: CmdInput): void {
+    const specificCommand = command as CmdInspirationChoice;
+    
+    if (gameState.inspirationCharges.value <= 0) {
+        console.warn('No inspiration charges available');
+        return;
+    }
+    
+    let newKeywords: string[] = [];
+    
+    switch (specificCommand.choiceType) {
+        case 'rarest':
+            newKeywords = getRarestKeywords(gameState, C.INSPIRATION_CHOICE_RAREST_COUNT);
+            break;
+        case 'juicy':
+            newKeywords = getJuicyKeywords(gameState, C.INSPIRATION_CHOICE_JUICY_COUNT);
+            break;
+        case 'random':
+            newKeywords = getRandomKeywords(gameState, C.INSPIRATION_CHOICE_RANDOM_COUNT);
+            break;
+    }
+    
+    // Add keywords to the beginning of crystalBallWords
+    for (let i = newKeywords.length - 1; i >= 0; i--) {
+        gameState.crystalBallWords.unshift(newKeywords[i]);
+    }
+    
+    // Consume one inspiration charge
+    Stats.modifyStat(gameState.inspirationCharges, -1, gameState.connections);
+    
+    console.log(`Inspiration choice '${specificCommand.choiceType}' granted ${newKeywords.length} keywords:`, newKeywords);
+}
+
+function handleDialogChoice(gameState: GameState, command: CmdInput): void {
+    const specificCommand = command as CmdDialogChoice;
+    makeDialogChoice(specificCommand.dialogName, specificCommand.choiceId, gameState);
+}
+
+
+
+
+
+
+
+
+
+
 
 // Add other handlers here as top-level functions, e.g.:
 // function handleOtherCommand(gameState: GameState, command: CmdInput): void { ... }

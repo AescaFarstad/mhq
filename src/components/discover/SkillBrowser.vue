@@ -39,7 +39,11 @@
                 {{ skillData.keywordStars }}
               </span>
             </div>
-            <span class="skill-name">{{ skillData.displayName }}</span>
+            <span 
+              class="skill-name"
+              @mouseenter="handleSkillHover($event, skillData)"
+              @mouseleave="hideDiscoveryTooltip"
+            >{{ skillData.displayName }}</span>
             <div class="relation-badge-container">
               <span 
                 v-if="skillData.relationCount > 0 && !skillData.isDiscovered" 
@@ -69,7 +73,11 @@
                 {{ spec.keywordStars }}
               </span>
             </div>
-            <span class="spec-name">{{ spec.displayName }}</span>
+            <span 
+              class="spec-name"
+              @mouseenter="handleSpecializationHover($event, spec)"
+              @mouseleave="hideDiscoveryTooltip"
+            >{{ spec.displayName }}</span>
             <div class="relation-badge-container">
               <span 
                 v-if="spec.relationCount > 0 && !spec.isDiscovered" 
@@ -86,7 +94,7 @@
     </div>
   </div>
   
-  <!-- Tooltip -->
+  <!-- Relation Tooltip -->
   <div 
     v-if="tooltipVisible" 
     class="relation-tooltip"
@@ -101,6 +109,19 @@
       </span>
     </div>
   </div>
+  
+  <!-- Discovery Tooltip -->
+  <ItemDiscoveryTooltip
+    :visible="discoveryTooltipVisible"
+    :x="discoveryTooltipX"
+    :y="discoveryTooltipY"
+    :item-id="discoveryTooltipItemId"
+    :item-name="discoveryTooltipItemName"
+    :image-type="discoveryTooltipImageType"
+    :content="discoveryTooltipContent"
+    :description-only="discoveryTooltipDescriptionOnly"
+    :keywords="[]"
+  />
 </template>
 
 <script setup lang="ts">
@@ -108,6 +129,8 @@ import { ref, computed, inject, onMounted, watch } from 'vue';
 import type { GameState } from '../../logic/GameState';
 import { obfuscateString } from '../../utils/stringUtils';
 import { countActiveKeywordsForItem } from '../../logic/Discovery';
+import ItemDiscoveryTooltip from '../common/ItemDiscoveryTooltip.vue';
+import { useItemTooltip } from '../../composables/useItemTooltip';
 
 interface SkillBrowserData {
   id: string;
@@ -136,6 +159,21 @@ interface RelationDetail {
 }
 
 const gameState = inject<GameState>('gameState');
+
+// Use the item discovery tooltip composable
+const {
+  tooltipVisible: discoveryTooltipVisible,
+  tooltipX: discoveryTooltipX,
+  tooltipY: discoveryTooltipY,
+  tooltipContent: discoveryTooltipContent,
+  tooltipItemId: discoveryTooltipItemId,
+  tooltipItemName: discoveryTooltipItemName,
+  tooltipImageType: discoveryTooltipImageType,
+  tooltipDescriptionOnly: discoveryTooltipDescriptionOnly,
+  tooltipKeywords: discoveryTooltipKeywords,
+  showItemTooltip: showDiscoveryTooltip,
+  hideTooltip: hideDiscoveryTooltip
+} = useItemTooltip();
 
 // Settings for filtering and sorting
 const showDiscovered = ref<boolean>(false);
@@ -268,6 +306,40 @@ function showTooltip(event: MouseEvent, relations: RelationDetail[]): void {
  */
 function hideTooltip(): void {
   tooltipVisible.value = false;
+}
+
+/**
+ * Handle skill name hover for discovery tooltip
+ */
+function handleSkillHover(event: MouseEvent, skillData: SkillBrowserData): void {
+  const itemId = skillData.id;
+  const itemType = 'skill';
+  
+  // Calculate obfuscation percentage in real-time instead of using cached value
+  let obfuscationPercentage: number | undefined;
+  if (!skillData.isDiscovered && gameState) {
+    const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
+    obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
+  }
+  
+  showDiscoveryTooltip(event, itemId, itemType, undefined, undefined, obfuscationPercentage);
+}
+
+/**
+ * Handle specialization name hover for discovery tooltip
+ */
+function handleSpecializationHover(event: MouseEvent, spec: SkillBrowserData['specializations'][0]): void {
+  const itemId = spec.id;
+  const itemType = 'skill_specialization';
+  
+  // Calculate obfuscation percentage in real-time instead of using cached value
+  let obfuscationPercentage: number | undefined;
+  if (!spec.isDiscovered && gameState) {
+    const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
+    obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
+  }
+  
+  showDiscoveryTooltip(event, itemId, itemType, undefined, undefined, obfuscationPercentage);
 }
 
 /**

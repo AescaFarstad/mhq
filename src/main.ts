@@ -13,8 +13,12 @@ import { syncIngressUI } from './minigames/ingress/ingressUISync';
 import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
 import { syncExampleUI } from './minigames/example/exampleUISync';
 import { EXAMPLE_TYPE } from './minigames/example/ExampleTypes';
+import { introUISync } from './minigames/intro/introUISync';
+import { INTRO_TYPE } from './minigames/intro/IntroGame';
 import { EventProcessor } from './logic/Event';
 import { runTests } from '../tests/testRunner';
+import { FPSCounter } from './utils/FPSCounter';
+import { reactive } from 'vue';
 
 // import { setGlobalGameState } from './composables/useGameState'; // No longer needed
 
@@ -30,15 +34,25 @@ function initializeGame() {
     }
     const app = createApp(App);
 
+    // Create standalone FPS counter and reactive metrics
+    const fpsCounter = new FPSCounter();
+    const fpsMetrics = reactive({
+        currentFPS: 0,
+        averageFPS: 0,
+        maxFrameTime: 0
+    });
+
     // Provide the gameState to the Vue application
     // Make sure the key matches what useGameState expects, e.g., GameStateKey if you defined it
     app.provide('gameState', gameState);
+    app.provide('fpsMetrics', fpsMetrics);
 
     // Register Minigame UI Sync Functions
     registerMinigameUISyncFunction(CLICK_COUNTER_TYPE, syncClickCounterUI);
     registerMinigameUISyncFunction(WELCOME_TYPE, welcomeUISync);
     registerMinigameUISyncFunction(INGRESS_TYPE, syncIngressUI);
     registerMinigameUISyncFunction(EXAMPLE_TYPE, syncExampleUI);
+    registerMinigameUISyncFunction(INTRO_TYPE, introUISync);
     // Register other minigame UI sync functions here
 
     initializeDebugConsole(
@@ -59,6 +73,13 @@ function initializeGame() {
     let accumulatedTime = 0;
 
     function gameLoop(timestamp: number) {
+        // Update FPS counter and metrics
+        fpsCounter.update(timestamp);
+        const metrics = fpsCounter.getMetrics();
+        fpsMetrics.currentFPS = metrics.currentFPS;
+        fpsMetrics.averageFPS = metrics.averageFPS;
+        fpsMetrics.maxFrameTime = metrics.maxFrameTime;
+        
         if (lastTimestamp === 0) {
             lastTimestamp = timestamp;
         }

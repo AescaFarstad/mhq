@@ -35,6 +35,10 @@ const props = defineProps({
   progressColor: {
     type: String,
     default: 'blue' // 'blue', 'green', 'red', 'yellow', etc.
+  },
+  disableGainEffect: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -43,6 +47,7 @@ const isGaining = ref(false);
 const showIncrement = ref(false);
 const isFadingOut = ref(false);
 const progressIncrement = ref(0);
+const animationId = ref<number | null>(null);
 
 // Watch for changes in currentProgress and animate
 watch(() => props.currentProgress, (newValue, oldValue) => {
@@ -68,15 +73,24 @@ watch(() => props.currentProgress, (newValue, oldValue) => {
     }
     
     // Trigger gaining effect only for meaningful changes (not tiny increments)
-    if (difference > 0 && Math.round(difference) >= 1) {
+    // Skip gain effect if disabled
+    if (difference > 0 && Math.round(difference) >= 1 && !props.disableGainEffect) {
       isGaining.value = true;
       setTimeout(() => {
         isGaining.value = false;
       }, 600);
     }
 
+    // Cancel any ongoing animation
+    if (animationId.value !== null) {
+      cancelAnimationFrame(animationId.value);
+      animationId.value = null;
+    }
+
     // Animate the progress value
-    const startValue = animatedProgress.value;
+    const startValue = animatedProgress.value; // Start from current animated position
+    const targetValue = newValue;
+    const animationDifference = targetValue - startValue;
     const duration = 800; // milliseconds
     const startTime = Date.now();
 
@@ -87,16 +101,17 @@ watch(() => props.currentProgress, (newValue, oldValue) => {
       // Easing function for smooth animation
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
       
-      animatedProgress.value = startValue + (difference * easeOutQuart);
+      animatedProgress.value = startValue + (animationDifference * easeOutQuart);
       
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        animationId.value = requestAnimationFrame(animate);
       } else {
-        animatedProgress.value = newValue; // Ensure exact final value
+        animatedProgress.value = targetValue; // Ensure exact final value
+        animationId.value = null;
       }
     };
     
-    requestAnimationFrame(animate);
+    animationId.value = requestAnimationFrame(animate);
   }
 }, { immediate: true });
 

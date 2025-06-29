@@ -64,11 +64,13 @@ export interface IngressState extends MinigameState {
     totalPossessionCharges: number; // Total charges earned over time
     chargesBarRevealed: boolean;
     characterOptions: IngressCharacterOption[]; // Discoverable characters
+    charactersAvailableToInvision: number; // Number of characters ready to be invisioned
+    hasInvisioned: boolean; // Whether the player has used the invision button
     inspectingCharacterId: string | null; // ID of character being viewed in detail
     renamingCharacterId: string | null; // ID of character being renamed
     characterRenames: { [characterId: string]: string }; // Map of characterId -> new name
     characterXpBonuses: { [characterId: string]: number }; // Map of characterId -> % xp bonus
-    bioObfuscation: number; // Obfuscation percentage for bio (1.0 = 100%)
+    characterBioObfuscation: { [characterId: string]: number }; // Map of characterId -> bio obfuscation level (1.0 = 100%)
     upgrades: IngressUpgrades;
     upgradesRevealed: boolean;
     possessionProgress: number; // From 0 to 100

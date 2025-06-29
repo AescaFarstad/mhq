@@ -12,7 +12,7 @@
     *   Central `GameState` managing resources, stats, characters, events, and game time.
     *   Reactive `uiState` within `GameState` for efficient UI updates.
     *   **Debug Console**: A utility (`DebugConsole.ts`) that exposes a global `window.run(effectKey, params)` function. This allows developers to directly execute any game `Effect` from the browser's developer console, simplifying testing and debugging of game logic and events.
-    *   Stat system (`core/Stat.ts`, `core/Stats.ts`) for managing interconnected game values (independent, parameters, formulas). Classes: `Stat`, `Connections`, `Connection`, `ConnectionType`, `Parameter`, `IndependentStat`, `FormulaStat`, and `FormulaParameter` for stats calculated from named inputs via a custom formula. Namespace: `Stats`.
+    *   **Stats System** (`core/Stat.ts`, `core/Stats.ts`, `core/HowToStats.md`) for managing interconnected game values with automatic change propagation. See detailed documentation in `HowToStats.md`.
     *   Resource management (`core/Resource.ts`) using the stat system for current, max, and income values. Classes: `Resource`, `ResourceManager`.
     *   Character system (`Character.ts`) with static definitions (`CharacterDefinition`) and dynamic instances (`Character`) using the stat system for level, upkeep, attributes, skills, specializations, and proficiencies. Proficiencies for skills and specializations are calculated using `FormulaParameter` stats, dynamically updating based on underlying attributes and levels. Classes/Interfaces: `Character`, `CharacterDefinition`, `CharacterSkill`.
     *   Hierarchical attribute system (`attributes.ts`, `GameState.ts`) defining primary and secondary attributes, processing their values, and structuring them for UI display.
@@ -28,6 +28,14 @@
     *   Shared UI type definitions (`types/uiTypes.ts`) for consistent data structures in components.
     *   **Task System (`Task.ts`, `TaskTypes.ts`):** Manages game tasks, including their lifecycle (available, queued, processing, completed), effort calculation, character assignment based on skill proficiency, and reward distribution (e.g., clutter reduction). Includes logic for generating maintenance tasks based on game state (e.g., clutter levels).
     *   **Building System (`Building.ts`):** Manages player-constructed buildings, linking them to the stat system for effects like clutter generation. Building definitions are loaded via `Lib.ts`.
+
+## Detailed Documentation
+
+For in-depth information about specific systems, see these dedicated documentation files:
+
+*   **`src/logic/core/HowToStats.md`** - Comprehensive guide to the stats system, including usage patterns, connection types, and integration examples
+*   **`src/logic/core/behTree/BehTreeDesign.md`** - Behavior tree system for orchestrating complex game logic sequences  
+*   **`src/logic/DiscoveryFeature.md`** - Discovery system mechanics for exploration and deduction gameplay
 
 ## Project Structure
 
@@ -52,7 +60,7 @@
             *   `CharacterSkills.vue`: Displays a character's skills and specializations in a vertical list.
             *   `SkillItem.vue`: Renders individual skill/specialization entries with proficiency values, spend buttons, and hypothetical preview on hover.
         *   **`shared/`**: Shared components used across multiple tabs.
-            *   `XpProgressBar.vue`: Displays experience progress with dynamic coloring and overlay text.
+            *   `ProgressBar.vue`: Displays progress bars with dynamic coloring, overlay text, and customizable labels for various types of progress (XP, health, resources, etc.).
         *   **`common/`**: Common utility components.
             *   `SpendPointButton.vue`: Standardized button for spending character points with consistent styling.
             *   `MiniTaskDisplay.vue`: Compact task display component.
@@ -64,9 +72,11 @@
         *   `Character.ts`: Represents an active character instance with level, upkeep, attributes, skills, and specializations as `IndependentStat` objects.
         *   `UIStateManager.ts`: Manages UI state updates from the game state to the reactive UI objects.
         *   **`core/`**: Foundational systems.
-            *   `Stat.ts`: Definitions for `Stat`, `Connections`, `Connection`, `ConnectionType`, `Parameter`, `IndependentStat`, `FormulaStat`, and `FormulaParameter`.
+            *   `Stat.ts`: Core stat class definitions and connection system.
             *   `Stats.ts`: Utility functions for creating and managing `Stat` objects within `Connections`.
+            *   `HowToStats.md`: Comprehensive documentation for the stats system.
             *   `Hypothetical.ts`: System for creating temporary "what-if" stat scenarios by cloning connections and applying hypothetical changes for UI previews.
+            *   `behTree/`: Behavior tree system for complex game logic sequences. See `BehTreeDesign.md` for details.
         *   **`lib/`**: Data loading and management.
             *   `Lib.ts`: Main class responsible for loading game data (events, characters, attributes, skills) from TypeScript files in the `data/` directory using specific libs (`CharacterLib`, `AttributeLib`, `SkillLib`). Provides access methods.
             *   `CharacterLib.ts`: Handles loading and accessing `CharacterDefinition` data with strong typing.
@@ -99,7 +109,7 @@
         *   `AtlasManager.ts` (`src/utils/AtlasManager.ts`): A singleton class that manages loading and accessing texture atlases. It takes a configuration of atlas names, image paths, and JSON description paths. It loads atlas images and their corresponding JSON files (which define the coordinates and dimensions of individual images within the atlas) asynchronously. It provides a method `getAtlasImage` to retrieve a specific image and its rectangle data from a loaded atlas.
 
 ## Reference Code Details
-*   **Stats System (`src/logic/core/`):** Manages numerical values (`Stat`, `IndependentStat`, `Parameter`, `FormulaStat`, `FormulaParameter`) with automatic propagation of changes through connections (`Connections`, `ConnectionType`). `FormulaParameter` allows for creating stats whose values are derived from a set of named inputs through a user-defined formula, useful for complex calculations like skill proficiencies. Utility functions in `Stats` namespace. Used for resources, character level/upkeep, attributes, skills, specializations, and proficiencies.
+*   **Stats System (`src/logic/core/`):** Reactive numerical value management with automatic change propagation. Comprehensive documentation available in `src/logic/core/HowToStats.md`.
 *   **Hypothetical System (`src/logic/core/Hypothetical.ts`):** Provides "what-if" scenario functionality by creating temporary stat connection clones with hypothetical modifications. Used for UI previews when hovering over upgrade buttons, allowing players to see potential stat changes before committing. The system creates unique keys for each hypothetical scenario and integrates with `UIStateManager` to sync hypothetical states to reactive UI components. Functions include `createHypotheticalForAttributeUpgrade`, `createHypotheticalForSkillUpgrade`, `createHypotheticalForSpecUpgrade`, and `clearHypothetical`.
 *   **Data Loading System (`src/logic/lib/`, `src/logic/data/`):** `Lib.ts` loads game entity definitions (`EventDefinition`, `CharacterDefinition`, `AttributeDefinition`, base `Skill` data) from typed TypeScript files into corresponding structures defined in `src/logic/lib/definitions/`, enabling a type-safe, data-driven approach with compile-time checking. Skill keywords are loaded separately via `skillKeywordsLoader.ts` and merged within `SkillLib.ts`.
 *   **Event System (`src/logic/Event.ts`, `src/logic/lib/definitions/EventDefinition.ts`):** `EventDefinition.ts` defines events with conditions and effects. `EventProcessor.ts` checks conditions against `GameState` and applies effects for scripted game progression/reactions.

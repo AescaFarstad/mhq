@@ -50,10 +50,11 @@
           </div>
         </div>
         <!-- XP Progress Bar -->
-        <XpProgressBar
+        <ProgressBar
           v-if="selectedCharacter.xp"
-          :xpProgress="selectedCharacter.xp.progress"
-          :nextLevelDelta="selectedCharacter.xp.nextLevelDelta"
+          :currentProgress="selectedCharacter.xp.progress"
+          :maxValue="selectedCharacter.xp.nextLevelDelta"
+          progressLabel="XP"
         />
       </div>
 
@@ -106,7 +107,7 @@
 import { PropType, ref, computed } from 'vue';
 import CharacterAttributes from './CharacterAttributes.vue';
 import CharacterSkills from './CharacterSkills.vue';
-import XpProgressBar from '../shared/XpProgressBar.vue';
+import ProgressBar from '../shared/ProgressBar.vue';
 import { SelectedCharacterInfo } from '../../types/uiTypes';
 import { globalInputQueue } from '../../logic/GameState';
 import type { CmdFireCharacter } from '../../logic/input/InputCommands';

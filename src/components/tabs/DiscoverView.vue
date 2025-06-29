@@ -20,6 +20,41 @@
       
       <!-- Inner Cosmos Panel -->
       <div class="crystal-ball-panel">
+        <!-- Character XP Bar -->
+        <div v-if="protagonistCharacter" class="character-progress-bars">
+          <div class="character-xp-bar">
+          <span class="character-name">{{ protagonistCharacter.name }} xp:</span>
+            <div class="bar-container">
+            <ProgressBar 
+              :currentProgress="protagonistCharacter.xp.progress" 
+              :maxValue="protagonistCharacter.xp.nextLevelDelta" 
+              progressLabel="XP"
+                progressColor="blue"
+              />
+            </div>
+          </div>
+          
+          <!-- Inspiration Bar -->
+          <div class="character-inspiration-bar">
+            <span 
+              class="character-name"
+              :class="{ 'inspiration-clickable': hasInspirationCharges }"
+              @click="toggleCrystalView"
+            >
+              Inspiration:
+            </span>
+            <div class="bar-container">
+              <ProgressBar 
+                :currentProgress="inspirationProgress" 
+                :maxValue="inspirationMax" 
+                progressLabel=""
+                progressColor="purple"
+                :disableGainEffect="true"
+            />
+            </div>
+          </div>
+        </div>
+        
         <ActiveKeywords />
         <div class="discovery-input-wrapper">
           <DiscoveryLog />
@@ -51,6 +86,7 @@ import DiscoveryInput from '../discover/DiscoveryInput.vue';
 import DiscoveryLog from '../discover/DiscoveryLog.vue';
 import ActiveKeywords from '../discover/ActiveKeywords.vue';
 import CrystalView from '../CrystalView.vue';
+import ProgressBar from '../shared/ProgressBar.vue';
 
 const gameState = inject<GameState>('gameState');
 
@@ -71,6 +107,39 @@ const showInnerCosmos = computed(() => {
 const showCrystalView = computed(() => {
   return gameState?.uiState.showCrystalView ?? false;
 });
+
+// Find the protagonist character for the XP bar
+const protagonistCharacter = computed(() => {
+  return gameState?.uiState.characters.find(char => char.id === gameState.uiState.selectedCharacterId) || 
+         gameState?.uiState.characters[0] || null;
+});
+
+const inspirationProgress = computed(() => {
+  // Force reactivity by accessing the UI state first
+  if (!gameState?.uiState) return 0;
+  return (gameState.uiState as any)?.inspiration?.progress ?? 0;
+});
+
+const inspirationMax = computed(() => {
+  // Force reactivity by accessing the UI state first
+  if (!gameState?.uiState) return 1;
+  return (gameState.uiState as any)?.inspiration?.max ?? 1;
+});
+
+// Check if inspiration charges are available for crystal ball interaction
+const hasInspirationCharges = computed(() => {
+  // Force reactivity by accessing the UI state first
+  if (!gameState?.uiState) return false;
+  const charges = (gameState.uiState as any)?.inspiration?.charges ?? 0;
+  return charges > 0;
+});
+
+// Function to toggle crystal view when inspiration is clicked
+const toggleCrystalView = () => {
+  if (hasInspirationCharges.value && gameState) {
+    gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
+  }
+};
 
 // Functions to trigger discovery
 const discoverSkillBrowser = () => {
@@ -117,13 +186,12 @@ const discoverInnerCosmos = () => {
   position: relative;
 }
 
-/* Crystal Ball Panel */
 .crystal-ball-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  gap: 20px;
+  padding: 10px;
+  gap: 10px;
   background-color: #2c3e50;
   position: relative;
 }
@@ -133,6 +201,8 @@ const discoverInnerCosmos = () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: center; /* Center the unified block */
+  width: 100%;
 }
 
 /* Overlay Styles */
@@ -177,6 +247,50 @@ const discoverInnerCosmos = () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+
+.character-progress-bars {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 10px;
+  padding: 2px 12px;
+  background: rgba(52, 73, 94, 0.3);
+}
+
+/* Character XP Bar Styles */
+.character-xp-bar {
+  display: contents; /* Makes children participate in parent grid */
+}
+
+/* Character Inspiration Bar Styles */
+.character-inspiration-bar {
+  display: contents; /* Makes children participate in parent grid */
+}
+
+.character-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  text-align: left;
+  align-self: center;
+}
+
+.inspiration-clickable {
+  color: #3498db !important;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.inspiration-clickable:hover {
+  color: #5dade2 !important;
+}
+
+.bar-container {
+  min-width: 200px;
+  align-self: center;
 }
 
 /* Discovery Button Styles */

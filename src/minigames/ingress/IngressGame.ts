@@ -14,7 +14,7 @@ const CHARGES_BAR_REVEAL_THRESHOLD = 4;
 const FIRST_CHAR_UNLOCK_THRESHOLD = 6;
 const SUBSEQUENT_CHAR_UNLOCK_THRESHOLD = 2;
 const CHAR_EXPLORATION_COSTS = [1, 2, 3]; // Costs for name, portrait, investigate
-const POSSESSION_BASE_SPEED = 0.005;
+const POSSESSION_BASE_SPEED = 0.0035;
 
 export class IngressGame implements BaseMinigame<IngressState> {
     readonly id: string;
@@ -41,11 +41,13 @@ export class IngressGame implements BaseMinigame<IngressState> {
             totalPossessionCharges: 0,
             chargesBarRevealed: false,
             characterOptions: [],
+            charactersAvailableToInvision: 0,
+            hasInvisioned: false,
             inspectingCharacterId: null,
             renamingCharacterId: null,
             characterRenames: {},
             characterXpBonuses: {},
-            bioObfuscation: 1.0,
+            characterBioObfuscation: {},
             upgrades: {
                 char_attribute_point: false,
                 char_skill_point: false,
@@ -164,8 +166,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
                 possessionBump = 0.4;
             } else if (pointsToAdd === 3) {
                 possessionBump = 0.5;
-            } else if (pointsToAdd >= 4) {
-                possessionBump = 0.6;
+            } else if (pointsToAdd === 4) {
+                possessionBump = 0.7;
+            } else if (pointsToAdd >= 5) {
+                possessionBump = 0.8;
             }
             
             if (possessionBump > 0) {
@@ -320,7 +324,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
 
     public startCharacterInspection(characterId: string): void {
         this.state.inspectingCharacterId = characterId;
-        this.state.bioObfuscation = 1.0;
+        // Only set initial obfuscation if this character hasn't been inspected before
+        if (this.state.characterBioObfuscation[characterId] === undefined) {
+            this.state.characterBioObfuscation[characterId] = 1.0;
+        }
     }
 
     public closeCharacterInspection(): void {
@@ -346,19 +353,25 @@ export class IngressGame implements BaseMinigame<IngressState> {
     }
 
     public deobfuscateBio(): void {
-        if (this.state.possessionCharges >= 1 && this.state.bioObfuscation > 0) {
+        const characterId = this.state.inspectingCharacterId;
+        if (!characterId) {
+            console.warn("No character is currently being inspected.");
+            return;
+        }
+
+        if (this.state.possessionCharges >= 1 && this.state.characterBioObfuscation[characterId] > 0) {
             this.state.possessionCharges -= 1;
             
             // To avoid floating point issues, we work with integer steps
-            const currentObfuscationSteps = Math.round(this.state.bioObfuscation * 5);
+            const currentObfuscationSteps = Math.round(this.state.characterBioObfuscation[characterId] * 5);
             
             let stepsToReduce = 1;
-            if (this.state.bioObfuscation === 1.0) {
+            if (this.state.characterBioObfuscation[characterId] === 1.0) {
                 stepsToReduce = 2;
             }
 
             const newObfuscationSteps = Math.max(0, currentObfuscationSteps - stepsToReduce);
-            this.state.bioObfuscation = newObfuscationSteps / 5;
+            this.state.characterBioObfuscation[characterId] = newObfuscationSteps / 5;
         }
     }
 
@@ -398,6 +411,44 @@ export class IngressGame implements BaseMinigame<IngressState> {
         effects.applyIngressResults(gameState, params);
 
         gameState.exitMinigame();
+    }
+
+    public invisionCharacters(gameState: GameState): void {
+        const INVISION_COST = 2;
+        
+        if (this.state.hasInvisioned) {
+            console.warn('Characters have already been invisioned.');
+            return;
+        }
+
+        if (this.state.charactersAvailableToInvision === 0) {
+            console.warn('No characters available to invision.');
+            return;
+        }
+
+        if (this.state.possessionCharges < INVISION_COST) {
+            console.warn('Not enough possession charges to invision characters.');
+            return;
+        }
+
+        this.state.possessionCharges -= INVISION_COST;
+        this.state.hasInvisioned = true;
+
+        // Now add the available characters to the options
+        const eligibleChars = Array.from(gameState.lib.characters.values())
+            .filter(c => c.location === gameState.locationId && !this.state.characterOptions.some(co => co.characterId === c.id));
+
+        for (let i = 0; i < this.state.charactersAvailableToInvision && i < eligibleChars.length; i++) {
+            const charToUnlock = eligibleChars[i];
+            const newOption: IngressCharacterOption = {
+                characterId: charToUnlock.id,
+                discoveryState: 'unexplored',
+                explorationCosts: CHAR_EXPLORATION_COSTS,
+            };
+            this.state.characterOptions.push(newOption);
+        }
+
+        this.state.charactersAvailableToInvision = 0;
     }
 
     public exploreCharacter(characterId: string, gameState: GameState): void {
@@ -459,14 +510,20 @@ export class IngressGame implements BaseMinigame<IngressState> {
             const eligibleChars = Array.from(gameState.lib.characters.values())
                 .filter(c => c.location === gameState.locationId && !this.state.characterOptions.some(co => co.characterId === c.id));
 
-            for (let i = 0; i < newUnlocksCount && i < eligibleChars.length; i++) {
-                const charToUnlock = eligibleChars[i];
-                const newOption: IngressCharacterOption = {
-                    characterId: charToUnlock.id,
-                    discoveryState: 'unexplored',
-                    explorationCosts: CHAR_EXPLORATION_COSTS,
-                };
-                this.state.characterOptions.push(newOption);
+            // If this is the first time characters are available and player hasn't invisioned yet
+            if (this.unlockedCharacterCount === 0 && !this.state.hasInvisioned) {
+                this.state.charactersAvailableToInvision = Math.min(newUnlocksCount, eligibleChars.length);
+            } else {
+                // Normal character unlocking (after invision or subsequent unlocks)
+                for (let i = 0; i < newUnlocksCount && i < eligibleChars.length; i++) {
+                    const charToUnlock = eligibleChars[i];
+                    const newOption: IngressCharacterOption = {
+                        characterId: charToUnlock.id,
+                        discoveryState: 'unexplored',
+                        explorationCosts: CHAR_EXPLORATION_COSTS,
+                    };
+                    this.state.characterOptions.push(newOption);
+                }
             }
             this.unlockedCharacterCount = potentialUnlocks;
         }

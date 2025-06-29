@@ -136,7 +136,7 @@ const charactersData: CharacterData = {
         initialLevel: 1,
         baseUpkeep: 0.0,
         bio: "Lyra was a promising, if volatile, apprentice in the Titan Assembly Hall, until her 'unauthorized experiments' became too disruptive. Finding the old guild hall was a stroke of luck, a private workshop far from prying eyes and stifling rules. She's been happily dismantling and 'improving' things in solitude.",
-        keywords: ["spark", "gear", "glow", "tool", "flame", "metal", "goggles", "smoke", "glint", "bolt", "wire", "steam", "coil", "glass", "blast", "wrench", "orb", "fuse", "pulse", "fire", "craft", "brass", "lamp", "flare", "core"],
+        keywords: ["spark", "gear", "glow", "tool", "flame", "metal", "goggles", "smoke", "glint", "bolt", "wire", "steam", "coil", "glass", "blast", "wrench", "orb", "fuse", "pulse", "fire", "craft", "brass", "lamp", "flare", "titan", "workshop", "clock", "clockwork", "tinkerer", "forge"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 4, constitution: 2, senses: 3,
             spirit: 2, attunement: 3, channeling: 4, weaving: 4, resilience: 1,

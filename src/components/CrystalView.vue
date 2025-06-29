@@ -4,10 +4,13 @@
       <button class="close-button" @click="closeCrystalView">✕</button>
     </div>
     
+    <!-- Inspiration Choices Section - moved above crystal ball -->
+    <InspirationChoices />
+    
     <div class="crystal-ball-large">
       <CrystalBall />
     </div>
-    
+
     <div class="crystal-instruction">
       Words accumulated through possession or inspiration.
     </div>
@@ -38,6 +41,7 @@ import type { GameState } from '../logic/GameState';
 import { globalInputQueue } from '../logic/GameState';
 import type { CmdSubmitDiscovery, CmdRemoveCrystalWord } from '../logic/input/InputCommands';
 import CrystalBall from './CrystalBall.vue';
+import InspirationChoices from './discover/InspirationChoices.vue';
 
 const gameState = inject<GameState>('gameState');
 
@@ -80,7 +84,8 @@ const closeCrystalView = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 60vh; /* Only take 60% of viewport height */
+  height: auto; /* Let content determine height */
+  max-height: 90vh; /* Prevent it from taking over the entire screen */
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95)); /* Dark theme background */
   border: 2px solid #566a80;
   border-radius: 20px 20px 0 0; /* Rounded corners only on top */
@@ -89,6 +94,7 @@ const closeCrystalView = () => {
   padding: 30px;
   z-index: 10;
   backdrop-filter: blur(10px); /* Add blur effect for better transparency */
+  transition: all 0.3s ease; /* Smooth all transitions */
 }
 
 .crystal-view-header {
@@ -144,8 +150,9 @@ const closeCrystalView = () => {
 .crystal-words-container {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start; /* Pack words at the top, don't stretch */
   gap: 8px;
-  max-height: 200px;
+  height: 200px; /* Fixed height instead of max-height */
   overflow-y: auto;
   padding: 15px;
   border: 1px solid #566a80;
