@@ -2,6 +2,7 @@ import { BehNode } from './BehNode';
 import type { GameState } from '../../GameState';
 import type { EventDefinition, EventContext } from '../../lib/definitions/EventDefinition';
 import { NodeResult } from './BehTreeTypes';
+import { C } from '../../lib/C';
 
 export type EventProcessLambda = (eventDef: EventDefinition, node: BehNode, state: GameState) => boolean;
 
@@ -24,7 +25,7 @@ export class AwaitAndProcessEventNode extends BehNode {
 
     public init(state: GameState): void {
         if (this.root.invoker) {
-            if (this.root.invoker.logVerbose) {
+            if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} started, awaiting event '${this.eventId}'.`);
             }
             this.root.invoker.addEventListener(this.eventId, this);
@@ -48,14 +49,14 @@ export class AwaitAndProcessEventNode extends BehNode {
             return;
         }
 
-        if (this.root.invoker?.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[BehTree] ${this.getHierarchicalPath()} caught event '${this.eventId}'.`);
         }
 
         // Process the event using the lambda
         const success = this.processLambda(eventDef, this, state);
         
-        if (this.root.invoker?.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[BehTree] ${this.getHierarchicalPath()} event processing ${success ? 'succeeded' : 'failed'}.`);
         }
 

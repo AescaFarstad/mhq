@@ -4,7 +4,7 @@ import { wordify } from '../../../utils/stringUtils';
 
 export class IngressWordsLib {
     private words: Map<string, WordDefinition> = new Map();
-    private _usefulWordsCount = 0;
+    private _substantiveWordsCount = 0;
 
     constructor() {
         this.loadWords();
@@ -19,7 +19,7 @@ export class IngressWordsLib {
             cheat: 100
         };
 
-        // Process useful words
+        // Process substantive words (type: 'useful' in data structure)
         if (ingressWordDefinitions.useful) {
             for (const [subcategory, words] of Object.entries(ingressWordDefinitions.useful)) {
                 const points = pointValues[subcategory] || 1;
@@ -48,7 +48,7 @@ export class IngressWordsLib {
             });
         }
 
-        this._usefulWordsCount = [...this.words.values()].filter(w => w.type === 'useful').length;
+        this._substantiveWordsCount = [...this.words.values()].filter(w => w.type === 'useful').length;
     }
 
     public getWord(id: string): WordDefinition | undefined {
@@ -76,7 +76,7 @@ export class IngressWordsLib {
         return this.words.values();
     }
 
-    public getUsefulWordsCount(): number {
-        return this._usefulWordsCount;
+    public getSubstantiveWordsCount(): number {
+        return this._substantiveWordsCount;
     }
 } 

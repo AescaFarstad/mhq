@@ -21,8 +21,6 @@
     <!-- Display area for copied content -->
     <div v-if="displayedContent" class="content-display">
       <div class="content-header">
-        <h3>{{ displayedContentTitle }}</h3>
-        <button @click="clearDisplayedContent" class="clear-content-btn">Clear</button>
       </div>
       <pre class="content-text">{{ displayedContent }}</pre>
     </div>
@@ -65,12 +63,6 @@ const showVisualizer = ref<boolean>(false);
 const displayContent = (content: string, title: string) => {
   displayedContent.value = content;
   displayedContentTitle.value = title;
-};
-
-// Clear displayed content
-const clearDisplayedContent = () => {
-  displayedContent.value = '';
-  displayedContentTitle.value = '';
 };
 
 // Noise visualizer functions
@@ -629,6 +621,9 @@ const findSharedKeywordPairs = (_event?: Event) => {
 <style scoped>
 .tab-content {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .button-container {
@@ -636,6 +631,7 @@ const findSharedKeywordPairs = (_event?: Event) => {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .action-btn {
@@ -672,36 +668,25 @@ const findSharedKeywordPairs = (_event?: Event) => {
 }
 
 .content-display {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
   margin-top: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background: #f8f9fa;
+  min-height: 0;
 }
 
 .content-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 10px 15px;
   background: #e9ecef;
   border-bottom: 1px solid #ccc;
   border-radius: 4px 4px 0 0;
-}
-
-.content-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.clear-content-btn {
-  padding: 4px 8px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .clear-content-btn:hover {
@@ -711,18 +696,21 @@ const findSharedKeywordPairs = (_event?: Event) => {
 .content-text {
   padding: 15px;
   margin: 0;
-  max-height: 400px;
+  flex-grow: 1;
   overflow-y: auto;
   white-space: pre-wrap;
   font-family: 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.4;
   background: white;
+  min-height: 0;
 }
 
 .no-content-message {
-  text-align: center;
-  padding: 40px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #666;
   font-style: italic;
 }

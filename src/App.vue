@@ -15,6 +15,7 @@ import WelcomeView from './minigames/welcome/WelcomeView.vue';
 import IngressView from './minigames/ingress/IngressView.vue';
 import ExampleView from './minigames/example/ExampleView.vue';
 import IntroView from './minigames/intro/IntroView.vue';
+import VolumeControlButton from './components/VolumeControlButton.vue';
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
@@ -195,6 +196,8 @@ onMounted(() => {
         <button @click="showDialog = false">Close</button>
       </div>
     </div>
+
+    <VolumeControlButton />
 
   </div>
 </template>

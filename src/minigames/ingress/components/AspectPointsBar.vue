@@ -4,8 +4,8 @@ import type { IngressUpgrades } from '../IngressTypes';
 
 const props = withDefaults(defineProps<{
   charges: number;
-  possessionProgress: number;
-  totalPossessionCharges: number;
+  materializationProgress: number;
+  totalAspectPoints: number;
   upgrades?: IngressUpgrades;
   showProgress: boolean;
 }>(), {
@@ -13,28 +13,28 @@ const props = withDefaults(defineProps<{
 });
 
 const isHintVisible = ref(false);
-const possessionBarFlash = ref<'default' | 'increase' | 'decrease'>('default');
+const materializationBarFlash = ref<'default' | 'increase' | 'decrease'>('default');
 
-const possessionStarsDisplay = computed(() => {
+const aspectPointsDisplay = computed(() => {
   if (props.charges <= 0) return '';
   const stars = '★'.repeat(props.charges);
   return stars.replace(/(.{5})/g, '$1 ').trimEnd();
 });
 
 const formattedProgress = computed(() => {
-  return props.possessionProgress.toFixed(3);
+  return props.materializationProgress.toFixed(3);
 });
 
 const displayRate = computed(() => {
-  let rate = props.totalPossessionCharges;
-  if (props.upgrades?.breach_possession_speed) {
+  let rate = props.totalAspectPoints;
+  if (props.upgrades?.breach_materialization_speed) {
     rate *= 2;
   }
   return rate;
 });
 
 const progressBarWidth = computed(() => {
-  const fractionalPart = props.possessionProgress % 1;
+  const fractionalPart = props.materializationProgress % 1;
   return `${fractionalPart * 100}%`;
 });
 
@@ -44,40 +44,40 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   }
   
   if (newCharges > oldCharges) {
-    possessionBarFlash.value = 'increase';
+    materializationBarFlash.value = 'increase';
   } else if (newCharges < oldCharges) {
-    possessionBarFlash.value = 'decrease';
+    materializationBarFlash.value = 'decrease';
   } else {
     return;
   }
 
   setTimeout(() => {
-    possessionBarFlash.value = 'default';
+    materializationBarFlash.value = 'default';
   }, 1.3 * 1000);
 });
 </script>
 
 <template>
   <div
-    class="possession-charges-bar"
+    class="aspect-points-bar"
     :class="{
-      'flash-green-possession': possessionBarFlash === 'increase',
-      'flash-dark-possession': possessionBarFlash === 'decrease'
+      'flash-green-materialization': materializationBarFlash === 'increase',
+      'flash-dark-materialization': materializationBarFlash === 'decrease'
     }"
   >
     <div v-if="showProgress" class="progress-bar-fill" :style="{ width: progressBarWidth }"></div>
     <div class="content-overlay">
-      <span class="possession-charges-label">Possession Charges: </span>
-      <span class="stars">{{ possessionStarsDisplay }}</span>
+      <span class="aspect-points-label">Aspect points: </span>
+      <span class="stars">{{ aspectPointsDisplay }}</span>
       <div v-if="showProgress" class="progress-text-container">
-        <span v-if="possessionProgress >= 100" class="possession-ready">
-          Ready to Possess
+        <span v-if="materializationProgress >= 100" class="materialization-ready">
+          Ready to Materialize
         </span>
-        <span v-else class="possession-progress">
-          Possession progress: {{ formattedProgress }}%, rate: {{ displayRate }}x
+        <span v-else class="materialization-progress">
+          Materialization progress: {{ formattedProgress }}%, rate: {{ displayRate }}x
         </span>
         <div
-          v-if="possessionProgress < 100"
+          v-if="materializationProgress < 100"
           class="input-hint-container"
           @mouseenter="isHintVisible = true"
           @mouseleave="isHintVisible = false"
@@ -85,8 +85,8 @@ watch(() => props.charges, (newCharges, oldCharges) => {
           <span class="hint-icon">?</span>
           <div v-if="isHintVisible" class="hint-tooltip">
               <ul>
-                <li>The rate is proportional to the total amount of charges you've earned.</li>
-                <li>Spending charges does not affect the rate, but may tickle the sense of greed. This is normal.</li>
+                <li>The rate is proportional to the total amount of aspect points you've earned.</li>
+                <li>Spending points does not affect the rate, though you may feel an unfamiliar reluctance to part with them. This is greed—a mortal sensation.</li>
               </ul>
           </div>
         </div>
@@ -96,7 +96,7 @@ watch(() => props.charges, (newCharges, oldCharges) => {
 </template>
 
 <style scoped>
-.possession-charges-bar {
+.aspect-points-bar {
   display: flex;
   align-items: center;
   padding: 8px 15px;
@@ -128,13 +128,13 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   width: 100%;
 }
 
-.possession-charges-label {
+.aspect-points-label {
   flex-shrink: 0;
 }
 
 .progress-text-container {
   margin-left: auto;
-  min-width: 320px;
+  min-width: 340px;
   text-align: right;
   display: flex;
   align-items: center;
@@ -142,18 +142,18 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   gap: 8px;
 }
 
-.possession-progress {
+.materialization-progress {
   font-size: 0.9em;
   color: #bdc3c7;
 }
 
-.possession-ready {
+.materialization-ready {
   font-weight: bold;
   font-size: 1.1em;
   color: #2ecc71;
 }
 
-.possession-charges-bar .stars {
+.aspect-points-bar .stars {
   font-size: 1.2em;
   color: #f1c40f; /* Star color */
   margin-left: 8px;
@@ -162,22 +162,22 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   text-overflow: ellipsis;
 }
 
-@keyframes flashGreenPossessionAnim {
+@keyframes flashGreenMaterializationAnim {
   0%, 100% { background-color: #3e4f61; }
   50% { background-color: #27ae5f1c; } /* Green flash */
 }
 
-.flash-green-possession {
-  animation: flashGreenPossessionAnim 0.1s ease-out;
+.flash-green-materialization {
+  animation: flashGreenMaterializationAnim 0.1s ease-out;
 }
 
-@keyframes flashDarkPossessionAnim {
+@keyframes flashDarkMaterializationAnim {
   0%, 100% { background-color: #3e4f61; }
   50% { background-color: #2c3a47; } /* Darker flash */
 }
 
-.flash-dark-possession {
-  animation: flashDarkPossessionAnim 1.3s ease-out;
+.flash-dark-materialization {
+  animation: flashDarkMaterializationAnim 1.3s ease-out;
 }
 
 .input-hint-container {

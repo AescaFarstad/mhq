@@ -7,11 +7,12 @@ import IngressWordColumns from './components/IngressWordColumns.vue';
 import IngressCharacterCard from './components/IngressCharacterCard.vue';
 import IngressCharacterInspectView from './components/IngressCharacterInspectView.vue';
 import IngressUpgradeView from './components/IngressUpgradeView.vue';
-import PossessionChargesBar from './components/PossessionChargesBar.vue';
+import AspectPointsBar from './components/AspectPointsBar.vue';
 import { IngressWordsLib } from './lib/IngressWordsLib';
 import IngressCharacterHint from './components/IngressCharacterHint.vue';
 import IngressInputArea from './components/IngressInputArea.vue';
 import StarfieldBackground from './components/StarfieldBackground.vue';
+import StarTooltip from './components/StarTooltip.vue';
 
 const showStarfield = ref(true);
 const gameState = inject<GameState>('gameState');
@@ -22,9 +23,12 @@ const hoveredWord = ref<SubmittedWord | null>(null);
 const hintPosition = ref<{ x: number, y: number } | null>(null);
 const anyBadgeHovered = ref(false);
 
+const starTooltipVisible = ref(false);
+const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
+
 const showInputHint = computed(() => {
   if (!ingressState.value) return false;
-  return (ingressState.value.usefulWords.length + ingressState.value.offensiveWords.length) >= 2;
+  return (ingressState.value.substantiveWords.length + ingressState.value.offensiveWords.length) >= 2;
 });
 
 const animationState = ref<{
@@ -73,34 +77,33 @@ const ingressGame = computed(() => {
   return null;
 });
 
-const totalUsefulWordsCount = computed(() => {
-  if (!gameState || !ingressGame.value) return 0;
+const totalSubstantiveWordsCount = computed(() => {
+  if (!ingressGame.value || !gameState) {
+    return 0;
+  }
   const ingressWordsLib = gameState.lib.ingressWords as IngressWordsLib;
-  return ingressGame.value.getUsefulWordsCount(ingressWordsLib, gameState);
+  return ingressGame.value.getSubstantiveWordsCount(ingressWordsLib, gameState);
 });
 
-const wordColumns = computed(() => {
-  const columns: { id: string, title: string; words: (SubmittedWord | string)[] }[] = [];
+const wordsColumns = computed(() => {
+    const columns: any[] = [];
+    if (!ingressState.value) return [];
 
-  if (!ingressState.value) return [];
+    const showSubstantiveColumn = ingressState.value.substantiveWords.length > 0 || ingressState.value.upgrades.breach_word_counter;
 
-  const showUsefulColumn = ingressState.value.usefulWords.length > 0 || ingressState.value.upgrades.breach_word_counter;
-
-  if (showUsefulColumn) {
-    let title = 'Useful';
-    if (ingressState.value.upgrades.breach_word_counter) {
-        const found = ingressState.value.usefulWords.length;
-        const total = totalUsefulWordsCount.value;
-        title = `Useful ${found}/${total}`;
+    if (showSubstantiveColumn) {
+        const found = ingressState.value.substantiveWords.length;
+        const total = totalSubstantiveWordsCount.value;
+        const showTotal = ingressState.value.upgrades.breach_word_counter && total > 0;
+        const title = `Substantive: ${found}${showTotal ? ` / ${total}` : ''}`;
+        columns.push({ id: 'substantive', title: title, words: [...ingressState.value.substantiveWords].reverse() });
     }
-    columns.push({ id: 'useful', title: title, words: [...ingressState.value.usefulWords].reverse() });
-  }
 
-  if (ingressState.value.offensiveWords.length > 0) {
-    columns.push({ id: 'offensive', title: 'Offensive', words: [...ingressState.value.offensiveWords].reverse() });
-  }
+    if (ingressState.value.offensiveWords.length > 0) {
+        columns.push({ id: 'offensive', title: 'Offensive', words: ingressState.value.offensiveWords });
+    }
 
-  return columns;
+    return columns;
 });
 
 const handleSubmitWord = async (payload: { word: string, inputRect: DOMRect | undefined }) => {
@@ -117,15 +120,15 @@ const handleSubmitWord = async (payload: { word: string, inputRect: DOMRect | un
     } else {
       if (result.classification === 'offensive' || result.isNewAddition) {
         ingressInputAreaRef.value?.clearInput();
-      } else if (result.classification === 'useful' && !result.isNewAddition) {
+      } else if (result.classification === 'substantive' && !result.isNewAddition) {
         ingressInputAreaRef.value?.selectInput();
       }
       
       ingressInputAreaRef.value?.focusInput(); 
 
-      if (result.classification === 'useful' && result.pointsEarned > 0 && result.isNewAddition) {
-        if (ingressState.value && ingressState.value.usefulWords.length > 0 && inputRect) {
-            const newWord = ingressState.value.usefulWords[ingressState.value.usefulWords.length - 1];
+      if (result.classification === 'substantive' && result.pointsEarned > 0 && result.isNewAddition) {
+        if (ingressState.value && ingressState.value.substantiveWords.length > 0 && inputRect) {
+            const newWord = ingressState.value.substantiveWords[ingressState.value.substantiveWords.length - 1];
 
             const wordEl = document.getElementById(`word-li-${newWord.definition.id}`);
             const wordRect = wordEl?.getBoundingClientRect();
@@ -146,8 +149,8 @@ const handleSubmitWord = async (payload: { word: string, inputRect: DOMRect | un
         }
 
         ingressInputAreaRef.value?.showScoredPoints();
-      } else if (result.classification === 'useful' && result.pointsEarned > 0 && !result.isNewAddition) {
-        // Handle visual feedback for duplicate useful word if needed
+      } else if (result.classification === 'substantive' && result.pointsEarned > 0 && !result.isNewAddition) {
+        // Handle visual feedback for duplicate substantive word if needed
       }
     }
   }
@@ -195,10 +198,33 @@ const handleEngageHover = (rect: DOMRect | null) => {
     }
 };
 
-const handleInvisionCharacters = () => {
+const handleEnvisionCharacters = () => {
     if (ingressGame.value && gameState) {
-        ingressGame.value.invisionCharacters(gameState);
+        ingressGame.value.envisionCharacters(gameState);
     }
+};
+
+const handleStarTooltipShow = (event: MouseEvent) => {
+    starTooltipVisible.value = true;
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    starTooltipPosition.value = {
+        x: event.clientX,
+        y: rect.top
+    };
+};
+
+const handleStarTooltipMove = (event: MouseEvent) => {
+    if (starTooltipVisible.value && starTooltipPosition.value) {
+        starTooltipPosition.value = {
+            x: event.clientX,
+            y: starTooltipPosition.value.y // Keep the same Y position
+        };
+    }
+};
+
+const handleStarTooltipHide = () => {
+    starTooltipVisible.value = false;
+    starTooltipPosition.value = null;
 };
 
 </script>
@@ -219,23 +245,25 @@ const handleInvisionCharacters = () => {
     <div class="game-content-wrapper">
       <div class="game-content-below-bar" :class="{ 'engaged': ingressState?.engaged }">
         <div class="main-content-area">
-          <PossessionChargesBar
-            v-if="ingressState && ingressState.chargesBarRevealed && ingressState.engaged"
-            :charges="ingressState.possessionCharges"
-            :possession-progress="ingressState.possessionProgress"
-            :total-possession-charges="ingressState.totalPossessionCharges"
+          <AspectPointsBar
+            v-if="ingressState && ingressState.chargesBarRevealed"
+            :charges="ingressState.aspectPoints"
+            :materialization-progress="ingressState.materializationProgress"
+            :total-aspect-points="ingressState.totalAspectPoints"
             :upgrades="ingressState.upgrades"
             :show-progress="true"
           />
-          <div v-if="ingressState && ingressState.charactersAvailableToInvision > 0 && !ingressState.hasInvisioned && ingressState.engaged" class="invision-button-container">
-              <button 
-                  class="invision-button"
-                  :disabled="ingressState.possessionCharges < 2"
-                  @click="handleInvisionCharacters"
-              >
-                  Invision possible characters (takes ☆☆)
-              </button>
-          </div>
+          <button 
+            v-if="ingressState && !ingressState.hasEnvisioned && ingressState.charactersAvailableToEnvision > 0"
+            @click="handleEnvisionCharacters" 
+            @mouseenter="ingressState.aspectPoints < 2 ? handleStarTooltipShow($event) : null"
+            @mousemove="ingressState.aspectPoints < 2 ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide"
+            class="envision-button" 
+            :disabled="ingressState.aspectPoints < 2"
+          >
+            Envision possible characters (takes ☆☆)
+          </button>
           <div v-if="ingressState && ingressState.characterOptions.length > 0 && ingressState.engaged" class="character-options-container">
               <IngressCharacterCard
                   v-for="option in ingressState.characterOptions"
@@ -262,9 +290,9 @@ const handleInvisionCharacters = () => {
           />
         </div>
         <IngressWordColumns
-          :columns="wordColumns"
-          v-if="wordColumns.length > 0 && ingressState?.engaged"
-          :key="wordColumns.length"
+          :columns="wordsColumns"
+          v-if="wordsColumns.length > 0 && ingressState?.engaged"
+          :key="wordsColumns.length"
           @word-hover="handleWordHover"
           @word-leave="handleWordLeave"
           :any-badge-hovered="anyBadgeHovered"
@@ -279,6 +307,7 @@ const handleInvisionCharacters = () => {
       </div>
     </div>
     <IngressCharacterHint :word="hoveredWord" :position="hintPosition" />
+    <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
     <div 
       v-if="animationState" 
       class="word-flyer" 
@@ -466,14 +495,14 @@ const handleInvisionCharacters = () => {
     max-width: 1100px;
 }
 
-.invision-button-container {
+.envision-button-container {
     display: flex;
     justify-content: center;
     padding: 10px 0;
     width: 100%;
 }
 
-.invision-button {
+.envision-button {
     background-color: #f1c40f;
     color: #2c3e50;
     border: none;
@@ -484,13 +513,17 @@ const handleInvisionCharacters = () => {
     cursor: pointer;
     transition: background-color 0.2s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30vh;
 }
 
-.invision-button:hover:not(:disabled) {
+.envision-button:hover:not(:disabled) {
     background-color: #f39c12;
 }
 
-.invision-button:disabled {
+.envision-button:disabled {
     background-color: #7f8c8d;
     cursor: not-allowed;
 }
@@ -500,7 +533,7 @@ const handleInvisionCharacters = () => {
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    padding: 10px 0;
+    padding: 0px 0;
     width: 100%;
 }
 

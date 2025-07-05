@@ -22,7 +22,7 @@ export type IngressUpgradeId =
     | 'breach_word_bonus'
     | 'breach_typo_tolerance'
     | 'breach_word_counter'
-    | 'breach_possession_speed';
+    | 'breach_materialization_speed';
 
 export type IngressUpgrades = {
     [K in IngressUpgradeId]: boolean;
@@ -56,16 +56,16 @@ export interface IngressCharacterOption {
  * This state is managed by IngressGame and synced to the UI.
  */
 export interface IngressState extends MinigameState {
-    usefulWords: SubmittedWord[];
+    substantiveWords: SubmittedWord[];
     offensiveWords: string[];
     blankWords: string[];
     allSubmittedWords: AllSubmittedWords; // Comprehensive storage of all words entered
-    possessionCharges: number;
-    totalPossessionCharges: number; // Total charges earned over time
+    aspectPoints: number;
+    totalAspectPoints: number; // Total points earned over time
     chargesBarRevealed: boolean;
     characterOptions: IngressCharacterOption[]; // Discoverable characters
-    charactersAvailableToInvision: number; // Number of characters ready to be invisioned
-    hasInvisioned: boolean; // Whether the player has used the invision button
+    charactersAvailableToEnvision: number; // Number of characters ready to be envisioned
+    hasEnvisioned: boolean; // Whether the player has used the envision button
     inspectingCharacterId: string | null; // ID of character being viewed in detail
     renamingCharacterId: string | null; // ID of character being renamed
     characterRenames: { [characterId: string]: string }; // Map of characterId -> new name
@@ -73,7 +73,7 @@ export interface IngressState extends MinigameState {
     characterBioObfuscation: { [characterId: string]: number }; // Map of characterId -> bio obfuscation level (1.0 = 100%)
     upgrades: IngressUpgrades;
     upgradesRevealed: boolean;
-    possessionProgress: number; // From 0 to 100
+    materializationProgress: number; // From 0 to 100
     engaged: boolean;
     engagementProgress: number;
     engagementCompletionTime: number | null;

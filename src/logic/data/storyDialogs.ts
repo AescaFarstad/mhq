@@ -13,7 +13,11 @@ export const storyDialogsRaw: Record<string, DialogDefRaw> = {
                 id: 'deity_greeting',
                 type: MESSAGE,
                 text: 'So, ready to become mortal?',
-                speakerId: 'deity'
+                speakerId: 'deity',
+                data: {
+                    bg: 'introBg1.webp',
+                    delay: 1.2
+                }
             },
             
             {
@@ -28,17 +32,25 @@ export const storyDialogsRaw: Record<string, DialogDefRaw> = {
             {
                 id: 'deity_explanation_yes',
                 type: MESSAGE,
-                text: 'I need you to come into the mortal world to build a stairway to the Havens.',
+                text: 'I need you to come into the mortal world to build <strong>a stairway to the Heavens</strong>.',
                 speakerId: 'deity',
-                next: 'player_response_2'
+                next: 'player_response_2',
+                data: {
+                    bg: 'introBg2.webp',
+                    delay: 1.5
+                }
             },
             
             {
                 id: 'deity_explanation_no',
                 type: MESSAGE,
-                text: 'No, not at all. I need you to come into the mortal world to build a stairway to the Havens.',
+                text: 'No, not at all. I need you to come into the mortal world to build <strong>a stairway to the Heavens</strong>.',
                 speakerId: 'deity',
-                next: 'player_response_2'
+                next: 'player_response_2',
+                data: {
+                    bg: 'introBg2.webp',
+                    delay: 1.5
+                }
                 
             },
             
@@ -53,50 +65,104 @@ export const storyDialogsRaw: Record<string, DialogDefRaw> = {
             {
                 id: 'deity_worthiness_response',
                 type: MESSAGE,
-                text: 'I prefer they accomplished spiritual feats instead of spending their short lives building the impossible.',
-                speakerId: 'deity'
+                text: 'I prefer they accomplish spiritual feats instead of spending their lives building the impossible.',
+                speakerId: 'deity',
+                data: {
+                    delay: 3.1
+                }
             },
             
             {
                 type: MESSAGE,
                 text: 'Heroes—there are plenty.',
-                speakerId: 'deity'
+                speakerId: 'deity',
+                data: {
+                    delay: 0.5
+                }
             },
             
             {
                 type: MESSAGE,
-                text: 'They are worthy already.',
-                speakerId: 'deity'
+                text: 'These people <strong>are</strong> worthy already.',
+                speakerId: 'deity',
+                data: {
+                    delay: 0.5
+                }
             },
             
             {
                 type: MESSAGE,
                 text: '<strong>You</strong> will build the stairway for them.',
-                speakerId: 'deity'
+                speakerId: 'deity',
+                data: {
+                    delay: 1.0
+                }
             },
             
             {
                 id: 'player_response_3',
                 type: CHOICE,
                 choices: [
-                    { text: "I see. Let us proceed then.", next: 'deity_mission_briefing' },
+                    { text: "Could you be planning a global flood by any chance?", next: 'deity_flood_response' },
                     { text: "But... me? Of all deities? Why?", next: 'deity_why_response' }
                 ]
             },
             
             {
-                id: 'deity_mission_briefing',
+                id: 'deity_flood_response',
                 type: MESSAGE,
-                text: "I will create a character for you and weave them into the narrative of the world. You will have to start as a hermit, I'm sorry. But you shall have a mages guild in your disposal. Develop the establishment, hire personnel, do research, and then build the wonder!",
-                speakerId: 'deity'
+                text: "...",
+                speakerId: 'deity',
+                data: {
+                    delay: 3.1
+                },
+            },
+            
+            {
+                type: MESSAGE,
+                text: "Let's focus on the details of <b>your</b> mission.",
+                speakerId: 'deity',
+                data: {
+                    delay: 1.5
+                },
+            },
+            
+            {
+                type: MESSAGE,
+                text: "I will create a character for you and weave them into the narrative of the world.",
+                speakerId: 'deity',
+            },
+            
+            {
+                type: MESSAGE,
+                text: "You will have to start as a hermit, nobody will know you. This avoids altering people's memories to fit you in. But I will put you in charge of an abandoned mages guild.",
+                speakerId: 'deity',
+            },
+            
+            {
+                type: MESSAGE,
+                text: "Develop the establishment, hire personnel, do research, and then build the wonder!",
+                speakerId: 'deity',
+                next: 'player_response_4',
             },
             
             {
                 id: 'deity_why_response',
                 type: MESSAGE,
                 text: "Nevermind, I'll ask someone else then. You may go. I thought you'd be interested...",
-                speakerId: 'deity'
-            }
+                speakerId: 'deity',
+                data: {
+                    end: true
+                }
+            },
+            
+            {
+                id: 'player_response_4',
+                type: CHOICE,
+                choices: [
+                    { text: "Where shall I be descending?" }
+                ]
+            },
         ]
     }
 };

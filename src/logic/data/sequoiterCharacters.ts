@@ -10,8 +10,8 @@ const charactersData: CharacterData = {
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Apenherz's minor mental nudges convinced another guild to swap premises sight-unseen. They discovered too late their 'prestigious merchant quarter tower' was actually a condemned grain silo. His gift for making people see what they wanted to see had finally netted him a legitimate guild charter—even if some walls were falling apart.",
-        keywords: ["charm", "trick", "mind", "spell", "word", "cloak", "gold", "voice", "deal", "mask", "luck", "wit", "smile", "illusion", "coin", "rune", "tongue", "sway", "glamour", "vow", "smoke", "echo", "flare", "whim", "urge", "charter", "silver"],
+        bio: "Apenherz once organized a 'guild optimization exchange' during the Annual Mages Summit. His mental nudges and people's tendency to see what they wanted to see allowed him to strike magically binding deals. He secured a legitimate guild charter while the other party still searches for their 'riverside tower' with great but negative height (a turnip cellar, in other words). Now, how's that for a pumpkin carriage?",
+        keywords: ["charter", "deal", "summit", "exchange", "contract", "seal", "clause", "parchment", "ink", "signature", "nudge", "suggestion", "whisper", "thought", "mind", "perception", "illusion", "glamour", "tongue", "word", "phrase", "promise", "vow", "oath", "binding", "tower", "cellar", "height", "depth", "riverside", "property", "deed", "title", "negotiation", "bargain", "trade", "swap", "optimization", "value", "worth", "assessment", "pitch", "proposal", "presentation", "summit", "conference", "gathering", "meeting", "delegation", "representative", "voice", "tone", "inflection", "smile", "gesture", "handshake", "wink", "flourish", "cape", "scroll", "quill", "ledger", "calculation", "scheme", "ploy", "gambit", "trick", "ruse", "angle", "spin", "interpretation", "loophole", "technicality", "detail", "fine-print", "semantics", "rhetoric", "persuasion", "influence", "sway", "conviction", "belief", "assumption", "expectation", "desire", "want", "wish", "dream", "vision", "mirage", "shimmer", "veil", "facade", "veneer", "polish", "shine", "brass", "gold", "silver", "coin", "fee", "commission", "profit", "gain", "advantage", "leverage", "position", "authority"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 3, constitution: 2, senses: 2,
             spirit: 2, attunement: 2, channeling: 2, weaving: 4, resilience: 2,
@@ -48,8 +48,8 @@ const charactersData: CharacterData = {
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Siliana started out as an expedition medic. The northland taught her potent remedies, but the cost of learning came due in blood and memories best left frozen. Now she is the sole ray of light in the otherwise dark abandoned guild hall, turning this ruin into a makeshift sanctuary.",
-        keywords: ["life", "herb", "light", "blood", "snow", "ice", "wound", "heal", "cure", "balm", "salve", "elixir", "potion", "vial", "flask", "root", "leaf", "bloom", "flower", "aura", "grace", "faith", "hope", "prayer", "spirit", "pulse", "breath", "medic", "doctor", "nurse", "remedy", "medicine", "tincture", "mix", "brew", "frost", "winter", "north", "memory", "trauma", "loss", "grief", "death", "sanctuary", "refuge", "haven", "shelter", "glow", "warmth", "miracle", "blessing", "touch", "care", "bandage", "stitch", "plant", "bottle", "formula"],
+        bio: "Siliana started out as an expedition medic, but soon got captured by a tribal cohort. Slave doctors have no say in how to mistreat their patients. Nor can they look away from agonizing deaths. These memories are better left frozen, but the experience was invaluable for when Siliana escaped. Now she converts an abandoned guild hall into a makeshift sanctuary where she can practice healing on her own terms.",
+        keywords: ["medic", "healer", "doctor", "slave", "captive", "prisoner", "witness", "memory", "trauma", "escape", "freedom", "sanctuary", "refuge", "clinic", "infirmary", "herb", "remedy", "medicine", "cure", "balm", "salve", "poultice", "tincture", "elixir", "brew", "dose", "treatment", "surgery", "wound", "scar", "pain", "agony", "death", "corpse", "blood", "bandage", "needle", "thread", "knife", "scalpel", "forceps", "tourniquet", "splint", "frost", "ice", "snow", "north", "cold", "freeze", "tribe", "cohort", "raider", "captor", "master", "chain", "bond", "shackle", "tent", "camp", "wilderness", "expedition", "journey", "capture", "torment", "cruelty", "suffering", "patient", "victim", "survivor", "light", "warmth", "glow", "blessing", "prayer", "hope", "mercy", "kindness", "care", "touch", "hands", "gift", "skill", "knowledge", "practice", "experience", "lesson", "teaching", "altar", "shrine", "chapel", "hearth", "bed", "cot", "blanket", "bowl", "mortar", "pestle", "vial", "bottle", "jar", "pouch", "bag", "shelf", "supply", "stock", "conversion", "renewal", "redemption"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 2, constitution: 3, senses: 3,
             spirit: 2, attunement: 4, channeling: 3, weaving: 2, resilience: 3,
@@ -76,6 +76,9 @@ const charactersData: CharacterData = {
             defense: {
                 level: 1,
                 specializations: { dodging: 1 }
+            },
+            labor: {
+                level: 2
             }
         }
     },
@@ -86,8 +89,8 @@ const charactersData: CharacterData = {
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Andraticus was once a city archivist, his quiet obsession with Sequoiter's countless missing persons leading him to the forbidden arts of death magic. He established his 'guild' in a forgotten records hall as a grim sanctuary for communing with the lost, a pursuit that naturally discouraged any living company.",
-        keywords: ["ghost", "soul", "death", "spirit", "bone", "shade", "crypt", "mist", "void", "curse", "grave", "dust", "decay", "lantern", "cloak", "skull", "dark", "spell", "ash", "whisper", "rift", "tomb", "rot", "echo", "chill"],
+        bio: "As keeper of Sequoiter's expedition records, Andraticus watched with mounting obsession as the missing persons ledgers filled. Enabled by the insurance houses and unopposed by the overwhelmed officials, he relocated to the Corpse Vault. There the deceased await spring burial, outnumbering him a hundredfold - precisely how he prefers it. For he has questions.",
+        keywords: ["ghost", "soul", "death", "spirit", "bone", "shade", "crypt", "mist", "void", "curse", "grave", "dust", "decay", "lantern", "cloak", "skull", "dark", "spell", "ash", "whisper", "rift", "tomb", "rot", "echo", "chill", "vault", "corpse", "ledger", "record", "question", "winter", "frost", "ice", "shadow", "specter", "phantom", "wraith", "shroud", "morgue", "coffin", "burial", "thaw", "cold", "archive", "scroll", "ink", "parchment", "candle", "key", "lock", "chain", "number", "name", "date", "seal", "wax", "coin", "payment", "debt", "claim", "proof", "witness", "testimony", "truth", "lie", "secret", "silence", "answer", "mystery", "vanishing", "absence", "loss", "memory", "rune", "sigil", "ward", "barrier", "threshold", "door", "passage", "veil", "border", "realm", "eternity", "oblivion", "abyss", "hollow", "emptiness", "sorrow", "grief", "mourning", "ritual", "ceremony", "incense", "salt", "circle", "pentacle", "dagger", "chalice", "mirror", "crystal", "fog", "breath", "heartbeat", "stillness", "darkness", "midnight", "moon", "star", "omen", "portent", "fate", "destiny"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 2, constitution: 1, senses: 3,
             spirit: 2, attunement: 4, channeling: 3, weaving: 3, resilience: 3,
@@ -103,13 +106,17 @@ const charactersData: CharacterData = {
                 level: 4,
                 specializations: { archive_delving: 4, forensics: 2 }
             },
-            magical_lore: {
-                level: 2,
-                specializations: { arcane_history: 3 }
+            survival: {
+                level: 1,
+                specializations: { hazard_recognition: 2 }
+            },
+            provisions: {
+                level: 1,
+                specializations: { preservation: 1 }
             },
             lore: {
                 level: 2,
-                specializations: { history: 2 }
+                specializations: { history: 1 }
             },
             meditation: {
                 level: 1,

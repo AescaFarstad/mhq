@@ -104,7 +104,7 @@ const handleMouseLeave = () => {
 .choice-option {
   background-color: #ffffff;
   border-radius: 10px;
-  min-height: 500px;
+  min-height: 580px;
   display: flex;
   flex-direction: column;
   overflow: hidden;

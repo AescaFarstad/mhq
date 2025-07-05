@@ -4,7 +4,7 @@
     <ul>
       <li v-for="char in characterInfo" :key="char.id">{{ char.name }}</li>
     </ul>
-    <p v-if="word">Grants +{{ word.pointsEarned }}% next level XP upon possessing them.</p>
+    <p v-if="word">Grants +{{ word.pointsEarned }}% next level XP upon becoming them.</p>
   </div>
 </template>
 

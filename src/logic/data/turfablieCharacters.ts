@@ -132,8 +132,8 @@ const charactersData: CharacterData = {
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Kolodin, a former Artificer's Quarter tinkerer obsessed with merging magic and mechanics, was last seen passionately explaining a complex arcane conduit diagram to a departing council that never returned. He simply continued his work in the echoing halls, the de facto 'master' by virtue of being the only one still trying to make the old machinery whir.",
-        keywords: ["gear", "steam", "spark", "cog", "metal", "gauge", "circuit", "glass", "wire", "map", "glow", "flame", "oil", "tool", "light", "pipe", "coil", "bolt", "plan", "clock", "node", "draft", "arc", "ring", "flux"],
+        bio: "Kolodin was a reputed expert on thaumaturgical engineering—the craze that proved a dead end but birthed a few magic-clockwork hybrid buildings, including a Mages Guild in Turfablie. He warned the occupants of the danger of living inside what was essentially a gear box of unfathomable purpose. After cleaning the premises of crushed bones, minced meat, and torn apparel, he stayed to finally learn what the building was originally built to calculate.",
+        keywords: ["cog", "gear", "spring", "mechanism", "clockwork", "brass", "copper", "oil", "grease", "calculation", "equation", "formula", "theorem", "blueprint", "schematic", "diagram", "engineering", "thaumaturgy", "hybrid", "fusion", "merger", "bone", "meat", "blood", "warning", "danger", "crusher", "grinder", "tooth", "wheel", "axle", "bearing", "mainspring", "escapement", "pendulum", "oscillator", "regulator", "governor", "cam", "lever", "pulley", "ratchet", "pawl", "shaft", "spindle", "bobbin", "wire", "conduit", "channel", "pipe", "valve", "gauge", "meter", "indicator", "readout", "display", "crystal", "lens", "prism", "focus", "alignment", "calibration", "precision", "tolerance", "error", "deviation", "output", "input", "process", "cycle", "rotation", "revolution", "period", "frequency", "resonance", "harmonics", "vibration", "pulse", "tick", "tock", "chime", "bell", "hammer", "striker", "weight", "chain", "cable", "tension", "torque", "pressure", "steam", "vapor", "heat", "friction", "wear", "maintenance", "repair", "tool", "wrench", "screwdriver", "file", "lathe", "press", "forge", "anvil", "workshop"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 3, constitution: 2, senses: 2,
             spirit: 2, attunement: 3, channeling: 2, weaving: 3, resilience: 2,
@@ -161,7 +161,7 @@ const charactersData: CharacterData = {
                     clockwork: 3
                 }
             },
-            artisanry: { // Less primary, more of a background
+            artisanry: {
                 level: 1,
                 specializations: {
                     smithing: 1
@@ -171,7 +171,7 @@ const charactersData: CharacterData = {
                 level: 1,
                 specializations: {}
             },
-            performance: { // "Useless" skill reflecting his awkward explanations
+            performance: {
                 level: 1,
                 specializations: {
                     storytelling: 1
@@ -187,8 +187,8 @@ const charactersData: CharacterData = {
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Borie, who once guided folk through wild mountain paths and understood the language of herbs, sought refuge in the crumbling Mages Guild during a particularly harsh season. The few remaining mages, unnerved by her untamed magic and quiet communion with the overgrowth, eventually drifted off, leaving her the sole keeper of its wild-growing heart.",
-        keywords: ["root", "vine", "moss", "herb", "leaf", "wild", "bark", "staff", "mud", "seed", "bud", "path", "branch", "glade", "shade", "dew", "fern", "thorn", "grove", "soil", "fog", "flora", "sap", "pulse", "wood"],
+        bio: "Borie guided folk through wild mountain paths, brewed altitude tonics and scouted potential avalanches. During a particularly harsh season she took refuge in the crumbling Mages Guild, slowly turning her chamber into an overgrown cave. This did not sit well with the mages, but nature proved more resilient than the scholars. If you enter, beware, the moss has ears.",
+        keywords: ["moss", "vine", "root", "bark", "leaf", "thorn", "mushroom", "fungus", "lichen", "spore", "herb", "flower", "seed", "pollen", "sap", "cave", "stone", "path", "trail", "mountain", "peak", "valley", "avalanche", "snow", "boulder", "cliff", "gorge", "guide", "scout", "ranger", "hermit", "wildling", "tonic", "brew", "potion", "remedy", "salve", "tincture", "extract", "essence", "mixture", "medicine", "eagle", "wolf", "bear", "goat", "hawk", "owl", "rat", "beetle", "spider", "growth", "overgrowth", "wilderness", "nature", "forest", "grove", "thicket", "undergrowth", "canopy", "hollow", "den", "burrow", "nest", "refuge", "sanctuary", "chamber", "guild", "tower", "ruin", "library", "ear", "whisper", "warning", "sign", "omen", "season", "storm", "blizzard", "frost", "thaw", "mist", "fog", "dew", "rain", "wind", "scholar", "mage", "book", "spell", "knowledge", "wisdom", "instinct", "survival", "resilience", "patience", "solitude", "communion", "balance", "cycle", "decay", "renewal", "transformation"],
         initialAttributes: {
             physique: 2, strength: 3, agility: 3, constitution: 4, senses: 4,
             spirit: 2, attunement: 3, channeling: 3, weaving: 2, resilience: 2,
@@ -247,8 +247,8 @@ const charactersData: CharacterData = {
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Salezo, familiar with Turfblie's Undergalleries and the art of quiet entry, had been using the increasingly abandoned Mages Guild as a discreet haven. When its last official occupant vanished without a trace, Salezo found his unofficial residency had, by default, become an empty lordship.",
-        keywords: ["cloak", "shadow", "coin", "key", "lock", "smoke", "step", "trap", "ring", "blade", "mark", "whisper", "vault", "grip", "mask", "dark", "echo", "gold", "move", "chain", "watch", "glint", "path", "flare", "creed"],
+        bio: "Salezo was once hired to pen-test a mages guild. He broke through a room unknown even to the headmaster, and stirred the arcane sediment accumulated there over the years. This was not addressed. But Salezo had a habit of comparing the number of shadows to the number of light sources, so he noticed when a particularly thick one crept in. He could also tell which shadow was safe to hide in. But the mages chose poorly.",
+        keywords: ["shadow", "lock", "key", "darkness", "vault", "trap", "sediment", "residue", "penumbra", "audit", "test", "breach", "count", "number", "light", "source", "room", "basement", "guild", "sanctum", "ward", "seal", "dust", "echo", "footstep", "silence", "corner", "threshold", "doorway", "keyhole", "tumbler", "pick", "tool", "pouch", "cloak", "hood", "glove", "boot", "leather", "oil", "wire", "probe", "mirror", "candle", "lamp", "flame", "flicker", "void", "gap", "absence", "presence", "visitor", "intruder", "warning", "habit", "routine", "pattern", "anomaly", "discrepancy", "mismatch", "extra", "surplus", "thickness", "density", "creep", "crawl", "hunger", "teeth", "maw", "consumption", "victim", "choice", "mistake", "caution", "vigilance", "observation", "notation", "tally", "ledger", "record", "ink", "page", "memory", "whisper", "rustle", "draft", "chill", "dread", "instinct", "reflex", "escape", "route", "exit", "entrance", "passage", "corridor", "alcove", "niche", "cobweb", "neglect", "abandonment", "emptiness", "solitude"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 4, constitution: 3, senses: 4,
             spirit: 2, attunement: 1, channeling: 2, weaving: 3, resilience: 2,
@@ -306,8 +306,8 @@ const charactersData: CharacterData = {
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Formerly of the Highland Guard, Astrid was assigned to protect the Mages Guild eons ago, a duty she upheld even as its influence waned and its members departed one by one. Her unwavering vigil in the face of its decay left her the last soul within its walls, a sentinel guarding nothing but memories and dust.",
-        keywords: ["guard", "sword", "shield", "oath", "steel", "honor", "coin", "watch", "post", "armor", "badge", "grit", "duty", "vigil", "scar", "rank", "gold", "line", "edge", "wall", "grasp", "blade", "sigil", "grace", "rule"],
+        bio: "Astrid found the Guild while tracking her unit's missing death-pendants. The living avoid its 'haunted' halls, but Astrid discovered she could spar with heroes dead before her birth, train under legendary marshals, and drink with ghost comrades. The building's botched temporal experiments created a haven for warriors unstuck from time. And for the sole survivor of her unit—a place where she's never alone.",
+        keywords: ["pendant", "ghost", "warrior", "spirit", "marshal", "hero", "comrade", "unit", "survivor", "shield", "armor", "sword", "greatsword", "plate", "mail", "leather", "strap", "buckle", "gauntlet", "helm", "scar", "wound", "bandage", "salve", "medal", "insignia", "banner", "standard", "memory", "echo", "phantom", "specter", "shade", "wraith", "veteran", "soldier", "captain", "sergeant", "recruit", "drill", "formation", "march", "salute", "vigil", "ceremony", "burial", "pyre", "ash", "bone", "tomb", "memorial", "epitaph", "honor", "duty", "oath", "vow", "loyalty", "sacrifice", "courage", "discipline", "stance", "guard", "parry", "strike", "thrust", "cleave", "endurance", "stamina", "breath", "muscle", "sinew", "blood", "sweat", "tears", "grief", "loss", "remembrance", "temporal", "rift", "tear", "portal", "timeline", "epoch", "era", "past", "present", "eternity", "drink", "ale", "mead", "toast", "brotherhood", "sisterhood", "kinship", "belonging", "home", "hearth", "warmth", "cold", "isolation", "loneliness", "connection", "training", "practice", "lesson", "wisdom"],
         initialAttributes: {
             physique: 2, strength: 4, agility: 3, constitution: 4, senses: 3,
             spirit: 2, attunement: 2, channeling: 2, weaving: 2, resilience: 3,
@@ -315,11 +315,10 @@ const charactersData: CharacterData = {
             social: 2, composure: 2, charisma: 2, empathy: 2, authority: 3
         },
         initialSkills: {
-            life_magic: {
-                level: 3,
+            death_magic: {
+                level: 1,
                 specializations: {
-                    protection: 2,
-                    restoration: 1
+                    spectral_mastery: 2
                 }
             },
             order_magic: {
@@ -329,7 +328,7 @@ const charactersData: CharacterData = {
                 }
             },
             defense: {
-                level: 4,
+                level: 3,
                 specializations: {
                     shields: 2,
                     armor: 1,
@@ -339,20 +338,24 @@ const charactersData: CharacterData = {
             melee_combat: {
                 level: 3,
                 specializations: {
-                    one_handed_blades: 2
+                    two_handed_weapons: 2
                 }
+            },
+            athletics: {
+                level: 2
             },
             hardiness: {
                 level: 2,
                 specializations: {
                     pain_tolerance: 1,
-                    stamina: 1
+                    stamina: 2,
+                    acclimatization: 1
                 }
             },
             medicine: {
                 level: 1,
                 specializations: {
-                    first_aid: 2
+                    first_aid: 1
                 }
             },
             artisanry: {

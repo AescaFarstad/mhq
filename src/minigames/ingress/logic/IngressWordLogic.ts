@@ -53,12 +53,12 @@ export function getCombinedWordsMap(ingressWordsLib: IngressWordsLib, gameState:
     return combinedWords;
 }
 
-export function getUsefulWordsCountFromMap(wordsMap: Map<string, WordDefinition>): number {
-    let usefulWordsCount = 0;
-    for (const word of wordsMap.values()) {
-        if (word.type === 'useful') {
-            usefulWordsCount++;
+export function getSubstantiveWordsCountFromMap(wordsMap: Map<string, WordDefinition>): number {
+    let substantiveWordsCount = 0;
+    for (const wordDef of wordsMap.values()) {
+        if (wordDef.type === 'useful') {
+            substantiveWordsCount++;
         }
     }
-    return usefulWordsCount;
+    return substantiveWordsCount;
 } 

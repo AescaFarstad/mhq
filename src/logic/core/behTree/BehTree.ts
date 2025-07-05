@@ -1,6 +1,7 @@
 import { IBehNode, IBehTree, IInvoker, NodeResult } from "./BehTreeTypes";
 import { SequencerNode } from "./SequencerNode";
 import type { GameState } from "../../GameState";
+import { C } from "../../lib/C";
 
 export class BehTree extends SequencerNode implements IBehTree {
     public invoker?: IInvoker;
@@ -13,7 +14,7 @@ export class BehTree extends SequencerNode implements IBehTree {
 
     public report(result: NodeResult, state: GameState): void {
         if (result === NodeResult.FAILURE) {
-            if (this.invoker?.logVerbose) {
+            if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} (ROOT) reported ${result}.`);
             }
             this.exit();
@@ -23,7 +24,7 @@ export class BehTree extends SequencerNode implements IBehTree {
 
         // On success, advance the sequence. If the sequence is complete, finalize the tree.
         if (this.advance(state)) {
-            if (this.invoker?.logVerbose) {
+            if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} (ROOT) reported SUCCESS.`);
             }
             this.exit();

@@ -41,8 +41,10 @@ const events: EventsDataType = {
       { key: "construct", params: { building: "meditation_chamber" } },
       { key: "modifyIndependentStat", params: { statName: "inspiration_charges", amount: 3 } },
 
+      // { key: "startBehTree", params: { treeName: "cheatStart" } },
       // { key: "startBehTree", params: { treeName: "cheatWelcome" } },
       //{ key: "startBehTree", params: { treeName: "cheatIntro" } },
+      // { key: "startBehTree", params: { treeName: "cheatIntroAndWelcome" } },
 
       //{ key: "discoverAll", params: {} },
       //{ key: "addCharacterByName", params: { characterId: "ingress_aeiga_reika_secret_seer" } },

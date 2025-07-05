@@ -27,6 +27,7 @@ import { EventProcessor } from './Event';
 import { discoverItem } from './Discovery';
 import { C } from './lib/C';
 
+
 export function giveResource(state: GameState, params: ModifyResourceParams): void {
     if (C.DEBUG_EFFECTS) {
         console.log(`E 'giveResource':`, params);
@@ -183,7 +184,6 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
     
     if (minigameInstance) {
         state.startMinigame(minigameInstance);
-        console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
 
         const startEvent: EventDefinition = {
             id: 'minigameStarted',
@@ -214,8 +214,6 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
         console.dir(params);
     }
     
-    console.log(`Applying ingress results:`);
-    console.dir(params);
     let character = state.characters.find(c => c.characterId === params.characterId);
 
     if (!character) {
@@ -258,15 +256,6 @@ export function applyIngressResults(state: GameState, params: ApplyIngressResult
                 }
             }
         }
-
-        console.log(`Applied Ingress results to character:`, {
-            name: character.name,
-            characterId: character.characterId,
-            xpBonus: params.xpBonus,
-            attributePoints: params.attributePoints,
-            skillPoints: params.skillPoints,
-            specPoints: params.specPoints
-        });
     } else {
         console.warn(`E 'ApplyIngressResults': Could not find or add character with ID "${params.characterId}".`);
     }
@@ -277,7 +266,6 @@ export function applyWelcomeResults(state: GameState, params: ApplyWelcomeResult
         console.log(`E 'applyWelcomeResults':`, params);
     }
     
-    console.log(`Applying welcome results:`, params);
     if (params.locationId) {
         state.locationId = params.locationId;
     } else {

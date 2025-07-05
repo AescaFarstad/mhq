@@ -102,6 +102,7 @@ const onMouseLeave = () => {
 .column-title {
   padding: 10px;
   margin: 0;
+  font-size: 0.9em;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;

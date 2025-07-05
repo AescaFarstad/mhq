@@ -5,10 +5,14 @@ import type { IngressGame } from '../IngressGame';
 import { INGRESS_TYPE, type IngressState } from '../IngressTypes';
 import ImageHolder from '../../../components/common/ImageHolder.vue';
 import { obfuscateString } from '../../../utils/stringUtils';
-import PossessionChargesBar from './PossessionChargesBar.vue';
+import AspectPointsBar from './AspectPointsBar.vue';
+import StarTooltip from './StarTooltip.vue';
 
 const gameState = inject<GameState>('gameState');
 const newName = ref('');
+
+const starTooltipVisible = ref(false);
+const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
@@ -63,16 +67,16 @@ const handleDeobfuscate = () => {
     ingressGame.value?.deobfuscateBio();
 };
 
-const isPossessButtonDisabled = computed(() => {
+const isMaterializeButtonDisabled = computed(() => {
     if (!ingressState.value) {
         return true;
     }
-    return ingressState.value.possessionProgress < 100 || ingressState.value.possessionCharges < 10;
+    return ingressState.value.materializationProgress < 100 || ingressState.value.aspectPoints < 10;
 });
 
-const handlePossess = () => {
+const handleMaterialize = () => {
     if (ingressGame.value && gameState) {
-        ingressGame.value.commitAndPossess(gameState);
+        ingressGame.value.commitAndMaterialize(gameState);
     }
 };
 
@@ -102,28 +106,51 @@ const handleRename = () => {
 };
 
 const deobfuscateButtonLabel = computed(() => {
-    if (!ingressState.value || !ingressState.value.inspectingCharacterId) return 'See through';
+    if (!ingressState.value || !ingressState.value.inspectingCharacterId) return 'Learn';
     // Based on the logic in IngressGame.ts deobfuscateBio
     const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
     const steps = Math.round(bioObfuscation * 5);
     switch (steps) {
-        case 5: return 'Squint';
-        case 3: return 'Grasp';
-        case 2: return 'Discern';
-        case 1: return 'Absorb';
-        default: return 'See through';
+        case 5: return '<strong>Weave</strong>';
+        case 3: return 'Weave <strong>the character</strong>';
+        case 2: return 'Weave the character <strong>into</strong>';
+        case 1: return 'Weave the character into <strong>the world</strong>';
+        default: return 'Learn';
     }
 });
+
+const handleStarTooltipShow = (event: MouseEvent) => {
+    starTooltipVisible.value = true;
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    starTooltipPosition.value = {
+        x: event.clientX,
+        y: rect.top
+    };
+};
+
+const handleStarTooltipMove = (event: MouseEvent) => {
+    if (starTooltipVisible.value && starTooltipPosition.value) {
+        starTooltipPosition.value = {
+            x: event.clientX,
+            y: starTooltipPosition.value.y // Keep the same Y position
+        };
+    }
+};
+
+const handleStarTooltipHide = () => {
+    starTooltipVisible.value = false;
+    starTooltipPosition.value = null;
+};
 </script>
 
 <template>
     <div class="inspect-view-panel">
         <button class="close-button" @click="handleClose">×</button>
-        <PossessionChargesBar
+        <AspectPointsBar
             v-if="ingressState"
-            :charges="ingressState.possessionCharges"
-            :possession-progress="ingressState.possessionProgress"
-            :total-possession-charges="ingressState.totalPossessionCharges"
+            :charges="ingressState.aspectPoints"
+            :materialization-progress="ingressState.materializationProgress"
+            :total-aspect-points="ingressState.totalAspectPoints"
             :upgrades="ingressState.upgrades"
             :show-progress="false"
         />
@@ -131,7 +158,14 @@ const deobfuscateButtonLabel = computed(() => {
             <div class="char-portrait-panel">
                 <div class="name-container">
                     <h2 class="char-name">{{ displayedCharacterName }}</h2>
-                    <button @click="handleOpenRenameDialog" class="rename-button" :disabled="!ingressState || ingressState.possessionCharges < 1">✏️ ☆</button>
+                    <button 
+                        @click="handleOpenRenameDialog" 
+                        @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
+                        @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide"
+                        class="rename-button" 
+                        :disabled="!ingressState || ingressState.aspectPoints < 1"
+                    >✏️ ☆</button>
                 </div>
                 <div class="portrait-container">
                     <ImageHolder 
@@ -152,10 +186,13 @@ const deobfuscateButtonLabel = computed(() => {
                     <button 
                         v-if="ingressState && ingressState.inspectingCharacterId && (ingressState.characterBioObfuscation[ingressState.inspectingCharacterId] ?? 1.0) > 0"
                         @click="handleDeobfuscate" 
-                        :disabled="ingressState.possessionCharges < 1"
+                        @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
+                        @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide"
+                        :disabled="ingressState.aspectPoints < 1"
                         class="action-button deobfuscate-button"
                     >
-                        {{ deobfuscateButtonLabel }} ☆
+                        <span v-html="deobfuscateButtonLabel"></span> ☆
                     </button>
                 </div>
             </div>
@@ -163,16 +200,19 @@ const deobfuscateButtonLabel = computed(() => {
                 <div class="location-image-container">
                     <img :src="'img/' + locationDef.imageName" :alt="locationDef.name" class="location-image"/>
                 </div>
-                <div class="possess-button-container">
-                    <button 
-                        @click="handlePossess" 
-                        :disabled="isPossessButtonDisabled"
-                        class="action-button possess-button"
+                <div class="materialize-button-container">
+                    <button
+                        @click="handleMaterialize"
+                        @mouseenter="isMaterializeButtonDisabled ? handleStarTooltipShow($event) : null"
+                        @mousemove="isMaterializeButtonDisabled ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide"
+                        :disabled="isMaterializeButtonDisabled"
+                        class="action-button materialize-button"
                     >
-                        Commit and possess <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
+                        Commit and become <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
                     </button>
-                    <div v-if="ingressState && ingressState.possessionProgress < 100" class="possess-button-overlay">
-                        <span class="overlay-percentage">{{ Math.floor(ingressState.possessionProgress) }}%</span>
+                    <div v-if="ingressState && ingressState.materializationProgress < 100" class="materialize-button-overlay">
+                        <span class="overlay-percentage">{{ Math.floor(ingressState.materializationProgress) }}%</span>
                     </div>
                 </div>
             </div>
@@ -185,10 +225,18 @@ const deobfuscateButtonLabel = computed(() => {
                 <div class="rename-dialog-actions">
                     <span class="error-message" :class="{ 'error-visible': !isNewNameValid }">Names require 3-12 characters.</span>
                     <button @click="handleCloseRenameDialog" class="dialog-button cancel-button">Cancel</button>
-                    <button @click="handleRename" class="dialog-button confirm-button" :disabled="!ingressState || ingressState.possessionCharges < 1 || !isNewNameValid">Rename ☆</button>
+                    <button 
+                        @click="handleRename" 
+                        @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
+                        @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide"
+                        class="dialog-button confirm-button" 
+                        :disabled="!ingressState || ingressState.aspectPoints < 1 || !isNewNameValid"
+                    >Rename ☆</button>
                 </div>
             </div>
         </div>
+        <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
     </div>
 </template>
 
@@ -215,7 +263,7 @@ const deobfuscateButtonLabel = computed(() => {
     font-size: 2rem;
     font-weight: bold;
     cursor: pointer;
-    border: none;
+    border: #ecf0f1 2.5px solid;
     z-index: 11;
     border-radius: 50%;
     width: 30px;
@@ -224,6 +272,7 @@ const deobfuscateButtonLabel = computed(() => {
     align-items: center;
     justify-content: center;
     padding-bottom: 4px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 .inspect-content {
     display: flex;
@@ -313,7 +362,6 @@ const deobfuscateButtonLabel = computed(() => {
     padding: 12px;
     border-radius: 5px;
     border: none;
-    font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -353,11 +401,11 @@ const deobfuscateButtonLabel = computed(() => {
     top: 0;
     left: 0;
 }
-.possess-button-container {
+.materialize-button-container {
     position: relative;
     width: 100%;
 }
-.possess-button {
+.materialize-button {
     background-color: #e67e22;
     color: white;
     font-size: 1.2rem;
@@ -365,10 +413,10 @@ const deobfuscateButtonLabel = computed(() => {
     padding: 15px;
     line-height: 1.4;
 }
-.possess-button:not(:disabled):hover {
+.materialize-button:not(:disabled):hover {
     background-color: #d35400;
 }
-.possess-button-overlay {
+.materialize-button-overlay {
     position: absolute;
     top: 0;
     left: 0;

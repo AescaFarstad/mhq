@@ -34,11 +34,6 @@ export namespace EventProcessor {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const { eventDef: currentEventDef, context: currentContext } = eventQueue.shift()!;
                 
-                if (state.invoker?.logVerbose) {
-                    console.log(`[EventProcessor] Processing event: ${currentEventDef.id}`);
-                }
-                
-                console.log("process Event ", currentEventDef.id);
                 applyEffects(currentEventDef.effects, state, currentContext);
                 state.invoker?.handleEvent(currentEventDef, state, currentContext);
             }

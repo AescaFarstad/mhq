@@ -2,6 +2,7 @@ import type { GameState } from "../../GameState";
 import type { EventDefinition, EventContext } from "../../lib/definitions/EventDefinition";
 import { BehNode } from "./BehNode";
 import { NodeResult } from "./BehTreeTypes";
+import { C } from "../../lib/C";
 
 type EventPredicate = (eventDef: EventDefinition, eventContext?: EventContext) => boolean;
 
@@ -17,7 +18,7 @@ export class AwaitEventNode extends BehNode {
 
     public init(state: GameState): void {
         if (this.root.invoker) {
-            if (this.root.invoker.logVerbose) {
+            if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} started, awaiting event '${this.eventId}'.`);
             }
             this.root.invoker.addEventListener(this.eventId, this);
@@ -33,7 +34,7 @@ export class AwaitEventNode extends BehNode {
 
     public handleEvent(eventDef: EventDefinition, state: GameState, eventContext?: EventContext): void {
         if (eventDef.id === this.eventId && (!this.predicate || this.predicate(eventDef, eventContext))) {
-            if (this.root.invoker?.logVerbose) {
+            if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} caught event '${this.eventId}' and predicate passed.`);
             }
             this.parent?.report(NodeResult.SUCCESS, state);

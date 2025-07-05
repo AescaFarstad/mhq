@@ -200,8 +200,6 @@ export function processTasks(gameState: GameState, deltaTime: number): void {
 
 
             gameState.completedTasks.push(task);
-            console.log(`Task ${task.name} (UID: ${task.uid}) completed. Assigned characters: ${task.assignedCharacterIds.join(', ')} are now free.`);
-            
             task.assignedCharacterIds = [];
 
 
@@ -470,7 +468,6 @@ function updateMaintenance(gameState: GameState): void {
 
             if (generatedTask) {
                 gameState.availableTasks.push(generatedTask);
-                console.log(`Generated maintenance task '${generatedTask.name}' UID: ${generatedTask.uid} (${generatedTask.definitionPath[2]}.`);
             } else if (attempts === C.MAX_MAINTENANCE_ATTEMPTS) {
                 console.warn("Max attempts reached for generating a unique 'declutter' task. No task created or duplicate was kept if forced.");
             }
@@ -679,6 +676,5 @@ function assignTasks(gameState: GameState): void {
             gameState.availableTasks = gameState.availableTasks.filter(t => t.uid !== assignedTask.uid); // Safeguard
         }
 
-        console.log(`Auto-assigned ${assignedTask.type} task '${assignedTask.name}' (UID: ${assignedTask.uid}) to ${assignedCharacter.characterId} with speed ${bestOverallAssignment.speed.toFixed(2)}.`);
     }
 }

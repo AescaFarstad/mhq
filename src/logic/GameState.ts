@@ -117,6 +117,8 @@ export class GameState {
         currentDialogNode: any; // Will be DialogNode | undefined
     };
 
+
+
     constructor() {
         this.totalCharacterUpkeep = Stats.createParameter("total_character_upkeep", this.connections);
         this.totalBuildingsClutter = Stats.createParameter("total_buildings_clutter", this.connections);
@@ -165,14 +167,14 @@ export class GameState {
             uiEndeavourTasks: [],
             uiQuestTasks: [],
             currentTimeScale: this.timeScale.current,
-            uiWorkSpeed: 0, // Initialize uiWorkSpeed
-            uiClutterRatio: 0, // Initialize uiClutterRatio
-            discoveredItemsCount: 0, // Initialize discoveredItemsCount
-            encounteredItemsCount: 0, // Initialize encounteredItemsCount
+            uiWorkSpeed: 0,
+            uiClutterRatio: 0,
+            discoveredItemsCount: 0,
+            encounteredItemsCount: 0,
             activeMinigameType: null,
             activeMinigameState: null,
-            debugActiveTab: 'main', // Initialize debug tab
-            debugExploreInput: '', // Initialize debug explore input
+            debugActiveTab: 'main',
+            debugExploreInput: '',
             activeKeywords: new Map(),
             discardedKeywords: new Set(),
             discoveryAnalysisLog: [],
@@ -302,13 +304,11 @@ export class GameState {
         this.activeMinigame = minigame;
         this.uiState.activeMinigameType = minigame.type;
         this.uiState.activeMinigameState = minigame.state; // Initial state for UI
-        console.log(`Minigame started: ${minigame.type}`);
     }
 
     public exitMinigame(): void {
         if (this.activeMinigame) {
             const minigameType = this.activeMinigame.type;
-            console.log(`Exiting minigame: ${this.activeMinigame.type}`);
             this.activeMinigame.destroy(this);
             this.activeMinigame = null;
             this.uiState.activeMinigameType = null;

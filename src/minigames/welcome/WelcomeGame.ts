@@ -6,10 +6,11 @@ import type { WelcomeLocationDefinition } from './lib/definitions/WelcomeLocatio
 import * as effects from '../../logic/effects';
 import type { ApplyWelcomeResultsParams } from '../../logic/lib/definitions/EventDefinition';
 import { generalNoise } from '../../logic/utils/mathUtils';
+import { initializeMusic } from '../../composables/useMusic';
 
 export const WELCOME_TYPE: MinigameType = 'Welcome';
 
-export const EXPLORATION_RATE = 0.07; // Base progress per second
+export const EXPLORATION_RATE = 0.09; // Base progress per second
 export const EXPLORATION_RANDOMNESS = 0.8; // How much randomness to apply (0 = linear, 1 = fully random)
 export const NOISE_SCALE = 100.3; // Scale for Perlin noise sampling
 export const THRESHOLD_DESCRIPTION_OBFUSCATED_REVEAL = 0.4;
@@ -67,6 +68,7 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
             lastSelectedLocationId: undefined, // Initialize lastSelectedLocationId
         });
         this.initializeExplorableChoices();
+        initializeMusic();
     }
 
     private initializeExplorableChoices(): void {

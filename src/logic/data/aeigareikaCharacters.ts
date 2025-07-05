@@ -135,8 +135,8 @@ const charactersData: CharacterData = {
         location: "aeiga_reika",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Lyra was a promising, if volatile, apprentice in the Titan Assembly Hall, until her 'unauthorized experiments' became too disruptive. Finding the old guild hall was a stroke of luck, a private workshop far from prying eyes and stifling rules. She's been happily dismantling and 'improving' things in solitude.",
-        keywords: ["spark", "gear", "glow", "tool", "flame", "metal", "goggles", "smoke", "glint", "bolt", "wire", "steam", "coil", "glass", "blast", "wrench", "orb", "fuse", "pulse", "fire", "craft", "brass", "lamp", "flare", "titan", "workshop", "clock", "clockwork", "tinkerer", "forge"],
+        bio: "Lyra worked at Assembly Hall since she was ten. They were happy to have someone who could climb inside the titan's hand to fine-tune the digits. But things came apart more often than they'd come together as Lyra's true passion was dismantling complex apparatus. When the Highlander Mages Collective fled from Aeiga-Reika due to labor riots, Lyra undid their locks and turned their office into automaton graveyard.",
+        keywords: ["chaos", "entropy", "fragment", "scrap", "ruin", "piece", "spring", "cog", "gear", "wire", "bolt", "rivet", "brass", "copper", "rust", "oil", "grease", "digit", "finger", "hand", "joint", "hinge", "lock", "key", "puzzle", "mechanism", "automaton", "golem", "titan", "wreckage", "debris", "shard", "component", "circuit", "valve", "piston", "lever", "switch", "tool", "wrench", "screwdriver", "pliers", "workshop", "bench", "blueprint", "schematic", "void", "unmaking", "dissolution", "decay", "breakdown", "dismantling", "deconstruction", "undoing", "unraveling", "assembly", "factory", "foundry", "warehouse", "office", "sanctum", "graveyard", "heap", "pile", "collection", "marvel", "wonder", "apparatus", "device", "contraption", "machine", "engine", "motor", "bearing", "axle", "wheel", "chain", "pulley", "cable", "scaffold", "framework", "skeleton", "shell", "housing", "panel", "plate", "mesh", "grid", "lattice", "maze", "labyrinth", "tangle", "knot", "mess", "jumble", "clutter", "disorder", "havoc", "mayhem", "anarchy", "lair", "tinkerer", "clockwork", "clock"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 4, constitution: 2, senses: 3,
             spirit: 2, attunement: 3, channeling: 4, weaving: 4, resilience: 1,
@@ -321,8 +321,8 @@ const charactersData: CharacterData = {
         location: "aeiga_reika",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Meadowlight came to Aeiga-Reika believing even industrial waste could bloom, her transmutation magic turning soot into prismatic crystals and rust into copper flowers. The crumbling guild hall became her canvas for strange beauty. She works alone, slowly transforming decay into art that both disturbs and enchants.",
-        keywords: ["bloom", "crystal", "rust", "soot", "flower", "dust", "glow", "light", "stone", "petal", "metal", "aura", "spark", "charm", "copper", "grace", "pulse", "veil", "shard", "stem", "flare", "change", "path", "moss", "hue"],
+        bio: "Few artists are as valued by industry as Meadowlight. Though her copper flowers bleeding oily chemicals unnerve before they enchant, what she is undoubtedly great at is turning mounds of pollution into harmless installations. Soot turns pretty as a crystal. Resin foam is best when spun into a wreath (mind the rusty spikes). Miraculously, her art weighs far less than the waste that arrives at her workshop daily.",
+        keywords: ["waste", "pollution", "toxin", "soot", "rust", "oil", "chemical", "resin", "foam", "slag", "sludge", "runoff", "emission", "fume", "vapor", "crystal", "flower", "wreath", "sculpture", "installation", "art", "beauty", "transformation", "transmutation", "alchemy", "copper", "metal", "brass", "iron", "oxide", "patina", "corrosion", "industry", "factory", "foundry", "workshop", "studio", "gallery", "exhibition", "artist", "creator", "alchemist", "bloom", "petal", "thorn", "spike", "spiral", "lattice", "matrix", "structure", "form", "shape", "pattern", "design", "aesthetic", "vision", "imagination", "hybrid", "fusion", "amalgam", "compound", "solution", "precipitate", "catalyst", "reaction", "process", "weight", "mass", "void", "mystery", "paradox", "impossibility", "miracle", "wonder", "marvel", "phenomenon", "metamorphosis", "conversion", "refinement", "purification", "neutralization", "harmony", "balance", "duality", "contrast", "juxtaposition", "effluent", "residue", "byproduct", "contaminant", "pollutant", "installation", "masterpiece", "creation", "artifact", "piece", "display", "arrangement", "collection", "assemblage"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 4, constitution: 2, senses: 2,
             spirit: 2, attunement: 4, channeling: 2, weaving: 4, resilience: 2,
@@ -330,48 +330,47 @@ const charactersData: CharacterData = {
             social: 2, composure: 2, charisma: 4, empathy: 3, leadership: 2
         },
         initialSkills: {
-            life_magic: {
+            alchemy: {
                 level: 3,
                 specializations: {
-                    blessings: 3
+                    transmutation: 3
                 }
             },
-            artisanry: {
-                level: 3,
-                specializations: {
-                    woodworking: 2,
-                    tailoring: 2
-                }
-            },
-            enchanting: {
+            artistry: {
                 level: 2,
                 specializations: {
-                    imbuing: 2
+                    sculpture: 1
                 }
             },
-            persuasion: {
-                level: 2,
-                specializations: {
-                    oratory: 1,
-                    conflict_resolution: 1
-                }
-            },
-            commerce_trade: {
+            chaos_magic: {
                 level: 1,
                 specializations: {
-                    appraisal: 1
+                    unraveling: 2
                 }
             },
-            riding: {
-                level: 1,
+            order_magic: {
+                level: 4,
                 specializations: {
-                    equine_mounts: 1
+                    augmentation: 2
                 }
             },
-            performance: {
+            magical_lore: {
                 level: 2,
                 specializations: {
-                    storytelling: 1
+                    magical_item_analysis: 1,
+                    arcane_principles: 1
+                }
+            },
+            perception: {
+                level: 1,
+                specializations: {
+                    synesthesia: 3
+                }
+            },
+            meditation: {
+                level: 1,
+                specializations: {
+                    mana_conservation: 1
                 }
             }
         }

@@ -63,6 +63,7 @@ onMounted(() => {
   height: 100%;
   background-color: #2c3e50; /* Darker background for the overall view */
   color: #ecf0f1; /* Light text color for contrast */
+  position: relative;
 }
 
 /* Styling for the dev button if you re-enable it */

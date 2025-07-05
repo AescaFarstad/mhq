@@ -46,15 +46,17 @@ export function makeDialogChoice(dialogName: string, choiceId: string, gameState
 }
 
 export function startDialog(definitionId: string, dialogName: string, gameState: GameState): boolean {
+    console.log(`[startDialog] Starting dialog '${definitionId}' with name '${dialogName}'`);
     const dialogDefinition = gameState.lib.dialogs.getDialog(definitionId);
     if (!dialogDefinition) {
-        console.warn(`Dialog definition '${definitionId}' not found in library`);
+        console.warn(`[startDialog] Dialog definition '${definitionId}' not found in library`);
         return false;
     }
+    console.log(`[startDialog] Found dialog definition:`, dialogDefinition);
 
     // Check if dialog with this name already exists
     if (gameState.dialogs[dialogName]) {
-        console.warn(`Dialog with name '${dialogName}' already exists`);
+        console.warn(`[startDialog] Dialog with name '${dialogName}' already exists`);
         return false;
     }
 
@@ -65,16 +67,21 @@ export function startDialog(definitionId: string, dialogName: string, gameState:
         choicesMade: []
     };
     gameState.dialogs[dialogName] = dialogState;
+    console.log(`[startDialog] Created dialog state:`, dialogState);
     
     // Start the dialog behavior tree
+    console.log(`[startDialog] Looking for behavior tree '${dialogDefinition.treeId}'`);
     const treeDef = gameState.lib.behTrees.getTree(dialogDefinition.treeId);
     if (treeDef) {
+        console.log(`[startDialog] Found behavior tree, creating instance`);
         const treeInstance = treeDef();
         treeInstance.blackboard.dialogName = dialogName; // Changed from dialogId to dialogName
+        console.log(`[startDialog] Adding tree to invoker`);
         gameState.invoker.addTree(treeInstance, gameState);
+        console.log(`[startDialog] Dialog started successfully`);
         return true;
     } else {
-        console.warn(`Dialog behavior tree '${dialogDefinition.treeId}' not found`);
+        console.warn(`[startDialog] Dialog behavior tree '${dialogDefinition.treeId}' not found`);
         return false;
     }
 }

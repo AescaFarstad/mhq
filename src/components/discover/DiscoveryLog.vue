@@ -82,8 +82,6 @@ const {
   tooltipImageType,
   tooltipDescriptionOnly,
   tooltipKeywords,
-  showItemTooltip,
-  hideTooltip,
   setupItemNameHoverListeners
 } = useItemTooltip();
 
@@ -143,22 +141,7 @@ const recentAnalysisLog = computed(() => {
   return entries;
 });
 
-const getAdditionalInfo = (action: DiscoveryAction): string => {
-  if (!action || !action.type) return '';
-  
-  switch (action.type) {
-    case 'BRAINSTORM_DISCOVERY':
-      const leadingKeywords = action.leadingKeywords || [];
-      
-      if (leadingKeywords.length > 0) {
-        return `Keywords that led to this discovery:<br/>` +
-               leadingKeywords.map((k: string) => `<span class="keyword-highlight">${k}</span>`).join(', ');
-      }
-      return 'This item was discovered through brainstorming from accumulated keywords.';
-  }
-  
-  return '';
-};
+
 
 
 

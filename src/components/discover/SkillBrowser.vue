@@ -170,7 +170,6 @@ const {
   tooltipItemName: discoveryTooltipItemName,
   tooltipImageType: discoveryTooltipImageType,
   tooltipDescriptionOnly: discoveryTooltipDescriptionOnly,
-  tooltipKeywords: discoveryTooltipKeywords,
   showItemTooltip: showDiscoveryTooltip,
   hideTooltip: hideDiscoveryTooltip
 } = useItemTooltip();

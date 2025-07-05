@@ -1,18 +1,18 @@
 import type { GameState } from "../../GameState";
 import type { EventDefinition, EventContext } from "../../lib/definitions/EventDefinition";
-import type { IBehNode, IBehTree, IInvoker } from "./BehTreeTypes";
+import type { IBehTree, IInvoker, IEventListener } from "./BehTreeTypes";
+import { C } from "../../lib/C";
 
 export class Invoker implements IInvoker {
     public trees: IBehTree[] = [];
     public completedTrees: string[] = [];
-    public eventListeners: Map<string, IBehNode[]> = new Map();
-    public updateListeners: IBehNode[] = [];
-    public logVerbose: boolean = false;
+    public eventListeners: Map<string, IEventListener[]> = new Map();
+    public updateListeners: IEventListener[] = [];
 
     private listenersMutationCount = 0;
 
     public addTree(tree: IBehTree, state: GameState): void {
-        if (this.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[Invoker] Adding and initializing tree: ${tree.name}`);
         }
         tree.invoker = this;
@@ -21,7 +21,7 @@ export class Invoker implements IInvoker {
     }
 
     public reportTreeComplete(tree: IBehTree): void {
-        if (this.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[Invoker] Tree completed: ${tree.name}`);
         }
         this.trees = this.trees.filter(t => t.uid !== tree.uid);
@@ -41,7 +41,7 @@ export class Invoker implements IInvoker {
             } else {
                 // Slow path: The listeners array has been modified.
                 // Check if the listener still exists before updating.
-                if (this.updateListeners.find(n => n.uid === listener.uid)) {
+                if (this.updateListeners.find(l => l.uid === listener.uid)) {
                     listener.update?.(deltaTime, state);
                 }
             }
@@ -54,7 +54,7 @@ export class Invoker implements IInvoker {
             return;
         }
 
-        if (this.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[Invoker] Handling event: ${eventDef.id} for ${listenersForEvent.length} listeners.`);
         }
         
@@ -68,27 +68,27 @@ export class Invoker implements IInvoker {
             } else {
                 // Slow path: Check for existence in the current list for this event.
                 const currentListeners = this.eventListeners.get(eventDef.id);
-                if (currentListeners?.find(n => n.uid === listener.uid)) {
+                if (currentListeners?.find(l => l.uid === listener.uid)) {
                     listener.handleEvent?.(eventDef, state, context);
                 }
             }
         }
     }
 
-    public addEventListener(eventName: string, node: IBehNode): void {
+    public addEventListener(eventName: string, listener: IEventListener): void {
         if (!this.eventListeners.has(eventName)) {
             this.eventListeners.set(eventName, []);
         }
         const listeners = this.eventListeners.get(eventName)!;
-        if (!listeners.find(n => n.uid === node.uid)) {
-            listeners.push(node);
+        if (!listeners.find(l => l.uid === listener.uid)) {
+            listeners.push(listener);
             this.listenersMutationCount++;
         }
     }
 
-    public removeEventListener(node: IBehNode): void {
+    public removeEventListener(listener: IEventListener): void {
         for (const listeners of this.eventListeners.values()) {
-            const index = listeners.findIndex(n => n.uid === node.uid);
+            const index = listeners.findIndex(l => l.uid === listener.uid);
             if (index > -1) {
                 listeners.splice(index, 1);
                 this.listenersMutationCount++;
@@ -96,16 +96,16 @@ export class Invoker implements IInvoker {
         }
     }
 
-    public addUpdateListener(node: IBehNode): void {
-        if (!this.updateListeners.find(n => n.uid === node.uid)) {
-            this.updateListeners.push(node);
+    public addUpdateListener(listener: IEventListener): void {
+        if (!this.updateListeners.find(l => l.uid === listener.uid)) {
+            this.updateListeners.push(listener);
             this.listenersMutationCount++;
         }
     }
 
-    public removeUpdateListener(node: IBehNode): void {
+    public removeUpdateListener(listener: IEventListener): void {
         const initialLength = this.updateListeners.length;
-        this.updateListeners = this.updateListeners.filter(n => n.uid !== node.uid);
+        this.updateListeners = this.updateListeners.filter(l => l.uid !== listener.uid);
         if (this.updateListeners.length !== initialLength) {
             this.listenersMutationCount++;
         }

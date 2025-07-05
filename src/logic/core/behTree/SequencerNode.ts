@@ -2,6 +2,7 @@ import type { GameState } from "../../GameState";
 import { BehNode } from "./BehNode";
 import type { IBehNode, IContainerNode, IBehTree } from "./BehTreeTypes";
 import { NodeResult } from "./BehTreeTypes";
+import { C } from "../../lib/C";
 
 export class SequencerNode extends BehNode implements IContainerNode {
     public readonly children: IBehNode[];
@@ -29,7 +30,7 @@ export class SequencerNode extends BehNode implements IContainerNode {
     }
 
     public init(state: GameState): void {
-        if (this.root.invoker?.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[BehTree] ${this.getHierarchicalPath()} started.`);
         }
         this.currentIndex = -1;

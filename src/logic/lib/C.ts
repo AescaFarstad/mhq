@@ -71,7 +71,6 @@ export class C {
     public static readonly DEFAULT_DIALOG_TREE = 'dialog';
     
     // === Debug Constants ===
-    public static readonly DEBUG_MODE = false;
-    public static readonly LOG_LEVEL = "info";
     public static readonly DEBUG_EFFECTS = false;
+    public static readonly BEH_LOG_VERBOSE = false;
 } 

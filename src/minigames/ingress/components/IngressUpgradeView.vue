@@ -3,6 +3,7 @@ import { inject, computed, ref } from 'vue';
 import type { GameState } from '../../../logic/GameState';
 import { INGRESS_TYPE, type IngressState, type IngressUpgradeId } from '../IngressTypes';
 import type { IngressGame } from '../IngressGame';
+import StarTooltip from './StarTooltip.vue';
 
 const gameState = inject<GameState>('gameState');
 
@@ -21,6 +22,9 @@ const ingressGame = computed(() => {
 });
 
 const recentlyPurchased = ref(new Set<IngressUpgradeId>());
+
+const starTooltipVisible = ref(false);
+const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
 
 const charactersExploredCount = computed(() => {
     if (!ingressState.value) return 0;
@@ -42,10 +46,10 @@ const characterUpgrades: Upgrade[] = [
 ];
 
 const breachUpgrades: Upgrade[] = [
-    { id: 'breach_possession_speed', text: '+100% Faster possession rate', cost: 5, stars: '☆☆☆☆☆' },
-    { id: 'breach_word_bonus', text: '+1 from future \'useful\' words', cost: 5, stars: '☆☆☆☆☆' },
+    { id: 'breach_materialization_speed', text: '+100% Faster materialization rate', cost: 5, stars: '☆☆☆☆☆' },
+    { id: 'breach_word_bonus', text: '+1 from future \'substantive\' words', cost: 5, stars: '☆☆☆☆☆' },
     { id: 'breach_typo_tolerance', text: '+1 typo tolerance', cost: 2, stars: '☆☆' },
-    { id: 'breach_word_counter', text: 'Display remaining \'useful\' words count', cost: 1, stars: '☆' },
+    { id: 'breach_word_counter', text: 'Display remaining \'substantive\' words count', cost: 1, stars: '☆' },
 ];
 
 const purchaseUpgrade = (upgradeId: IngressUpgradeId, cost: number) => {
@@ -64,26 +68,59 @@ const revealUpgrades = () => {
     }
 };
 
+const handleStarTooltipShow = (event: MouseEvent) => {
+    starTooltipVisible.value = true;
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    starTooltipPosition.value = {
+        x: event.clientX,
+        y: rect.top
+    };
+};
+
+const handleStarTooltipMove = (event: MouseEvent) => {
+    if (starTooltipVisible.value && starTooltipPosition.value) {
+        starTooltipPosition.value = {
+            x: event.clientX,
+            y: starTooltipPosition.value.y // Keep the same Y position
+        };
+    }
+};
+
+const handleStarTooltipHide = () => {
+    starTooltipVisible.value = false;
+    starTooltipPosition.value = null;
+};
+
 </script>
 
 <template>
   <div class="upgrade-view-panel" v-if="ingressState && charactersExploredCount >= 2">
       <div class="upgrades-reveal-container" :class="{ 'hidden': ingressState.upgradesRevealed }">
-          <h3>Upgrades</h3>
-          <button @click="revealUpgrades" class="explore-button" :disabled="ingressState.possessionCharges < 1">
-              Connect <span class="cost-stars">☆</span>
+          <h3>Global upgrades</h3>
+          <button 
+              @click="revealUpgrades" 
+              @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
+              @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
+              @mouseleave="handleStarTooltipHide"
+              class="explore-button" 
+              :disabled="ingressState.aspectPoints < 1"
+          >
+              Open <span class="cost-stars">☆</span>
           </button>
       </div>
       <div class="upgrade-content-wrapper" :class="{ 'revealed': ingressState.upgradesRevealed }">
           <div class="upgrade-content">
               <div class="column">
-                  <h3>Upon possession, the host gains:</h3>
+                  <h3>Your chosen character gains:</h3>
                   <template v-for="upgrade in characterUpgrades" :key="upgrade.id">
                     <button
                         class="upgrade-button"
                         :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
-                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.possessionCharges < upgrade.cost"
-                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)">
+                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
+                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
+                        @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
+                        @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide">
                         <span>{{ upgrade.text }}</span>
                         <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
                         <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
@@ -91,14 +128,17 @@ const revealUpgrades = () => {
                   </template>
               </div>
               <div class="column">
-                  <h3>Widen the telepathic breach:</h3>
+                  <h3>Accelerate the descent:</h3>
                   <template v-for="upgrade in breachUpgrades" :key="upgrade.id">
                     <button
                         class="upgrade-button"
                         :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
-                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.possessionCharges < upgrade.cost"
-                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)">
-                        <span v-if="upgrade.id === 'breach_word_bonus'">+1 <span class="star-symbol">★</span> from future useful words</span>
+                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
+                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
+                        @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
+                        @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
+                        @mouseleave="handleStarTooltipHide">
+                        <span v-if="upgrade.id === 'breach_word_bonus'">+1 <span class="star-symbol">★</span> from future substantive words</span>
                         <span v-else>{{ upgrade.text }}</span>
                         <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
                         <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
@@ -107,6 +147,7 @@ const revealUpgrades = () => {
               </div>
           </div>
       </div>
+      <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
   </div>
 </template>
 

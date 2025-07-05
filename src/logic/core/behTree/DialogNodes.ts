@@ -1,6 +1,7 @@
 import { BehNode } from './BehNode';
 import type { GameState } from '../../GameState';
 import { NodeResult } from './BehTreeTypes';
+import { C } from '../../lib/C';
 
 export class CheckDNTypeNode extends BehNode {
     private readonly nodeType: string;
@@ -19,7 +20,7 @@ export class CheckDNTypeNode extends BehNode {
         
         const success = currentNode?.type === this.nodeType;
         
-        if (this.root.invoker?.logVerbose) {
+        if (C.BEH_LOG_VERBOSE) {
             console.log(`[BehTree] ${this.getHierarchicalPath()} type check ${success ? 'succeeded' : 'failed'}.`);
         }
 

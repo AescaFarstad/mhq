@@ -8,11 +8,13 @@ export abstract class DialogNode {
     public id: string;
     public type: string;
     public next?: string;
+    public data?: any; // Custom data for the node
 
-    constructor(id: string, type: string, next?: string) {
+    constructor(id: string, type: string, next?: string, data?: any) {
         this.id = id;
         this.type = type;
         this.next = next;
+        this.data = data;
     }
 }
 
@@ -21,6 +23,7 @@ export interface MessageDNodeParams {
     text: string;
     speakerId: string;
     next?: string;
+    data?: any;
 }
 
 export class MessageDNode extends DialogNode {
@@ -28,7 +31,7 @@ export class MessageDNode extends DialogNode {
     public speakerId: string;
 
     constructor(params: MessageDNodeParams) {
-        super(params.id || '', 'message', params.next);
+        super(params.id || '', 'message', params.next, params.data);
         this.text = params.text;
         this.speakerId = params.speakerId;
     }
@@ -56,13 +59,14 @@ export interface ChoiceDNodeParams {
     id?: string;
     choices: DialogChoice[];
     next?: string;
+    data?: any;
 }
 
 export class ChoiceDNode extends DialogNode {
     public choices: DialogChoice[];
 
     constructor(params: ChoiceDNodeParams) {
-        super(params.id || '', 'choice', params.next);
+        super(params.id || '', 'choice', params.next, params.data);
         this.choices = params.choices;
     }
 }
@@ -74,6 +78,7 @@ export interface MessageNodeDef {
     text: string;
     speakerId: string;
     next?: string;
+    data?: any; // Custom data for the node
 }
 
 export interface ChoiceOptionDef {
@@ -87,6 +92,7 @@ export interface ChoiceNodeDef {
     id?: string;
     choices: ChoiceOptionDef[];
     next?: string;
+    data?: any; // Custom data for the node
 }
 
 export type DialogNodeDef = MessageNodeDef | ChoiceNodeDef;
@@ -99,12 +105,14 @@ export function createDialogNode(nodeDef: DialogNodeDef): DialogNode {
                 id: nodeDef.id,
                 text: nodeDef.text,
                 speakerId: nodeDef.speakerId,
-                next: nodeDef.next
+                next: nodeDef.next,
+                data: nodeDef.data
             });
         case CHOICE:
             return new ChoiceDNode({
                 id: nodeDef.id,
                 next: nodeDef.next,
+                data: nodeDef.data,
                 choices: nodeDef.choices.map(choiceDef => new DialogChoice({
                     id: choiceDef.id,
                     text: choiceDef.text,
@@ -153,21 +161,39 @@ export function generateDialogIds(dialogName: string, nodes: DialogNode[]): void
     });
     
     // Second pass: Auto-generate next fields for nodes that don't have them
+    // First, collect all explicitly referenced nodes (they should not be auto-assigned to)
+    const explicitlyReferencedNodes = new Set<string>();
+    nodes.forEach(node => {
+        if (node.next) {
+            explicitlyReferencedNodes.add(node.next);
+        }
+        if (node instanceof ChoiceDNode) {
+            node.choices.forEach(choice => {
+                if (choice.next) {
+                    explicitlyReferencedNodes.add(choice.next);
+                }
+            });
+        }
+    });
+    
+    // Then, auto-assign next fields, but only to immediately following nodes that aren't explicitly referenced
     nodes.forEach((node, index) => {
-        // For nodes without explicit next field, point to next node in sequence
+        // For nodes without explicit next field, assign to the immediate next node if it's not explicitly referenced
         if (!node.next && index < nodes.length - 1) {
             const nextNode = nodes[index + 1];
-            if (nextNode.id) {
+            if (nextNode.id && !explicitlyReferencedNodes.has(nextNode.id)) {
                 node.next = nextNode.id;
             }
         }
         
         // For choice nodes, handle choice options that don't have next specified
         if (node instanceof ChoiceDNode && index < nodes.length - 1) {
-            const nextNode = nodes[index + 1];
             node.choices.forEach(choice => {
-                if (!choice.next && nextNode.id) {
-                    choice.next = nextNode.id;
+                if (!choice.next) {
+                    const nextNode = nodes[index + 1];
+                    if (nextNode.id && !explicitlyReferencedNodes.has(nextNode.id)) {
+                        choice.next = nextNode.id;
+                    }
                 }
             });
         }

@@ -8,13 +8,13 @@ import { areOneEditAway } from '../../utils/stringUtils';
 import { wordify } from '../../utils/stringUtils';
 import type { ApplyIngressResultsParams } from '../../logic/lib/definitions/EventDefinition';
 import * as effects from '../../logic/effects';
-import { getCharacterKeywordsMap, getCombinedWordsMap, getUsefulWordsCountFromMap } from './logic/IngressWordLogic';
+import { getCharacterKeywordsMap, getCombinedWordsMap, getSubstantiveWordsCountFromMap } from './logic/IngressWordLogic';
 
 const CHARGES_BAR_REVEAL_THRESHOLD = 4;
 const FIRST_CHAR_UNLOCK_THRESHOLD = 6;
 const SUBSEQUENT_CHAR_UNLOCK_THRESHOLD = 2;
 const CHAR_EXPLORATION_COSTS = [1, 2, 3]; // Costs for name, portrait, investigate
-const POSSESSION_BASE_SPEED = 0.0035;
+const MATERIALIZATION_BASE_SPEED = 0.0035;
 
 export class IngressGame implements BaseMinigame<IngressState> {
     readonly id: string;
@@ -33,16 +33,16 @@ export class IngressGame implements BaseMinigame<IngressState> {
         // All state properties that need to be reactive for the UI
         // should be within this reactive object.
         this.state = reactive<IngressState>({
-            usefulWords: [],
+            substantiveWords: [],
             offensiveWords: [],
             blankWords: [],
             allSubmittedWords: [],
-            possessionCharges: 0,
-            totalPossessionCharges: 0,
+            aspectPoints: 0,
+            totalAspectPoints: 0,
             chargesBarRevealed: false,
             characterOptions: [],
-            charactersAvailableToInvision: 0,
-            hasInvisioned: false,
+            charactersAvailableToEnvision: 0,
+            hasEnvisioned: false,
             inspectingCharacterId: null,
             renamingCharacterId: null,
             characterRenames: {},
@@ -56,10 +56,10 @@ export class IngressGame implements BaseMinigame<IngressState> {
                 breach_word_bonus: false,
                 breach_typo_tolerance: false,
                 breach_word_counter: false,
-                breach_possession_speed: false,
+                breach_materialization_speed: false,
             },
             upgradesRevealed: false,
-            possessionProgress: 0,
+            materializationProgress: 0,
             engaged: false,
             engagementProgress: 0,
             engagementCompletionTime: null,
@@ -76,7 +76,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
         word: string, 
         ingressWordsLib: IngressWordsLib,
         gameState: GameState,
-    ): { classification: 'useful' | 'offensive' | 'blank'; pointsEarned: number; submittedWord: string; isNewAddition: boolean, sourceCharacterIds?: string[] } {
+    ): { classification: 'substantive' | 'offensive' | 'blank'; pointsEarned: number; submittedWord: string; isNewAddition: boolean, sourceCharacterIds?: string[] } {
         if (!this.combinedWords || !this.characterKeywords) {
             this.initializeWordLists(ingressWordsLib, gameState);
         }
@@ -89,7 +89,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
         }
 
         const isAlreadySubmitted = (def: WordDefinition): boolean => {
-            return this.state.usefulWords.some(w => w.definition.id === def.id);
+            return this.state.substantiveWords.some(w => w.definition.id === def.id);
         };
 
         let definition = IngressWordsLib.findWordInMap(cleanedWord, allWords);
@@ -102,13 +102,13 @@ export class IngressGame implements BaseMinigame<IngressState> {
             if(sourceCharacterIds) break;
         }
 
-        // If the directly matched word is a useful word that has already been submitted, invalidate it to trigger a typo search.
+        // If the directly matched word is a substantive word that has already been submitted, invalidate it to trigger a typo search.
         if (definition && definition.type === 'useful' && isAlreadySubmitted(definition)) {
             definition = undefined;
         }
 
         // Typo tolerance check: if no definition was found (or it was invalidated) and the upgrade is active,
-        // search for a one-edit-away un-submitted useful word.
+        // search for a one-edit-away un-submitted substantive word.
         if (!definition && this.state.upgrades.breach_typo_tolerance) {
             for (const wordDef of allWords.values()) {
                 if (wordDef.type === 'useful' && areOneEditAway(cleanedWord, wordDef.name) && !isAlreadySubmitted(wordDef)) {
@@ -153,27 +153,27 @@ export class IngressGame implements BaseMinigame<IngressState> {
         }
 
         if (definition.type === 'useful') {
-            // At this point, `definition` is guaranteed to be a new useful word, either by direct match or typo.
+            // At this point, `definition` is guaranteed to be a new substantive word, either by direct match or typo.
             let pointsToAdd = definition.points;
             if (this.state.upgrades.breach_word_bonus) {
                 pointsToAdd += 1;
             }
 
-            let possessionBump = 0;
+            let materializationBump = 0;
             if (pointsToAdd === 1) {
-                possessionBump = 0.3;
+                materializationBump = 0.3;
             } else if (pointsToAdd === 2) {
-                possessionBump = 0.4;
+                materializationBump = 0.4;
             } else if (pointsToAdd === 3) {
-                possessionBump = 0.5;
+                materializationBump = 0.5;
             } else if (pointsToAdd === 4) {
-                possessionBump = 0.7;
+                materializationBump = 0.7;
             } else if (pointsToAdd >= 5) {
-                possessionBump = 0.8;
+                materializationBump = 0.8;
             }
             
-            if (possessionBump > 0) {
-                this.state.possessionProgress = Math.min(100, this.state.possessionProgress + possessionBump);
+            if (materializationBump > 0) {
+                this.state.materializationProgress = Math.min(100, this.state.materializationProgress + materializationBump);
             }
 
             const submittedWord: SubmittedWord = {
@@ -183,7 +183,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
                 sourceCharacterIds: sourceCharacterIds,
                 originalTypedWord: word.trim()
             };
-            this.state.usefulWords.push(submittedWord);
+            this.state.substantiveWords.push(submittedWord);
             // Add to comprehensive storage
             if (!this.state.allSubmittedWords.includes(word.trim())) {
                 this.state.allSubmittedWords.push(word.trim());
@@ -192,10 +192,13 @@ export class IngressGame implements BaseMinigame<IngressState> {
             if (wasTypo && definition.name !== word.trim() && !this.state.allSubmittedWords.includes(definition.name)) {
                 this.state.allSubmittedWords.push(definition.name);
             }
-            this.state.possessionCharges += pointsToAdd;
-            this.state.totalPossessionCharges += pointsToAdd;
+            this.state.aspectPoints += pointsToAdd;
+            this.state.totalAspectPoints += pointsToAdd;
             
             if (sourceCharacterIds) {
+                // Check if this is the first character being unlocked via keywords
+                const wasFirstCharacterUnlock = !this.state.hasEnvisioned && this.state.characterOptions.length === 0;
+                
                 for (const charId of sourceCharacterIds) {
                     if (!this.state.characterXpBonuses[charId]) {
                         this.state.characterXpBonuses[charId] = 0;
@@ -223,9 +226,16 @@ export class IngressGame implements BaseMinigame<IngressState> {
                         }
                     }
                 }
+                
+                // If this was the first character unlock via keywords, automatically envision for free
+                if (wasFirstCharacterUnlock && this.state.characterOptions.length > 0) {
+                    this.state.hasEnvisioned = true;
+                    // Reset charactersAvailableToEnvision to 0 since we're auto-envisioning
+                    this.state.charactersAvailableToEnvision = 0;
+                }
             }
             
-            return { classification: 'useful', pointsEarned: pointsToAdd, submittedWord: word.trim(), isNewAddition: true, sourceCharacterIds };
+            return { classification: 'substantive', pointsEarned: pointsToAdd, submittedWord: word.trim(), isNewAddition: true, sourceCharacterIds };
         }
         
         // Fallback for unhandled types, treat as blank for now
@@ -256,17 +266,17 @@ export class IngressGame implements BaseMinigame<IngressState> {
             }
         }
 
-        if (!this.state.chargesBarRevealed && this.state.possessionCharges >= CHARGES_BAR_REVEAL_THRESHOLD) {
+        if (!this.state.chargesBarRevealed && this.state.aspectPoints >= CHARGES_BAR_REVEAL_THRESHOLD) {
             this.state.chargesBarRevealed = true;
         }
 
-        if (this.state.possessionProgress < 100) {
+        if (this.state.materializationProgress < 100) {
             let speedMultiplier = 1;
-            if (this.state.upgrades.breach_possession_speed) {
+            if (this.state.upgrades.breach_materialization_speed) {
                 speedMultiplier = 2;
             }
-            const progressToAdd = this.state.totalPossessionCharges * deltaTime * POSSESSION_BASE_SPEED * speedMultiplier;
-            this.state.possessionProgress = Math.min(100, this.state.possessionProgress + progressToAdd);
+            const progressToAdd = this.state.totalAspectPoints * deltaTime * MATERIALIZATION_BASE_SPEED * speedMultiplier;
+            this.state.materializationProgress = Math.min(100, this.state.materializationProgress + progressToAdd);
         }
     }
 
@@ -302,8 +312,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
     }
 
     public revealUpgrades(): void {
-        if (!this.state.upgradesRevealed && this.state.possessionCharges >= 1) {
-            this.state.possessionCharges -= 1;
+        if (!this.state.upgradesRevealed && this.state.aspectPoints >= 1) {
+            this.state.aspectPoints -= 1;
             this.state.upgradesRevealed = true;
         }
     }
@@ -314,11 +324,11 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return;
         }
     
-        if (this.state.possessionCharges >= cost) {
-            this.state.possessionCharges -= cost;
+        if (this.state.aspectPoints >= cost) {
+            this.state.aspectPoints -= cost;
             this.state.upgrades[upgradeId] = true;
         } else {
-            console.warn(`Not enough possession charges to purchase upgrade ${upgradeId}.`);
+            console.warn(`Not enough aspect points to purchase upgrade ${upgradeId}.`);
         }
     }
 
@@ -345,8 +355,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
     }
 
     public renameCharacter(newName: string): void {
-        if (this.state.possessionCharges >= 1 && this.state.renamingCharacterId && newName.trim()) {
-            this.state.possessionCharges -= 1;
+        if (this.state.aspectPoints >= 1 && this.state.renamingCharacterId && newName.trim()) {
+            this.state.aspectPoints -= 1;
             this.state.characterRenames[this.state.renamingCharacterId] = newName.trim();
             this.closeRenameDialog();
         }
@@ -359,8 +369,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return;
         }
 
-        if (this.state.possessionCharges >= 1 && this.state.characterBioObfuscation[characterId] > 0) {
-            this.state.possessionCharges -= 1;
+        if (this.state.aspectPoints >= 1 && this.state.characterBioObfuscation[characterId] > 0) {
+            this.state.aspectPoints -= 1;
             
             // To avoid floating point issues, we work with integer steps
             const currentObfuscationSteps = Math.round(this.state.characterBioObfuscation[characterId] * 5);
@@ -375,15 +385,15 @@ export class IngressGame implements BaseMinigame<IngressState> {
         }
     }
 
-    public commitAndPossess(gameState: GameState): void {
+    public commitAndMaterialize(gameState: GameState): void {
         const characterId = this.state.inspectingCharacterId;
-        if (this.state.possessionProgress < 100 || !characterId) {
-            console.warn("Cannot possess yet. Progress must be 100% and a character must be selected.");
+        if (this.state.materializationProgress < 100 || !characterId) {
+            console.warn("Cannot materialize yet. Progress must be 100% and a character must be selected.");
             return;
         }
 
-        if (this.state.possessionCharges < 10) {
-            console.warn("Not enough possession charges to commit and possess.");
+        if (this.state.aspectPoints < 10) {
+            console.warn("Not enough aspect points to commit and materialize.");
             return;
         }
 
@@ -393,7 +403,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return;
         }
 
-        this.state.possessionCharges -= 10;
+        this.state.aspectPoints -= 10;
 
         const xpBonusFromKeywords = this.state.characterXpBonuses[characterId] || 0;
         const universalXpBonus = this.state.upgrades.char_xp_boost ? 25 : 0;
@@ -413,32 +423,32 @@ export class IngressGame implements BaseMinigame<IngressState> {
         gameState.exitMinigame();
     }
 
-    public invisionCharacters(gameState: GameState): void {
-        const INVISION_COST = 2;
+    public envisionCharacters(gameState: GameState): void {
+        const ENVISION_COST = 2;
         
-        if (this.state.hasInvisioned) {
-            console.warn('Characters have already been invisioned.');
+        if (this.state.hasEnvisioned) {
+            console.warn('Characters have already been envisioned.');
             return;
         }
 
-        if (this.state.charactersAvailableToInvision === 0) {
-            console.warn('No characters available to invision.');
+        if (this.state.charactersAvailableToEnvision === 0) {
+            console.warn('No characters available to envision.');
             return;
         }
 
-        if (this.state.possessionCharges < INVISION_COST) {
-            console.warn('Not enough possession charges to invision characters.');
+        if (this.state.aspectPoints < ENVISION_COST) {
+            console.warn('Not enough aspect points to envision characters.');
             return;
         }
 
-        this.state.possessionCharges -= INVISION_COST;
-        this.state.hasInvisioned = true;
+        this.state.aspectPoints -= ENVISION_COST;
+        this.state.hasEnvisioned = true;
 
         // Now add the available characters to the options
         const eligibleChars = Array.from(gameState.lib.characters.values())
             .filter(c => c.location === gameState.locationId && !this.state.characterOptions.some(co => co.characterId === c.id));
 
-        for (let i = 0; i < this.state.charactersAvailableToInvision && i < eligibleChars.length; i++) {
+        for (let i = 0; i < this.state.charactersAvailableToEnvision && i < eligibleChars.length; i++) {
             const charToUnlock = eligibleChars[i];
             const newOption: IngressCharacterOption = {
                 characterId: charToUnlock.id,
@@ -448,7 +458,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
             this.state.characterOptions.push(newOption);
         }
 
-        this.state.charactersAvailableToInvision = 0;
+        this.state.charactersAvailableToEnvision = 0;
     }
 
     public exploreCharacter(characterId: string, gameState: GameState): void {
@@ -464,8 +474,8 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return;
         }
 
-        if (this.state.possessionCharges >= currentCost) {
-            this.state.possessionCharges -= currentCost;
+        if (this.state.aspectPoints >= currentCost) {
+            this.state.aspectPoints -= currentCost;
 
             switch (characterOption.discoveryState) {
                 case 'unexplored':
@@ -487,13 +497,13 @@ export class IngressGame implements BaseMinigame<IngressState> {
                     break;
             }
         } else {
-            console.log('Not enough possession charges to explore.');
+            console.log('Not enough aspect points to explore.');
             // Optionally, provide feedback to the player here
         }
     }
 
     private updateCharacterUnlocks(gameState: GameState): void {
-        const totalCharges = this.state.totalPossessionCharges;
+        const totalCharges = this.state.totalAspectPoints;
         let requiredCharges = FIRST_CHAR_UNLOCK_THRESHOLD;
         let potentialUnlocks = 0;
 
@@ -510,11 +520,11 @@ export class IngressGame implements BaseMinigame<IngressState> {
             const eligibleChars = Array.from(gameState.lib.characters.values())
                 .filter(c => c.location === gameState.locationId && !this.state.characterOptions.some(co => co.characterId === c.id));
 
-            // If this is the first time characters are available and player hasn't invisioned yet
-            if (this.unlockedCharacterCount === 0 && !this.state.hasInvisioned) {
-                this.state.charactersAvailableToInvision = Math.min(newUnlocksCount, eligibleChars.length);
+            // If this is the first time characters are available and player hasn't envisioned yet
+            if (this.unlockedCharacterCount === 0 && !this.state.hasEnvisioned) {
+                this.state.charactersAvailableToEnvision = Math.min(newUnlocksCount, eligibleChars.length);
             } else {
-                // Normal character unlocking (after invision or subsequent unlocks)
+                // Normal character unlocking (after envision or subsequent unlocks)
                 for (let i = 0; i < newUnlocksCount && i < eligibleChars.length; i++) {
                     const charToUnlock = eligibleChars[i];
                     const newOption: IngressCharacterOption = {
@@ -545,7 +555,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
         this.characterKeywords = getCharacterKeywordsMap(gameState);
     }
 
-    public getUsefulWordsCount(ingressWordsLib: IngressWordsLib, gameState: GameState): number {
+    public getSubstantiveWordsCount(ingressWordsLib: IngressWordsLib, gameState: GameState): number {
         if (!this.combinedWords) {
             this.initializeWordLists(ingressWordsLib, gameState);
         }
@@ -554,6 +564,6 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return 0;
         }
 
-        return getUsefulWordsCountFromMap(this.combinedWords);
+        return getSubstantiveWordsCountFromMap(this.combinedWords);
     }
 } 

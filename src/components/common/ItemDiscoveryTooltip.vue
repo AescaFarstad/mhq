@@ -37,8 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, nextTick, watch } from 'vue';
-import type { GameState } from '../../logic/GameState';
+import { ref, nextTick, watch } from 'vue';
 import { AtlasManager } from '../../utils/AtlasManager';
 
 interface Props {
@@ -55,7 +54,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const gameState = inject<GameState>('gameState');
 const skillImageCanvas = ref<HTMLCanvasElement>();
 
 const getAtlasName = (itemType: string): string => {

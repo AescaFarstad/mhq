@@ -1,5 +1,6 @@
 import { BehTree } from '../core/behTree/BehTree';
 import { ExecNode } from '../core/behTree/ExecNode';
+import { EvalNode } from '../core/behTree/EvalNode';
 import { AwaitEventNode } from '../core/behTree/AwaitEventNode';
 import type { TreeDefinitionRegistry } from '../core/behTree/BehTreeTypes';
 import type { GameState } from '../GameState';
@@ -18,7 +19,6 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
             const dialog = state.dialogs[node.root.blackboard.dialogName];
             const dialogDefinition = state.lib.dialogs.getDialog(dialog.definitionId)!;
             dialog.nodes.push(dialogDefinition.startingNodeId);
-            return true;
         }),
         
         // Main dialog loop
@@ -27,7 +27,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
                 // Handle message nodes
                 new SequencerNode('messageFlow', [
                     new CheckDNTypeNode('checkMessage', 'message'),
-                    new ExecNode('processMessage', (node, state) => {
+                    new EvalNode('processMessage', (node, state) => {
                         const dialog = state.dialogs[node.root.blackboard.dialogName];
                         const dialogDefinition = state.lib.dialogs.getDialog(dialog.definitionId)!;
                         
@@ -46,7 +46,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
                 new SequencerNode('choiceFlow', [
                     new CheckDNTypeNode('checkChoice', 'choice'),
                     new AwaitEventNode('waitChoice', 'dialogChoice'),
-                    new ExecNode('processChoice', (node, state) => {
+                    new EvalNode('processChoice', (node, state) => {
                         const dialog = state.dialogs[node.root.blackboard.dialogName];
                         const dialogDefinition = state.lib.dialogs.getDialog(dialog.definitionId)!;
                         
@@ -59,19 +59,19 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
                             dialog.nodes.push(choice.next);
                             return true;
                         }
-                        return false; // No next node - will fall through to dialogFinished
+                        return false; // No next node - should fall through to dialogFinished
                     })
                 ]),
                 
                 // Dialog finished - only executes if all above failed
-                new ExecNode('dialogFinished', (node, state) => {
+                new EvalNode('dialogFinished', (node, state) => {
                     const dialogFinishedEvent = {
                         id: 'dialogFinished',
                         params: { dialogName: node.root.blackboard.dialogName },
                         effects: []
                     };
                     EventProcessor.processSingleEvent(dialogFinishedEvent, state);
-                    return false; // Exit RepeatNode
+                    return false; // Return false to exit the RepeatNode
                 })
             ])
         ])
@@ -133,7 +133,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         }),
     ]),
 
-    'cheatStart': () => new BehTree('cheatStart', [
+    'cheatIntroAndWelcome': () => new BehTree('cheatIntroAndWelcome', [
         new AwaitEventNode(
             'awaitIntroStart',
             'minigameStarted',
@@ -144,11 +144,26 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
             state.exitMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
+        new ExecNode('cheatWelcome', (_node, state: GameState) => {
+            effects.applyWelcomeResults(state, { locationId: "turfablie" });
+            state.exitMinigame();
+        }),
+        new WaitNode({ durationMin: 0.1 }),
+        new ExecNode('skipIngressEngagement', (_node, state: GameState) => {
+            effects.skipIngressEngagement(state);
+        })
+    ]),
+
+    'cheatStart': () => new BehTree('cheatStart', [
         new AwaitEventNode(
-            'awaitWelcomeStart',
+            'awaitIntroStart',
             'minigameStarted',
-            (eventDef) => eventDef.params?.minigameType === 'Welcome'
+            (eventDef) => eventDef.params?.minigameType === 'Intro'
         ),
+        new WaitNode({ durationMin: 0.1 }),
+        new ExecNode('cheatIntro', (_node, state: GameState) => {
+            state.exitMinigame();
+        }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatWelcome', (_node, state: GameState) => {
             effects.applyWelcomeResults(state, { locationId: "aeiga_reika" });

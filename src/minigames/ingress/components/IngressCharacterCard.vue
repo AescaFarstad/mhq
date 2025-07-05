@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, ref } from 'vue';
 import type { IngressCharacterOption } from '../IngressTypes';
 import ImageHolder from '../../../components/common/ImageHolder.vue';
 import type { GameState } from '../../../logic/GameState';
 import { INGRESS_TYPE, type IngressState } from '../IngressTypes';
+import StarTooltip from './StarTooltip.vue';
 
 const props = defineProps<{
     option: IngressCharacterOption;
@@ -13,6 +14,9 @@ const props = defineProps<{
 const emit = defineEmits(['explore']);
 
 const gameState = inject<GameState>('gameState');
+
+const starTooltipVisible = ref(false);
+const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
@@ -53,11 +57,8 @@ const buttonText = computed(() => {
   }
 });
 
-const isButtonDisabled = computed(() => {
-    if (props.option.discoveryState !== 'unexplored' && props.option.discoveryState !== 'name_revealed') {
-        return true;
-    }
-    return !ingressState.value || (ingressState.value.possessionCharges < explorationCost.value);
+const isExploreDisabled = computed(() => {
+    return !ingressState.value || (ingressState.value.aspectPoints < explorationCost.value);
 });
 
 const costStarsDisplay = computed(() => {
@@ -67,7 +68,7 @@ const costStarsDisplay = computed(() => {
 });
 
 const handleExploreClick = () => {
-  if (!isButtonDisabled.value) {
+  if (!isExploreDisabled.value) {
     emit('explore', props.option);
   }
 };
@@ -76,6 +77,29 @@ const handleCardClick = () => {
     if (props.option.discoveryState === 'portrait_revealed') {
         emit('explore', props.option);
     }
+};
+
+const handleStarTooltipShow = (event: MouseEvent) => {
+    starTooltipVisible.value = true;
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    starTooltipPosition.value = {
+        x: event.clientX,
+        y: rect.top
+    };
+};
+
+const handleStarTooltipMove = (event: MouseEvent) => {
+    if (starTooltipVisible.value && starTooltipPosition.value) {
+        starTooltipPosition.value = {
+            x: event.clientX,
+            y: starTooltipPosition.value.y // Keep the same Y position
+        };
+    }
+};
+
+const handleStarTooltipHide = () => {
+    starTooltipVisible.value = false;
+    starTooltipPosition.value = null;
 };
 </script>
 
@@ -110,13 +134,17 @@ const handleCardClick = () => {
       <button 
         v-if="option.discoveryState === 'unexplored' || option.discoveryState === 'name_revealed'"
         @click.stop="handleExploreClick" 
-        :disabled="isButtonDisabled"
+        @mouseenter="isExploreDisabled ? handleStarTooltipShow($event) : null"
+        @mousemove="isExploreDisabled ? handleStarTooltipMove($event) : null"
+        @mouseleave="handleStarTooltipHide"
+        :disabled="isExploreDisabled"
         class="explore-button"
       >
         {{ buttonText }} <span v-if="costStarsDisplay" class="cost-stars">{{ costStarsDisplay }}</span>
       </button>
 
     </div>
+    <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
   </div>
 </template>
 

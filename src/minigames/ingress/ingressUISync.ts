@@ -15,14 +15,14 @@ export const syncIngressUI: MinigameUISyncFn = (
     const uiState = gameState.uiState.activeMinigameState as IngressState | undefined;
 
     if (logicState && uiState) {
-        // Sync possession charges
-        if (logicState.possessionCharges !== uiState.possessionCharges) {
-            uiState.possessionCharges = logicState.possessionCharges;
+        // Sync aspect points
+        if (logicState.aspectPoints !== uiState.aspectPoints) {
+            uiState.aspectPoints = logicState.aspectPoints;
         }
 
-        // Sync total possession charges
-        if (logicState.totalPossessionCharges !== uiState.totalPossessionCharges) {
-            uiState.totalPossessionCharges = logicState.totalPossessionCharges;
+        // Sync total aspect points
+        if (logicState.totalAspectPoints !== uiState.totalAspectPoints) {
+            uiState.totalAspectPoints = logicState.totalAspectPoints;
         }
 
         // Sync character options - needs a deep copy for reactivity
@@ -31,12 +31,12 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.characterOptions = JSON.parse(JSON.stringify(logicState.characterOptions));
         }
 
-        // Sync invision state
-        if (logicState.charactersAvailableToInvision !== uiState.charactersAvailableToInvision) {
-            uiState.charactersAvailableToInvision = logicState.charactersAvailableToInvision;
+        // Sync envision state
+        if (logicState.charactersAvailableToEnvision !== uiState.charactersAvailableToEnvision) {
+            uiState.charactersAvailableToEnvision = logicState.charactersAvailableToEnvision;
         }
-        if (logicState.hasInvisioned !== uiState.hasInvisioned) {
-            uiState.hasInvisioned = logicState.hasInvisioned;
+        if (logicState.hasEnvisioned !== uiState.hasEnvisioned) {
+            uiState.hasEnvisioned = logicState.hasEnvisioned;
         }
 
         // Sync inspection state
@@ -44,9 +44,9 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.inspectingCharacterId = logicState.inspectingCharacterId;
         }
 
-        // Sync useful words
-        if (logicState.usefulWords !== uiState.usefulWords) { 
-            uiState.usefulWords = [...logicState.usefulWords]; 
+        // Sync substantive words
+        if (logicState.substantiveWords !== uiState.substantiveWords) {
+            uiState.substantiveWords = [...logicState.substantiveWords];
         }
 
         // Sync offensive words
@@ -73,8 +73,8 @@ export const syncIngressUI: MinigameUISyncFn = (
             uiState.upgradesRevealed = logicState.upgradesRevealed;
         }
 
-        if (logicState.possessionProgress !== uiState.possessionProgress) {
-            uiState.possessionProgress = logicState.possessionProgress;
+        if (logicState.materializationProgress !== uiState.materializationProgress) {
+            uiState.materializationProgress = logicState.materializationProgress;
         }
 
         // Sync character XP bonuses
