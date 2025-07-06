@@ -39,7 +39,7 @@ const events: EventsDataType = {
       { key: "discover", params: { key: C.DISCOVERY_INNER_COSMOS } },
       //{ key: "giveResource", params: { resource: "clutter", amount: 50 } },
       { key: "construct", params: { building: "meditation_chamber" } },
-      { key: "modifyIndependentStat", params: { statName: "inspiration_charges", amount: 3 } },
+      // { key: "modifyIndependentStat", params: { statName: "inspiration_charges", amount: 3 } },
 
       // { key: "startBehTree", params: { treeName: "cheatStart" } },
       // { key: "startBehTree", params: { treeName: "cheatWelcome" } },

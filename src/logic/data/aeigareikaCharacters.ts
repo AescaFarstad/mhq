@@ -5,12 +5,15 @@ type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;
 const charactersData: CharacterData = {
     "ingress_aeiga_reika_secret_seer": {
         name: "Seraphina",
+        epithets:["The Veiled Lady", "The Confessor of Steel and Soot"],
+        archetype:"The Reluctant Spymaster",
+        quote:"I see you. I feel you. I despise you.",
         gender: "female",
         fullImage: "ingress_char (10)",
         location: "aeiga_reika",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Seraphina once brokered secrets for Aeiga-Reika's powerful—a key player in the false sulfur conspiracy. But a sensitive soul can only shake hands with murderers for so long. The coins, a thousand times touched, burned through her with the pain they witnessed. These days her Crystalline Parlor is closed. She reads the future still, but tells no one.",
+        bio: "Seraphina once brokered secrets for Aeiga-Reika's powerful—a key player in the sulfur conspiracy. But a sensitive soul can only shake hands with murderers for so long. The coins, a thousand times touched, burned through her with the pain they witnessed. These days her Crystalline Parlor is closed. She reads the future still, but tells no one.",
         keywords: ["crystal", "sphere", "orb", "vision", "future", "prophecy", "sight", "seer", "oracle", "divination", "psychometry", "touch", "memory", "secret", "whisper", "truth", "revelation", "parlor", "broker", "information", "conspiracy", "sulfur", "coin", "burn", "pain", "essence", "soul", "sensitive", "hand", "palm", "eye", "veil", "mirror", "fate", "fortune", "read", "glimpse", "echo", "imprint", "residue", "aura", "gift", "talent", "knowledge", "mystery", "shadow", "past", "tomorrow", "dream", "trance", "ritual", "candle", "incense", "cards", "tea", "leaves", "signs", "omens", "portent", "scrying", "gaze", "third", "hidden", "unseen", "beyond", "within"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 4, constitution: 2, senses: 4,
@@ -67,6 +70,9 @@ const charactersData: CharacterData = {
     },
     "ingress_aeiga_reika_nature_healer": {
         name: "Gulder",
+        epithets:["The Aberration's Guardian", "The Butterfly Man"],
+        archetype:"The Fringe Ecologist",
+        quote:"Why don't you get composted instead?",
         gender: "male",
         fullImage: "ingress_char (11)",
         location: "aeiga_reika",
@@ -130,6 +136,9 @@ const charactersData: CharacterData = {
     },
     "ingress_aeiga_reika_chaos_artificer": {
         name: "Lyra",
+        epithets:["The Scrapper", "The Gear-Witch"],
+        archetype:"The Reverse Engineer",
+        quote:"Once I understand it, I'll fix it.",
         gender: "female",
         fullImage: "ingress_char (12)",
         location: "aeiga_reika",
@@ -191,13 +200,16 @@ const charactersData: CharacterData = {
     },
     "ingress_aeiga_reika_geomancer_engineer": {
         name: "Vane",
+        epithets:["The Steam-Rat", "The Ghost in the Pipe"],
+        archetype:"The Systems Hacker",
+        quote:"There is a pipe inside this pipe.",
         gender: "male",
         fullImage: "ingress_char (13)",
         location: "aeiga_reika",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Vane once navigated Aeiga-Reika's hazardous steam tunnels, keeping the city's metal heart beating. When a tremor revealed the forgotten Mages Guild, its sturdy, defensible structure seemed a far better claim than his squalid bunk in the Soot Warrens. He's been alone, tinkering ever since.",
-        keywords: ["steam", "gear", "pipe", "spark", "metal", "heat", "flame", "gauge", "tool", "grit", "glow", "wrench", "bolt", "lamp", "oil", "ring", "wire", "smoke", "coal", "mask", "glint", "fire", "shaft", "core", "flux"],
+        bio: "Vane traced impossible pressure readings through Aeiga-Reika's tunnels until he exposed the truth: the four Zig Manufactories concealed an ancient Mages Guild at their center, its elemental chambers repurposed into blast furnaces and laminar flow generators. By doctoring development schemas, he methodically untangled the web of pipes and carved his way to the Guild's untouched heart—now his secret abode. It's his turn to cannibalize.",
+        keywords: ["steam", "pipe", "gauge", "valve", "pressure", "engineer", "wrench", "tool", "gear", "bolt", "metal", "iron", "brass", "copper", "wire", "cable", "chain", "rope", "pulley", "lever", "switch", "button", "dial", "meter", "reading", "number", "measurement", "blueprint", "schema", "plan", "map", "diagram", "chart", "grid", "layout", "design", "tunnel", "shaft", "duct", "passage", "corridor", "chamber", "room", "hall", "vault", "furnace", "boiler", "engine", "turbine", "pump", "piston", "cylinder", "manifold", "junction", "intersection", "node", "hub", "center", "core", "heart", "nexus", "focal", "pivot", "axis", "bearing", "bushing", "gasket", "seal", "joint", "weld", "solder", "rivet", "clamp", "bracket", "brace", "strut", "beam", "girder", "frame", "scaffold", "platform", "catwalk", "ladder", "rail", "grate", "mesh", "screen", "filter", "vent", "outlet", "intake", "exhaust", "drain", "tap", "valve", "faucet", "spigot", "nozzle", "hose", "tube", "conduit", "channel", "trough", "gutter", "sump", "tank", "reservoir", "cistern", "vessel", "container", "canister", "flask", "vial", "gauge", "meter", "scale", "ruler", "caliper", "compass", "level", "square", "protractor", "theodolite", "transit", "scope", "lens", "mirror", "prism", "crystal", "gem", "ore", "mineral", "coal", "coke", "oil", "grease", "lubricant", "coolant", "fuel", "spark", "flame", "fire", "heat", "glow", "light", "lamp", "torch", "lantern", "beacon", "signal", "alarm", "bell", "whistle", "horn", "siren", "gauge", "indicator", "needle", "pointer", "mark", "notch", "groove", "thread", "pitch", "tooth", "cog", "sprocket", "wheel", "disk", "plate", "sheet", "panel", "board", "console", "cabinet", "locker", "chest", "box", "crate", "barrel", "drum", "key", "lock", "latch", "hasp", "hinge", "door"],
         initialAttributes: {
             physique: 3, strength: 3, agility: 3, constitution: 4, senses: 3,
             spirit: 2, attunement: 3, channeling: 1, weaving: 2, resilience: 3,
@@ -205,31 +217,43 @@ const charactersData: CharacterData = {
             social: 2, composure: 1, charisma: 1, empathy: 1, leadership: 2
         },
         initialSkills: {
-            elemental_magic: {
-                level: 2,
-                specializations: {
-                    geomancy: 2
-                }
-            },
             engineering: {
                 level: 3,
                 specializations: {
-                    hydraulics: 2,
-                    clockwork: 1
+                    architecture: 2,
+                    hydraulics: 2
                 }
             },
-            labor: {
+            analysis_and_logic: {
                 level: 2,
                 specializations: {
-                    construction: 2,
-                    hauling: 1
+                    pattern_recognition: 1,
+                    deductive_reasoning: 1
                 }
             },
-            survival: {
-                level: 3,
+            magical_lore: {
+                level: 1,
                 specializations: {
-                    urban_survival: 2,
-                    hazard_recognition: 2
+                    arcane_principles: 1
+                }
+            },
+            obfuscation: {
+                level: 2,
+                specializations: {
+                    forgery: 2,
+                    misdirection: 1
+                }
+            },
+            investigation: {
+                level: 1,
+                specializations: {
+                    archive_delving: 1
+                }
+            },
+            memory: {
+                level: 1,
+                specializations: {
+                    mental_mapping: 2
                 }
             },
             stealth: {
@@ -238,10 +262,10 @@ const charactersData: CharacterData = {
                     sneaking: 1
                 }
             },
-            ranged_combat: {
+            elemental_magic: {
                 level: 1,
                 specializations: {
-                    throwing_weapons: 1
+                    geomancy: 1
                 }
             },
             perception: {
@@ -254,13 +278,16 @@ const charactersData: CharacterData = {
     },
     "ingress_aeiga_reika_grim_fighter": {
         name: "Marcaedro",
+        epithets:["The Golem-Breaker", "The Excavator"],
+        archetype:"The Imposter Legend",
+        quote:"I'll punch my way to greatness—again.",
         gender: "male",
         fullImage: "ingress_char (9)",
         location: "aeiga_reika",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Marcaedro 'Grim' survived Aeiga-Reika's illegal golem fighting pits through shadow magic and brutal combat skills, known for dismantling constructs with hammer and fist. When a destroyed warehouse revealed a forgotten guild hall behind it, he claimed the defensible structure as his base. His fearsome reputation in the underworld ensures no one challenges his squatter's claim.",
-        keywords: ["fist", "rage", "shock", "blood", "spark", "scar", "grit", "fury", "iron", "lash", "wrath", "fire", "gloom", "dark", "shadow", "vault", "chain", "core", "burst", "curse", "mark", "pain", "clash", "pulse", "glare", "squat", "golem", "pit"],
+        bio: "Marcaedro once shattered a golem's head with his bare fist—50% luck, 50% pain, and the crowd still remembers his name. Betting lost him a fortune, so he pivoted to organizing tournaments. While excavating space for an arena beneath the Under Galleries, his crew broke into a Mages Guild that had catastrophically sunk itself. Marcaedro, dismissed the workers, added hidden entrances, and now uses it as refuge from creditors.",
+        keywords: ["fist", "golem", "head", "core", "luck", "pain", "crowd", "name", "bet", "fortune", "debt", "loss", "pit", "arena", "tournament", "fighter", "promoter", "excavation", "gallery", "tunnel", "crew", "digger", "guild", "sanctum", "refuge", "creditor", "entrance", "passage", "door", "ward", "seal", "site", "shadow", "hammer", "punch", "strike", "blow", "knuckle", "bone", "scar", "gamble", "wager", "stake", "odds", "risk", "champion", "challenger", "round", "match", "prize", "purse", "underground", "hideout", "shelter", "haven", "vault", "chamber", "hall", "catastrophe", "collapse", "sinkhole", "accident", "discovery", "secret", "worker", "laborer", "shovel", "pick", "rubble", "stone", "earth", "dust", "darkness", "depth", "payment", "coin", "silver", "gold", "collector", "enforcer", "thug", "muscle", "bruiser", "legend", "fame", "story", "rumor", "reputation", "memory", "spectator", "witness", "cheer", "roar", "blood", "sweat", "victory", "defeat", "survivor", "fugitive", "debtor", "schemer", "hustle"],
         initialAttributes: {
             physique: 2, strength: 4, agility: 3, constitution: 4, senses: 2,
             spirit: 2, attunement: 2, channeling: 3, weaving: 1, resilience: 4,
@@ -268,12 +295,6 @@ const charactersData: CharacterData = {
             social: 2, composure: 3, charisma: 1, empathy: 1, leadership: 3
         },
         initialSkills: {
-            death_magic: {
-                level: 2,
-                specializations: {
-                    shadowmancy: 2
-                }
-            },
             melee_combat: {
                 level: 3,
                 specializations: {
@@ -284,7 +305,7 @@ const charactersData: CharacterData = {
                 level: 3,
                 specializations: {
                     striking: 2,
-                    grappling: 1
+                    grappling: 2
                 }
             },
             defense: {
@@ -301,21 +322,38 @@ const charactersData: CharacterData = {
                 }
             },
             streetwise: {
-                level: 1,
+                level: 2,
                 specializations: {
-                    underworld_navigation: 1
+                    underworld_navigation: 2,
+                    gambling: 1,
+                    urban_survival: 1
                 }
             },
-            provisions: {
+            strategy_tactics: {
                 level: 1,
                 specializations: {
-                    butchery: 1
+                    management: 1
+                }
+            },
+            obfuscation: {
+                level: 1,
+                specializations: {
+                    cover_stories: 1
+                }
+            },
+            deception: {
+                level: 2,
+                specializations: {
+                    bluffing: 2
                 }
             }
         }
     },
     "ingress_aeiga_reika_life_artisan": {
         name: "Meadowlight",
+        epithets:["The Soot-Spinner", "Lady Bloom"],
+        archetype:"The Industrial Druid",
+        quote:"Ts-s, just watch!",
         gender: "female",
         fullImage: "ingress_char (8)",
         location: "aeiga_reika",

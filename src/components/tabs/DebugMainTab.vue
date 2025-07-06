@@ -14,19 +14,14 @@
       <button @click="replaceSkillNamesWithIdsInClipboard($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'replaceNamesWithIds' }">Replace Names with IDs</button>
       <button @click="simplifyClipboardText($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'simplifyClipboard' }">Simplify Clipboard Text</button>
       <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
+      <button @click="copyCharactersByLocation($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'charactersByLocation' }">Characters by Location</button>
       <button @click="findSharedKeywordPairs($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'sharedKeywordPairs' }">Find 5 Shared Keywords</button>
       <button @click="showNoiseVisualizer" class="action-btn visualizer-btn">Show Noise Visualizer</button>
     </div>
     
     <!-- Display area for copied content -->
     <div v-if="displayedContent" class="content-display">
-      <div class="content-header">
-      </div>
       <pre class="content-text">{{ displayedContent }}</pre>
-    </div>
-    
-    <div v-else class="no-content-message">
-      <p>Click any copy button above to display its content here.</p>
     </div>
 
     <!-- Noise Visualizer Overlay -->
@@ -417,6 +412,9 @@ const copyCharacterNamesAndBios = (_event?: Event) => {
   let text = '';
   for (const c of characterLib.values()) {
     text += `Name: ${c.name}\n`;
+    text += `Epithets: ${c.epithets?.join(', ') || 'N/A'}\n`;
+    text += `Archetype: ${c.archetype || 'N/A'}\n`;
+    text += `Quote: ${c.quote || 'N/A'}\n`;
     text += `Bio: ${c.bio || 'N/A'}\n\n`;
   }
   const finalText = text.trim();
@@ -428,6 +426,56 @@ const copyCharacterNamesAndBios = (_event?: Event) => {
     .catch((err) => {
       console.error('Failed to copy character names and bios to clipboard:', err);
       triggerCopyAnimation('characterNamesAndBiosError');
+    });
+};
+
+// Copy characters by location
+const copyCharactersByLocation = (_event?: Event) => {
+  if (!gameState || !gameState.lib?.characters) {
+    console.error('GameState, Lib, or CharacterLib not available for characters by location.');
+    triggerCopyAnimation('charactersByLocationError');
+    return;
+  }
+  const characterLib: CharacterLib = gameState.lib.characters;
+  
+  // Group characters by location
+  const charactersByLocation: Record<string, any[]> = {};
+  for (const c of characterLib.values()) {
+    const location = c.location || 'Unknown Location';
+    if (!charactersByLocation[location]) {
+      charactersByLocation[location] = [];
+    }
+    charactersByLocation[location].push(c);
+  }
+  
+  // Format the output
+  let text = '';
+  const sortedLocations = Object.keys(charactersByLocation).sort();
+  
+  for (const location of sortedLocations) {
+    text += `${location}:\n`;
+    
+    // Sort characters within location by name
+    const sortedCharacters = charactersByLocation[location].sort((a, b) => a.name.localeCompare(b.name));
+    
+    for (const character of sortedCharacters) {
+      text += `  Name: ${character.name}\n`;
+      text += `  Bio: ${character.bio || 'N/A'}\n`;
+      text += `  Quote: ${character.quote || 'N/A'}\n\n`;
+    }
+    
+    text += '\n';
+  }
+  
+  const finalText = text.trim();
+  navigator.clipboard.writeText(finalText)
+    .then(() => {
+      triggerCopyAnimation('charactersByLocation');
+      displayContent(finalText, 'Characters by Location');
+    })
+    .catch((err) => {
+      console.error('Failed to copy characters by location to clipboard:', err);
+      triggerCopyAnimation('charactersByLocationError');
     });
 };
 
@@ -671,10 +719,6 @@ const findSharedKeywordPairs = (_event?: Event) => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  margin-top: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f8f9fa;
   min-height: 0;
 }
 
@@ -682,7 +726,6 @@ const findSharedKeywordPairs = (_event?: Event) => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 10px 15px;
   background: #e9ecef;
   border-bottom: 1px solid #ccc;
   border-radius: 4px 4px 0 0;
@@ -702,7 +745,7 @@ const findSharedKeywordPairs = (_event?: Event) => {
   font-family: 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.4;
-  background: white;
+  background: #f7f7f7;
   min-height: 0;
 }
 

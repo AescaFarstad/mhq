@@ -21,10 +21,13 @@ export class CharacterLib {
                 const charDef: CharacterDefinition = {
                     id: id,
                     name: data.name,
+                    epithets: data.epithets,
+                    archetype: data.archetype,
                     gender: data.gender,
                     initialLevel: data.initialLevel,
                     baseUpkeep: data.baseUpkeep,
                     bio: data.bio || '',
+                    quote: data.quote,
                     fullImage: data.fullImage,
                     location: data.location,
                     portraitImage: data.portraitImage,

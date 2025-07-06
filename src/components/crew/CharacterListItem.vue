@@ -116,14 +116,6 @@ const assignedTask = computed(() => {
   color: #555;
 }
 
-.char-level {
-    /* Specific styles for level if needed */
-}
-
-.char-upkeep {
-    /* Specific styles for upkeep if needed */
-}
-
 /* Task section takes full width minus 1px on each side */
 .task-section {
   margin: 0 1px 1px 1px; /* 1px margin on sides and bottom */

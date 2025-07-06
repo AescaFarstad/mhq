@@ -5,6 +5,9 @@ type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;
 const charactersData: CharacterData = {
     "ingress_turfablie_scholarly_investigator": {
         name: "Theronin",
+        epithets:["The Temporally Confused", "The Man Outside of When"],
+        archetype:"The Living Library",
+        quote:"I want the world to make sense, even if I don't.",
         gender: "male",
         fullImage: "ingress_char (16)",
         location: "turfablie",
@@ -62,13 +65,16 @@ const charactersData: CharacterData = {
     },
     "ingress_turfablie_silver_tongue": {
         name: "Elariette",
+        epithets:["The Paper Crown Queen", "The Smiling Serpent"],
+        archetype:"The Social Engineer",
+        quote:"I will turn it around, you'll see.",
         gender: "female",
         fullImage: "ingress_char",
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Forging smiles rather than documents, Elariette conspired her way to 'temporary custodianship' of the failing Mages Guild, relying on Merchant Plaza's elite to build the web of proxy signatures. They took the guild's treasure, and it is little consolation that her authority is no longer borrowed.",
-        keywords: ["ledger", "seal", "charm", "scroll", "paper", "book", "ink", "ring", "room", "deal", "note", "mark", "code", "key", "name", "token", "vow", "link", "word", "script", "vault", "sigil", "grace", "smile", "tongue", "voice", "whisper", "promise", "contract", "signature", "quill", "parchment", "wax", "ribbon", "coin", "debt", "credit", "receipt", "invoice", "letter", "mirror", "mask", "veil", "shadow", "echo", "glamour", "facade", "lip", "tooth", "eye", "face", "cheek", "tear", "laugh", "jest", "wit", "pact", "oath", "bond", "pledge", "accord", "treaty", "terms", "clause", "deed", "title", "certificate", "license", "permit", "favor", "secret", "rumor", "gossip", "truth", "lie", "tale", "story", "web", "thread", "knot", "pearl", "jewel", "gold", "silver", "copper", "purse", "pouch", "box", "chest", "coffer", "treasury", "vault", "safe", "lock", "latch", "hinge", "door", "window", "curtain", "drape", "silk", "velvet", "satin", "lace", "perfume", "scent", "powder", "rouge", "paint", "brush", "glass", "crystal", "prism", "candle", "flame", "smoke", "ash", "ember", "glow", "shine", "gleam", "shimmer", "sparkle", "glitter", "beam", "ray", "halo", "aura"],
+        bio: "Forging smiles rather than documents, Elariette conspired her way to 'temporary custodianship' of the failing Mages Guild, relying on Merchant Plaza's elite to build the web of proxy signatures. They took the guild's treasure, and it is little consolation that her authority is no longer borrowed. Although... Would it be too late to switch to the headmaster's career at 20?",
+        keywords: ["ledger", "seal", "charm", "scroll", "paper", "book", "ink", "ring", "room", "deal", "note", "mark", "code", "key", "name", "token", "vow", "link", "word", "script", "vault", "sigil", "grace", "smile", "tongue", "voice", "whisper", "promise", "contract", "signature", "quill", "parchment", "wax", "ribbon", "coin", "debt", "credit", "receipt", "invoice", "letter", "mirror", "mask", "veil", "shadow", "echo", "glamour", "facade", "lip", "tooth", "eye", "face", "cheek", "tear", "laugh", "jest", "wit", "pact", "oath", "bond", "pledge", "accord", "treaty", "terms", "clause", "deed", "title", "certificate", "license", "permit", "favor", "secret", "rumor", "gossip", "truth", "lie", "tale", "story", "web", "thread", "knot", "pearl", "jewel", "gold", "silver", "copper", "purse", "pouch", "box", "chest", "coffer", "treasury", "vault", "safe", "lock", "latch", "hinge", "door", "window", "curtain", "drape", "silk", "velvet", "satin", "lace", "perfume", "scent", "powder", "rouge", "paint", "brush", "glass", "crystal", "prism", "candle", "flame", "smoke", "ash", "ember", "glow", "shine", "gleam", "shimmer", "sparkle", "glitter", "beam", "ray", "halo", "aura", "lesson", "draft", "calendar", "primer", "mistake", "page", "question", "hope", "dust", "error", "effort", "plan", "scheme", "youth", "doubt", "worry", "panic", "pretense", "bluff", "guess", "wish", "dream", "age"],
         initialAttributes: {
             physique: 2, strength: 1, agility: 2, constitution: 2, senses: 2,
             spirit: 2, attunement: 2, channeling: 2, weaving: 3, resilience: 2,
@@ -127,12 +133,15 @@ const charactersData: CharacterData = {
     },
     "ingress_turfablie_arcane_engineer": {
         name: "Kolodin",
+        epithets:["The Gearmancer", "The Vindicated Engineer"],
+        archetype:"The Master of the Machine",
+        quote:"If it stalls, I'll kick it.\nIf it screeches, I'll oil it.\nIf it kills, I've warned you.",
         gender: "male",
         fullImage: "ingress_char (17)",
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Kolodin was a reputed expert on thaumaturgical engineering—the craze that proved a dead end but birthed a few magic-clockwork hybrid buildings, including a Mages Guild in Turfablie. He warned the occupants of the danger of living inside what was essentially a gear box of unfathomable purpose. After cleaning the premises of crushed bones, minced meat, and torn apparel, he stayed to finally learn what the building was originally built to calculate.",
+        bio: "Kolodin was a reputed expert on thaumaturgical engineering—the craze that proved a dead end but birthed a few magic-clockwork hybrid buildings, including a Mages Guild in Turfablie. He warned the occupants of the danger of living inside what was essentially a gear box of unfathomable purpose. After cleaning the premises of crushed bones, minced meat, and torn apparel, he stayed to learn what the building was originally built to calculate.",
         keywords: ["cog", "gear", "spring", "mechanism", "clockwork", "brass", "copper", "oil", "grease", "calculation", "equation", "formula", "theorem", "blueprint", "schematic", "diagram", "engineering", "thaumaturgy", "hybrid", "fusion", "merger", "bone", "meat", "blood", "warning", "danger", "crusher", "grinder", "tooth", "wheel", "axle", "bearing", "mainspring", "escapement", "pendulum", "oscillator", "regulator", "governor", "cam", "lever", "pulley", "ratchet", "pawl", "shaft", "spindle", "bobbin", "wire", "conduit", "channel", "pipe", "valve", "gauge", "meter", "indicator", "readout", "display", "crystal", "lens", "prism", "focus", "alignment", "calibration", "precision", "tolerance", "error", "deviation", "output", "input", "process", "cycle", "rotation", "revolution", "period", "frequency", "resonance", "harmonics", "vibration", "pulse", "tick", "tock", "chime", "bell", "hammer", "striker", "weight", "chain", "cable", "tension", "torque", "pressure", "steam", "vapor", "heat", "friction", "wear", "maintenance", "repair", "tool", "wrench", "screwdriver", "file", "lathe", "press", "forge", "anvil", "workshop"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 3, constitution: 2, senses: 2,
@@ -182,6 +191,9 @@ const charactersData: CharacterData = {
 
     "ingress_turfablie_wilderness_savant": {
         name: "Borie",
+        epithets:["Of the Brambles", "The Moss Mother"],
+        archetype:"The Nature Warden",
+        quote:"Nature isn't gentle. It's patient.",
         gender: "female",
         fullImage: "ingress_char (7)",
         location: "turfablie",
@@ -241,13 +253,16 @@ const charactersData: CharacterData = {
     },
 
     "ingress_turfablie_shadow_operative": {
-        name: "Salezo",
+        name: "Erasmus",
+        epithets:["The Shadow-Counter", "The Keeper of the Dark"],
+        archetype:"The Occult Security Expert",
+        quote:"Somehow, I just don't wanna stay and wait for a wonder.",
         gender: "male",
         fullImage: "ingress_char (15)",
         location: "turfablie",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Salezo was once hired to pen-test a mages guild. He broke through a room unknown even to the headmaster, and stirred the arcane sediment accumulated there over the years. This was not addressed. But Salezo had a habit of comparing the number of shadows to the number of light sources, so he noticed when a particularly thick one crept in. He could also tell which shadow was safe to hide in. But the mages chose poorly.",
+        bio: "Erasmus was once hired to pen-test a mages guild. He broke through a room unknown even to the headmaster, and stirred the arcane sediment accumulated there over the years. This was not addressed. But Erasmus had a habit of comparing the number of shadows to the number of light sources, so he noticed when a particularly thick one crept in. He could also tell which shadow was safe to hide in. But the mages chose poorly.",
         keywords: ["shadow", "lock", "key", "darkness", "vault", "trap", "sediment", "residue", "penumbra", "audit", "test", "breach", "count", "number", "light", "source", "room", "basement", "guild", "sanctum", "ward", "seal", "dust", "echo", "footstep", "silence", "corner", "threshold", "doorway", "keyhole", "tumbler", "pick", "tool", "pouch", "cloak", "hood", "glove", "boot", "leather", "oil", "wire", "probe", "mirror", "candle", "lamp", "flame", "flicker", "void", "gap", "absence", "presence", "visitor", "intruder", "warning", "habit", "routine", "pattern", "anomaly", "discrepancy", "mismatch", "extra", "surplus", "thickness", "density", "creep", "crawl", "hunger", "teeth", "maw", "consumption", "victim", "choice", "mistake", "caution", "vigilance", "observation", "notation", "tally", "ledger", "record", "ink", "page", "memory", "whisper", "rustle", "draft", "chill", "dread", "instinct", "reflex", "escape", "route", "exit", "entrance", "passage", "corridor", "alcove", "niche", "cobweb", "neglect", "abandonment", "emptiness", "solitude"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 4, constitution: 3, senses: 4,
@@ -301,6 +316,9 @@ const charactersData: CharacterData = {
 
     "ingress_turfablie_stalwart_guardian": {
         name: "Astrid",
+        epithets:["The Legion's Last", "She Who Dines with Ghosts"],
+        archetype:"The Haunted Survivor",
+        quote:"I carry the past into the future.",
         gender: "female",
         fullImage: "ingress_char (14)",
         location: "turfablie",

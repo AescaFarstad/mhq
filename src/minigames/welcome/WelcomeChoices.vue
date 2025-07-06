@@ -1,6 +1,6 @@
 <template>
   <div class="stage-one-container">
-    <p class="stage-text">Where do you prefer to descend and have your mortal aspect materialized?</p>
+    <p class="stage-text">Where do you prefer to descend and awaken your mortal form?</p>
     <div class="choices-container">
       <ChoiceOption
         v-for="choice in choices"

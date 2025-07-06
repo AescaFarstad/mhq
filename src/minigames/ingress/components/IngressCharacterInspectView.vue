@@ -48,15 +48,25 @@ const displayedCharacterName = computed(() => {
     return characterDef.value.name;
 });
 
+const secondEpithet = computed(() => {
+    if (characterDef.value && characterDef.value.epithets.length > 1 && ingressState.value && ingressState.value.inspectingCharacterId) {
+        const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+        if (bioObfuscation < 1.0) {
+            return characterDef.value.epithets[1];
+        }
+    }
+    return '';
+});
+
 const locationDef = computed(() => {
-    if (!characterDef.value?.location || !gameState) {
+    if (!characterDef.value || !gameState) {
         return null;
     }
     return gameState.lib.welcomeLocations.getLocation(characterDef.value.location);
 });
 
 const obfuscatedBio = computed(() => {
-    if (!characterDef.value?.bio || ingressState.value === null || !ingressState.value.inspectingCharacterId) {
+    if (!characterDef.value || ingressState.value === null || !ingressState.value.inspectingCharacterId) {
         return '';
     }
     const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
@@ -167,6 +177,7 @@ const handleStarTooltipHide = () => {
                         :disabled="!ingressState || ingressState.aspectPoints < 1"
                     >✏️ ☆</button>
                 </div>
+                <div class="second-epithet" :class="{ 'invisible': !secondEpithet }">{{ secondEpithet || 'placeholder' }}</div>
                 <div class="portrait-container">
                     <ImageHolder 
                         v-if="characterDef.fullImage"
@@ -176,6 +187,11 @@ const handleStarTooltipHide = () => {
                         :display-height="360"
                     />
                     <div v-if="xpBonus > 0" class="xp-bonus-overlay">+{{ xpBonus }}% XP</div>
+                    <div v-if="characterDef" class="character-quote-overlay">
+                        <div class="quote-content">
+                            <div class="quote-text">"{{ characterDef.quote }}"</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="char-details-panel">
@@ -286,7 +302,7 @@ const handleStarTooltipHide = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 0;
 }
 .name-container {
     display: flex;
@@ -318,12 +334,56 @@ const handleStarTooltipHide = () => {
     font-size: 1.5rem;
     font-weight: bold;
     color: #f1c40f;
+    margin: 0;
+}
+
+.second-epithet {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+    text-align: center;
+    font-style: italic;
+}
+
+.second-epithet.invisible {
+    visibility: hidden;
 }
 .portrait-container {
     position: relative;
     border-radius: 8px;
     overflow: hidden;
+    margin-top: 4px;
+    width: 254px;
+    height: 360px;
 }
+.character-quote-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    z-index: 2;
+}
+
+.character-quote-overlay .quote-content {
+    background-color: rgba(52, 73, 94, 0.7);
+    border: none;
+    border-radius: 0;
+    padding: 6px 8px;
+    position: relative;
+    box-shadow: none;
+}
+
+.character-quote-overlay .quote-text {
+    color: #ecf0f1;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin: 0;
+    padding-left: 0;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    white-space: pre-wrap;
+}
+
 .xp-bonus-overlay {
     position: absolute;
     top: 5px;

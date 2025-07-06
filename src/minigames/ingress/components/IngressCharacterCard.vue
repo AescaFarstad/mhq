@@ -17,12 +17,20 @@ const gameState = inject<GameState>('gameState');
 
 const starTooltipVisible = ref(false);
 const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
+const cardElement = ref<HTMLElement | null>(null);
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
     return gameState.uiState.activeMinigameState as IngressState;
   }
   return null;
+});
+
+const characterDefinition = computed(() => {
+    if (gameState && props.option.characterId) {
+        return gameState.lib.characters.getCharacter(props.option.characterId);
+    }
+    return null;
 });
 
 const characterName = computed(() => {
@@ -34,6 +42,15 @@ const characterName = computed(() => {
     }
     return '???';
 });
+
+const firstEpithet = computed(() => {
+    if (characterDefinition.value && characterDefinition.value.epithets.length > 0) {
+        return characterDefinition.value.epithets[0];
+    }
+    return '';
+});
+
+
 
 const explorationCost = computed(() => {
   switch (props.option.discoveryState) {
@@ -101,6 +118,8 @@ const handleStarTooltipHide = () => {
     starTooltipVisible.value = false;
     starTooltipPosition.value = null;
 };
+
+
 </script>
 
 <template>
@@ -111,6 +130,7 @@ const handleStarTooltipHide = () => {
         { 'is-clickable': option.discoveryState === 'portrait_revealed' }
     ]"
     @click="handleCardClick"
+    ref="cardElement"
   >
     <div class="card-content">
       <div v-if="option.discoveryState === 'unexplored'" class="unexplored-content">
@@ -118,7 +138,15 @@ const handleStarTooltipHide = () => {
       </div>
       <div v-if="option.discoveryState === 'name_revealed'" class="name-content">
         <h3 class="character-name">{{ characterName }}</h3>
+        <div v-if="firstEpithet" class="character-epithet">{{ firstEpithet }}</div>
       </div>
+      
+      <div v-if="option.discoveryState === 'name_revealed' && characterDefinition" class="character-quote-card">
+        <div class="quote-content">
+          <div class="quote-text">"{{ characterDefinition.quote }}"</div>
+        </div>
+      </div>
+
       <div v-if="option.discoveryState === 'portrait_revealed'" class="portrait-content">
          <ImageHolder 
             v-if="option.characterImage"
@@ -129,6 +157,7 @@ const handleStarTooltipHide = () => {
         />
         <div v-if="xpBonus > 0" class="xp-bonus-overlay">+{{ xpBonus }}% XP</div>
         <h3 class="character-name overlay-name">{{ characterName }}</h3>
+        <div v-if="firstEpithet" class="character-epithet overlay-epithet">{{ firstEpithet }}</div>
       </div>
       
       <button 
@@ -142,6 +171,8 @@ const handleStarTooltipHide = () => {
       >
         {{ buttonText }} <span v-if="costStarsDisplay" class="cost-stars">{{ costStarsDisplay }}</span>
       </button>
+
+
 
     </div>
     <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
@@ -176,6 +207,7 @@ const handleStarTooltipHide = () => {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
@@ -188,12 +220,65 @@ const handleStarTooltipHide = () => {
   user-select: none;
 }
 
+.name-content {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px 10px 10px 10px;
+}
+
 .name-content .character-name {
     font-size: 1.5rem;
     color: #ecf0f1;
     text-align: center;
     padding: 0 5px;
+    margin-bottom: 8px;
 }
+
+.character-epithet {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+    text-align: center;
+    font-style: italic;
+    padding: 0 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.character-quote-card {
+    flex: 2;
+    width: 100%;
+    padding: 5px 5px 80px 5px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.quote-content {
+    background-color: rgba(52, 73, 94, 0.8);
+    border: none;
+    border-left: 3px dotted #7f8c8d;
+    border-radius: 0;
+    padding: 8px 2px 8px 6px;
+    width: 100%;
+    position: relative;
+    box-shadow: none;
+}
+
+.quote-text {
+    color: #ecf0f1;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    white-space: pre-wrap;
+}
+
+
 
 .portrait-content {
     width: 100%;
@@ -216,6 +301,27 @@ const handleStarTooltipHide = () => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 0;
+}
+
+.portrait-content .overlay-epithet {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(44, 62, 80, 0.75);
+    padding: 1px 6px;
+    border-radius: 0 0 8px 8px;
+    font-size: 0.8rem;
+    color: #bdc3c7;
+    font-style: italic;
+    max-width: 80%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .xp-bonus-overlay {
@@ -262,4 +368,14 @@ const handleStarTooltipHide = () => {
     color: #2c3e50;
     opacity: 0.8;
 }
+
+.character-card.state-name_revealed .character-epithet {
+    opacity: 1;
+}
+
+.character-card:hover .character-epithet {
+    opacity: 1;
+}
+
+
 </style> 

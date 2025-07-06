@@ -5,6 +5,9 @@ type CharacterData = Record<string, Omit<CharacterDefinition, 'id'>>;
 const charactersData: CharacterData = {
     "ingress_sequoiter_mentalist_orator": {
         name: "Apenherz",
+        epithets:["The Sly", "The Legitimate Thief"],
+        archetype:"Silver-Tongued Devil",
+        quote:"The best deals are made with egos.",
         gender: "male",
         fullImage: "ingress_char (4)",
         location: "sequoiter",
@@ -20,29 +23,40 @@ const charactersData: CharacterData = {
         },
         initialSkills: {
             order_magic: {
-                level: 3,
-                specializations: { mentalism: 4, illusions: 1 }
+                level: 2,
+                specializations: { mentalism: 2, illusions: 1 }
             },
             persuasion: {
                 level: 4,
-                specializations: { oratory: 4, bargaining: 2 }
+                specializations: { oratory: 3, bargaining: 2 }
             },
             deception: {
                 level: 2,
                 specializations: { bluffing: 3 }
             },
             streetwise: {
-                level: 2,
-                specializations: { gathering_rumors: 2 }
-            },
-            melee_combat: {
                 level: 1,
-                specializations: { one_handed_blades: 1 }
+                specializations: { gathering_rumors: 1 }
+            },
+            enchanting: {
+                level: 1,
+                specializations: { scribing: 1 }
+            },
+            insight: {
+                level: 3,
+                specializations: { motive_analysis: 2, profiling: 1 }
+            },
+            etiquette: {
+                level: 1,
+                specializations: { mages_guild_protocols: 1, merchant_guild_practices: 1 }
             }
         }
     },
     "ingress_sequoiter_life_pharmacist": {
         name: "Siliana",
+        epithets:["The Thaw", "The Solitary Ray of Light"],
+        archetype:"The Frontier Medic",
+        quote:"Some wounds you stitch with silence.",
         gender: "female",
         fullImage: "ingress_char (3)",
         location: "sequoiter",
@@ -84,6 +98,9 @@ const charactersData: CharacterData = {
     },
     "ingress_sequoiter_spectral_investigator": {
         name: "Andraticus",
+        epithets:["The Final Questioner", "He Who Reads the End of the Story"],
+        archetype:"The Necrotic Detective",
+        quote:"It's no so much asking the question, it's daring to hear the answer!",
         gender: "male",
         fullImage: "ingress_char (5)",
         location: "sequoiter",
@@ -126,13 +143,16 @@ const charactersData: CharacterData = {
     },
     "ingress_sequoiter_sky_pathfinder": {
         name: "Sayriga",
+        epithets:["Of the Skies", "The Castle Shepherd"],
+        archetype:"The Wilderness Shaman",
+        quote:"With the sun behind your back, the quarry won't see you coming.",
         gender: "female",
         fullImage: "ingress_char (2)",
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "Sayriga grew up navigating the treacherous northern wilderness, as her natural affinity for the sky and weather patterns manifested. She claimed an abandoned ruin as her 'guild' headquarters to offer her unique guiding services. Although not strictly a mages guild today, the premises have all necessary facilities, albeit in a state of disrepair.",
-        keywords: ["wind", "sky", "storm", "snow", "cloud", "air", "bird", "frost", "mist", "ice", "light", "wing", "gust", "path", "peak", "glow", "guide", "flare", "drift", "ray", "north", "aura", "spark", "staff", "call", "weather"],
+        bio: "The sun would always shine if Sayriga guided travelers through Sequoiter's taiga. In its blinding glare, they'd often see an intrusive mirage—an old castle with smoking chimneys gazing from the horizon's edge, and retreating further if approached. Sayriga circled around it and forced it to back off straight into Sequoiter, where her accomplices were waiting. Turns out it was a portable Mages Guild that had run off. It is now tamed and tethered.",
+        keywords: ["wind", "sky", "storm", "snow", "cloud", "air", "frost", "mist", "ice", "gust", "gale", "blizzard", "hail", "aurora", "rainbow", "lightning", "thunder", "fog", "vapor", "breeze", "cyclone", "tempest", "light", "glow", "glare", "ray", "spark", "shimmer", "gleam", "flash", "radiance", "brilliance", "shine", "flare", "beacon", "prism", "spectrum", "reflection", "mirage", "illusion", "phantom", "path", "trail", "track", "compass", "route", "horizon", "direction", "landmark", "marker", "sign", "trace", "footprint", "scent", "clue", "bearing", "course", "taiga", "tundra", "peak", "glacier", "permafrost", "pine", "spruce", "moss", "lichen", "wolf", "elk", "bear", "raven", "eagle", "owl", "lynx", "spell", "ward", "rune", "sigil", "charm", "hex", "aura", "essence", "spirit", "wisp", "omen", "portent", "vision", "dream", "trance", "ritual", "castle", "tower", "chimney", "smoke", "wall", "gate", "door", "window", "roof", "foundation", "cornerstone", "archway", "hall", "chamber", "sanctum", "staff", "rope", "tether", "chain", "snare", "trap", "net", "lasso", "hook", "anchor", "stake", "pole", "lens", "crystal", "lantern", "map", "hunt", "chase", "pursuit", "ambush", "circle", "drift", "wander", "prowl", "stalk", "lure", "corner", "capture", "tame"],
         initialAttributes: {
             physique: 2, strength: 2, agility: 4, constitution: 3, senses: 4,
             spirit: 2, attunement: 3, channeling: 2, weaving: 2, resilience: 3,
@@ -141,20 +161,28 @@ const charactersData: CharacterData = {
         },
         initialSkills: {
             nature_magic: {
-                level: 3,
-                specializations: { sky_dance: 4 }
+                level: 2,
+                specializations: { sky_dance: 4, beast_tongue: 1 }
             },
             navigation: {
                 level: 4,
-                specializations: { pathfinding: 4, star_guiding: 2 }
+                specializations: { pathfinding: 3, star_guiding: 2 }
+            },
+            perception: {
+                level: 1,
+                specializations: { eagle_eye: 2 }
+            },
+            beast_mastery: {
+                level: 1,
+                specializations: { wild_taming: 1 }
             },
             survival: {
                 level: 2,
-                specializations: { shelter_craft: 2, foraging: 2 }
+                specializations: { hazard_recognition: 2, foraging: 1 }
             },
-            perception: {
-                level: 2,
-                specializations: { eagle_eye: 2 }
+            hardiness: {
+                level: 1,
+                specializations: { acclimatization: 1 }
             },
             etiquette: {
                 level: 1,
@@ -164,23 +192,26 @@ const charactersData: CharacterData = {
     },
     "ingress_sequoiter_rune_enchanter": {
         name: "Astartia",
+        epithets:["The Mammoth's Heir", "The Rune-Scribe"],
+        archetype:"The Vengeful Prodigy",
+        quote:"I should have become a lawyer.",
         gender: "female",
         fullImage: "ingress_char (1)",
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "A dedicated scholar consumed by the study of ancient runes, Astartia used her enchanting skills to craft scrolls to fund her research into Sequoiter's frozen history. One of her findings was the ruins of an old mages guild, which she promptly claimed as her base of operations. Initially far from the city, the recent rapid expansion now fully encompasses it.",
-        keywords: ["rune", "scroll", "ink", "spell", "book", "glyph", "charm", "dust", "paper", "mind", "frost", "word", "echo", "map", "lore", "mark", "light", "sigil", "code", "focus", "page", "seal", "ice", "quill", "vault"],
+        bio: "Astartia dreaded mundane work. When she learned of 'Mammoth Prize'—a fortune promised to whoever breaks the runic lock on the eponymous Mages Guild—she moved to Sequoiter and consumed herself with this ancient puzzle. The prize was not adjusted for inflation and when she triumphed many years later, she only crafted a personal key. She was denied the prize, but they were denied the building. And that lock grows harder by the day...",
+        keywords: ["rune", "scroll", "ink", "glyph", "cipher", "lock", "key", "ward", "seal", "sigil", "script", "symbol", "mark", "inscription", "text", "tome", "codex", "manuscript", "parchment", "vellum", "quill", "stylus", "chisel", "tablet", "stone", "frost", "ice", "permafrost", "puzzle", "riddle", "pattern", "sequence", "formula", "equation", "solution", "prize", "vault", "door", "threshold", "barrier", "mechanism", "tumblers", "passage", "sanctum", "library", "archive", "repository", "study", "desk", "candle", "lamp", "lens", "magnifier", "dust", "web", "shadow", "silence", "solitude", "echo", "whisper", "secret", "mystery", "code", "language", "alphabet", "lexicon", "dictionary", "translation", "meaning", "truth", "deception", "forgery", "original", "copy", "palimpsest", "fragment", "shard", "piece", "whole", "obsession", "focus", "concentration", "memory", "knowledge", "wisdom", "spite", "revenge", "denial", "refusal", "isolation", "hermitage", "sanctuary", "refuge", "fortress", "bastion", "tower", "wall", "protection", "defense", "challenge", "defiance", "fields", "medal", "perelman"],
         initialAttributes: {
-            physique: 2, strength: 1, agility: 2, constitution: 2, senses: 3,
-            spirit: 2, attunement: 3, channeling: 3, weaving: 4, resilience: 3,
-            mind: 2, knowledge: 4, wisdom: 4, ingenuity: 3, willpower: 4,
+            physique: 2, strength: 1, agility: 2, constitution: 1, senses: 3,
+            spirit: 2, attunement: 3, channeling: 2, weaving: 4, resilience: 3,
+            mind: 2, knowledge: 4, wisdom: 2, ingenuity: 4, willpower: 4,
             social: 2, composure: 2, charisma: 1, empathy: 1, leadership: 1
         },
         initialSkills: {
             enchanting: {
                 level: 3,
-                specializations: { scribing: 4, imbuing: 1 }
+                specializations: { scribing: 4, imbuing: 2 }
             },
             magical_lore: {
                 level: 4,
@@ -188,11 +219,11 @@ const charactersData: CharacterData = {
             },
             linguistics: {
                 level: 2,
-                specializations: { ancient_languages: 3 }
+                specializations: { ancient_languages: 3, cryptography: 2 }
             },
-            alchemy: {
-                level: 1,
-                specializations: { potions: 2 }
+            analysis_and_logic: {
+                level: 3,
+                specializations: { pattern_recognition: 3, puzzle_solving: 4 }
             },
             memory: {
                 level: 1,
@@ -202,40 +233,57 @@ const charactersData: CharacterData = {
     },
     "ingress_sequoiter_clockwork_geomancer": {
         name: "Borin",
+        epithets:["The Hearth-Keeper", "Borin Bake-Bang"],
+        archetype:"The Gentle Giant",
+        quote:"A brick and a loaf—a trick in the stove.",
         gender: "male",
         fullImage: "ingress_char (6)",
         location: "sequoiter",
         initialLevel: 1,
         baseUpkeep: 0.0,
-        bio: "A master smith and tinkerer by trade, Borin found his knack for geomancy unexpectedly useful in reinforcing his workshop against Sequoiter's harsh elements. After a rival's 'accidental' magical mishap cleared out the competition and any apprentices, his sturdy workshop became the last 'guild' on the far bank of Frosteritz River standing by sheer resilience.",
-        keywords: ["stone", "forge", "metal", "fire", "hammer", "anvil", "rock", "ice", "armor", "gem", "smoke", "steam", "heat", "earth", "steel", "gear", "flame", "coal", "spark", "wall", "shield", "grit", "iron", "dust", "ore"],
+        bio: "Borin wears a blacksmith's apron and a chef's white hat. His oven harbors primordial flames, and never cools. Clients abound, but people dread entering his workshop due to feral stalagmites. He retreats to Frosteritz River to play pebbles whenever visitors arrive. He pens tales of 'Lightning Rune'—children etch this symbol on his door, though he cannot fathom why.",
+        keywords: ["stone", "forge", "metal", "fire", "hammer", "anvil", "rock", "ice", "armor", "gem", "smoke", "steam", "heat", "earth", "steel", "gear", "flame", "coal", "spark", "wall", "shield", "grit", "iron", "dust", "ore", "stalactite", "stalagmite", "crystal", "toque", "apron", "bread", "dough", "oven", "kiln", "furnace", "ember", "ash", "soot", "bellows", "tongs", "quench", "ingot", "slag", "flux", "crucible", "mold", "chisel", "granite", "basalt", "obsidian", "magma", "crust", "mineral", "vein", "quarry", "boulder", "pebble", "river", "frost", "permafrost", "glacier", "workshop", "foundry", "bakery", "hearth", "chimney", "spike", "shard", "fracture", "fault", "tremor", "rune", "symbol", "door", "threshold", "visitor", "solitude", "tale", "story", "lightning", "copper", "bronze", "tin", "lead", "silver", "gold", "alloy", "temper", "fold", "weld", "rivet", "nail", "hinge", "latch", "chain", "ring", "plate", "scale", "helm", "gauntlet", "boot", "brace", "strut", "beam", "pillar", "arch"],
 
         initialAttributes: {
-            physique: 3, strength: 4, agility: 2, constitution: 4, senses: 2,
-            spirit: 2, attunement: 2, channeling: 3, weaving: 2, resilience: 3,
+            physique: 3, strength: 3, agility: 2, constitution: 3, senses: 2,
+            spirit: 2, attunement: 2, channeling: 4, weaving: 2, resilience: 3,
             mind: 2, knowledge: 3, wisdom: 2, ingenuity: 4, willpower: 3,
-            social: 2, composure: 2, charisma: 1, empathy: 1, leadership: 2
+            social: 2, composure: 2, charisma: 1, empathy: 3, leadership: 1
         },
         initialSkills: {
             elemental_magic: {
                 level: 3,
-                specializations: { geomancy: 4 }
-            },
-            engineering: {
-                level: 4,
-                specializations: { clockwork: 4, hydraulics: 2 }
+                specializations: {
+                    geomancy: 3,
+                    pyromancy: 2
+                }
             },
             artisanry: {
-                level: 2,
-                specializations: { smithing: 3 }
-            },
-            labor: {
-                level: 2,
-                specializations: { construction: 2 }
+                level: 4,
+                specializations: { 
+                    smithing: 5,
+                    masonry: 1
+                }
             },
             provisions: {
+                level: 3,
+                specializations: { 
+                    baking_and_pastry: 3,
+                    cooking: 1
+                }
+            },
+            magical_lore: {
                 level: 1,
-                specializations: { baking_and_pastry: 1 }
+                specializations: { 
+                    arcane_principles: 1,
+                    runes: 1
+                }
+            },
+            performance: {
+                level: 1,
+                specializations: { 
+                    storytelling: 1
+                }
             }
         }
     }

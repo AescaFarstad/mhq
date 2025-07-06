@@ -79,6 +79,7 @@ const characterInfo = computed(() => {
 
 .ingress-character-hint p {
     margin: 0 0 10px 0;
+    color: #e2e8f0;
 }
 .ingress-character-hint p:last-child {
     margin-bottom: 0;

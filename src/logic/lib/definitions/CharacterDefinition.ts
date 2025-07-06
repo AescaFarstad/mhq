@@ -4,10 +4,13 @@
 export interface CharacterDefinition {
     id: string;
     name: string;
+    epithets: string[];
+    archetype: string;
     gender: string;
     initialLevel: number;
     baseUpkeep: number;
     bio: string;
+    quote: string;
     fullImage: string;
     location: string;
     portraitImage?: string; // Optional portrait image
