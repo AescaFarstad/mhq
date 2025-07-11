@@ -2,15 +2,15 @@ import type { GameState } from '../../logic/GameState';
 import type { BaseMinigame, MinigameState, MinigameType } from '../../logic/minigames/MinigameTypes';
 import { reactive } from 'vue'; // Or shallowReactive if preferred for root
 
-export const EXAMPLE_TYPE: MinigameType = 'Example';
+export const FIRSTSTEPS_TYPE: MinigameType = 'FirstSteps';
 
-export interface ExampleState extends MinigameState {
+export interface FirstStepsState extends MinigameState {
 }
 
-export class ExampleGame implements BaseMinigame<ExampleState> {
+export class FirstStepsGame implements BaseMinigame<FirstStepsState> {
     readonly id: string;
-    readonly type = EXAMPLE_TYPE;
-    public state: ExampleState;
+    readonly type = FIRSTSTEPS_TYPE;
+    public state: FirstStepsState;
     public hidesMainUI = false;
 
     constructor(id: string) {
@@ -19,8 +19,8 @@ export class ExampleGame implements BaseMinigame<ExampleState> {
         // Initialize your minigame's state here
         // All state properties that need to be reactive for the UI
         // should be within this reactive object.
-        this.state = reactive<ExampleState>({
-            // Example initial state:
+        this.state = reactive<FirstStepsState>({
+            // FirstSteps initial state:
             // score: 0,
             // currentLevel: 'level1',
             // isActive: true,
@@ -35,7 +35,7 @@ export class ExampleGame implements BaseMinigame<ExampleState> {
     update(_gameState: GameState, _deltaTime: number): void {
         // TODO: Implement your minigame's core logic here
         // This method is called repeatedly - use deltaTime for frame-rate independent updates.
-        // console.log(`ExampleGame update, deltaTime: \${deltaTime}`);
+        // console.log(`FirstStepsGame update, deltaTime: \${deltaTime}`);
     }
 
     /**
@@ -46,7 +46,7 @@ export class ExampleGame implements BaseMinigame<ExampleState> {
     destroy(_gameState: GameState): void {
         // TODO: Add any cleanup logic specific to your minigame
         // This could include stopping timers, removing event listeners, etc.
-        // console.log('ExampleGame destroyed');
+        // console.log('FirstStepsGame destroyed');
     }
 
     // TODO: Add your custom minigame methods here

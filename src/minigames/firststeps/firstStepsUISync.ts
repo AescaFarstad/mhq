@@ -1,22 +1,22 @@
 import type { GameState } from '../../logic/GameState';
-import type { ExampleState } from './ExampleGame';
+import type { FirstStepsState } from './FirstStepsGame';
 import type { MinigameUISyncFn } from '../../logic/minigames/MinigameUIStateManager';
 
 /**
- * UI Sync function for the Example minigame.
+ * UI Sync function for the FirstSteps minigame.
  * This function copies the relevant state from the logic-side minigame state
  * to the UI-side minigame state, allowing Vue components to react to changes.
  * For a blank scaffold, this function will be minimal.
  */
-export const syncExampleUI: MinigameUISyncFn = (
+export const syncFirstStepsUI: MinigameUISyncFn = (
     gameState: GameState
 ): void => {
-    const logicState = gameState.activeMinigame?.state as ExampleState | undefined;
-    const uiState = gameState.uiState.activeMinigameState as ExampleState | undefined;
+    const logicState = gameState.activeMinigame?.state as FirstStepsState | undefined;
+    const uiState = gameState.uiState.activeMinigameState as FirstStepsState | undefined;
 
     if (logicState && uiState) {
-        // TODO: Sync Example-specific state properties here
-        // Example:
+        // TODO: Sync FirstSteps-specific state properties here
+        // FirstSteps:
         // if (logicState.score !== uiState.score) {
         //     uiState.score = logicState.score;
         // }
@@ -29,9 +29,9 @@ export const syncExampleUI: MinigameUISyncFn = (
         // e.g., uiState.someObject = { ...logicState.someObject };
 
         // For now, as a blank scaffold, there are no specific properties to sync.
-        // Add them as you define ExampleState and need them reflected in the UI.
+        // Add them as you define FirstStepsState and need them reflected in the UI.
     } else {
         // This warning can be helpful during development if sync is called unexpectedly
-        // console.warn('syncExampleUI: logicState or uiState is null or undefined during sync.');
+        // console.warn('syncFirstStepsUI: logicState or uiState is null or undefined during sync.');
     }
 }; 

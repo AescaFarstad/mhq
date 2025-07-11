@@ -537,4 +537,14 @@ const handleStarTooltipHide = () => {
     width: 100%;
 }
 
+@media (max-height: 900px) {
+    .character-options-container :deep(.character-card) {
+        transform: scale(0.75);
+        transform-origin: top center;
+        margin-left: -32px;
+        margin-right: -32px;
+        margin-bottom: -96px;
+    }
+}
+
 </style> 

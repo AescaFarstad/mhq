@@ -233,6 +233,40 @@ const handleMouseLeave = () => {
   color: #dc3545;
 }
 
+@media (max-height: 870px) {
+  .choice-option {
+    min-height: 410px;
+  }
+  .card-header {
+    height: 200px;
+  }
+  .card-header h3 {
+    font-size: 1.2em;
+    height: 48px;
+  }
+  .details {
+    padding: 10px;
+  }
+  .pros {
+    min-height: 80px;
+  }
+  .cons {
+    min-height: 60px;
+  }
+  .pros h4,
+  .cons h4 {
+    font-size: 1em;
+  }
+  .pros li,
+  .cons li {
+    font-size: 0.9em;
+  }
+  .card-header .progress-bar-container {
+    height: 48px;
+  }
+}
+
+
 .button-container {
   width: 80%; /* Narrower than the card */
   margin: 0 auto; /* Center it */

@@ -23,7 +23,6 @@ Inside your new minigame's folder (`src/minigames/your_minigame_name/`), rename 
 ```bash
 cd src/minigames/your_minigame_name
 mv ExampleGame.ts YourMinigameNameGame.ts
-mv ExampleTypes.ts YourMinigameNameTypes.ts
 mv ExampleView.vue YourMinigameNameView.vue
 mv exampleUISync.ts yourMinigameNameUISync.ts # Note: lowercase for the sync file
 ```
@@ -46,14 +45,13 @@ Carefully go through each of the newly renamed files and replace all occurrences
 - Add cleanup logic to the `destroy()` method if required.
 
 #### **`YourMinigameNameView.vue`**
-- Update all imports to reference your minigame's files (e.g., `./YourMinigameNameTypes`, `./YourMinigameNameGame`).
+- Update all imports to reference your minigame's files (e.g., `./YourMinigameNameGame`).
 - Change computed properties `exampleState` and `exampleGame` to `yourMinigameNameState` and `yourMinigameNameGame`, updating types and `EXAMPLE_TYPE` checks.
 - Update any placeholder text or UI elements to match your game.
 - Change CSS class names (e.g., `.example-view-container` to `.your-minigame-name-view-container`) and adjust styles.
 
 #### **`yourMinigameNameUISync.ts`**
 - Rename the function from `syncExampleUI` to `syncYourMinigameNameUI`.
-- Update type imports from `./ExampleTypes` to `./YourMinigameNameTypes`.
 - Change `ExampleState` casts to `YourMinigameNameState`.
 - Add logic to sync properties from your `YourMinigameNameState` (logic side) to the UI state.
 
@@ -68,10 +66,6 @@ export type MinigameType = 'ClickCounter' | 'Welcome' | 'Ingress' | 'Example' | 
 #### **`src/main.ts`**
 Import your new UI sync function and type constant, then register the sync function:
 ```typescript
-// ... other imports
-import { syncYourMinigameNameUI } from './minigames/your_minigame_name/yourMinigameNameUISync';
-import { YOUR_MINIGAME_NAME_TYPE } from './minigames/your_minigame_name/YourMinigameNameTypes';
-
 // ... in initializeGame():
 // Register Minigame UI Sync Functions
 // ... other registrations

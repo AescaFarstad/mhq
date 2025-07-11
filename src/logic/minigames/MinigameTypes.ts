@@ -1,5 +1,5 @@
 // Defines the type of the minigame for identification and routing.
-export type MinigameType = 'ClickCounter' | 'Welcome' | 'Ingress' | 'Example' | 'Intro'; // Add other minigame types here
+export type MinigameType = 'ClickCounter' | 'Welcome' | 'Ingress' | 'Example' | 'Intro' | 'FirstSteps'; // Add other minigame types here
 
 // Base interface for the state of any minigame.
 // Specific minigames will extend this with their own state properties.

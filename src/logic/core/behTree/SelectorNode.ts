@@ -8,17 +8,17 @@ export class SelectorNode extends SequencerNode {
         super(name, children);
     }
 
-    public report(result: NodeResult, state: GameState): void {
+    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
         if (result === NodeResult.SUCCESS) {
             // A child succeeded, so the selector succeeds.
-            this.parent?.report(NodeResult.SUCCESS, state);
+            this.parent?.report(NodeResult.SUCCESS, state, this);
             return;
         }
 
         const isSequenceComplete = this.advance(state);
         
         if (isSequenceComplete) {
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
         }
     }
 } 

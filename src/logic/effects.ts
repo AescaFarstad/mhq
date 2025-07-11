@@ -8,7 +8,6 @@ import {
     ApplyIngressResultsParams,
     ApplyWelcomeResultsParams,
     GivePointsParams,
-    EventContext,
     EventDefinition
 } from './lib/definitions/EventDefinition';
 import { Stats } from './core/Stats';
@@ -23,6 +22,7 @@ import { WelcomeGame } from '../minigames/welcome/WelcomeGame';
 import { IngressGame } from '../minigames/ingress/IngressGame';
 import { ExampleGame } from '../minigames/example/ExampleGame';
 import { IntroGame } from '../minigames/intro/IntroGame';
+import { FirstStepsGame } from '../minigames/firststeps/FirstStepsGame';
 import { EventProcessor } from './Event';
 import { discoverItem } from './Discovery';
 import { C } from './lib/C';
@@ -97,17 +97,10 @@ export function addCharacterByName(state: GameState, params: AddCharacterParams)
     }
 }
 
-export function giveAllSkillsAndSpecsEffect(state: GameState, context: EventContext): void {
+export function giveAllSkillsAndSpecsEffect(state: GameState, character : Character): void {
     if (C.DEBUG_EFFECTS) {
-        console.log(`E 'giveAllSkillsAndSpecsEffect':`);
-        console.dir(context);
+        console.log(`E 'giveAllSkillsAndSpecsEffect': ${character}`);
     }
-    
-    if (!context || !('characterId' in context) || !('skills' in context) || !('specializations' in context)) {
-        console.warn("[giveAllSkillsAndSpecsEffect]: Invalid character context provided (must be a Character object):", context);
-        return;
-    }
-    const character = context as Character; // context is expected to be Character here
 
     const allSkillDefs = state.lib.skills.getAllSkills() as Record<string, Skill>;
 
@@ -126,7 +119,7 @@ export function giveAllSkillsAndSpecsEffect(state: GameState, context: EventCont
     }
 }
 
-export function giveSkillsAndSpecs(state: GameState, _params: any, _context?: EventContext): void {
+export function giveSkillsAndSpecs(state: GameState, _params: any): void {
     if (C.DEBUG_EFFECTS) {
         console.log(`E 'giveSkillsAndSpecs':`, _params);
     }
@@ -177,6 +170,8 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
         minigameInstance = new ExampleGame(`event-${params.name}-${Date.now()}`);
     } else if (params.name === 'Intro') {
         minigameInstance = new IntroGame(`event-${params.name}-${Date.now()}`);
+    } else if (params.name === 'FirstSteps') {
+        minigameInstance = new FirstStepsGame(`event-${params.name}-${Date.now()}`);
     } else {
         console.warn(`E 'startMinigame': Unknown minigame name '${params.name}'.`);
         return;

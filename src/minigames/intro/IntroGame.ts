@@ -1,7 +1,7 @@
 import type { GameState } from '../../logic/GameState';
 import type { BaseMinigame, MinigameState, MinigameType } from '../../logic/minigames/MinigameTypes';
 import type { IEventListener } from '../../logic/core/behTree/BehTreeTypes';
-import type { EventDefinition, EventContext } from '../../logic/lib/definitions/EventDefinition';
+import type { EventDefinition } from '../../logic/lib/definitions/EventDefinition';
 import { startDialog, makeDialogChoice } from '../../logic/Dialog';
 import { MessageDNode, ChoiceDNode } from '../../logic/DialogTreeNodes';
 import { reactive } from 'vue';
@@ -95,8 +95,8 @@ export class IntroGame implements BaseMinigame<IntroState> {
         // Create event listener for dialog events
         this.eventListener = {
             uid: `IntroGame_Listener_${this.id}_${Date.now()}`,
-            handleEvent: (eventDef: EventDefinition, state: GameState, eventContext?: EventContext) => {
-                this.handleEvent(eventDef, state, eventContext);
+            handleEvent: (eventDef: EventDefinition, state: GameState) => {
+                this.handleEvent(eventDef, state);
             },
             update: (deltaTime: number, state: GameState) => {
                 this.updateListener(deltaTime, state);
@@ -159,7 +159,7 @@ export class IntroGame implements BaseMinigame<IntroState> {
         }
     }
 
-    public handleEvent(eventDef: EventDefinition, _state: GameState, _eventContext?: EventContext): void {
+    public handleEvent(eventDef: EventDefinition, _state: GameState): void {
         switch (eventDef.id) {
             case 'dialogFinished':
                 this.handleDialogFinished(eventDef);

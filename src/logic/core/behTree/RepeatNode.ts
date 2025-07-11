@@ -8,9 +8,9 @@ export class RepeatNode extends SequencerNode {
         super(name, children);
     }
 
-    public report(result: NodeResult, state: GameState): void {
+    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
         if (result === NodeResult.FAILURE) {
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
             return;
         }
 

@@ -12,7 +12,7 @@ export class BehTree extends SequencerNode implements IBehTree {
         this.wireTree(this, undefined);
     }
 
-    public report(result: NodeResult, state: GameState): void {
+    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
         if (result === NodeResult.FAILURE) {
             if (C.BEH_LOG_VERBOSE) {
                 console.log(`[BehTree] ${this.getHierarchicalPath()} (ROOT) reported ${result}.`);

@@ -30,10 +30,10 @@ export class C {
     public static readonly DISCOVERY_THRESHOLD = 7;
     
     // === Inspiration System Constants ===
-    public static readonly INSPIRATION_MAX_PER_LEVEL = 10;
+    public static readonly INSPIRATION_MAX_PER_LEVEL = 20;
     public static readonly INSPIRATION_CHOICE_RAREST_COUNT = 7;
-    public static readonly INSPIRATION_CHOICE_JUICY_COUNT = 5;
-    public static readonly INSPIRATION_CHOICE_RANDOM_COUNT = 12;
+    public static readonly INSPIRATION_CHOICE_JUICY_COUNT = 4;
+    public static readonly INSPIRATION_CHOICE_RANDOM_COUNT = 10;
     
     // === Discovery XP Rewards ===
     public static readonly DISCOVERY_XP_BRAINSTORM_SPECIALIZATION = 2;

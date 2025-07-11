@@ -18,10 +18,10 @@ export class EvalNode extends BehNode {
         }
         try {
             const result = this.lambda(this, state);
-            this.parent?.report(result ? NodeResult.SUCCESS : NodeResult.FAILURE, state);
+            this.parent?.report(result ? NodeResult.SUCCESS : NodeResult.FAILURE, state, this);
         } catch (error) {
             console.error(`[BehTree] Error in ${this.getHierarchicalPath()}:`, error);
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
         }
     }
 } 

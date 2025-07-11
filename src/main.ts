@@ -12,7 +12,9 @@ import { WELCOME_TYPE } from './minigames/welcome/WelcomeGame';
 import { syncIngressUI } from './minigames/ingress/ingressUISync';
 import { INGRESS_TYPE } from './minigames/ingress/IngressTypes';
 import { syncExampleUI } from './minigames/example/exampleUISync';
-import { EXAMPLE_TYPE } from './minigames/example/ExampleTypes';
+import { EXAMPLE_TYPE } from './minigames/example/ExampleGame';
+import { syncFirstStepsUI } from './minigames/firststeps/firstStepsUISync';
+import { FIRSTSTEPS_TYPE } from './minigames/firststeps/FirstStepsGame';
 import { introUISync } from './minigames/intro/introUISync';
 import { INTRO_TYPE } from './minigames/intro/IntroGame';
 import { EventProcessor } from './logic/Event';
@@ -53,6 +55,7 @@ function initializeGame() {
     registerMinigameUISyncFunction(INGRESS_TYPE, syncIngressUI);
     registerMinigameUISyncFunction(EXAMPLE_TYPE, syncExampleUI);
     registerMinigameUISyncFunction(INTRO_TYPE, introUISync);
+    registerMinigameUISyncFunction(FIRSTSTEPS_TYPE, syncFirstStepsUI);
     // Register other minigame UI sync functions here
 
     initializeDebugConsole(

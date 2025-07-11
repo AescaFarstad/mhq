@@ -43,13 +43,13 @@ export class SequencerNode extends BehNode implements IContainerNode {
         }
     }
 
-    public report(result: NodeResult, state: GameState): void {
+    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
         if (result === NodeResult.SUCCESS) {
             if (this.advance(state)) {
-                this.parent?.report(NodeResult.SUCCESS, state);
+                 this.parent?.report(NodeResult.SUCCESS, state, this);
             }
         } else {
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
         }
     }
 

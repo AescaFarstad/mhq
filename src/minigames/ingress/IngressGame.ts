@@ -369,14 +369,18 @@ export class IngressGame implements BaseMinigame<IngressState> {
             return;
         }
 
-        if (this.state.aspectPoints >= 1 && this.state.characterBioObfuscation[characterId] > 0) {
-            this.state.aspectPoints -= 1;
+        const currentObfuscation = this.state.characterBioObfuscation[characterId];
+        const isFirstDeobfuscation = currentObfuscation === 1.0;
+        const cost = isFirstDeobfuscation ? 0 : 1;
+
+        if (this.state.aspectPoints >= cost && currentObfuscation > 0) {
+            this.state.aspectPoints -= cost;
             
             // To avoid floating point issues, we work with integer steps
-            const currentObfuscationSteps = Math.round(this.state.characterBioObfuscation[characterId] * 5);
+            const currentObfuscationSteps = Math.round(currentObfuscation * 5);
             
             let stepsToReduce = 1;
-            if (this.state.characterBioObfuscation[characterId] === 1.0) {
+            if (isFirstDeobfuscation) {
                 stepsToReduce = 2;
             }
 

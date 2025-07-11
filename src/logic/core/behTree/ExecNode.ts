@@ -18,10 +18,10 @@ export class ExecNode extends BehNode {
         }
         try {
             this.lambda(this, state);
-            this.parent?.report(NodeResult.SUCCESS, state);
+            this.parent?.report(NodeResult.SUCCESS, state, this);
         } catch (error) {
             console.error(`[BehTree] Error in ${this.getHierarchicalPath()}:`, error);
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
         }
     }
 } 

@@ -1,10 +1,10 @@
 import { GameState } from './GameState';
-import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, EventContext, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams, GivePointsParams } from './lib/definitions/EventDefinition';
+import { EventDefinition, Effect, ModifyResourceParams, /*DiscoverParams, StartDialogParams,*/ ModifyResourceIncomeParams, AddCharacterParams, DiscoverEffectParams, StartMinigameParams, ApplyIngressResultsParams, ApplyWelcomeResultsParams, GivePointsParams } from './lib/definitions/EventDefinition';
 import * as effects from './effects';
 import { discoverAll, discoverAllBuildings, discoverAllSkills, discoverAllResources, discoverAllAttributes, discoverAllTabs } from './Discovery';
 
 // Module-level queue for pending events
-const eventQueue: { eventDef: EventDefinition; context?: EventContext }[] = [];
+const pendingEvents: EventDefinition[] = [];
 let isProcessingEvents = false;
 
 /**
@@ -21,8 +21,8 @@ export namespace EventProcessor {
      * @param state The current game state (contains lib).
      * @param context The event context for context (optional).
      */
-    export function processSingleEvent(eventDef: EventDefinition, state: GameState, context?: EventContext): void {
-        eventQueue.push({ eventDef, context });
+    export function processSingleEvent(eventDef: EventDefinition, state: GameState): void {
+        pendingEvents.push(eventDef);
 
         if (isProcessingEvents) {
             return;
@@ -30,12 +30,12 @@ export namespace EventProcessor {
 
         isProcessingEvents = true;
         try {
-            while (eventQueue.length > 0) {
+            while (pendingEvents.length > 0) {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                const { eventDef: currentEventDef, context: currentContext } = eventQueue.shift()!;
+                const currentEventDef = pendingEvents.shift()!;
                 
-                applyEffects(currentEventDef.effects, state, currentContext);
-                state.invoker?.handleEvent(currentEventDef, state, currentContext);
+                applyEffects(currentEventDef.effects, state);
+                state.invoker?.handleEvent(currentEventDef, state);
             }
         } finally {
             isProcessingEvents = false;
@@ -47,15 +47,14 @@ export namespace EventProcessor {
      *
      * @param effects Array of effects to apply.
      * @param state The current game state.
-     * @param context The event context for context (optional).
      */
-    function applyEffects(effectsToApply: Effect[], state: GameState, context?: EventContext): void {
+    function applyEffects(effectsToApply: Effect[], state: GameState): void {
         if (!effectsToApply) return;
-        effectsToApply.forEach(effect => executeEffect(effect, state, context));
+        effectsToApply.forEach(effect => executeEffect(effect, state));
     }
 
     /** Executes a single effect */
-    function executeEffect(effect: Effect, state: GameState, context?: EventContext): void {
+    function executeEffect(effect: Effect, state: GameState): void {
         try {
             switch (effect.key) {
                 case 'giveResource':
@@ -94,11 +93,11 @@ export namespace EventProcessor {
                 case 'addCharacterByName':
                     effects.addCharacterByName(state, effect.params as AddCharacterParams);
                     break;
-                case 'giveAllSkillsAndSpecsEffect':
-                    effects.giveAllSkillsAndSpecsEffect(state, context);
-                    break;
+                // case 'giveAllSkillsAndSpecsEffect':
+                //     effects.giveAllSkillsAndSpecsEffect(state);
+                //     break;
                 case 'giveSkillsAndSpecs':
-                    effects.giveSkillsAndSpecs(state, effect.params, context);
+                    effects.giveSkillsAndSpecs(state, effect.params);
                     break;
                 case 'construct':
                     effects.construct(state, effect.params as { building: string });

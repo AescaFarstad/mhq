@@ -1,5 +1,5 @@
 import type { GameState } from "../../GameState";
-import type { EventDefinition, EventContext } from "../../lib/definitions/EventDefinition";
+import type { EventDefinition } from "../../lib/definitions/EventDefinition";
 import type { IBehTree, IInvoker, IEventListener } from "./BehTreeTypes";
 import { C } from "../../lib/C";
 
@@ -48,7 +48,7 @@ export class Invoker implements IInvoker {
         }
     }
 
-    public handleEvent(eventDef: EventDefinition, state: GameState, context?: EventContext): void {
+    public handleEvent(eventDef: EventDefinition, state: GameState): void {
         const listenersForEvent = this.eventListeners.get(eventDef.id);
         if (!listenersForEvent || listenersForEvent.length === 0) {
             return;
@@ -64,12 +64,12 @@ export class Invoker implements IInvoker {
         for (const listener of listenersToProcess) {
              if (initialMutationCount === this.listenersMutationCount) {
                 // Fast path: No mutations.
-                listener.handleEvent?.(eventDef, state, context);
+                listener.handleEvent?.(eventDef, state);
             } else {
                 // Slow path: Check for existence in the current list for this event.
                 const currentListeners = this.eventListeners.get(eventDef.id);
                 if (currentListeners?.find(l => l.uid === listener.uid)) {
-                    listener.handleEvent?.(eventDef, state, context);
+                    listener.handleEvent?.(eventDef, state);
                 }
             }
         }

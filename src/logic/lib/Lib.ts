@@ -22,7 +22,8 @@ import aeigareikaCharacters from '../data/aeigareikaCharacters';
 import sequoiterCharacters from '../data/sequoiterCharacters';
 import { taskDefinitions } from '../data/tasks';
 import { buildingDefinitions } from '../data/buildings';
-import { storyDialogsRaw } from '../data/storyDialogs';
+import { introDialogRaw } from '../data/introDialog';
+import { firstStepsDialogRaw } from '../data/firstStepsDialog';
 
 /**
  * The Lib class is a container for all the game's static data definitions.
@@ -69,7 +70,10 @@ export class Lib {
             this.buildings.loadBuildings(buildingDefinitions);
             this.tasks.loadTasks(taskDefinitions);
             this.tasks.verifyAllTasks(this.skills, this.buildings);
-            this.dialogs.loadRawDialogs(storyDialogsRaw);
+            this.dialogs.loadRawDialogs({
+                introDialog: introDialogRaw,
+                firstStepsDialog: firstStepsDialogRaw
+            });
             this.isLoaded = true;
         } catch (error) {
             console.error("Failed to process library definitions:", error);

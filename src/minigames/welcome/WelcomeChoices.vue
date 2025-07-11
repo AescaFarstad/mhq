@@ -139,4 +139,26 @@ const handleChoiceLeave = () => {
 .hovered-description-container p {
   margin: 0;
 }
+
+@media (max-height: 900px) {
+  .stage-one-container {
+    padding: 10px;
+  }
+  .stage-text {
+    font-size: 0.9em;
+    margin-bottom: 0.25em;
+  }
+  .stage-text:first-of-type {
+    font-size: 1em;
+    margin-bottom: 0.6em;
+  }
+  .choices-container {
+    margin-bottom: 10px;
+  }
+  .hovered-description-container {
+    min-height: 40px;
+    padding: 5px 10px;
+    font-size: 0.9em;
+  }
+}
 </style> 

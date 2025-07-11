@@ -43,7 +43,7 @@ const events: EventsDataType = {
 
       // { key: "startBehTree", params: { treeName: "cheatStart" } },
       // { key: "startBehTree", params: { treeName: "cheatWelcome" } },
-      //{ key: "startBehTree", params: { treeName: "cheatIntro" } },
+      // { key: "startBehTree", params: { treeName: "cheatIntro" } },
       // { key: "startBehTree", params: { treeName: "cheatIntroAndWelcome" } },
 
       //{ key: "discoverAll", params: {} },

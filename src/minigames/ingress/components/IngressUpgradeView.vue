@@ -48,7 +48,7 @@ const characterUpgrades: Upgrade[] = [
 const breachUpgrades: Upgrade[] = [
     { id: 'breach_materialization_speed', text: '+100% Faster materialization rate', cost: 5, stars: '☆☆☆☆☆' },
     { id: 'breach_word_bonus', text: '+1 from future \'substantive\' words', cost: 5, stars: '☆☆☆☆☆' },
-    { id: 'breach_typo_tolerance', text: '+1 typo tolerance', cost: 2, stars: '☆☆' },
+    { id: 'breach_typo_tolerance', text: '+1 typo tolerance *wink-wink*', cost: 2, stars: '☆☆' },
     { id: 'breach_word_counter', text: 'Display remaining \'substantive\' words count', cost: 1, stars: '☆' },
 ];
 
@@ -95,8 +95,10 @@ const handleStarTooltipHide = () => {
 
 <template>
   <div class="upgrade-view-panel" v-if="ingressState && charactersExploredCount >= 2">
+      <div class="view-header">
+          <h4>Global upgrades</h4>
+      </div>
       <div class="upgrades-reveal-container" :class="{ 'hidden': ingressState.upgradesRevealed }">
-          <h3>Global upgrades</h3>
           <button 
               @click="revealUpgrades" 
               @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
@@ -111,7 +113,7 @@ const handleStarTooltipHide = () => {
       <div class="upgrade-content-wrapper" :class="{ 'revealed': ingressState.upgradesRevealed }">
           <div class="upgrade-content">
               <div class="column">
-                  <h3>Your chosen character gains:</h3>
+                  <h3>Any chosen character will gain:</h3>
                   <template v-for="upgrade in characterUpgrades" :key="upgrade.id">
                     <button
                         class="upgrade-button"
@@ -152,17 +154,34 @@ const handleStarTooltipHide = () => {
 </template>
 
 <style scoped>
+.view-header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.view-header h4 {
+    display: inline-block;
+    padding: 2px 12px;
+    background-color: #2c3e50;
+    border-radius: 10px;
+    margin: 0;
+    font-size: 0.8rem;
+    color: #f1c40f;
+    font-weight: bold;
+    border: 2px solid #7f8c8d;
+}
 .upgrade-view-panel {
+  position: relative;
   background-color: #2c3e50;
   border: 2px solid #7f8c8d;
   border-radius: 15px;
-  padding: 25px;
-  padding-top: 0px;
-  padding-bottom: 10px;
+  padding: 10px 25px 10px;
   color: #ecf0f1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 .upgrades-reveal-container {
     display: flex;
@@ -170,7 +189,6 @@ const handleStarTooltipHide = () => {
     align-items: center;
     justify-content: center;
     gap: 15px;
-    padding-top: 25px;
     overflow: hidden;
     max-height: 100px; /* Generous height for content */
     transition: all 0.7s ease-in-out;
@@ -194,11 +212,6 @@ const handleStarTooltipHide = () => {
     opacity: 1;
     padding-bottom: 15px;
 }
-.upgrades-reveal-container h3 {
-    font-size: 1.1rem;
-    color: #f1c40f;
-    margin-bottom: 0px;
-}
 .explore-button {
     padding: 10px 15px;
     background-color: #f1c40f;
@@ -210,6 +223,7 @@ const handleStarTooltipHide = () => {
     transition: background-color 0.2s;
     font-size: 0.9em;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin-top: 10px;
 }
 .explore-button:hover:not(:disabled) {
     background-color: #f39c12;
@@ -237,7 +251,7 @@ const handleStarTooltipHide = () => {
 .column h3 {
     font-size: 1.1rem;
     color: #f1c40f;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 .upgrade-button {
     padding: 15px;
@@ -322,6 +336,34 @@ const handleStarTooltipHide = () => {
     100% {
         opacity: 0;
         transform: scale(1.4);
+    }
+}
+
+@media (max-height: 900px) {
+    .upgrade-view-panel {
+        padding: 15px;
+        padding-top: 0;
+        padding-bottom: 5px;
+        gap: 10px;
+    }
+    .upgrades-reveal-container {
+        padding-top: 15px;
+        gap: 10px;
+    }
+    .column h3 {
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+    .upgrade-button {
+        padding: 10px;
+        min-height: 40px;
+        font-size: 0.9rem;
+    }
+    .column {
+        gap: 10px;
+    }
+    .upgrade-content {
+        gap: 20px;
     }
 }
 </style> 

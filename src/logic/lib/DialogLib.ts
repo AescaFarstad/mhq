@@ -1,13 +1,29 @@
 import type { DialogDefinition } from '../Dialog';
-import { createDialogNode, generateDialogIds, type DialogNode } from '../DialogTreeNodes';
-import type { DialogDefRaw } from '../data/storyDialogs';
+import { createDialogNode, generateDialogIds, type DialogNode, type DialogNodeDef } from '../DialogTreeNodes';
 import { C } from './C';
+
+// JSON-like dialog definition that will be converted to DialogDefinition
+export interface DialogDefRaw {
+    nodes: DialogNodeDef[];
+    behTreeId?: string; // Optional behavior tree to process this dialog (defaults to 'dialog')
+    verificationKey?: 'full' | 'skipAccessibility';
+}
+
+type DialogVerificationFunction = (dialogDefinition: DialogDefinition, dialogId: string) => string[];
 
 /**
  * DialogLib manages all dialog definitions and provides access methods.
  */
 export class DialogLib {
     private dialogs: Map<string, DialogDefinition> = new Map();
+    private verificationFunctions: Record<string, DialogVerificationFunction>;
+
+    constructor() {
+        this.verificationFunctions = {
+            'full': this.fullVerification.bind(this),
+            'skipAccessibility': this.skipAccessibilityVerification.bind(this)
+        };
+    }
 
     /**
      * Load dialog definitions from raw dialog data.
@@ -35,17 +51,24 @@ export class DialogLib {
             };
             
             // Verify dialog integrity
-            const errors = this.verifyDialogIntegrity(dialogDefinition, dialogId);
-            if (errors.length > 0) {
-                console.error(`DialogLib: Dialog '${dialogId}' has integrity issues:`);
-                errors.forEach(error => console.error(`  - ${error}`));
-                // Still add the dialog to allow for partial functionality, but warn about issues
+            const verificationKey = rawDef.verificationKey || 'full';
+            const verificationFn = this.verificationFunctions[verificationKey];
+
+            if (verificationFn) {
+                const errors = verificationFn(dialogDefinition, dialogId);
+                if (errors.length > 0) {
+                    console.error(`DialogLib: Dialog '${dialogId}' has integrity issues:`);
+                    errors.forEach(error => console.error(`  - ${error}`));
+                    // Still add the dialog to allow for partial functionality, but warn about issues
+                }
+            } else {
+                console.warn(`[DialogLib] Unknown verification key '${verificationKey}' for dialog '${dialogId}'. Skipping verification.`);
             }
             
             this.dialogs.set(dialogId, dialogDefinition);
         }
         const totalErrors = Array.from(this.dialogs.entries())
-            .map(([dialogId, dialogDef]) => this.verifyDialogIntegrity(dialogDef, dialogId))
+            .map(([dialogId, dialogDef]) => this.fullVerification(dialogDef, dialogId))
             .reduce((total, errors) => total + errors.length, 0);
             
         if (totalErrors != 0) {
@@ -79,7 +102,7 @@ export class DialogLib {
      * @param dialogId The ID of the dialog being verified (for error reporting)
      * @returns Array of error messages, empty if no issues found
      */
-    private verifyDialogIntegrity(dialogDefinition: DialogDefinition, dialogId: string): string[] {
+    private fullVerification(dialogDefinition: DialogDefinition, dialogId: string): string[] {
         const errors: string[] = [];
         const nodeIds = new Set(Object.keys(dialogDefinition.nodes));
         const reachableNodes = new Set<string>();
@@ -91,9 +114,48 @@ export class DialogLib {
         }
         
         // Traverse from starting node to find all reachable nodes
-        const toVisit: string[] = [dialogDefinition.startingNodeId];
-        const visited = new Set<string>();
+        this.traverseNodes(dialogDefinition.startingNodeId, dialogDefinition, nodeIds, reachableNodes, errors, dialogId);
         
+        // Find orphaned nodes (exist but not reachable from starting node)
+        const orphanedNodes = Array.from(nodeIds).filter(nodeId => !reachableNodes.has(nodeId));
+        if (orphanedNodes.length > 0) {
+            errors.push(`Dialog '${dialogId}': Orphaned nodes found (unreachable from starting node): ${orphanedNodes.join(', ')}`);
+        }
+        
+        return errors;
+    }
+
+    /**
+     * Verify dialog integrity without checking for orphaned (unreachable) nodes.
+     */
+    private skipAccessibilityVerification(dialogDefinition: DialogDefinition, dialogId: string): string[] {
+        const errors: string[] = [];
+        const nodeIds = new Set(Object.keys(dialogDefinition.nodes));
+        const reachableNodes = new Set<string>();
+
+        // Check if starting node exists
+        if (!nodeIds.has(dialogDefinition.startingNodeId)) {
+            errors.push(`Dialog '${dialogId}': Starting node '${dialogDefinition.startingNodeId}' does not exist`);
+            return errors; // Can't continue verification without a valid starting node
+        }
+
+        // Traverse from the starting node to find all reachable nodes and check for invalid references
+        this.traverseNodes(dialogDefinition.startingNodeId, dialogDefinition, nodeIds, reachableNodes, errors, dialogId);
+
+        return errors;
+    }
+
+    private traverseNodes(
+        startingNode: string, 
+        dialogDefinition: DialogDefinition, 
+        nodeIds: Set<string>, 
+        reachableNodes: Set<string>, 
+        errors: string[], 
+        dialogId: string
+    ) {
+        const toVisit: string[] = [startingNode];
+        const visited = new Set<string>();
+
         while (toVisit.length > 0) {
             const currentNodeId = toVisit.pop()!;
             
@@ -134,14 +196,25 @@ export class DialogLib {
                     }
                 }
             }
+
+            // Check skill check options
+            if (currentNode.type === 'skill_check') {
+                const skillCheckNode = currentNode as any;
+                if (skillCheckNode.successNext) {
+                    if (!nodeIds.has(skillCheckNode.successNext)) {
+                        errors.push(`Dialog '${dialogId}': Node '${currentNodeId}' references non-existent successNext node '${skillCheckNode.successNext}'`);
+                    } else {
+                        toVisit.push(skillCheckNode.successNext);
+                    }
+                }
+                if (skillCheckNode.failureNext) {
+                    if (!nodeIds.has(skillCheckNode.failureNext)) {
+                        errors.push(`Dialog '${dialogId}': Node '${currentNodeId}' references non-existent failureNext node '${skillCheckNode.failureNext}'`);
+                    } else {
+                        toVisit.push(skillCheckNode.failureNext);
+                    }
+                }
+            }
         }
-        
-        // Find orphaned nodes (exist but not reachable from starting node)
-        const orphanedNodes = Array.from(nodeIds).filter(nodeId => !reachableNodes.has(nodeId));
-        if (orphanedNodes.length > 0) {
-            errors.push(`Dialog '${dialogId}': Orphaned nodes found (unreachable from starting node): ${orphanedNodes.join(', ')}`);
-        }
-        
-        return errors;
     }
 } 

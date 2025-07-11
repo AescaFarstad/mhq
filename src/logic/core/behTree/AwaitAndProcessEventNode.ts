@@ -1,6 +1,6 @@
 import { BehNode } from './BehNode';
 import type { GameState } from '../../GameState';
-import type { EventDefinition, EventContext } from '../../lib/definitions/EventDefinition';
+import type { EventDefinition } from '../../lib/definitions/EventDefinition';
 import { NodeResult } from './BehTreeTypes';
 import { C } from '../../lib/C';
 
@@ -31,7 +31,7 @@ export class AwaitAndProcessEventNode extends BehNode {
             this.root.invoker.addEventListener(this.eventId, this);
         } else {
             console.error(`[BehTree] ${this.getHierarchicalPath()} cannot listen for event without an invoker.`);
-            this.parent?.report(NodeResult.FAILURE, state);
+            this.parent?.report(NodeResult.FAILURE, state, this);
         }
     }
 
@@ -39,7 +39,7 @@ export class AwaitAndProcessEventNode extends BehNode {
         this.root.invoker?.removeEventListener(this);
     }
 
-    public handleEvent(eventDef: EventDefinition, state: GameState, _eventContext?: EventContext): void {
+    public handleEvent(eventDef: EventDefinition, state: GameState): void {
         if (eventDef.id !== this.eventId) {
             return;
         }
@@ -61,6 +61,6 @@ export class AwaitAndProcessEventNode extends BehNode {
         }
 
         // Report result to parent
-        this.parent?.report(success ? NodeResult.SUCCESS : NodeResult.FAILURE, state);
+        this.parent?.report(success ? NodeResult.SUCCESS : NodeResult.FAILURE, state, this);
     }
 } 

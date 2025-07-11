@@ -1,5 +1,5 @@
 import type { GameState } from '../../GameState';
-import type { EventDefinition, EventContext } from '../../lib/definitions/EventDefinition';
+import type { EventDefinition } from '../../lib/definitions/EventDefinition';
 
 export enum NodeResult {
     SUCCESS = 'SUCCESS',
@@ -13,12 +13,12 @@ export type TreeDefinitionRegistry = Record<string, TreeDefinitionFn>;
 
 export interface IEventListener {
     uid: string; // Unique identifier for the listener
-    handleEvent?(eventDef: EventDefinition, state: GameState, eventContext?: EventContext): void;
+    handleEvent?(eventDef: EventDefinition, state: GameState): void;
     update?(deltaTime: number, state: GameState): void;
 }
 
 export interface IContainerNode extends IBehNode {
-    report(result: NodeResult, state: GameState): void;
+    report(result: NodeResult, state: GameState, child: IBehNode): void;
 }
 
 export interface IBehNode extends IEventListener {
@@ -47,7 +47,7 @@ export interface IInvoker {
     updateListeners: IEventListener[];
     
     update(deltaTime: number, state: GameState): void;
-    handleEvent(eventDef: EventDefinition, state: GameState, context?: EventContext): void;
+    handleEvent(eventDef: EventDefinition, state: GameState): void;
     
     addTree(tree: IBehTree, state: GameState): void;
     reportTreeComplete(tree: IBehTree): void;
@@ -65,6 +65,5 @@ export type EvalLambda = (node: IBehNode, state: GameState) => boolean;
 export type EventLambda = (
     node: IBehNode, 
     eventDef: EventDefinition, 
-    state: GameState,
-    eventContext?: EventContext
+    state: GameState
 ) => void;

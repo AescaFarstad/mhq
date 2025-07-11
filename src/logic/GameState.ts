@@ -232,13 +232,15 @@ export class GameState {
         Stats.connectStat(this.clutterRatio, this.workSpeed, ConnectionType.MULTY, this.connections);
     }
 
-    public processEventsForCharacter(eventIds: string[], character: Character, _charDef?: CharacterDefinition): void {
+    public processEventsForCharacter(eventIds: string[], _character: Character, _charDef?: CharacterDefinition): void {
+        console.error(`NOT IMPLEMENTED YET`);
+        return;
         for (const eventId of eventIds) {
             const eventDefinition = this.lib.events.get(eventId);
             
             if (eventDefinition) {
                 try {
-                    EventProcessor.processSingleEvent(eventDefinition, this, character);
+                    EventProcessor.processSingleEvent(eventDefinition!, this);
                 } catch (error) {
                     console.error(`GS-PROC-EVENTS-FOR-CHAR: Error calling processSingleEvent for '${eventId}':`, error);
                 }

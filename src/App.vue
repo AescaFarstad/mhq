@@ -15,6 +15,7 @@ import WelcomeView from './minigames/welcome/WelcomeView.vue';
 import IngressView from './minigames/ingress/IngressView.vue';
 import ExampleView from './minigames/example/ExampleView.vue';
 import IntroView from './minigames/intro/IntroView.vue';
+import FirstStepsView from './minigames/firststeps/FirstStepsView.vue';
 import VolumeControlButton from './components/VolumeControlButton.vue';
 
 // Inject the game state provided in main.ts
@@ -185,6 +186,9 @@ onMounted(() => {
     </div>
     <div v-else-if="activeMinigameType === 'Intro'" class="minigame-overlay-container">
       <IntroView />
+    </div>
+    <div v-else-if="activeMinigameType === 'FirstSteps'" class="minigame-overlay-container">
+      <FirstStepsView />
     </div>
     <!-- Add other minigame views here with v-else-if, wrapped in the overlay container -->
 

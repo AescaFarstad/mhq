@@ -1,5 +1,5 @@
 import type { GameState } from '../../GameState';
-import type { EventDefinition, EventContext } from '../../lib/definitions/EventDefinition';
+import type { EventDefinition } from '../../lib/definitions/EventDefinition';
 import type { IBehNode, IBehTree, IContainerNode } from './BehTreeTypes';
 
 export class BehNode implements IBehNode {
@@ -29,7 +29,7 @@ export class BehNode implements IBehNode {
         // Nodes that subscribe to events or updates must override this.
     }
 
-    public handleEvent(_eventDef: EventDefinition, _state: GameState, _eventContext?: EventContext): void {
+    public handleEvent(_eventDef: EventDefinition, _state: GameState): void {
         // Base implementation does nothing.
     }
 

@@ -85,8 +85,8 @@ watch(() => props.charges, (newCharges, oldCharges) => {
           <span class="hint-icon">?</span>
           <div v-if="isHintVisible" class="hint-tooltip">
               <ul>
-                <li>The rate is proportional to the total amount of aspect points you've earned.</li>
-                <li>Spending points does not affect the rate, though you may feel an unfamiliar reluctance to part with them. This is greed—a mortal sensation.</li>
+                <li>The rate is proportional to the total amount of<span class="stars">★</span> you've earned.</li>
+                <li>Spending points (☆) does not affect the rate, though you may feel an unfamiliar reluctance to part with them. This is greed—a mortal sensation.</li>
               </ul>
           </div>
         </div>
@@ -108,6 +108,7 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   transition: background-color 1.3s ease;
   width: 100%;
   position: relative;
+  z-index: 2;
 }
 
 .progress-bar-fill {
@@ -180,9 +181,24 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   animation: flashDarkMaterializationAnim 1.3s ease-out;
 }
 
+@keyframes hint-appear {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .input-hint-container {
   position: relative;
   cursor: pointer;
+  animation: hint-appear 0.8s 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 .hint-icon {
   display: flex;
@@ -190,16 +206,18 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   align-items: center;
   width: 18px;
   height: 18px;
-  border: 1px solid #7f8c8d;
+  border: 1px solid #f1c40f;
   border-radius: 50%;
   font-size: 0.75rem;
-  color: #bdc3c7;
+  color: #f1c40f;
   background-color: #2c3e50;
   transition: all 0.2s ease;
 }
 .input-hint-container:hover .hint-icon {
     border-color: #ecf0f1;
     color: #ecf0f1;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px #f1c40f;
 }
 .hint-tooltip {
   position: absolute;

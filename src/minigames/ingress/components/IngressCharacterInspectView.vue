@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, ref } from 'vue';
+import { inject, computed, ref, onMounted, onUnmounted } from 'vue';
 import type { GameState } from '../../../logic/GameState';
 import type { IngressGame } from '../IngressGame';
 import { INGRESS_TYPE, type IngressState } from '../IngressTypes';
@@ -13,6 +13,24 @@ const newName = ref('');
 
 const starTooltipVisible = ref(false);
 const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
+
+const windowHeight = ref(window.innerHeight);
+const onResize = () => {
+    windowHeight.value = window.innerHeight;
+};
+onMounted(() => {
+    window.addEventListener('resize', onResize);
+});
+onUnmounted(() => {
+    window.removeEventListener('resize', onResize);
+});
+
+const portraitWidth = computed(() => {
+    return windowHeight.value <= 900 ? 228 : 254;
+});
+const portraitHeight = computed(() => {
+    return windowHeight.value <= 900 ? 324 : 360;
+});
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
@@ -121,10 +139,10 @@ const deobfuscateButtonLabel = computed(() => {
     const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
     const steps = Math.round(bioObfuscation * 5);
     switch (steps) {
-        case 5: return '<strong>Weave</strong>';
-        case 3: return 'Weave <strong>the character</strong>';
-        case 2: return 'Weave the character <strong>into</strong>';
-        case 1: return 'Weave the character into <strong>the world</strong>';
+        case 5: return '<strong>Read</strong>';
+        case 3: return 'Read <strong>more ☆</strong>';
+        case 2: return 'Read <strong>more ☆</strong>';
+        case 1: return 'Read <strong>more ☆</strong>';
         default: return 'Learn';
     }
 });
@@ -183,8 +201,8 @@ const handleStarTooltipHide = () => {
                         v-if="characterDef.fullImage"
                         :atlas-name="'heroes'"
                         :image-name="characterDef.portraitImage || characterDef.fullImage"
-                        :display-width="254"
-                        :display-height="360"
+                        :display-width="portraitWidth"
+                        :display-height="portraitHeight"
                     />
                     <div v-if="xpBonus > 0" class="xp-bonus-overlay">+{{ xpBonus }}% XP</div>
                     <div v-if="characterDef" class="character-quote-overlay">
@@ -208,7 +226,7 @@ const handleStarTooltipHide = () => {
                         :disabled="ingressState.aspectPoints < 1"
                         class="action-button deobfuscate-button"
                     >
-                        <span v-html="deobfuscateButtonLabel"></span> ☆
+                        <span v-html="deobfuscateButtonLabel"></span>
                     </button>
                 </div>
             </div>
@@ -228,7 +246,7 @@ const handleStarTooltipHide = () => {
                         Commit and become <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
                     </button>
                     <div v-if="ingressState && ingressState.materializationProgress < 100" class="materialize-button-overlay">
-                        <span class="overlay-percentage">{{ Math.floor(ingressState.materializationProgress) }}%</span>
+                        <span class="overlay-percentage">{{ (ingressState.materializationProgress).toFixed(1) }}%</span>
                     </div>
                 </div>
             </div>
@@ -339,7 +357,7 @@ const handleStarTooltipHide = () => {
 
 .second-epithet {
     font-size: 0.9rem;
-    color: #bdc3c7;
+    color: #f1c40f;
     text-align: center;
     font-style: italic;
 }
@@ -411,6 +429,9 @@ const handleStarTooltipHide = () => {
     font-family: 'Source Code Pro', Courier, monospace;
     font-size: 1.0rem;
     line-height: 1.6;
+}
+.bio-text {
+    color: #d8d8d8;
 }
 .actions-container {
     padding-top: 10px;
@@ -585,5 +606,52 @@ const handleStarTooltipHide = () => {
 }
 .confirm-button:not(:disabled):hover {
     background-color: #d35400;
+}
+
+@media (max-height: 900px) {
+    .inspect-view-panel {
+        padding: 10px;
+        gap: 10px;
+    }
+    .inspect-content {
+        gap: 15px;
+    }
+    .portrait-container {
+        width: 228px;
+        height: 324px;
+        margin-top: 0;
+    }
+    .char-portrait-panel .char-name {
+        font-size: 1.3rem;
+    }
+    .character-quote-overlay .quote-text {
+        font-size: 0.75rem;
+    }
+    .character-quote-overlay .quote-content {
+        padding: 4px 6px;
+    }
+    .bio-container {
+        padding: 10px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .action-button {
+        padding: 10px;
+    }
+    .deobfuscate-button {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    .commit-panel {
+        gap: 10px;
+    }
+    .location-image-container {
+        width: 288px;
+        height: 243px;
+    }
+    .materialize-button {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
 }
 </style> 

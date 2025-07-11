@@ -25,11 +25,17 @@ const engageButtonRef = ref<HTMLButtonElement | null>(null);
 const isInputHintVisible = ref(false);
 const isEngageButtonVisible = ref(false);
 const isEngagedClicked = ref(false);
+const initialPromptsVisible = ref(false);
+const reanimateHints = ref(false);
+const hasHoveredHint = ref(false);
 
 onMounted(() => {
     setTimeout(() => {
         isEngageButtonVisible.value = true;
     }, 5000);
+    setTimeout(() => {
+        initialPromptsVisible.value = true;
+    }, 1000);
 });
 
 // Constants for engage button fade behavior
@@ -100,6 +106,13 @@ defineExpose({
   },
   showBlankError: () => {
     inputInteractionState.value = 'blank-error';
+    // Re-animate hint prompts when wrong word is typed and charges bar is not revealed
+    if (!props.chargesBarRevealed) {
+      reanimateHints.value = true;
+      setTimeout(() => {
+        reanimateHints.value = false;
+      }, 1500);
+    }
   },
   showScoredPoints: () => {
     inputInteractionState.value = 'scored-points';
@@ -120,8 +133,8 @@ defineExpose({
   <div class="input-and-prompt-area-wrapper">
     <div class="input-and-prompt-area">
       <!-- Prompts shown before the game is engaged -->
-      <p v-if="!chargesBarRevealed" class="input-prompt large-prompt">Now — the descent.</p>
-      <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break">This process is mentally strenuous, stock up on coffee or tea.</p>
+      <p v-if="!chargesBarRevealed" class="input-prompt large-prompt" :class="{ 'animate-prompt': initialPromptsVisible }">Now — the descent.</p>
+      <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break" :class="{ 'animate-prompt delay-0': initialPromptsVisible }">This process is mentally strenuous, stock up on coffee or tea.</p>
 
       <div class="action-area">
         <!-- Content shown when the game is engaged -->
@@ -155,10 +168,10 @@ defineExpose({
             <div
               v-if="showHint"
               class="input-hint-container"
-              @mouseenter="isInputHintVisible = true"
+              @mouseenter="isInputHintVisible = true; hasHoveredHint = true"
               @mouseleave="isInputHintVisible = false"
             >
-              <span class="hint-icon">?</span>
+              <span class="hint-icon" :class="{ 'glow-until-hovered': !hasHoveredHint }">?</span>
               <div v-if="isInputHintVisible" class="hint-tooltip">
                   <ul>
                     <li>Nouns are substantive, while verbs are transformative. You need the former.</li>
@@ -172,8 +185,20 @@ defineExpose({
             <div v-if="!showHint" class="hint-spacer"></div>
           </div>
 
-          <p class="input-prompt">Type in <b>nouns</b> you believe may bring you closer to the human form.</p>
-          <p class="input-prompt">The right words will accelerate the materialization of your mortal aspect.</p>
+          <p
+            class="input-prompt"
+            :class="{
+              'animate-prompt delay-1': engaged,
+              'animate-prompt-again': reanimateHints
+            }"
+          >Type in <b>nouns</b> you believe may bring you closer to the human form.</p>
+          <p
+            class="input-prompt"
+            :class="{
+              'animate-prompt delay-2': engaged,
+              'animate-prompt-again': reanimateHints
+            }"
+          >The right words will accelerate the materialization of your mortal aspect.</p>
         </div>
         <!-- Engage Button -->
         <button
@@ -239,14 +264,16 @@ defineExpose({
 
 .input-prompt {
   font-size: 0.9em;
-  color: #bdc3c7;
+  color: #dce1e4;
   text-align: center;
   margin: 0;
+  opacity: 0;
 }
 
 .large-prompt {
   font-size: 1.2em;
   font-weight: bold;
+  margin-bottom: 0;
 }
 
 .prompt-with-a-break {
@@ -314,7 +341,8 @@ defineExpose({
 
 .input-area input.input-blank-highlight {
   border-color: #e74c3c !important;
-  background-color: #fadbd8;
+  border: 3px solid;
+  background-color: #f7d0cd;
 }
 
 .input-area input.input-typing-highlight {
@@ -353,12 +381,25 @@ defineExpose({
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #7f8c8d;
-  color: #ecf0f1;
+  background-color: #f39c12;
+  color: #2c3e50;
   font-weight: bold;
   cursor: pointer;
   user-select: none;
   font-size: 14px;
+  transition: all 0.2s ease-in-out;
+  animation: bouncy-hint-appear 1.8s 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.hint-icon:hover {
+  transform: scale(1.3);
+  background-color: #f5b041;
+  box-shadow: 0 0 10px #f5b041;
+}
+
+.hint-icon.glow-until-hovered {
+  animation: bouncy-hint-appear 1.8s 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both,
+             hint-glow 2s ease-in-out infinite 3.1s;
 }
 
 .hint-spacer {
@@ -400,6 +441,39 @@ defineExpose({
 }
 
 /* Animations */
+@keyframes bouncy-hint-appear {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    30% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.85);
+    }
+    70% {
+        transform: scale(1.15);
+    }
+    85% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes hint-glow {
+    0%, 100% {
+        box-shadow: 0 0 2px #f39c12;
+    }
+    50% {
+        box-shadow: 0 0 4px #f39c12, 0 0 12px #f39c12;
+    }
+}
+
 @keyframes shakeInput {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
@@ -431,6 +505,51 @@ defineExpose({
   100% {
     transform: scale(1);
     box-shadow: 0 0 20px 30px rgba(241, 196, 15, 0);
+  }
+}
+
+.animate-prompt {
+  animation: fadeInAndFlash 1s ease-out forwards;
+}
+.animate-prompt.delay-0 {
+  animation-delay: 0.5s;
+}
+.animate-prompt.delay-1 {
+  animation-delay: 2.0s;
+}
+.animate-prompt.delay-2 {
+  animation-delay: 3.0s;
+}
+
+/* Animations */
+@keyframes fadeInAndFlash {
+  0% {
+    opacity: 0;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0);
+  }
+  70% {
+    opacity: 1;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: none;
+  }
+}
+
+.animate-prompt-again {
+  animation: flashText 1s ease-out;
+}
+
+@keyframes flashText {
+  0% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 16px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    text-shadow: none;
   }
 }
 </style> 

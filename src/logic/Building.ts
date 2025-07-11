@@ -39,7 +39,7 @@ export namespace Building {
                 id: `building_${buildingDef.id}_construction_effects`,
                 effects: buildingDef.effects
             };
-            EventProcessor.processSingleEvent(constructionEvent, gameState, undefined);
+            EventProcessor.processSingleEvent(constructionEvent, gameState);
         }
 
         // Dispatch generic building constructed event
@@ -51,7 +51,7 @@ export namespace Building {
             },
             effects: []
         };
-        EventProcessor.processSingleEvent(buildingConstructedEvent, gameState, undefined);
+        EventProcessor.processSingleEvent(buildingConstructedEvent, gameState);
         return newBuilding;
     }
 } 

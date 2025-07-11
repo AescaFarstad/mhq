@@ -45,7 +45,7 @@ export class WaitNode extends BehNode {
         }
 
         if (this._timer <= 0) {
-            this.parent?.report(NodeResult.SUCCESS, state);
+            this.parent?.report(NodeResult.SUCCESS, state, this);
             return;
         }
 
@@ -56,7 +56,7 @@ export class WaitNode extends BehNode {
 
         this._timer -= deltaTime;
         if (this._timer <= 0) {
-            this.parent?.report(NodeResult.SUCCESS, state);
+            this.parent?.report(NodeResult.SUCCESS, state, this);
         }
     }
 
