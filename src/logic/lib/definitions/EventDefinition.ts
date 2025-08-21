@@ -1,10 +1,6 @@
 import { GameState } from '../../GameState';
-// import { Stat } from '../../core/Stat';
-import { Character } from '../../Character';
 import type { LibItem } from "./LibDefinitions";
 
-// Define the EventContext type
-export type EventContext = Character | undefined; // Start with Character, can be extended
 
 /** Represents parameters for modifying a resource amount or capacity */
 export interface ModifyResourceParams {
@@ -45,7 +41,11 @@ export interface DiscoverEffectParams {
 export interface StartMinigameParams {
     name: string; // The key/type of the minigame to start (e.g., 'ClickCounter')
     // Optional: any specific parameters to initialize the minigame
-    minigameParams?: Record<string, any>; 
+    minigameParams?: Record<string, unknown>; 
+}
+
+export interface EndMinigameParams {
+    minigameId: string;
 }
 
 /** Represents the results of the Ingress minigame */

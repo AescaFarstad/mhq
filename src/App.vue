@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, onMounted, computed } from 'vue';
+import { ref, inject, onMounted, computed, onUnmounted } from 'vue';
 import { GameState, globalInputQueue } from './logic/GameState';
 import { C } from './logic/lib/C';
 import type { CmdTimeScale, CmdTickOnce } from './logic/input/InputCommands';
@@ -17,6 +17,7 @@ import ExampleView from './minigames/example/ExampleView.vue';
 import IntroView from './minigames/intro/IntroView.vue';
 import FirstStepsView from './minigames/firststeps/FirstStepsView.vue';
 import VolumeControlButton from './components/VolumeControlButton.vue';
+import DebugOverlay from './components/debug/DebugOverlay.vue';
 
 // Inject the game state provided in main.ts
 const gameState = inject<GameState>('gameState');
@@ -104,6 +105,38 @@ const setActiveTab = (tabName: string) => {
 // Dialog visibility
 const showDialog = ref(false); // Initially hidden
 
+const showDebugOverlay = ref(false);
+
+const closeDebugOverlay = () => {
+  showDebugOverlay.value = false;
+};
+
+// Key sequence detection for debug overlay
+const targetSequence = ['q', 'w', 'e', 'd'];
+let currentSequenceIndex = 0;
+let sequenceTimeout: number | undefined;
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (sequenceTimeout) {
+    clearTimeout(sequenceTimeout);
+  }
+
+  sequenceTimeout = window.setTimeout(() => {
+    currentSequenceIndex = 0;
+  }, 500); // Reset if keys are not pressed within 500ms
+
+  if (event.key.toLowerCase() === targetSequence[currentSequenceIndex]) {
+    currentSequenceIndex++;
+    if (currentSequenceIndex === targetSequence.length) {
+      showDebugOverlay.value = !showDebugOverlay.value;
+      currentSequenceIndex = 0;
+      clearTimeout(sequenceTimeout);
+    }
+  } else {
+    currentSequenceIndex = 0;
+  }
+};
+
 onMounted(() => {
   if (!gameState) {
     console.error("GameState not injected or provided!");
@@ -113,6 +146,15 @@ onMounted(() => {
   // Set initial active tab in GameState if not already set
   if (gameState && !gameState.uiState.activeTabName) {
     gameState.setActiveTab('Castle');
+  }
+
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+  if (sequenceTimeout) {
+    clearTimeout(sequenceTimeout);
   }
 });
 
@@ -200,6 +242,9 @@ onMounted(() => {
         <button @click="showDialog = false">Close</button>
       </div>
     </div>
+
+    <!-- Debug Overlay -->
+    <DebugOverlay v-if="showDebugOverlay" @close="closeDebugOverlay" />
 
     <VolumeControlButton />
 

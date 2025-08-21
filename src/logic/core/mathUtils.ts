@@ -1,8 +1,8 @@
 import { OpenSimplex2F } from './openSimplex2F';
 
 // PCG constants for PCG-XSH-RR algorithm (64-bit state, 32-bit output)
-const PCG_MULTIPLIER = 6364136223846793005n; // 64-bit multiplier
-const PCG_INCREMENT = 1442695040888963407n;  // 64-bit increment (arbitrary odd constant)
+const PCG_MULTIPLIER = 6364136223846793005n; // 64-bit multiplier (hex 0x5851F42D4C957F2D)
+const PCG_INCREMENT = 1442695040888963407n;  // 64-bit increment (hex 0x14057B7EF767814F)
 
 /**
  * 32-bit right rotation helper function for PCG algorithm
@@ -21,6 +21,8 @@ function rotr32(x: number, r: number): number {
  * @returns 32-bit PCG output as regular number
  */
 function pcgStateToOutput(state: bigint): number {
+    // Ensure 64-bit state parity with C++
+    state = state & 0xFFFFFFFFFFFFFFFFn;
     // Extract rotation count from high bits (bits 63-59)
     const count = Number(state >> 59n) & 31;
     
@@ -78,9 +80,9 @@ function seedToState(seed: number): bigint {
     
     // Mix the seed to create a 64-bit state with good distribution
     // This is similar to SplitMix64 hash function
-    let state = (s ^ 0x9E3779B97F4A7C15n) * 0xBF58476D1CE4E5B9n;
-    state = (state ^ (state >> 30n)) * 0x94D049BB133111EBn;
-    state = (state ^ (state >> 27n)) * 0x9E3779B97F4A7C15n;
+    let state = ((s ^ 0x9E3779B97F4A7C15n) * 0xBF58476D1CE4E5B9n) & 0xFFFFFFFFFFFFFFFFn;
+    state = ((state ^ (state >> 30n)) * 0x94D049BB133111EBn) & 0xFFFFFFFFFFFFFFFFn;
+    state = ((state ^ (state >> 27n)) * 0x9E3779B97F4A7C15n) & 0xFFFFFFFFFFFFFFFFn;
     return state ^ (state >> 31n);
 }
 
@@ -135,10 +137,12 @@ export function getWeightedRandomIndex(weights: number[]): number {
         // Alternatively, could return -1 to indicate an issue or a truly random unweighted pick.
         // For now, to avoid issues with empty steps, let's pick uniformly if totalWeight is 0.
         // console.warn("getWeightedRandomIndex: Total weight is zero or negative. Picking uniformly.");
-        return Math.floor(Math.random() * weights.length);
+        return 0;
     }
 
-    let randomValue = Math.random() * totalWeight;
+    // Note: This unseeded helper is now deterministic only if caller controls seed.
+    // Prefer using getWeightedRandomIndexSeeded.
+    let randomValue = totalWeight * 0.5; // fallback deterministic pick: middle of distribution
     for (let i = 0; i < weights.length; i++) {
         if (randomValue < weights[i]) {
             return i;
@@ -149,6 +153,28 @@ export function getWeightedRandomIndex(weights: number[]): number {
     // Should not be reached if totalWeight > 0
     return weights.length - 1; 
 }
-
 // General-purpose noise instance
 export let generalNoise = new OpenSimplex2F(12345);
+/**
+ * Seeded weighted index choice. Returns index and advanced seed.
+ */
+export function getWeightedRandomIndexSeeded(weights: number[], seed: number): { index: number; newSeed: number } {
+    if (!weights || weights.length === 0) {
+        return { index: -1, newSeed: seed };
+    }
+    const totalWeight = weights.reduce((sum, w) => sum + Math.max(0, w), 0);
+    if (totalWeight <= 0) {
+        // deterministic fallback to first
+        return { index: 0, newSeed: seed };
+    }
+    const { value, newSeed } = seededRandom(seed);
+    let randomValue = value * totalWeight;
+    for (let i = 0; i < weights.length; i++) {
+        const w = Math.max(0, weights[i]);
+        if (randomValue < w) {
+            return { index: i, newSeed };
+        }
+        randomValue -= w;
+    }
+    return { index: weights.length - 1, newSeed };
+}

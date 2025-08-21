@@ -5,7 +5,7 @@ import { WelcomeLib } from './lib/WelcomeLib';
 import type { WelcomeLocationDefinition } from './lib/definitions/WelcomeLocationDefinition';
 import * as effects from '../../logic/effects';
 import type { ApplyWelcomeResultsParams } from '../../logic/lib/definitions/EventDefinition';
-import { generalNoise } from '../../logic/utils/mathUtils';
+import { generalNoise } from '../../logic/core/mathUtils';
 import { initializeMusic } from '../../composables/useMusic';
 
 export const WELCOME_TYPE: MinigameType = 'Welcome';
@@ -138,7 +138,7 @@ export class WelcomeGame implements BaseMinigame<WelcomeState> {
             effects.applyWelcomeResults(gameState, params);
 
             this.state.lastSelectedLocationId = selectedChoiceDefinition.id;
-            gameState.exitMinigame();
+            gameState.endMinigame();
         } else {
             console.error('WelcomeGame: Could not find location definition for id:', choiceId);
         }

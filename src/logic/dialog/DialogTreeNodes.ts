@@ -11,13 +11,15 @@ export abstract class DialogNode {
     public next?: string;
     public data?: any; // Custom data for the node
     public leaf?: boolean;
+    public orderIndex: number;
 
-    constructor(id: string, type: string, next?: string, data?: any, leaf?: boolean) {
+    constructor(id: string, type: string, next?: string, data?: any, leaf?: boolean, orderIndex?: number) {
         this.id = id;
         this.type = type;
         this.next = next;
         this.data = data;
         this.leaf = leaf;
+        this.orderIndex = orderIndex || -1;
     }
 }
 
@@ -29,6 +31,7 @@ export interface MessageDNodeParams {
     effects?: Array<{key: string, params: any}>;
     leaf?: boolean;
     data?: any;
+    orderIndex: number;
 }
 
 export class MessageDNode extends DialogNode {
@@ -37,7 +40,7 @@ export class MessageDNode extends DialogNode {
     public effects?: Array<{key: string, params: any}>;
 
     constructor(params: MessageDNodeParams) {
-        super(params.id || '', 'message', params.next, params.data, params.leaf);
+        super(params.id || '', 'message', params.next, params.data, params.leaf, params.orderIndex);
         this.text = params.text;
         this.speakerId = params.speakerId || '';
         this.effects = params.effects;
@@ -72,6 +75,7 @@ export interface ChoiceDNodeParams {
     effects?: Array<{key: string, params: any}>;
     leaf?: boolean;
     data?: any;
+    orderIndex: number;
 }
 
 export class ChoiceDNode extends DialogNode {
@@ -79,7 +83,7 @@ export class ChoiceDNode extends DialogNode {
     public effects?: Array<{key: string, params: any}>;
 
     constructor(params: ChoiceDNodeParams) {
-        super(params.id || '', 'choice', params.next, params.data, params.leaf);
+        super(params.id || '', 'choice', params.next, params.data, params.leaf, params.orderIndex);
         this.choices = params.choices;
         this.effects = params.effects;
     }
@@ -95,6 +99,7 @@ export interface SkillCheckNodeParams {
     effects?: Array<{key: string, params: any}>;
     leaf?: boolean;
     data?: any;
+    orderIndex: number;
 }
 
 export class SkillCheckNode extends DialogNode {
@@ -106,7 +111,7 @@ export class SkillCheckNode extends DialogNode {
     public effects?: Array<{key: string, params: any}>;
 
     constructor(params: SkillCheckNodeParams) {
-        super(params.id || '', 'skill_check', undefined, params.data, params.leaf);
+        super(params.id || '', 'skill_check', undefined, params.data, params.leaf, params.orderIndex);
         this.text = params.text;
         this.skillIds = params.skillIds;
         this.successThreshold = params.successThreshold || 1;
@@ -126,6 +131,7 @@ export interface MessageNodeDef {
     effects?: Array<{key: string, params: any}>; // Added effects field
     leaf?: boolean; // Added leaf field - optional in raw data
     data?: any; // Custom data for the node
+    orderIndex?: number;
 }
 
 export interface ChoiceOptionDef {
@@ -143,6 +149,7 @@ export interface ChoiceNodeDef {
     effects?: Array<{key: string, params: any}>; // Added effects field
     leaf?: boolean; // Added leaf field - optional in raw data
     data?: any; // Custom data for the node
+    orderIndex?: number;
 }
 
 // Add after the ChoiceNodeDef interface and before the DialogNodeDef type
@@ -157,6 +164,7 @@ export interface SkillCheckNodeDef {
     effects?: Array<{key: string, params: any}>;
     leaf?: boolean;
     data?: any;
+    orderIndex?: number;
 }
 
 export type DialogNodeDef = MessageNodeDef | ChoiceNodeDef | SkillCheckNodeDef;
@@ -172,7 +180,8 @@ export function createDialogNode(nodeDef: DialogNodeDef): DialogNode {
                 next: nodeDef.next,
                 data: nodeDef.data,
                 effects: nodeDef.effects,
-                leaf: nodeDef.leaf
+                leaf: nodeDef.leaf,
+                orderIndex: nodeDef.orderIndex || -1
             });
         case CHOICE:
             return new ChoiceDNode({
@@ -186,7 +195,8 @@ export function createDialogNode(nodeDef: DialogNodeDef): DialogNode {
                     next: choiceDef.next,
                     data: choiceDef.data
                 })),
-                leaf: nodeDef.leaf
+                leaf: nodeDef.leaf,
+                orderIndex: nodeDef.orderIndex || -1
             });
         case SKILL_CHECK:
             return new SkillCheckNode({
@@ -198,7 +208,8 @@ export function createDialogNode(nodeDef: DialogNodeDef): DialogNode {
                 failureNext: nodeDef.failureNext,
                 data: nodeDef.data,
                 effects: nodeDef.effects,
-                leaf: nodeDef.leaf
+                leaf: nodeDef.leaf,
+                orderIndex: nodeDef.orderIndex || -1
             });
         default:
             throw new Error(`Unknown dialog node type: ${(nodeDef as any).type}`);
@@ -260,7 +271,7 @@ export function generateDialogIds(dialogName: string, nodes: DialogNode[]): void
     // Then, auto-assign next fields, but only to immediately following nodes that aren't explicitly referenced
     nodes.forEach((node, index) => {
         // For nodes without explicit next field, assign to the immediate next node if it's not explicitly referenced
-        if (!node.next && index < nodes.length - 1) {
+        if (!node.next && !node.leaf && index < nodes.length - 1) {
             const nextNode = nodes[index + 1];
             if (nextNode.id && !explicitlyReferencedNodes.has(nextNode.id)) {
                 node.next = nextNode.id;
@@ -270,7 +281,7 @@ export function generateDialogIds(dialogName: string, nodes: DialogNode[]): void
         // For choice nodes, handle choice options that don't have next specified
         if (node instanceof ChoiceDNode && index < nodes.length - 1) {
             node.choices.forEach(choice => {
-                if (!choice.next) {
+                if (!choice.next && !node.leaf) {
                     const nextNode = nodes[index + 1];
                     if (nextNode.id && !explicitlyReferencedNodes.has(nextNode.id)) {
                         choice.next = nextNode.id;

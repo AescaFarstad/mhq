@@ -1,4 +1,4 @@
-import { advanceSeed, seedToRandom } from '../logic/utils/mathUtils';
+import { advanceSeed, seedToRandom } from '../logic/core/mathUtils';
 
 const MYSTERIOUS_CHARS: string[] = [
     'Ձ', 'Ճ', 'Յ', 'Շ', 'Վ', 'Ֆ', 'Ր', 'Ջ', 'Հ', 'ຢ', 'Ն', 'ລ', 'ກ', 'ຊ', 'ы', 'ю', 'ч', 'з', 'ь', '☋', '☡', 'ɻ', 'ɷ', 'ɕ', 'ɗ', 'ⵛ', 'ʋ', 'ɲ', 'ɦ', 'ⵓ', 'ଌ', 'ઇ', 'ມ', 'Թ', 'Ո'

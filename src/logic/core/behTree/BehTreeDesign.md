@@ -116,12 +116,37 @@ state.invoker.handleEvent(eventDef, state, context);
    })
    ```
 
-3. **SequencerNode** - Executes children in sequence
+3. **SequencerNode** - Executes children in sequence, waiting for each to succeed before starting the next. Fails if any child fails.
    ```typescript
-   new SequencerNode([node1, node2, node3])
+   new SequencerNode('mySequence', [node1, node2, node3])
    ```
 
-4. **WaitNode** - Waits for a specified duration
+4. **SelectorNode** - Executes children in sequence, advancing to the next child if one fails. Succeeds as soon as a child succeeds, and fails only if all children have failed.
+    ```typescript
+    new SelectorNode('tryActions', [action1, action2, backupAction])
+    ```
+
+5. **RepeatNode** - Executes its child sequence repeatedly. Fails if the child sequence ever fails. Often used as the root of a main loop.
+    ```typescript
+    new RepeatNode('mainLoop', [
+        // ... nodes to be repeated
+    ])
+    ```
+
+6. **AnySuccessAllFailureNode** - A parallel node that initializes all children simultaneously. Succeeds as soon as any child succeeds. Fails only when all children have failed.
+    ```typescript
+    new AnySuccessAllFailureNode('parallelTasks', [
+        new AwaitEventNode('playerInput'),
+        new TickerNode('timeout', (n, s) => s.time > 10)
+    ])
+    ```
+
+7. **TickerNode** - Waits for a condition to become true. It checks the condition on every game update tick, remaining in an implicit running state. Succeeds when the condition is met.
+    ```typescript
+    new TickerNode('waitForReady', (node, state) => state.player.isReady)
+    ```
+
+8. **WaitNode** - Waits for a specified duration
    ```typescript
    new WaitNode({ durationMin: 2.5, name: 'wait_for_intro' }) // waits 2.5 seconds
    new WaitNode({ durationMin: 1, durationMax: 5, name: 'random_delay' }) // waits between 1 and 5 seconds
@@ -137,7 +162,6 @@ state.invoker.handleEvent(eventDef, state, context);
 
 ### Planned Nodes
 
-- **TickerNode** - Subscribes to updates until condition met
 - **RandomSelectorNode** - Randomly selects a child
 - **ParallelNode** variants (Any/All/Exhaust)
 - **SelectNode** - Jumps to named node

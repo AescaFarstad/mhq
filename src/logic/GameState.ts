@@ -22,7 +22,10 @@ import type { EventDefinition } from './lib/definitions/EventDefinition';
 import type { HypotheticalState } from './core/Hypothetical';
 import type { DiscoveryAttempt } from '../types/discoveryTypes';
 import { markExistingDiscoveredItemsAsEncountered, handleInspirationLevelUp } from './Discovery';
-import type { DialogState } from './Dialog';
+// import { BuildingState, updateAllBuildings } from './Building';
+// import { CharacterState, updateAllCharacters } from './Character';
+// import type { DiscoveryState } from './Discovery';
+// import { GameEvent } from './Event';
 
 import { C } from './lib/C';
 
@@ -47,7 +50,7 @@ export class GameState {
     public hypothetical: HypotheticalState | null = null;
     public ingressGameResults: { [sessionId: string]: any } = {}; // Store results from completed ingress games
     public crystalBallWords: string[] = []; // Words from ingress sessions for crystal ball
-    public dialogs: Record<string, DialogState> = {};
+    public dialogs: Record<string, any> = {};
     public currentDialogNodeId?: string; // Track the current node in active dialog
 
     public gold! : Resource;
@@ -69,6 +72,8 @@ export class GameState {
     public dateModified: number = Date.now();
     public gameTime: number = 0;
     public tick: number = 0;
+
+    public rngSeed: number = 12345;
 
     public locationId: string = "turfablie";
 
@@ -200,8 +205,7 @@ export class GameState {
 
         updateAllResources(this.resources, deltaTime, this.connections);
         processTasks(this, deltaTime);
-        
-        // Process event dispatcher queue
+
         Stats.processEventDispatcherQueue(this.connections, this);
         
         // Update active minigame if present
@@ -308,7 +312,7 @@ export class GameState {
         this.uiState.activeMinigameState = minigame.state; // Initial state for UI
     }
 
-    public exitMinigame(): void {
+    public endMinigame(): void {
         if (this.activeMinigame) {
             const minigameType = this.activeMinigame.type;
             this.activeMinigame.destroy(this);

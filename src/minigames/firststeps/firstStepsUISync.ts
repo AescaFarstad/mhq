@@ -1,6 +1,7 @@
 import type { GameState } from '../../logic/GameState';
 import type { FirstStepsState } from './FirstStepsGame';
 import type { MinigameUISyncFn } from '../../logic/minigames/MinigameUIStateManager';
+import { DialogState } from '../../logic/dialog/Dialog';
 
 /**
  * UI Sync function for the FirstSteps minigame.
@@ -13,25 +14,22 @@ export const syncFirstStepsUI: MinigameUISyncFn = (
 ): void => {
     const logicState = gameState.activeMinigame?.state as FirstStepsState | undefined;
     const uiState = gameState.uiState.activeMinigameState as FirstStepsState | undefined;
+    const dialogState = gameState.dialogs[gameState.activeMinigame!.id] as DialogState | undefined;
 
-    if (logicState && uiState) {
-        // TODO: Sync FirstSteps-specific state properties here
-        // FirstSteps:
-        // if (logicState.score !== uiState.score) {
-        //     uiState.score = logicState.score;
-        // }
-        // if (logicState.currentLevel !== uiState.currentLevel) {
-        //     uiState.currentLevel = logicState.currentLevel;
-        // }
-        // For complex objects or arrays, ensure deep copies if necessary to trigger reactivity,
-        // or sync property by property for finer control.
-        // e.g., uiState.someArray = [...logicState.someArray];
-        // e.g., uiState.someObject = { ...logicState.someObject };
+    if (logicState && uiState && dialogState) {
+        if (!uiState.dialogState) {
+            uiState.dialogState = { nodes: [], choicesMade: [], definitionId: dialogState.definitionId } as any;
+        }
+        const uiDialog = uiState.dialogState as any;
 
-        // For now, as a blank scaffold, there are no specific properties to sync.
-        // Add them as you define FirstStepsState and need them reflected in the UI.
-    } else {
-        // This warning can be helpful during development if sync is called unexpectedly
-        // console.warn('syncFirstStepsUI: logicState or uiState is null or undefined during sync.');
+        if (JSON.stringify(uiDialog.nodes) !== JSON.stringify(dialogState.nodes)) {
+            uiDialog.nodes = [...dialogState.nodes];
+        }
+        if (JSON.stringify(uiDialog.choicesMade) !== JSON.stringify(dialogState.choicesMade)) {
+            uiDialog.choicesMade = [...dialogState.choicesMade];
+        }
+        if (uiDialog.definitionId !== dialogState.definitionId) {
+            uiDialog.definitionId = dialogState.definitionId;
+        }
     }
 }; 

@@ -424,7 +424,7 @@ export class IngressGame implements BaseMinigame<IngressState> {
 
         effects.applyIngressResults(gameState, params);
 
-        gameState.exitMinigame();
+        gameState.endMinigame();
     }
 
     public envisionCharacters(gameState: GameState): void {

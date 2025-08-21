@@ -2,8 +2,8 @@ import type { GameState } from '../../logic/GameState';
 import type { BaseMinigame, MinigameState, MinigameType } from '../../logic/minigames/MinigameTypes';
 import type { IEventListener } from '../../logic/core/behTree/BehTreeTypes';
 import type { EventDefinition } from '../../logic/lib/definitions/EventDefinition';
-import { startDialog, makeDialogChoice } from '../../logic/Dialog';
-import { MessageDNode, ChoiceDNode } from '../../logic/DialogTreeNodes';
+import { startDialog, makeDialogChoice } from '../../logic/dialog/Dialog';
+import { MessageDNode, ChoiceDNode } from '../../logic/dialog/DialogTreeNodes';
 import { reactive } from 'vue';
 
 export const INTRO_TYPE: MinigameType = 'Intro';
@@ -28,6 +28,7 @@ export interface PendingDialogEntry {
 }
 
 export interface DialogHistoryItem {
+    nodeId: string;
     type: 'message' | 'choice' | 'player_choice';
     speakerId?: string;
     text?: string;
@@ -129,6 +130,7 @@ export class IntroGame implements BaseMinigame<IntroState> {
                 if (this.state.lastDialogRevealTime === 0 || timeSinceLastReveal >= this.state.nextRevealDelay) {
                     // No pending delay or delay has passed - add choice immediately
                     this.state.dialogHistory.push({
+                        nodeId: `player_choice_${choiceId}`,
                         type: 'player_choice',
                         selectedChoiceId: choiceId,
                         selectedChoiceText: selectedChoice.text
@@ -141,6 +143,7 @@ export class IntroGame implements BaseMinigame<IntroState> {
                     // There's still a pending delay - queue the choice to respect timing
                     const playerChoiceEntry: PendingDialogEntry = {
                         historyItem: {
+                            nodeId: `player_choice_${choiceId}`,
                             type: 'player_choice',
                             selectedChoiceId: choiceId,
                             selectedChoiceText: selectedChoice.text
@@ -193,7 +196,7 @@ export class IntroGame implements BaseMinigame<IntroState> {
         // Normal ending - exit the minigame
         this.state.isEnded = true;
         if (this.gameState) {
-            this.gameState.exitMinigame();
+            this.gameState.endMinigame();
         }
     }
 
@@ -207,7 +210,7 @@ export class IntroGame implements BaseMinigame<IntroState> {
             const elapsed = Date.now() - this.state.endingStartTime;
             if (elapsed >= 5000) { // 5 seconds have passed
                 this.state.isEnded = true;
-                gameState.exitMinigame();
+                gameState.endMinigame();
             }
         }
     }
@@ -248,121 +251,93 @@ export class IntroGame implements BaseMinigame<IntroState> {
                             this.state.backgroundImage = nextEntry.backgroundImage;
                         }
                         
-                        // Handle ending conditions
-                        if (nextEntry.isEndingEntry) {
+                        // Check if this is an ending entry
+                        if (nextEntry.isEndingEntry && !this.state.isEnding) {
                             this.state.isEnding = true;
-                            this.state.isSpecialEnding = nextEntry.isSpecialEnding || false;
-                            this.state.endingStartTime = Date.now();
-                            // Clear remaining pending entries as we're ending
-                            this.state.pendingDialogEntries = [];
-                            return;
+                            this.state.endingStartTime = now;
                         }
                     } else if (nextEntry.nodeType === 'choice') {
                         this.state.currentChoices = nextEntry.choices;
                         this.state.isWaitingForChoice = true;
-                        
-                        // Handle background image
-                        if (nextEntry.backgroundImage) {
-                            this.state.backgroundImage = nextEntry.backgroundImage;
-                        }
                     }
                     
-                    // Calculate delay for next reveal: base delay + any additional delay from current entry
+                    // Set next reveal delay
+                    this.state.lastDialogRevealTime = now;
                     const additionalDelay = nextEntry.delayAfter || 0;
                     this.state.nextRevealDelay = this.state.dialogRevealDelay + additionalDelay;
-                    
-                    // Update last reveal time
-                    this.state.lastDialogRevealTime = now;
                 }
             }
         }
     }
-
+    
     private updateDialogState(state: GameState): void {
         const dialog = state.dialogs['intro'];
-        if (!dialog) {
-            return;
-        }
+        if (!dialog) return;
 
         const dialogDefinition = state.lib.dialogs?.getDialog(dialog.definitionId);
-        if (!dialogDefinition) {
-            return;
-        }
+        if (!dialogDefinition) return;
 
-        // Find the index of the last processed node for history purposes
-        const lastProcessedIndex = this.state.currentNodeId ? 
-            dialog.nodes.findIndex(nodeId => nodeId === this.state.currentNodeId) : -1;
-        
-        // Check if we have new nodes to process
-        const newNodes = [];
-        for (let i = lastProcessedIndex + 1; i < dialog.nodes.length; i++) {
-            const nodeId = dialog.nodes[i];
-            const currentNode = dialogDefinition.nodes[nodeId];
-            
-            if (!currentNode) {
-                console.warn(`[IntroGame] Node '${nodeId}' not found in definition.`);
-                continue;
-            }
-            
-            newNodes.push({ nodeId, node: currentNode });
-        }
-        
-        // If we have new nodes to process, queue them for sequential reveal
-        if (newNodes.length > 0) {
-            // Clear existing pending entries if any (shouldn't happen but just in case)
-            this.state.pendingDialogEntries = [];
-            
-            // Queue all new nodes for sequential reveal
-            for (const { nodeId, node } of newNodes) {
-                if (node.type === 'message') {
-                    const messageNode = node as MessageDNode;
-                    const data = node.data as IntroDialogData | undefined;
-                    
-                    const pendingEntry: PendingDialogEntry = {
-                        historyItem: {
-                            type: 'message',
-                            speakerId: messageNode.speakerId,
-                            text: messageNode.text
-                        },
-                        nodeId: nodeId,
-                        nodeType: 'message',
-                        text: messageNode.text,
-                        speakerId: messageNode.speakerId,
-                        backgroundImage: data?.bg,
-                        isEndingEntry: data?.end,
-                        isSpecialEnding: data?.end,
-                        delayAfter: data?.delay ? data.delay * 1000 : undefined // Convert seconds to milliseconds
-                    };
-                    
-                    this.state.pendingDialogEntries.push(pendingEntry);
-                } else if (node.type === 'choice') {
-                    const choiceNode = node as ChoiceDNode;
-                    const data = node.data as IntroDialogData | undefined;
-                    const choices = choiceNode.choices.map((choice: any) => ({
-                        id: choice.id,
-                        text: choice.text
-                    }));
-                    
-                    const pendingEntry: PendingDialogEntry = {
-                        historyItem: {
-                            type: 'choice',
-                            choices: choices
-                        },
-                        nodeId: nodeId,
-                        nodeType: 'choice',
-                        choices: choices,
-                        backgroundImage: data?.bg,
-                        delayAfter: data?.delay ? data.delay * 1000 : undefined // Convert seconds to milliseconds
-                    };
-                    
-                    this.state.pendingDialogEntries.push(pendingEntry);
+        // Check for new nodes in the dialog
+        dialog.nodes.forEach((nodeId: string) => {
+            if (!this.state.dialogHistory.some(entry => entry.nodeId === nodeId) && 
+                !this.state.pendingDialogEntries.some(entry => entry.nodeId === nodeId)) {
+                const node = dialogDefinition.nodes[nodeId];
+                if (node instanceof MessageDNode || node instanceof ChoiceDNode) {
+                    this.addPendingDialogEntry(nodeId, node);
                 }
             }
+        });
+    }
+
+    private addPendingDialogEntry(nodeId: string, node: MessageDNode | ChoiceDNode): void {
+        const data = node.data as IntroDialogData | undefined;
+        
+        if (node instanceof MessageDNode) {
+            const historyItem: DialogHistoryItem = {
+                nodeId: nodeId,
+                type: 'message',
+                speakerId: node.speakerId,
+                text: node.text
+            };
+            
+            const pendingEntry: PendingDialogEntry = {
+                historyItem: historyItem,
+                nodeId: nodeId,
+                nodeType: 'message',
+                text: node.text,
+                speakerId: node.speakerId,
+                backgroundImage: data?.bg,
+                isEndingEntry: data?.end,
+                delayAfter: (data?.delay || 0) * 1000
+            };
+            
+            this.state.pendingDialogEntries.push(pendingEntry);
+        } else if (node instanceof ChoiceDNode) {
+            const choices = node.choices.map((choice: any) => ({
+                id: choice.id,
+                text: choice.text
+            }));
+            
+            const historyItem: DialogHistoryItem = {
+                nodeId: nodeId,
+                type: 'choice',
+                choices: choices
+            };
+            
+            const pendingEntry: PendingDialogEntry = {
+                historyItem: historyItem,
+                nodeId: nodeId,
+                nodeType: 'choice',
+                choices: choices,
+                delayAfter: (data?.delay || 0) * 1000
+            };
+            
+            this.state.pendingDialogEntries.push(pendingEntry);
         }
     }
 
     destroy(gameState: GameState): void {
-        // Cleanup: remove event listeners
+        // Unregister event listeners
         if (this.eventListener) {
             gameState.invoker.removeEventListener(this.eventListener);
             gameState.invoker.removeUpdateListener(this.eventListener);

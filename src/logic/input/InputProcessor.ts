@@ -7,7 +7,7 @@ import { Building } from '../Building'; // Import Building namespace
 import { processDiscoveryAttempt } from '../Discovery';
 import { C } from '../lib/C';
 import { getRarestKeywords, getJuicyKeywords, getRandomKeywords } from '../DiscoveryCals';
-import { makeDialogChoice } from '../Dialog';
+import { makeDialogChoice } from '../dialog/Dialog';
 
 
 // Map of handlers

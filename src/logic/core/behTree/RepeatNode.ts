@@ -8,18 +8,35 @@ export class RepeatNode extends SequencerNode {
         super(name, children);
     }
 
-    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
+    public report(result: NodeResult, state: GameState, child: IBehNode): void {
+        if (child !== this.children[this.currentIndex]) {
+            return; // Ignore reports from children that are not the current one.
+        }
+
         if (result === NodeResult.FAILURE) {
+            child.exit();
             this.parent?.report(NodeResult.FAILURE, state, this);
             return;
         }
 
-        const isSequenceComplete = this.advance(state);
-        
-        if (isSequenceComplete) {
-            // The sequence completed successfully, so we loop.
-            this.currentIndex = -1;
-            this.advance(state);
+        // NodeResult.SUCCESS
+        child.exit();
+        this.currentIndex++;
+        if (this.currentIndex < this.children.length) {
+            // More children in the sequence, run the next one.
+            const nextChild = this.children[this.currentIndex];
+            nextChild.init(state);
+        } else {
+            // End of sequence, loop back to the beginning.
+            this.currentIndex = 0;
+            if (this.children.length > 0) {
+                const firstChild = this.children[this.currentIndex];
+                firstChild.init(state);
+            } else {
+                // If there are no children, this would be an infinite loop.
+                // To be safe, we just succeed.
+                this.parent?.report(NodeResult.SUCCESS, state, this);
+            }
         }
     }
 } 

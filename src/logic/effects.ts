@@ -5,6 +5,7 @@ import {
     AddCharacterParams,
     DiscoverEffectParams,
     StartMinigameParams,
+    EndMinigameParams,
     ApplyIngressResultsParams,
     ApplyWelcomeResultsParams,
     GivePointsParams,
@@ -15,7 +16,7 @@ import { IndependentStat } from './core/Stat';
 import { Character } from './Character';
 import { Character as CharacterOps } from './Character';
 import type { Skill } from './lib/definitions/SkillDefinition';
-import { getResource, addResource } from './Resource';
+import { addResource } from './Resource';
 import { Building } from './Building';
 import { ClickCounterGame } from '../minigames/click_counter/ClickCounterGame';
 import { WelcomeGame } from '../minigames/welcome/WelcomeGame';
@@ -33,7 +34,7 @@ export function giveResource(state: GameState, params: ModifyResourceParams): vo
         console.log(`E 'giveResource':`, params);
     }
     
-    const res = getResource(state.resources, params.resource);
+    const res = state.resources.get(params.resource);
     if (res) {
         Stats.modifyStat(res.current, params.amount, state.connections);
     } else {
@@ -46,7 +47,7 @@ export function giveMaxResource(state: GameState, params: ModifyResourceParams):
         console.log(`E 'giveMaxResource':`, params);
     }
     
-    let res = getResource(state.resources, params.resource);
+    let res = state.resources.get(params.resource);
     if (!res) {
         res = addResource(state.resources, params.resource, 0, 0, state.connections);
     }
@@ -60,7 +61,7 @@ export function addResourceIncome(state: GameState, params: ModifyResourceIncome
         console.log(`E 'addResourceIncome':`, params);
     }
     
-    const res = getResource(state.resources, params.resource);
+    const res = state.resources.get(params.resource);
     if (res) {
         Stats.modifyParameterADD(res.income, params.amount, state.connections);
     } else {
@@ -186,6 +187,18 @@ export function startMinigame(state: GameState, params: StartMinigameParams): vo
             effects: []
         };
         EventProcessor.processSingleEvent(startEvent, state);
+    }
+}
+
+export function endMinigame(state: GameState, params: EndMinigameParams): void {
+    if (C.DEBUG_EFFECTS) {
+        console.log(`E 'endMinigame':`, params);
+    }
+
+    if (state.activeMinigame && state.activeMinigame.id === params.minigameId) {
+        state.endMinigame();
+    } else {
+        console.warn(`E 'endMinigame': Minigame with id '${params.minigameId}' not active.`);
     }
 }
 

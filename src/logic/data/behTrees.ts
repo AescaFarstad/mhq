@@ -9,13 +9,14 @@ import { WaitNode } from '../core/behTree/WaitNode';
 import { RepeatNode } from '../core/behTree/RepeatNode';
 import { SelectorNode } from '../core/behTree/SelectorNode';
 import { SequencerNode } from '../core/behTree/SequencerNode';
-import { CheckDNTypeNode, ProcessMessageDNNode, ProcessChoiceDNNode } from '../core/behTree/DialogNodes';
+import { CheckDNTypeNode, ProcessMessageDNNode, ProcessChoiceDNNode } from '../dialog/DialogNodes';
 import { EventProcessor } from '../Event';
 import { Character } from '../Character';
 import type { EventDefinition } from '../lib/definitions/EventDefinition';
 import { AwaitAndProcessEventNode } from '../core/behTree/AwaitAndProcessEventNode';
-import { SkillCheckNode } from '../DialogTreeNodes';
+import { type ChoiceDNode, SkillCheckNode } from '../dialog/DialogTreeNodes';
 import { AnySuccessAllFailureNode } from '../core/behTree/AnySuccessAllFailureNode';
+import { TickerNode } from '../core/behTree/TickerNode';
 
 export const behTreeDefinitions: TreeDefinitionRegistry = {
     'dialog': () => new BehTree('dialog', [
@@ -73,53 +74,79 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
             new AnySuccessAllFailureNode('parallelProcessor', [
                 // Branch A: Automatic Advancement
                 new SequencerNode('autoAdvance', [
-                    new EvalNode('timeCheck', (node, state) => state.gameTime >= node.root.blackboard.canAddNodeAt),
+                    new TickerNode('waitForTimer', (node, state) => state.gameTime >= node.root.blackboard.canAddNodeAt),
                     new ExecNode('addNextNode', (node, state) => {
                         const dialog = state.dialogs[node.root.blackboard.dialogName];
                         const dialogDef = state.lib.dialogs.getDialog(dialog.definitionId)!;
 
-                        // 1. Try to advance from an existing non-choice node
+                        let nextNodeId: string | undefined = undefined;
+                        let sourceNodeDef: any = undefined;
+
+                        // 1. Find the first possible advancement from an existing node
                         for (const nodeId of dialog.nodes) {
                             const nodeDef = dialogDef.nodes[nodeId];
-                            let nextNodeId: string | undefined = undefined;
+                            let potentialNextNodeId: string | undefined = undefined;
 
                             if (nodeDef.type === 'message') {
-                                nextNodeId = nodeDef.next;
+                                if (nodeDef.next) {
+                                    potentialNextNodeId = nodeDef.next;
+                                }
                             } else if (nodeDef.type === 'skill_check') {
                                 const scNode = nodeDef as SkillCheckNode;
-                                const protagonist = Character.getProtagonistCharacter(state);
-                                const proficiency = Character.getProficiency(protagonist!, scNode.skillIds[0], state);
-                                nextNodeId = proficiency >= scNode.successThreshold ? scNode.successNext : scNode.failureNext;
+                                const protagonist = Character.getProtagonistCharacter(state)!;
+                                let hasSuccess = false;
+                                const threshold = scNode.successThreshold || 1;
+                                for (const skillId of scNode.skillIds) {
+                                    const proficiency = Character.getProficiency(protagonist, skillId, state);
+                                    if (proficiency >= threshold) {
+                                        hasSuccess = true;
+                                        break;
+                                    }
+                                }
+                                potentialNextNodeId = hasSuccess ? scNode.successNext : scNode.failureNext;
                             }
-
-                            if (nextNodeId && !dialog.nodes.includes(nextNodeId)) {
-                                if (nodeDef.leaf) node.root.blackboard.leafCounter++;
-                                if (nodeDef.data?.end) node.root.blackboard.dialogEnded = true;
-                                dialog.nodes.push(nextNodeId);
-                                node.root.blackboard.canAddNodeAt = state.gameTime + 1000;
-                                return NodeResult.SUCCESS;
+                            
+                            if (potentialNextNodeId && !dialog.nodes.includes(potentialNextNodeId)) {
+                                nextNodeId = potentialNextNodeId;
+                                sourceNodeDef = nodeDef;
+                                break; // Found our node, stop searching
                             }
                         }
 
-                        // 2. If no auto-advancement, try to add a level-gated node
+                        // 2. If we found a node to advance to, add it
+                        if (nextNodeId && sourceNodeDef) {
+                            if (sourceNodeDef.leaf) node.root.blackboard.leafCounter++;
+                            if ((sourceNodeDef as any).data?.end) node.root.blackboard.dialogEnded = true;
+                            dialog.nodes.push(nextNodeId);
+                            node.root.blackboard.canAddNodeAt = state.gameTime + 1;
+                            node.parent?.report(NodeResult.SUCCESS, state, node);
+                            return;
+                        }
+
+                        // 3. If no auto-advancement, try to add a level-gated node
                         const leafCounter = node.root.blackboard.leafCounter;
                         for (const nodeId in dialogDef.nodes) {
                              const nodeDef = dialogDef.nodes[nodeId];
                             if (nodeDef.data?.level <= leafCounter && !dialog.nodes.includes(nodeId)) {
                                 dialog.nodes.push(nodeId);
-                                node.root.blackboard.canAddNodeAt = state.gameTime + 1000;
-                                return NodeResult.SUCCESS;
+                                if (nodeDef.leaf && !('choices' in nodeDef) && !('next' in nodeDef)) {
+                                    node.root.blackboard.leafCounter++;
+                                }
+                                node.root.blackboard.canAddNodeAt = state.gameTime + 1;
+                                node.parent?.report(NodeResult.SUCCESS, state, node);
+                                return;
                             }
                         }
-
-                        return NodeResult.FAILURE; // No node to add
+                        
+                        node.parent?.report(NodeResult.FAILURE, state, node);
                     })
                 ]),
 
                 // Branch B: Player Choice
                 new AwaitAndProcessEventNode('playerChoice', 'dialogChoice',
                     (event: EventDefinition, node: IBehNode, state: GameState) => {
-                        if (event.params?.dialogName !== node.root.name) {
+                        console.log('[BehTree] playerChoice event:', JSON.stringify(event));
+                        if (event.params?.dialogName !== node.root.blackboard.dialogName) {
                             return false;
                         }
 
@@ -127,20 +154,66 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
                         const dialogDef = state.lib.dialogs.getDialog(dialog.definitionId)!;
                         const choiceId = event.params?.choiceId;
 
-                        const parentNode = Object.values(dialogDef.nodes).find(n => n.type === 'choice' && (n as any).choices.some((c: any) => c.id === choiceId)) as any;
-                        if (!parentNode) return false;
+                        if (!choiceId) {
+                            console.error(`[BehTree] playerChoice event is missing a choiceId`, event.params);
+                            return false;
+                        }
 
-                        if (parentNode.leaf) node.root.blackboard.leafCounter++;
-                        if (parentNode.data?.end) node.root.blackboard.dialogEnded = true;
+                        let parentNode: ChoiceDNode | undefined = undefined;
+                        let parentNodeId: string | undefined = undefined;
+
+                        for (const nodeId in dialogDef.nodes) {
+                            const n = dialogDef.nodes[nodeId];
+                            if (n.type === 'choice') {
+                                if ((n as ChoiceDNode).choices.some(c => c.id === choiceId)) {
+                                    parentNode = n as ChoiceDNode;
+                                    parentNodeId = nodeId;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!parentNode || !parentNodeId) {
+                            console.error(`[BehTree] Could not find parent choice node for choiceId: ${choiceId}`);
+                            return false;
+                        }
+
+                        console.log(`[BehTree] Found parent node ${parentNodeId} for choice ${choiceId}`);
 
                         const choice = parentNode.choices.find((c: any) => c.id === choiceId);
-                        if (choice?.next && !dialog.nodes.includes(choice.next)) {
+                        if (!choice) {
+                            // This should be impossible if the parentNode was found, but as a safeguard:
+                            console.error(`[BehTree] Could not find choice with id ${choiceId} in parent ${parentNodeId}`);
+                            return false;
+                        }
+
+                        if (parentNode.leaf) {
+                            node.root.blackboard.leafCounter++;
+                            console.log(`[BehTree] Parent node ${parentNodeId} is a leaf. Incremented leafCounter to ${node.root.blackboard.leafCounter}`);
+                        }
+
+                        if (parentNode.data?.end) node.root.blackboard.dialogEnded = true;
+
+                        if (choice.next && !dialog.nodes.includes(choice.next)) {
                             dialog.nodes.push(choice.next);
-                            node.root.blackboard.canAddNodeAt = state.gameTime + 1000;
+                            console.log(`[BehTree] Added next node from choice: ${choice.next}`);
+                            const nextNodeDef = dialogDef.nodes[choice.next];
+                            if (nextNodeDef.leaf && !nextNodeDef.next && (nextNodeDef.type === 'message' || nextNodeDef.type === 'skill_check')) {
+                                node.root.blackboard.leafCounter++;
+                                console.log(`[BehTree] Added node ${choice.next} is a terminal leaf. Incremented leafCounter to ${node.root.blackboard.leafCounter}`);
+                            }
+                            node.root.blackboard.canAddNodeAt = state.gameTime + 1;
                         }
                         return true;
                     }
-                )
+                ),
+                // Branch C: Check for dialog end
+                new SequencerNode('endChecker', [
+                    new EvalNode('hasDialogEnded', (node, _state) => node.root.blackboard.dialogEnded),
+                    new ExecNode('endTheMinigame', (node, state) => {
+                        effects.endMinigame(state, { minigameId: node.root.blackboard.dialogName });
+                    })
+                ])
             ])
         ])
     ]),
@@ -189,7 +262,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatWelcome', (_node, state: GameState) => {
             effects.applyWelcomeResults(state, { locationId: "aeiga_reika" });
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('skipIngressEngagement', (_node, state: GameState) => {
@@ -205,7 +278,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         ),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatIntro', (_node, state: GameState) => {
-            state.exitMinigame();
+            state.endMinigame();
         }),
     ]),
 
@@ -217,12 +290,12 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         ),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatIntro', (_node, state: GameState) => {
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatWelcome', (_node, state: GameState) => {
             effects.applyWelcomeResults(state, { locationId: "sequoiter" }); //aeiga_reika turfablie sequoiter
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('skipIngressEngagement', (_node, state: GameState) => {
@@ -238,12 +311,12 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
         ),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatIntro', (_node, state: GameState) => {
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatWelcome', (_node, state: GameState) => {
             effects.applyWelcomeResults(state, { locationId: "aeiga_reika" });
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('cheatIngress', (_node, state: GameState) => {
@@ -256,7 +329,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
                 specPoints: 1,
                 allSubmittedWords: ["frame", "gather", "misinformation", "dossier", "kompromat", "corrupt", "influence", "bribe", "link", "dark", "knife", "mind", "workshop", "empathy", "stone", "heart", "soul", "mantra", "hypnosys", "book", "word", "death", "live", "life", "plant", "cross", "symbol", "path", "trail", "structure", "castle", "mage", "guild", "magic", "craft", "master", "detail", "cog", "fog", "part", "pact", "gear", "crystal", "tower", "companion", "wild", "wagon", "dragon", "treaty", "spy", "empire", "feast", "tavern", "merchant", "gem", "ledger", "tunnel", "profit", "caravan", "whisper", "dice", "hammer", "bow", "leather", "robe", "ore", "harvest", "horse", "griffin", "watch", "scent", "lock", "phantom", "blade", "flame", "shadow"]
             });
-            state.exitMinigame();
+            state.endMinigame();
         }),
         new WaitNode({ durationMin: 0.1 }),
         new ExecNode('switchToDiscoverTab', (_node, state: GameState) => {

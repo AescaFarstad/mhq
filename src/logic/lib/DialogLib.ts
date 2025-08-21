@@ -1,5 +1,5 @@
-import type { DialogDefinition } from '../Dialog';
-import { createDialogNode, generateDialogIds, type DialogNode, type DialogNodeDef } from '../DialogTreeNodes';
+import type { DialogDefinition } from '../dialog/Dialog';
+import { createDialogNode, generateDialogIds, type DialogNode, type DialogNodeDef } from '../dialog/DialogTreeNodes';
 import { C } from './C';
 
 // JSON-like dialog definition that will be converted to DialogDefinition
@@ -31,6 +31,11 @@ export class DialogLib {
      */
     public loadRawDialogs(rawDialogData: Record<string, DialogDefRaw>): void {
         for (const [dialogId, rawDef] of Object.entries(rawDialogData)) {
+            // Add orderIndex to each node definition
+            rawDef.nodes.forEach((nodeDef, index) => {
+                nodeDef.orderIndex = index;
+            });
+
             // Convert JSON-like nodes to DialogNode instances
             const dialogNodesArray = rawDef.nodes.map(nodeDef => createDialogNode(nodeDef));
             

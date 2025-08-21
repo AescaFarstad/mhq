@@ -2,7 +2,6 @@ import { Stat, Parameter, FormulaStat, IndependentStat } from './core/Stat';
 // import type { Character } from './Character';
 import { AttributeUIInfo, AttributeCategoryUIInfo, SkillUIInfo, SkillSpecializationUIInfo, DebugStatInfo } from '../types/uiTypes';
 import type { GameState } from "./GameState";
-import { getAllResources } from './Resource';
 import { GameTaskType, GameTaskStatus, type GameTask } from './TaskTypes'; // Import task types
 import { resolveStepPlaceholderFromLib } from './lib/TaskLib'; // Updated import
 // import type { MinigameState } from './minigames/MinigameTypes'; // No longer directly needed here
@@ -37,10 +36,9 @@ export interface ResourceUIData {
  * Synchronizes resources state to uiState.resources
  */
 export function syncUiResources(gameState: GameState): void {
-    const allResources = getAllResources(gameState.resources);
     const currentUiKeys = new Set(Object.keys(gameState.uiState.resources));
 
-    allResources.forEach((resource, name) => {
+    gameState.resources.forEach((resource, name) => {
         if (!gameState.uiState.resources[name]) {
             // Add new resource to UI state
             gameState.uiState.resources[name] = {

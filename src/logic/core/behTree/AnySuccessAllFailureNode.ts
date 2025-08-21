@@ -1,5 +1,5 @@
 import { BehNode } from './BehNode';
-import { NodeResult, IContainerNode, IBehNode } from './BehTreeTypes';
+import { NodeResult, IContainerNode, IBehNode, IBehTree } from './BehTreeTypes';
 import type { GameState } from '../../GameState';
 import { C } from '../../lib/C';
 
@@ -22,8 +22,14 @@ export class AnySuccessAllFailureNode extends BehNode implements IContainerNode 
     constructor(name: string, children: IBehNode[]) {
         super(name);
         this._children = children;
-        this._children.forEach(c => c.parent = this);
         this._childrenStatus = [];
+    }
+
+    public wireTree(root: IBehTree, parent: IContainerNode | undefined): void {
+        super.wireTree(root, parent);
+        for (const child of this._children) {
+            child.wireTree(root, this);
+        }
     }
 
     public init(state: GameState): void {
@@ -33,7 +39,10 @@ export class AnySuccessAllFailureNode extends BehNode implements IContainerNode 
         }
 
         this._childrenStatus = new Array(this._children.length).fill(ChildNodeStatus.RUNNING);
-        this._children.forEach(child => child.init(state));
+        this._children.forEach(child => {
+            child.parent = this;
+            child.init(state)
+        });
     }
 
     public report(result: NodeResult, state: GameState, child: IBehNode): void {

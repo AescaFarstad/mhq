@@ -20,12 +20,19 @@ export class ClickCounterGame implements BaseMinigame<ClickCounterState> {
         });
     }
 
+    /**
+     * Called when the minigame is being exited or shut down.
+     * @param _deltaTime The time elapsed since the last update, in seconds.
+     */
     update(_gameState: GameState, _deltaTime: number): void {
         // Game logic update, if any, would go here.
         // For this simple game, most logic is driven by UI interaction handled in the Vue component
         // and direct calls to methods like recordClick.
     }
 
+    /**
+     * Called when the minigame is being exited or shut down.
+     */
     destroy(_gameState: GameState): void {
         // Perform any cleanup specific to this minigame instance.
         // In this case, there's not much to do beyond GameState handling its removal.
@@ -34,9 +41,11 @@ export class ClickCounterGame implements BaseMinigame<ClickCounterState> {
     // --- Minigame Specific Methods ---
 
     public recordClick(gameState: GameState): void {
-        this.state.clickCount++; // This now mutates a reactive property
-        if (this.state.clickCount >= this.state.clicksToWin) {
-            gameState.exitMinigame(); // Request GameState to exit this minigame
+        if (this.state.clickCount < this.state.clicksToWin) {
+            this.state.clickCount++; // This now mutates a reactive property
+            if (this.state.clickCount >= this.state.clicksToWin) {
+                gameState.endMinigame(); // Request GameState to exit this minigame
+            }
         }
     }
 } 

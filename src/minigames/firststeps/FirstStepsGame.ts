@@ -1,10 +1,16 @@
 import type { GameState } from '../../logic/GameState';
 import type { BaseMinigame, MinigameState, MinigameType } from '../../logic/minigames/MinigameTypes';
 import { reactive } from 'vue'; // Or shallowReactive if preferred for root
+import { startDialog } from '../../logic/dialog/Dialog';
 
 export const FIRSTSTEPS_TYPE: MinigameType = 'FirstSteps';
 
 export interface FirstStepsState extends MinigameState {
+    dialogStarted: boolean;
+    dialogState?: {
+        nodes: string[];
+        choicesMade: string[];
+    }
 }
 
 export class FirstStepsGame implements BaseMinigame<FirstStepsState> {
@@ -20,22 +26,19 @@ export class FirstStepsGame implements BaseMinigame<FirstStepsState> {
         // All state properties that need to be reactive for the UI
         // should be within this reactive object.
         this.state = reactive<FirstStepsState>({
-            // FirstSteps initial state:
-            // score: 0,
-            // currentLevel: 'level1',
-            // isActive: true,
+            dialogStarted: false,
         });
     }
 
     /**
      * Called every game tick while the minigame is active.
-     * @param _gameState The global game state.
-     * @param deltaTime The time elapsed since the last update, in seconds.
+     * @param gameState The global game state.
+     * @param _deltaTime The time elapsed since the last update, in seconds.
      */
-    update(_gameState: GameState, _deltaTime: number): void {
-        // TODO: Implement your minigame's core logic here
-        // This method is called repeatedly - use deltaTime for frame-rate independent updates.
-        // console.log(`FirstStepsGame update, deltaTime: \${deltaTime}`);
+    update(gameState: GameState, _deltaTime: number): void {
+        if (!this.state.dialogStarted) {
+            this.start(gameState);
+        }
     }
 
     /**
@@ -47,6 +50,11 @@ export class FirstStepsGame implements BaseMinigame<FirstStepsState> {
         // TODO: Add any cleanup logic specific to your minigame
         // This could include stopping timers, removing event listeners, etc.
         // console.log('FirstStepsGame destroyed');
+    }
+
+    public start(gameState: GameState): void {
+        startDialog('firstStepsDialog', this.id, gameState);
+        this.state.dialogStarted = true;
     }
 
     // TODO: Add your custom minigame methods here

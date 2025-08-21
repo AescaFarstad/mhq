@@ -1,7 +1,7 @@
 import { DialogNode } from './DialogTreeNodes';
-import type { GameState } from './GameState';
-import { EventProcessor } from './Event';
-import type { EventDefinition } from './lib/definitions/EventDefinition';
+import type { GameState } from '../GameState';
+import { EventProcessor } from '../Event';
+import type { EventDefinition } from '../lib/definitions/EventDefinition';
 
 export interface DialogDefinition {
     nodes: Record<string, DialogNode>; // Changed from array to dict with ids as keys
@@ -70,15 +70,11 @@ export function startDialog(definitionId: string, dialogName: string, gameState:
     console.log(`[startDialog] Created dialog state:`, dialogState);
     
     // Start the dialog behavior tree
-    console.log(`[startDialog] Looking for behavior tree '${dialogDefinition.treeId}'`);
     const treeDef = gameState.lib.behTrees.getTree(dialogDefinition.treeId);
     if (treeDef) {
-        console.log(`[startDialog] Found behavior tree, creating instance`);
         const treeInstance = treeDef();
         treeInstance.blackboard.dialogName = dialogName; // Changed from dialogId to dialogName
-        console.log(`[startDialog] Adding tree to invoker`);
         gameState.invoker.addTree(treeInstance, gameState);
-        console.log(`[startDialog] Dialog started successfully`);
         return true;
     } else {
         console.warn(`[startDialog] Dialog behavior tree '${dialogDefinition.treeId}' not found`);

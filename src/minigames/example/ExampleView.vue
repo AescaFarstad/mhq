@@ -6,7 +6,7 @@ const gameState = inject<GameState>('gameState');
 
 const exitMinigame = () => {
   if (gameState) { // gameState is already checked by inject, but good practice
-    gameState.exitMinigame();
+    gameState.endMinigame();
   }
 };
 

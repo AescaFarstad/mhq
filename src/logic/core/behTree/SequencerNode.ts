@@ -14,56 +14,55 @@ export class SequencerNode extends BehNode implements IContainerNode {
     }
 
     public wireTree(root: IBehTree, parent: IContainerNode | undefined): void {
-        this.root = root;
-        this.parent = parent;
-        this.uid = this.getHierarchicalPath();
-        
+        super.wireTree(root, parent);
         for (const child of this.children) {
-            if (child instanceof SequencerNode) {
-                child.wireTree(root, this);
-            } else {
-                child.root = root;
-                child.parent = this;
-                child.uid = child.getHierarchicalPath();
-            }
+            child.wireTree(root, this);
         }
     }
 
     public init(state: GameState): void {
+        super.init(state);
         if (C.BEH_LOG_VERBOSE) {
             console.log(`[BehTree] ${this.getHierarchicalPath()} started.`);
         }
-        this.currentIndex = -1;
-        this.advance(state);
+        this.currentIndex = 0;
+        if (this.children.length > 0) {
+            this.children[this.currentIndex].init(state);
+        } else {
+            // If there are no children, succeed immediately.
+            this.parent?.report(NodeResult.SUCCESS, state, this);
+        }
     }
 
     public exit(): void {
         if (this.currentIndex >= 0 && this.currentIndex < this.children.length) {
             this.children[this.currentIndex].exit();
         }
+        super.exit();
     }
 
-    public report(result: NodeResult, state: GameState, _child: IBehNode): void {
+    public report(result: NodeResult, state: GameState, child: IBehNode): void {
+        if (child !== this.children[this.currentIndex]) {
+            return; // Ignore reports from children that are not the current one.
+        }
+
         if (result === NodeResult.SUCCESS) {
-            if (this.advance(state)) {
-                 this.parent?.report(NodeResult.SUCCESS, state, this);
+            // Exit the completed child
+            child.exit();
+            
+            this.currentIndex++;
+            if (this.currentIndex < this.children.length) {
+                // If there are more children, initialize the next one.
+                const nextChild = this.children[this.currentIndex];
+                nextChild.init(state);
+            } else {
+                // All children have succeeded.
+                this.parent?.report(NodeResult.SUCCESS, state, this);
             }
-        } else {
+        } else { // NodeResult.FAILURE
+            // If any child fails, the whole sequencer fails.
+            child.exit();
             this.parent?.report(NodeResult.FAILURE, state, this);
-        }
-    }
-
-    protected advance(state: GameState): boolean {
-        if (this.currentIndex > -1) {
-            this.children[this.currentIndex].exit();
-        }
-        this.currentIndex++;
-        if (this.currentIndex < this.children.length) {
-            const child = this.children[this.currentIndex];
-            child.init(state);
-            return false;
-        } else {
-            return true;
         }
     }
 } 

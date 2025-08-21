@@ -1,4 +1,4 @@
-import { MESSAGE, CHOICE, SKILL_CHECK } from '../DialogTreeNodes';
+import { MESSAGE, CHOICE, SKILL_CHECK } from '../dialog/DialogTreeNodes';
 
 export const firstStepsDialogRaw = {
     behTreeId: 'firstStepsDialog',
@@ -100,7 +100,7 @@ export const firstStepsDialogRaw = {
             id: 'pink_substance_sense_check',
             type: SKILL_CHECK,
             text: "You examine it more closely...",
-            skillIds: ['senses'],
+            skillIds: ['perception'],
             successThreshold: 1,
             successNext: 'pink_substance_safe',
             failureNext: 'pink_substance_uncertain'
@@ -170,7 +170,7 @@ export const firstStepsDialogRaw = {
         {
             id: 'portraits',
             type: MESSAGE,
-            text: "These are previous headmasters. The last one is a mirror.",
+            text: "These are the previous headmasters. The last one is a mirror.",
             leaf: true,
         },
         
@@ -188,7 +188,7 @@ export const firstStepsDialogRaw = {
             id: 'humming_noise_check',
             type: SKILL_CHECK,
             text: "You listen carefully to the humming noise...",
-            skillIds: ['bats_ear', 'psychometry', 'meditation', 'musical_instruments'],
+            skillIds: ['bat_ear', 'psychometry', 'meditation', 'musical_instruments'],
             successThreshold: 1,
             successNext: 'humming_identified',
             failureNext: 'humming_mysterious'

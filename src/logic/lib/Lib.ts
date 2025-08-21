@@ -12,7 +12,7 @@ import { IngressWordsLib } from '../../minigames/ingress/lib/IngressWordsLib';
 import { WelcomeLocationsLib } from '../../minigames/welcome/lib/WelcomeLocationsLib';
 import { BehTreeLib } from './BehTreeLib';
 import { DialogLib } from './DialogLib';
-import type { DialogDefinition } from '../Dialog';
+import type { DialogDefinition } from '../dialog/Dialog';
 
 
 import eventsData from '../data/events';

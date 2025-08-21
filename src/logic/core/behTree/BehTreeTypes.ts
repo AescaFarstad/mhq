@@ -18,6 +18,7 @@ export interface IEventListener {
 }
 
 export interface IContainerNode extends IBehNode {
+    readonly children: IBehNode[];
     report(result: NodeResult, state: GameState, child: IBehNode): void;
 }
 
@@ -27,6 +28,7 @@ export interface IBehNode extends IEventListener {
     root: IBehTree;
     parent?: IContainerNode; //Root has no parent
     
+    wireTree(root: IBehTree, parent: IContainerNode | undefined): void;
     init(state: GameState): void;
     exit(): void;
     getHierarchicalPath(): string;

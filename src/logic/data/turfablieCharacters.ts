@@ -302,7 +302,7 @@ const charactersData: CharacterData = {
                 level: 2,
                 specializations: {
                     eagle_eye: 1,
-                    bats_ear: 1
+                    bat_ear: 1
                 }
             },
             streetwise: {

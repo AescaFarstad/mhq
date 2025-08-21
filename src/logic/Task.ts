@@ -7,7 +7,7 @@ import { Character as CharacterNamespace } from './Character';
 
 import { Stats } from './core/Stats';
 import { IndependentStat } from './core/Stat';
-import { getWeightedRandomIndex } from './utils/mathUtils';
+import { getWeightedRandomIndex } from './core/mathUtils';
 import type { TaskNameDetails } from './lib/definitions/TaskDefinition';
 import { C } from './lib/C';
 

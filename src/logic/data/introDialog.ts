@@ -1,4 +1,4 @@
-import { MESSAGE, CHOICE } from '../DialogTreeNodes';
+import { MESSAGE, CHOICE } from '../dialog/DialogTreeNodes';
 
 export const introDialogRaw = {
     nodes: [

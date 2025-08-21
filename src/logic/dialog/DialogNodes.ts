@@ -1,10 +1,10 @@
-import { BehNode } from './BehNode';
-import type { GameState } from '../../GameState';
-import { NodeResult } from './BehTreeTypes';
-import { C } from '../../lib/C';
-import { Character } from '../../Character';
-import { SkillCheckNode } from '../../DialogTreeNodes';
-import { EventProcessor } from '../../Event';
+import { BehNode } from '../core/behTree/BehNode';
+import type { GameState } from '../GameState';
+import { NodeResult } from '../core/behTree/BehTreeTypes';
+import { C } from '../lib/C';
+import { Character } from '../Character';
+import { SkillCheckNode } from './DialogTreeNodes';
+import { EventProcessor } from '../Event';
 
 export class CheckDNTypeNode extends BehNode {
     private readonly nodeType: string;
