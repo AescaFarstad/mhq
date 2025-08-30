@@ -27,90 +27,90 @@ import { reactive } from 'vue';
 // --- Synchronous Initialization ---
 function initializeGame() {
 
-    // This will also synchronously load the Lib definitions
-    const gameState = new GameState();
-    if (!gameState.lib.isLoaded) {
-        console.error("Initialization failed: Could not process library definitions.");
-        document.getElementById('app')!.innerHTML = '<h1 style="color: red;">Error processing game data. Please check console.</h1>';
-        return; // Stop initialization
-    }
-    const app = createApp(App);
+  // This will also synchronously load the Lib definitions
+  const gameState = new GameState();
+  if (!gameState.lib.isLoaded) {
+    console.error("Initialization failed: Could not process library definitions.");
+    document.getElementById('app')!.innerHTML = '<h1 style="color: red;">Error processing game data. Please check console.</h1>';
+    return; // Stop initialization
+  }
+  const app = createApp(App);
 
-    // Create standalone FPS counter and reactive metrics
-    const fpsCounter = new FPSCounter();
-    const fpsMetrics = reactive({
-        currentFPS: 0,
-        averageFPS: 0,
-        maxFrameTime: 0
-    });
+  // Create standalone FPS counter and reactive metrics
+  const fpsCounter = new FPSCounter();
+  const fpsMetrics = reactive({
+    currentFPS: 0,
+    averageFPS: 0,
+    maxFrameTime: 0
+  });
 
-    // Provide the gameState to the Vue application
-    // Make sure the key matches what useGameState expects, e.g., GameStateKey if you defined it
-    app.provide('gameState', gameState);
-    app.provide('fpsMetrics', fpsMetrics);
+  // Provide the gameState to the Vue application
+  // Make sure the key matches what useGameState expects, e.g., GameStateKey if you defined it
+  app.provide('gameState', gameState);
+  app.provide('fpsMetrics', fpsMetrics);
 
-    // Register Minigame UI Sync Functions
-    registerMinigameUISyncFunction(CLICK_COUNTER_TYPE, syncClickCounterUI);
-    registerMinigameUISyncFunction(WELCOME_TYPE, welcomeUISync);
-    registerMinigameUISyncFunction(INGRESS_TYPE, syncIngressUI);
-    registerMinigameUISyncFunction(EXAMPLE_TYPE, syncExampleUI);
-    registerMinigameUISyncFunction(INTRO_TYPE, introUISync);
-    registerMinigameUISyncFunction(FIRSTSTEPS_TYPE, syncFirstStepsUI);
-    // Register other minigame UI sync functions here
+  // Register Minigame UI Sync Functions
+  registerMinigameUISyncFunction(CLICK_COUNTER_TYPE, syncClickCounterUI);
+  registerMinigameUISyncFunction(WELCOME_TYPE, welcomeUISync);
+  registerMinigameUISyncFunction(INGRESS_TYPE, syncIngressUI);
+  registerMinigameUISyncFunction(EXAMPLE_TYPE, syncExampleUI);
+  registerMinigameUISyncFunction(INTRO_TYPE, introUISync);
+  registerMinigameUISyncFunction(FIRSTSTEPS_TYPE, syncFirstStepsUI);
+  // Register other minigame UI sync functions here
 
-    initializeDebugConsole(
-        () => gameState
-    );
+  initializeDebugConsole(
+    () => gameState
+  );
+  
+  runTests();
+
+
+  // Mount the Vue app
+  app.mount('#app');
+
+  const startGameEvent = gameState.lib.events.get("startGame")!;
+  EventProcessor.processSingleEvent(startGameEvent, gameState);
+
+  // --- Game Loop ---
+  let lastTimestamp = 0;
+  let accumulatedTime = 0;
+
+  function gameLoop(timestamp: number) {
+    // Update FPS counter and metrics
+    fpsCounter.update(timestamp);
+    const metrics = fpsCounter.getMetrics();
+    fpsMetrics.currentFPS = metrics.currentFPS;
+    fpsMetrics.averageFPS = metrics.averageFPS;
+    fpsMetrics.maxFrameTime = metrics.maxFrameTime;
     
-    runTests();
+    if (lastTimestamp === 0) {
+      lastTimestamp = timestamp;
+    }
+    const rawDeltaTime = (timestamp - lastTimestamp) / 1000; // Convert ms to seconds
+    lastTimestamp = timestamp;
 
+    // Apply time scale to rawDeltaTime
+    const scaledDeltaTime = rawDeltaTime * gameState.timeScale.current;
 
-    // Mount the Vue app
-    app.mount('#app');
+    accumulatedTime += scaledDeltaTime;
 
-    const startGameEvent = gameState.lib.events.get("startGame")!;
-    EventProcessor.processSingleEvent(startGameEvent, gameState);
+    processInputs(gameState);
 
-    // --- Game Loop ---
-    let lastTimestamp = 0;
-    let accumulatedTime = 0;
-
-    function gameLoop(timestamp: number) {
-        // Update FPS counter and metrics
-        fpsCounter.update(timestamp);
-        const metrics = fpsCounter.getMetrics();
-        fpsMetrics.currentFPS = metrics.currentFPS;
-        fpsMetrics.averageFPS = metrics.averageFPS;
-        fpsMetrics.maxFrameTime = metrics.maxFrameTime;
-        
-        if (lastTimestamp === 0) {
-            lastTimestamp = timestamp;
-        }
-        const rawDeltaTime = (timestamp - lastTimestamp) / 1000; // Convert ms to seconds
-        lastTimestamp = timestamp;
-
-        // Apply time scale to rawDeltaTime
-        const scaledDeltaTime = rawDeltaTime * gameState.timeScale.current;
-
-        accumulatedTime += scaledDeltaTime;
-
-        processInputs(gameState);
-
-        // Process game logic if enough accumulated time has passed
-        if (gameState.allowedUpdates > 0) {
-            gameState.update(gameState.minDeltaTime); // Use minDeltaTime for a consistent tick
-            gameState.allowedUpdates--;
-            accumulatedTime = 0; // Reset accumulated time after a tick
-        } else if (accumulatedTime >= gameState.minDeltaTime) {
-            gameState.update(Math.min(10.0, accumulatedTime));
-            accumulatedTime = 0;
-        }
-
-        requestAnimationFrame(gameLoop);
+    // Process game logic if enough accumulated time has passed
+    if (gameState.allowedUpdates > 0) {
+      gameState.update(gameState.minDeltaTime); // Use minDeltaTime for a consistent tick
+      gameState.allowedUpdates--;
+      accumulatedTime = 0; // Reset accumulated time after a tick
+    } else if (accumulatedTime >= gameState.minDeltaTime) {
+      gameState.update(Math.min(10.0, accumulatedTime));
+      accumulatedTime = 0;
     }
 
-    // Start the game loop
     requestAnimationFrame(gameLoop);
+  }
+
+  // Start the game loop
+  requestAnimationFrame(gameLoop);
 }
 
 // Start the initialization process

@@ -1,35 +1,35 @@
 <template>
   <div class="tab-content">
-    <div class="filter-inputs">
-      <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
-      <input type="text" v-model="excludeFilter" placeholder="Exclude Regex (e.g., Mana$)" class="filter-input" :class="{ 'invalid-regex': !isExcludeRegexValid }" />
-      <button @click="clearAllFilters" class="clear-btn clear-all-btn">Clear Filters</button>
+  <div class="filter-inputs">
+    <input type="text" v-model="includeFilter" placeholder="Include Regex (e.g., ^Player)" class="filter-input" :class="{ 'invalid-regex': !isIncludeRegexValid }" />
+    <input type="text" v-model="excludeFilter" placeholder="Exclude Regex (e.g., Mana$)" class="filter-input" :class="{ 'invalid-regex': !isExcludeRegexValid }" />
+    <button @click="clearAllFilters" class="clear-btn clear-all-btn">Clear Filters</button>
+  </div>
+  <div v-if="hasStats" class="stats-container">
+    <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
+    <div class="stat-controls">
+      <button @click="exploreStat(name)" class="control-btn explore-btn">Explore</button>
+      <template v-if="isIndependentStat(stat)">
+      <button @click="modifyStat(name, -1)" class="control-btn">-</button>
+      <button @click="modifyStat(name, 1)" class="control-btn">+</button>
+      <input type="text" v-model="statInputValues[name]" class="stat-input" @keyup.enter="setStatValue(name)" />
+      <button @click="setStatValue(name)" class="control-btn">Set</button>
+      </template>
+      <template v-else>
+      <div class="placeholder-controls-without-explore"></div>
+      </template>
     </div>
-    <div v-if="hasStats" class="stats-container">
-      <div v-for="(stat, name) in sortedStats" :key="name" class="stat-row">
-        <div class="stat-controls">
-          <button @click="exploreStat(name)" class="control-btn explore-btn">Explore</button>
-          <template v-if="isIndependentStat(stat)">
-            <button @click="modifyStat(name, -1)" class="control-btn">-</button>
-            <button @click="modifyStat(name, 1)" class="control-btn">+</button>
-            <input type="text" v-model="statInputValues[name]" class="stat-input" @keyup.enter="setStatValue(name)" />
-            <button @click="setStatValue(name)" class="control-btn">Set</button>
-          </template>
-          <template v-else>
-            <div class="placeholder-controls-without-explore"></div>
-          </template>
-        </div>
-        <div class="stat-name">{{ name }}</div>
-        <div class="stat-separator">:</div>
-        <div class="stat-value">
-          {{ stat.value }}
-          <span v-if="stat.params" class="stat-params">
-            = {{ formatParams(stat.params) }}
-          </span>
-        </div>
-      </div>
+    <div class="stat-name">{{ name }}</div>
+    <div class="stat-separator">:</div>
+    <div class="stat-value">
+      {{ stat.value }}
+      <span v-if="stat.params" class="stat-params">
+      = {{ formatParams(stat.params) }}
+      </span>
     </div>
-    <p v-else>No stats available.</p>
+    </div>
+  </div>
+  <p v-else>No stats available.</p>
   </div>
 </template>
 
@@ -43,8 +43,8 @@ import * as UIStateManager from '../../logic/UIStateManager';
 
 const props = defineProps({
   stats: {
-    type: Object as PropType<Record<string, DebugStatInfo> | null | undefined>,
-    required: true,
+  type: Object as PropType<Record<string, DebugStatInfo> | null | undefined>,
+  required: true,
   },
 });
 
@@ -70,28 +70,28 @@ const sortedStats = computed(() => {
 
   // Include filter
   if (includeFilter.value.trim()) {
-    try {
-      const r = new RegExp(includeFilter.value.trim(), 'i');
-      filteredKeys = filteredKeys.filter((k) => r.test(k));
-    } catch {
-      isIncludeRegexValid.value = false;
-    }
+  try {
+    const r = new RegExp(includeFilter.value.trim(), 'i');
+    filteredKeys = filteredKeys.filter((k) => r.test(k));
+  } catch {
+    isIncludeRegexValid.value = false;
+  }
   }
 
   // Exclude filter
   if (excludeFilter.value.trim()) {
-    try {
-      const r = new RegExp(excludeFilter.value.trim(), 'i');
-      filteredKeys = filteredKeys.filter((k) => !r.test(k));
-    } catch {
-      isExcludeRegexValid.value = false;
-    }
+  try {
+    const r = new RegExp(excludeFilter.value.trim(), 'i');
+    filteredKeys = filteredKeys.filter((k) => !r.test(k));
+  } catch {
+    isExcludeRegexValid.value = false;
+  }
   }
 
   const res: Record<string, DebugStatInfo> = {};
   filteredKeys.sort().forEach((k) => {
-    res[k] = props.stats![k];
-    if (statInputValues[k] === undefined) statInputValues[k] = String(props.stats![k].value);
+  res[k] = props.stats![k];
+  if (statInputValues[k] === undefined) statInputValues[k] = String(props.stats![k].value);
   });
   return res;
 });
@@ -102,16 +102,16 @@ const formatParams = (params: Record<string, number>): string => {
   if ('add' in params && 'multiCache' in params) return `${params.add} * ${params.multiCache}`;
   if ('argument' in params) return `formula(${params.argument})`;
   return Object.entries(params)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join(', ');
+  .map(([k, v]) => `${k}: ${v}`)
+  .join(', ');
 };
 
 const modifyStat = (name: string, delta: number) => {
   if (!gameState) return;
   const stat = gameState.connections.connectablesByName.get(name);
   if (stat && 'independent' in stat && stat.independent) {
-    Stats.modifyStat(stat as IndependentStat, delta, gameState.connections);
-    statInputValues[name] = String(stat.value + delta);
+  Stats.modifyStat(stat as IndependentStat, delta, gameState.connections);
+  statInputValues[name] = String(stat.value + delta);
   }
 };
 
@@ -119,11 +119,11 @@ const setStatValue = (name: string) => {
   if (!gameState) return;
   const stat = gameState.connections.connectablesByName.get(name);
   if (stat && 'independent' in stat && stat.independent) {
-    const v = Number(statInputValues[name]);
-    if (gameState && gameState.connections) {
-      Stats.setIndependentStat(stat as IndependentStat, v, gameState.connections);
-      UIStateManager.updateDebugView(gameState);
-    }
+  const v = Number(statInputValues[name]);
+  if (gameState && gameState.connections) {
+    Stats.setIndependentStat(stat as IndependentStat, v, gameState.connections);
+    UIStateManager.updateDebugView(gameState);
+  }
   }
 };
 

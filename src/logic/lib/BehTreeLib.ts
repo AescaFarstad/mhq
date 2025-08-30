@@ -3,23 +3,23 @@ import { behTreeDefinitions } from '../data/behTrees';
 import { storyDialogDefinitions } from '../data/storyDialogTrees';
 
 export class BehTreeLib {
-    private trees: TreeDefinitionRegistry;
+  private trees: TreeDefinitionRegistry;
 
-    constructor() {
-        // Merge both tree definition registries
-        this.trees = {
-            ...behTreeDefinitions,
-            ...storyDialogDefinitions
-        };
-        
-        if (this.trees) {
-        } else {
-            console.error("BehTreeLib: Tree definitions not found.");
-            this.trees = {};
-        }
+  constructor() {
+    // Merge both tree definition registries
+    this.trees = {
+      ...behTreeDefinitions,
+      ...storyDialogDefinitions
+    };
+    
+    if (this.trees) {
+    } else {
+      console.error("BehTreeLib: Tree definitions not found.");
+      this.trees = {};
     }
+  }
 
-    public getTree(name: string): TreeDefinitionFn | undefined {
-        return this.trees[name];
-    }
+  public getTree(name: string): TreeDefinitionFn | undefined {
+    return this.trees[name];
+  }
 } 

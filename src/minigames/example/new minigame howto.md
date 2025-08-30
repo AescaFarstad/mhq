@@ -83,11 +83,11 @@ import YourMinigameNameView from './minigames/your_minigame_name/YourMinigameNam
 
 <template>
   <!-- ... existing template ... -->
-    <!-- Minigame Overlay Area -->
-    <!-- ... other v-if / v-else-if blocks ... -->
-    <div v-else-if="activeMinigameType === 'YourMinigameName'"> <!-- Or use YOUR_MINIGAME_NAME_TYPE if imported and exposed -->
-      <YourMinigameNameView />
-    </div>
+  <!-- Minigame Overlay Area -->
+  <!-- ... other v-if / v-else-if blocks ... -->
+  <div v-else-if="activeMinigameType === 'YourMinigameName'"> <!-- Or use YOUR_MINIGAME_NAME_TYPE if imported and exposed -->
+    <YourMinigameNameView />
+  </div>
   <!-- ... -->
 </template>
 ```
@@ -99,9 +99,9 @@ If you want to trigger your minigame through the event system:
 2.  Add an `else if` case to the `startMinigame` effect in `EventProcessor.executeEffect`:
 ```typescript
 } else if (params.name === 'YourMinigameName') { // Use the string name you'll use in event data
-    const minigameInstance = new YourMinigameNameGame(`event-${params.name}-${Date.now()}`);
-    state.startMinigame(minigameInstance);
-    console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
+  const minigameInstance = new YourMinigameNameGame(`event-${params.name}-${Date.now()}`);
+  state.startMinigame(minigameInstance);
+  console.log(`Event 'startMinigame': Started minigame '${params.name}'.`);
 ```
 
 ## Key Concepts Recap

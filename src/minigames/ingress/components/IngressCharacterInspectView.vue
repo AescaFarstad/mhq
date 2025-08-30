@@ -16,642 +16,642 @@ const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
 
 const windowHeight = ref(window.innerHeight);
 const onResize = () => {
-    windowHeight.value = window.innerHeight;
+  windowHeight.value = window.innerHeight;
 };
 onMounted(() => {
-    window.addEventListener('resize', onResize);
+  window.addEventListener('resize', onResize);
 });
 onUnmounted(() => {
-    window.removeEventListener('resize', onResize);
+  window.removeEventListener('resize', onResize);
 });
 
 const portraitWidth = computed(() => {
-    return windowHeight.value <= 900 ? 228 : 254;
+  return windowHeight.value <= 900 ? 228 : 254;
 });
 const portraitHeight = computed(() => {
-    return windowHeight.value <= 900 ? 324 : 360;
+  return windowHeight.value <= 900 ? 324 : 360;
 });
 
 const ingressState = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
-    return gameState.uiState.activeMinigameState as IngressState;
+  return gameState.uiState.activeMinigameState as IngressState;
   }
   return null;
 });
 
 const ingressGame = computed(() => {
   if (gameState?.activeMinigame?.type === INGRESS_TYPE) {
-    return gameState.activeMinigame as IngressGame;
+  return gameState.activeMinigame as IngressGame;
   }
   return null;
 });
 
 const characterDef = computed(() => {
-    if (!ingressState.value?.inspectingCharacterId || !gameState) {
-        return null;
-    }
-    return gameState.lib.characters.getCharacter(ingressState.value.inspectingCharacterId);
+  if (!ingressState.value?.inspectingCharacterId || !gameState) {
+    return null;
+  }
+  return gameState.lib.characters.getCharacter(ingressState.value.inspectingCharacterId);
 });
 
 const xpBonus = computed(() => {
-    if (!ingressState.value?.inspectingCharacterId) return 0;
-    return ingressState.value.characterXpBonuses[ingressState.value.inspectingCharacterId] || 0;
+  if (!ingressState.value?.inspectingCharacterId) return 0;
+  return ingressState.value.characterXpBonuses[ingressState.value.inspectingCharacterId] || 0;
 });
 
 const displayedCharacterName = computed(() => {
-    if (!characterDef.value) return '';
-    if (ingressState.value?.characterRenames && ingressState.value.characterRenames[characterDef.value.id]) {
-        return ingressState.value.characterRenames[characterDef.value.id];
-    }
-    return characterDef.value.name;
+  if (!characterDef.value) return '';
+  if (ingressState.value?.characterRenames && ingressState.value.characterRenames[characterDef.value.id]) {
+    return ingressState.value.characterRenames[characterDef.value.id];
+  }
+  return characterDef.value.name;
 });
 
 const secondEpithet = computed(() => {
-    if (characterDef.value && characterDef.value.epithets.length > 1 && ingressState.value && ingressState.value.inspectingCharacterId) {
-        const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
-        if (bioObfuscation < 1.0) {
-            return characterDef.value.epithets[1];
-        }
+  if (characterDef.value && characterDef.value.epithets.length > 1 && ingressState.value && ingressState.value.inspectingCharacterId) {
+    const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+    if (bioObfuscation < 1.0) {
+      return characterDef.value.epithets[1];
     }
-    return '';
+  }
+  return '';
 });
 
 const locationDef = computed(() => {
-    if (!characterDef.value || !gameState) {
-        return null;
-    }
-    return gameState.lib.welcomeLocations.getLocation(characterDef.value.location);
+  if (!characterDef.value || !gameState) {
+    return null;
+  }
+  return gameState.lib.welcomeLocations.getLocation(characterDef.value.location);
 });
 
 const obfuscatedBio = computed(() => {
-    if (!characterDef.value || ingressState.value === null || !ingressState.value.inspectingCharacterId) {
-        return '';
-    }
-    const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
-    return obfuscateString(characterDef.value.bio, bioObfuscation, 0.4);
+  if (!characterDef.value || ingressState.value === null || !ingressState.value.inspectingCharacterId) {
+    return '';
+  }
+  const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+  return obfuscateString(characterDef.value.bio, bioObfuscation, 0.4);
 });
 
 const handleDeobfuscate = () => {
-    ingressGame.value?.deobfuscateBio();
+  ingressGame.value?.deobfuscateBio();
 };
 
 const isMaterializeButtonDisabled = computed(() => {
-    if (!ingressState.value) {
-        return true;
-    }
-    return ingressState.value.materializationProgress < 100 || ingressState.value.aspectPoints < 10;
+  if (!ingressState.value) {
+    return true;
+  }
+  return ingressState.value.materializationProgress < 100 || ingressState.value.aspectPoints < 10;
 });
 
 const handleMaterialize = () => {
-    if (ingressGame.value && gameState) {
-        ingressGame.value.commitAndMaterialize(gameState);
-    }
+  if (ingressGame.value && gameState) {
+    ingressGame.value.commitAndMaterialize(gameState);
+  }
 };
 
 const handleClose = () => {
-    ingressGame.value?.closeCharacterInspection();
+  ingressGame.value?.closeCharacterInspection();
 };
 
 const isNewNameValid = computed(() => {
-    return newName.value.trim().length >= 3 && newName.value.trim().length <= 12;
+  return newName.value.trim().length >= 3 && newName.value.trim().length <= 12;
 });
 
 const handleOpenRenameDialog = () => {
-    if (characterDef.value) {
-        newName.value = displayedCharacterName.value;
-        ingressGame.value?.openRenameDialog();
-    }
+  if (characterDef.value) {
+    newName.value = displayedCharacterName.value;
+    ingressGame.value?.openRenameDialog();
+  }
 };
 
 const handleCloseRenameDialog = () => {
-    ingressGame.value?.closeRenameDialog();
+  ingressGame.value?.closeRenameDialog();
 };
 
 const handleRename = () => {
-    if (isNewNameValid.value) {
-        ingressGame.value?.renameCharacter(newName.value);
-    }
+  if (isNewNameValid.value) {
+    ingressGame.value?.renameCharacter(newName.value);
+  }
 };
 
 const deobfuscateButtonLabel = computed(() => {
-    if (!ingressState.value || !ingressState.value.inspectingCharacterId) return 'Learn';
-    // Based on the logic in IngressGame.ts deobfuscateBio
-    const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
-    const steps = Math.round(bioObfuscation * 5);
-    switch (steps) {
-        case 5: return '<strong>Read</strong>';
-        case 3: return 'Read <strong>more ☆</strong>';
-        case 2: return 'Read <strong>more ☆</strong>';
-        case 1: return 'Read <strong>more ☆</strong>';
-        default: return 'Learn';
-    }
+  if (!ingressState.value || !ingressState.value.inspectingCharacterId) return 'Learn';
+  // Based on the logic in IngressGame.ts deobfuscateBio
+  const bioObfuscation = ingressState.value.characterBioObfuscation[ingressState.value.inspectingCharacterId] ?? 1.0;
+  const steps = Math.round(bioObfuscation * 5);
+  switch (steps) {
+    case 5: return '<strong>Read</strong>';
+    case 3: return 'Read <strong>more ☆</strong>';
+    case 2: return 'Read <strong>more ☆</strong>';
+    case 1: return 'Read <strong>more ☆</strong>';
+    default: return 'Learn';
+  }
 });
 
 const handleStarTooltipShow = (event: MouseEvent) => {
-    starTooltipVisible.value = true;
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    starTooltipPosition.value = {
-        x: event.clientX,
-        y: rect.top
-    };
+  starTooltipVisible.value = true;
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  starTooltipPosition.value = {
+    x: event.clientX,
+    y: rect.top
+  };
 };
 
 const handleStarTooltipMove = (event: MouseEvent) => {
-    if (starTooltipVisible.value && starTooltipPosition.value) {
-        starTooltipPosition.value = {
-            x: event.clientX,
-            y: starTooltipPosition.value.y // Keep the same Y position
-        };
-    }
+  if (starTooltipVisible.value && starTooltipPosition.value) {
+    starTooltipPosition.value = {
+      x: event.clientX,
+      y: starTooltipPosition.value.y // Keep the same Y position
+    };
+  }
 };
 
 const handleStarTooltipHide = () => {
-    starTooltipVisible.value = false;
-    starTooltipPosition.value = null;
+  starTooltipVisible.value = false;
+  starTooltipPosition.value = null;
 };
 </script>
 
 <template>
-    <div class="inspect-view-panel">
-        <button class="close-button" @click="handleClose">×</button>
-        <AspectPointsBar
-            v-if="ingressState"
-            :charges="ingressState.aspectPoints"
-            :materialization-progress="ingressState.materializationProgress"
-            :total-aspect-points="ingressState.totalAspectPoints"
-            :upgrades="ingressState.upgrades"
-            :show-progress="false"
-        />
-        <div v-if="characterDef" class="inspect-content">
-            <div class="char-portrait-panel">
-                <div class="name-container">
-                    <h2 class="char-name">{{ displayedCharacterName }}</h2>
-                    <button 
-                        @click="handleOpenRenameDialog" 
-                        @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
-                        @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide"
-                        class="rename-button" 
-                        :disabled="!ingressState || ingressState.aspectPoints < 1"
-                    >✏️ ☆</button>
-                </div>
-                <div class="second-epithet" :class="{ 'invisible': !secondEpithet }">{{ secondEpithet || 'placeholder' }}</div>
-                <div class="portrait-container">
-                    <ImageHolder 
-                        v-if="characterDef.fullImage"
-                        :atlas-name="'heroes'"
-                        :image-name="characterDef.portraitImage || characterDef.fullImage"
-                        :display-width="portraitWidth"
-                        :display-height="portraitHeight"
-                    />
-                    <div v-if="xpBonus > 0" class="xp-bonus-overlay">+{{ xpBonus }}% XP</div>
-                    <div v-if="characterDef" class="character-quote-overlay">
-                        <div class="quote-content">
-                            <div class="quote-text">"{{ characterDef.quote }}"</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="char-details-panel">
-                <div class="bio-container">
-                    <p class="bio-text">{{ obfuscatedBio }}</p>
-                </div>
-                <div class="actions-container">
-                    <button 
-                        v-if="ingressState && ingressState.inspectingCharacterId && (ingressState.characterBioObfuscation[ingressState.inspectingCharacterId] ?? 1.0) > 0"
-                        @click="handleDeobfuscate" 
-                        @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
-                        @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide"
-                        :disabled="ingressState.aspectPoints < 1"
-                        class="action-button deobfuscate-button"
-                    >
-                        <span v-html="deobfuscateButtonLabel"></span>
-                    </button>
-                </div>
-            </div>
-            <div class="commit-panel" v-if="locationDef">
-                <div class="location-image-container">
-                    <img :src="'img/' + locationDef.imageName" :alt="locationDef.name" class="location-image"/>
-                </div>
-                <div class="materialize-button-container">
-                    <button
-                        @click="handleMaterialize"
-                        @mouseenter="isMaterializeButtonDisabled ? handleStarTooltipShow($event) : null"
-                        @mousemove="isMaterializeButtonDisabled ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide"
-                        :disabled="isMaterializeButtonDisabled"
-                        class="action-button materialize-button"
-                    >
-                        Commit and become <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
-                    </button>
-                    <div v-if="ingressState && ingressState.materializationProgress < 100" class="materialize-button-overlay">
-                        <span class="overlay-percentage">{{ (ingressState.materializationProgress).toFixed(1) }}%</span>
-                    </div>
-                </div>
-            </div>
+  <div class="inspect-view-panel">
+    <button class="close-button" @click="handleClose">×</button>
+    <AspectPointsBar
+      v-if="ingressState"
+      :charges="ingressState.aspectPoints"
+      :materialization-progress="ingressState.materializationProgress"
+      :total-aspect-points="ingressState.totalAspectPoints"
+      :upgrades="ingressState.upgrades"
+      :show-progress="false"
+    />
+    <div v-if="characterDef" class="inspect-content">
+      <div class="char-portrait-panel">
+        <div class="name-container">
+          <h2 class="char-name">{{ displayedCharacterName }}</h2>
+          <button 
+            @click="handleOpenRenameDialog" 
+            @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
+            @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide"
+            class="rename-button" 
+            :disabled="!ingressState || ingressState.aspectPoints < 1"
+          >✏️ ☆</button>
         </div>
-
-        <div v-if="ingressState && ingressState.renamingCharacterId === characterDef?.id" class="rename-dialog-backdrop">
-            <div class="rename-dialog">
-                <h3>Rename {{ displayedCharacterName }}</h3>
-                <input type="text" v-model="newName" class="rename-input" placeholder="Inscribe New Name" />
-                <div class="rename-dialog-actions">
-                    <span class="error-message" :class="{ 'error-visible': !isNewNameValid }">Names require 3-12 characters.</span>
-                    <button @click="handleCloseRenameDialog" class="dialog-button cancel-button">Cancel</button>
-                    <button 
-                        @click="handleRename" 
-                        @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
-                        @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide"
-                        class="dialog-button confirm-button" 
-                        :disabled="!ingressState || ingressState.aspectPoints < 1 || !isNewNameValid"
-                    >Rename ☆</button>
-                </div>
+        <div class="second-epithet" :class="{ 'invisible': !secondEpithet }">{{ secondEpithet || 'placeholder' }}</div>
+        <div class="portrait-container">
+          <ImageHolder 
+            v-if="characterDef.fullImage"
+            :atlas-name="'heroes'"
+            :image-name="characterDef.portraitImage || characterDef.fullImage"
+            :display-width="portraitWidth"
+            :display-height="portraitHeight"
+          />
+          <div v-if="xpBonus > 0" class="xp-bonus-overlay">+{{ xpBonus }}% XP</div>
+          <div v-if="characterDef" class="character-quote-overlay">
+            <div class="quote-content">
+              <div class="quote-text">"{{ characterDef.quote }}"</div>
             </div>
+          </div>
         </div>
-        <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
+      </div>
+      <div class="char-details-panel">
+        <div class="bio-container">
+          <p class="bio-text">{{ obfuscatedBio }}</p>
+        </div>
+        <div class="actions-container">
+          <button 
+            v-if="ingressState && ingressState.inspectingCharacterId && (ingressState.characterBioObfuscation[ingressState.inspectingCharacterId] ?? 1.0) > 0"
+            @click="handleDeobfuscate" 
+            @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
+            @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide"
+            :disabled="ingressState.aspectPoints < 1"
+            class="action-button deobfuscate-button"
+          >
+            <span v-html="deobfuscateButtonLabel"></span>
+          </button>
+        </div>
+      </div>
+      <div class="commit-panel" v-if="locationDef">
+        <div class="location-image-container">
+          <img :src="'img/' + locationDef.imageName" :alt="locationDef.name" class="location-image"/>
+        </div>
+        <div class="materialize-button-container">
+          <button
+            @click="handleMaterialize"
+            @mouseenter="isMaterializeButtonDisabled ? handleStarTooltipShow($event) : null"
+            @mousemove="isMaterializeButtonDisabled ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide"
+            :disabled="isMaterializeButtonDisabled"
+            class="action-button materialize-button"
+          >
+            Commit and become <br> <span class="highlight-name">{{ displayedCharacterName }}</span> in <span class="highlight-name">{{ locationDef.name }}</span><br> ☆☆☆☆☆ ☆☆☆☆☆
+          </button>
+          <div v-if="ingressState && ingressState.materializationProgress < 100" class="materialize-button-overlay">
+            <span class="overlay-percentage">{{ (ingressState.materializationProgress).toFixed(1) }}%</span>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div v-if="ingressState && ingressState.renamingCharacterId === characterDef?.id" class="rename-dialog-backdrop">
+      <div class="rename-dialog">
+        <h3>Rename {{ displayedCharacterName }}</h3>
+        <input type="text" v-model="newName" class="rename-input" placeholder="Inscribe New Name" />
+        <div class="rename-dialog-actions">
+          <span class="error-message" :class="{ 'error-visible': !isNewNameValid }">Names require 3-12 characters.</span>
+          <button @click="handleCloseRenameDialog" class="dialog-button cancel-button">Cancel</button>
+          <button 
+            @click="handleRename" 
+            @mouseenter="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipShow($event) : null"
+            @mousemove="(!ingressState || ingressState.aspectPoints < 1) ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide"
+            class="dialog-button confirm-button" 
+            :disabled="!ingressState || ingressState.aspectPoints < 1 || !isNewNameValid"
+          >Rename ☆</button>
+        </div>
+      </div>
+    </div>
+    <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
+  </div>
 </template>
 
 <style scoped>
 .inspect-view-panel {
-    width: 100%;
-    background-color: #2c3e50;
-    border: 2px solid #7f8c8d;
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    position: relative;
-    color: #ecf0f1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  width: 100%;
+  background-color: #2c3e50;
+  border: 2px solid #7f8c8d;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 .close-button {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    background: #2c3e50;
-    color: #ecf0f1;
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    border: #ecf0f1 2.5px solid;
-    z-index: 11;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 4px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: #ecf0f1 2.5px solid;
+  z-index: 11;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 4px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 .inspect-content {
-    display: flex;
-    gap: 25px;
-    height: 100%;
-    flex-grow: 1;
-    min-height: 0;
+  display: flex;
+  gap: 25px;
+  height: 100%;
+  flex-grow: 1;
+  min-height: 0;
 }
 .char-portrait-panel {
-    flex-basis: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
+  flex-basis: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 .name-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
 }
 .rename-button {
-    background-color: #546e7a;
-    color: #cfd8dc;
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: absolute;
-    right: 0;
+  background-color: #546e7a;
+  color: #cfd8dc;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: absolute;
+  right: 0;
 }
 .rename-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .rename-button:not(:disabled):hover {
-    background-color: #455a64;
+  background-color: #455a64;
 }
 .char-portrait-panel .char-name {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #f1c40f;
-    margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #f1c40f;
+  margin: 0;
 }
 
 .second-epithet {
-    font-size: 0.9rem;
-    color: #f1c40f;
-    text-align: center;
-    font-style: italic;
+  font-size: 0.9rem;
+  color: #f1c40f;
+  text-align: center;
+  font-style: italic;
 }
 
 .second-epithet.invisible {
-    visibility: hidden;
+  visibility: hidden;
 }
 .portrait-container {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 4px;
-    width: 254px;
-    height: 360px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+  width: 254px;
+  height: 360px;
 }
 .character-quote-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 0;
-    z-index: 2;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0;
+  z-index: 2;
 }
 
 .character-quote-overlay .quote-content {
-    background-color: rgba(52, 73, 94, 0.7);
-    border: none;
-    border-radius: 0;
-    padding: 6px 8px;
-    position: relative;
-    box-shadow: none;
+  background-color: rgba(52, 73, 94, 0.7);
+  border: none;
+  border-radius: 0;
+  padding: 6px 8px;
+  position: relative;
+  box-shadow: none;
 }
 
 .character-quote-overlay .quote-text {
-    color: #ecf0f1;
-    font-size: 0.8rem;
-    line-height: 1.3;
-    margin: 0;
-    padding-left: 0;
-    font-style: italic;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    white-space: pre-wrap;
+  color: #ecf0f1;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  margin: 0;
+  padding-left: 0;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: pre-wrap;
 }
 
 .xp-bonus-overlay {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: #f1c40f;
-    color: #2c3e50;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    z-index: 1;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #f1c40f;
+  color: #2c3e50;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
 }
 .char-details-panel {
-    flex-basis: 50%;
-    display: flex;
-    flex-direction: column;
+  flex-basis: 50%;
+  display: flex;
+  flex-direction: column;
 }
 .bio-container {
-    flex-grow: 1;
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 8px;
-    padding: 15px;
-    padding-top: 8px;
-    overflow-y: auto;
-    font-family: 'Source Code Pro', Courier, monospace;
-    font-size: 1.0rem;
-    line-height: 1.6;
+  flex-grow: 1;
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 15px;
+  padding-top: 8px;
+  overflow-y: auto;
+  font-family: 'Source Code Pro', Courier, monospace;
+  font-size: 1.0rem;
+  line-height: 1.6;
 }
 .bio-text {
-    color: #d8d8d8;
+  color: #d8d8d8;
 }
 .actions-container {
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .action-button {
-    padding: 12px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 .action-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .deobfuscate-button {
-    background-color: #546e7a;
-    color: #cfd8dc;
-    padding: 8px 12px;
-    font-size: 0.9rem;
+  background-color: #546e7a;
+  color: #cfd8dc;
+  padding: 8px 12px;
+  font-size: 0.9rem;
 }
 .deobfuscate-button:not(:disabled):hover {
-    background-color: #455a64;
+  background-color: #455a64;
 }
 .commit-panel {
-    flex-basis: 25%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
+  flex-basis: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 .location-image-container {
-    width: 320px;
-    height: 270px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
+  width: 320px;
+  height: 270px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
 }
 .location-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .materialize-button-container {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 .materialize-button {
-    background-color: #e67e22;
-    color: white;
-    font-size: 1.2rem;
-    width: 100%;
-    padding: 15px;
-    line-height: 1.4;
+  background-color: #e67e22;
+  color: white;
+  font-size: 1.2rem;
+  width: 100%;
+  padding: 15px;
+  line-height: 1.4;
 }
 .materialize-button:not(:disabled):hover {
-    background-color: #d35400;
+  background-color: #d35400;
 }
 .materialize-button-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 5px; /* Matches .action-button */
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(0, 0, 0, 0.1),
-        rgba(0, 0, 0, 0.1) 10px,
-        rgba(0, 0, 0, 0.3) 10px,
-        rgba(0, 0, 0, 0.3) 20px
-    );
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px; /* Matches .action-button */
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.3) 10px,
+    rgba(0, 0, 0, 0.3) 20px
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
 }
 .overlay-percentage {
-    color: white;
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
 }
 .highlight-name {
-    text-decoration: underline;
-    font-size: 1.1em;
-    color: #f1c40f;
-    font-weight: bold;
+  text-decoration: underline;
+  font-size: 1.1em;
+  color: #f1c40f;
+  font-weight: bold;
 }
 .rename-dialog-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    border-radius: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 15px;
 }
 .rename-dialog {
-    background-color: #34495e;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    border: 1px solid #7f8c8d;
-    width: 90%;
-    max-width: 450px;
+  background-color: #34495e;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid #7f8c8d;
+  width: 90%;
+  max-width: 450px;
 }
 .rename-dialog h3 {
-    margin: 0;
-    color: #f1c40f;
-    text-align: center;
+  margin: 0;
+  color: #f1c40f;
+  text-align: center;
 }
 .rename-input {
-    padding: 10px;
-    border: 1px solid #7f8c8d;
-    border-radius: 4px;
-    background-color: #ecf0f1;
-    color: #2c3e50;
-    font-size: 1rem;
+  padding: 10px;
+  border: 1px solid #7f8c8d;
+  border-radius: 4px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-size: 1rem;
 }
 .rename-dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
 }
 .error-message {
-    color: #e74c3c;
-    font-size: 0.75rem;
-    margin-right: auto;
-    visibility: hidden;
+  color: #e74c3c;
+  font-size: 0.75rem;
+  margin-right: auto;
+  visibility: hidden;
 }
 .error-message.error-visible {
-    visibility: visible;
+  visibility: visible;
 }
 .dialog-button {
-    padding: 8px 15px;
-    border-radius: 5px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 .dialog-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .cancel-button {
-    background-color: #7f8c8d;
-    color: #ecf0f1;
+  background-color: #7f8c8d;
+  color: #ecf0f1;
 }
 .cancel-button:hover {
-    background-color: #95a5a6;
+  background-color: #95a5a6;
 }
 .confirm-button {
-    background-color: #e67e22;
-    color: white;
+  background-color: #e67e22;
+  color: white;
 }
 .confirm-button:not(:disabled):hover {
-    background-color: #d35400;
+  background-color: #d35400;
 }
 
 @media (max-height: 900px) {
-    .inspect-view-panel {
-        padding: 10px;
-        gap: 10px;
-    }
-    .inspect-content {
-        gap: 15px;
-    }
-    .portrait-container {
-        width: 228px;
-        height: 324px;
-        margin-top: 0;
-    }
-    .char-portrait-panel .char-name {
-        font-size: 1.3rem;
-    }
-    .character-quote-overlay .quote-text {
-        font-size: 0.75rem;
-    }
-    .character-quote-overlay .quote-content {
-        padding: 4px 6px;
-    }
-    .bio-container {
-        padding: 10px;
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-    .action-button {
-        padding: 10px;
-    }
-    .deobfuscate-button {
-        padding: 6px 10px;
-        font-size: 0.85rem;
-    }
-    .commit-panel {
-        gap: 10px;
-    }
-    .location-image-container {
-        width: 288px;
-        height: 243px;
-    }
-    .materialize-button {
-        font-size: 1.1rem;
-        padding: 12px;
-    }
+  .inspect-view-panel {
+    padding: 10px;
+    gap: 10px;
+  }
+  .inspect-content {
+    gap: 15px;
+  }
+  .portrait-container {
+    width: 228px;
+    height: 324px;
+    margin-top: 0;
+  }
+  .char-portrait-panel .char-name {
+    font-size: 1.3rem;
+  }
+  .character-quote-overlay .quote-text {
+    font-size: 0.75rem;
+  }
+  .character-quote-overlay .quote-content {
+    padding: 4px 6px;
+  }
+  .bio-container {
+    padding: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .action-button {
+    padding: 10px;
+  }
+  .deobfuscate-button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+  .commit-panel {
+    gap: 10px;
+  }
+  .location-image-container {
+    width: 288px;
+    height: 243px;
+  }
+  .materialize-button {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
 }
 </style> 

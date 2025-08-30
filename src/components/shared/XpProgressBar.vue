@@ -1,18 +1,18 @@
 <template>
   <div class="progress-section" :class="{ 'progress-gained': isGaining }">
-    <progress
-      :value="animatedProgress"
-      :max="maxValue"
-      class="progress-bar"
-      :style="{ '--progress-bar-color': progressBarColor }"
-    ></progress>
-    <div class="progress-overlay-text-container">
-      <span class="progress-text">{{ Math.round(animatedProgress) }}/{{ Math.round(maxValue) }} {{ progressLabel }}</span>
-    </div>
-    <div v-if="isGaining" class="progress-gain-effect"></div>
-    <div v-if="showIncrement" class="progress-increment" :class="{ 'fade-out': isFadingOut }">
-      +{{ Math.round(progressIncrement) }}
-    </div>
+  <progress
+    :value="animatedProgress"
+    :max="maxValue"
+    class="progress-bar"
+    :style="{ '--progress-bar-color': progressBarColor }"
+  ></progress>
+  <div class="progress-overlay-text-container">
+    <span class="progress-text">{{ Math.round(animatedProgress) }}/{{ Math.round(maxValue) }} {{ progressLabel }}</span>
+  </div>
+  <div v-if="isGaining" class="progress-gain-effect"></div>
+  <div v-if="showIncrement" class="progress-increment" :class="{ 'fade-out': isFadingOut }">
+    +{{ Math.round(progressIncrement) }}
+  </div>
   </div>
 </template>
 
@@ -21,20 +21,20 @@ import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
   currentProgress: {
-    type: Number,
-    required: true,
+  type: Number,
+  required: true,
   },
   maxValue: {
-    type: Number,
-    required: true,
+  type: Number,
+  required: true,
   },
   progressLabel: {
-    type: String,
-    default: 'XP'
+  type: String,
+  default: 'XP'
   },
   progressColor: {
-    type: String,
-    default: 'blue' // 'blue', 'green', 'red', 'yellow', etc.
+  type: String,
+  default: 'blue' // 'blue', 'green', 'red', 'yellow', etc.
   }
 });
 
@@ -47,62 +47,62 @@ const progressIncrement = ref(0);
 // Watch for changes in currentProgress and animate
 watch(() => props.currentProgress, (newValue, oldValue) => {
   if (newValue !== oldValue && oldValue !== undefined) {
-    const difference = newValue - oldValue;
+  const difference = newValue - oldValue;
+  
+  // Show progress increment if there's a positive change that would display as at least +1
+  // This prevents tiny fractional increments from showing as "+0"
+  if (difference > 0 && Math.round(difference) >= 1) {
+    progressIncrement.value = difference;
+    showIncrement.value = true;
+    isFadingOut.value = false;
     
-    // Show progress increment if there's a positive change that would display as at least +1
-    // This prevents tiny fractional increments from showing as "+0"
-    if (difference > 0 && Math.round(difference) >= 1) {
-      progressIncrement.value = difference;
-      showIncrement.value = true;
-      isFadingOut.value = false;
-      
-      // Start fade out after 1.5 seconds
-      setTimeout(() => {
-        isFadingOut.value = true;
-        
-        // Hide completely after fade animation
-        setTimeout(() => {
-          showIncrement.value = false;
-        }, 500);
-      }, 1500);
-    }
+    // Start fade out after 1.5 seconds
+    setTimeout(() => {
+    isFadingOut.value = true;
     
-    // Trigger gaining effect only for meaningful changes (not tiny increments)
-    if (difference > 0 && Math.round(difference) >= 1) {
-      isGaining.value = true;
-      setTimeout(() => {
-        isGaining.value = false;
-      }, 600);
-    }
+    // Hide completely after fade animation
+    setTimeout(() => {
+      showIncrement.value = false;
+    }, 500);
+    }, 1500);
+  }
+  
+  // Trigger gaining effect only for meaningful changes (not tiny increments)
+  if (difference > 0 && Math.round(difference) >= 1) {
+    isGaining.value = true;
+    setTimeout(() => {
+    isGaining.value = false;
+    }, 600);
+  }
 
-    // Animate the progress value
-    const startValue = animatedProgress.value;
-    const duration = 800; // milliseconds
-    const startTime = Date.now();
+  // Animate the progress value
+  const startValue = animatedProgress.value;
+  const duration = 800; // milliseconds
+  const startTime = Date.now();
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smooth animation
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
-      animatedProgress.value = startValue + (difference * easeOutQuart);
-      
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        animatedProgress.value = newValue; // Ensure exact final value
-      }
-    };
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
     
+    // Easing function for smooth animation
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    
+    animatedProgress.value = startValue + (difference * easeOutQuart);
+    
+    if (progress < 1) {
     requestAnimationFrame(animate);
+    } else {
+    animatedProgress.value = newValue; // Ensure exact final value
+    }
+  };
+  
+  requestAnimationFrame(animate);
   }
 }, { immediate: true });
 
 const progressBarColor = computed(() => {
   if (animatedProgress.value >= props.maxValue) {
-    return 'rgb(0, 200, 0)'; // Green when at max
+  return 'rgb(0, 200, 0)'; // Green when at max
   }
   
   // Different color schemes based on progressColor prop
@@ -110,20 +110,20 @@ const progressBarColor = computed(() => {
   const intensity = Math.round(100 + (progress * 155)); // From dark to bright
   
   switch (props.progressColor.toLowerCase()) {
-    case 'blue':
-      return `rgb(0, ${Math.round(intensity * 0.7)}, ${intensity})`;
-    case 'green':
-      return `rgb(0, ${intensity}, ${Math.round(intensity * 0.7)})`;
-    case 'red':
-      return `rgb(${intensity}, 0, ${Math.round(intensity * 0.3)})`;
-    case 'yellow':
-      return `rgb(${intensity}, ${intensity}, 0)`;
-    case 'purple':
-      return `rgb(${Math.round(intensity * 0.8)}, 0, ${intensity})`;
-    case 'orange':
-      return `rgb(${intensity}, ${Math.round(intensity * 0.6)}, 0)`;
-    default:
-      return `rgb(0, ${Math.round(intensity * 0.7)}, ${intensity})`; // Default to blue
+  case 'blue':
+    return `rgb(0, ${Math.round(intensity * 0.7)}, ${intensity})`;
+  case 'green':
+    return `rgb(0, ${intensity}, ${Math.round(intensity * 0.7)})`;
+  case 'red':
+    return `rgb(${intensity}, 0, ${Math.round(intensity * 0.3)})`;
+  case 'yellow':
+    return `rgb(${intensity}, ${intensity}, 0)`;
+  case 'purple':
+    return `rgb(${Math.round(intensity * 0.8)}, 0, ${intensity})`;
+  case 'orange':
+    return `rgb(${intensity}, ${Math.round(intensity * 0.6)}, 0)`;
+  default:
+    return `rgb(0, ${Math.round(intensity * 0.7)}, ${intensity})`; // Default to blue
   }
 });
 
@@ -188,16 +188,16 @@ const progressBarColor = computed(() => {
 
 @keyframes progress-pulse {
   0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 100, 255, 0.4);
+  transform: scale(1);
+  box-shadow: 0 0 0 0 rgba(0, 100, 255, 0.4);
   }
   50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 4px rgba(0, 100, 255, 0.2);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(0, 100, 255, 0.2);
   }
   100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 100, 255, 0);
+  transform: scale(1);
+  box-shadow: 0 0 0 0 rgba(0, 100, 255, 0);
   }
 }
 
@@ -208,9 +208,9 @@ const progressBarColor = computed(() => {
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(0, 150, 255, 0.3) 50%, 
-    transparent 100%);
+  transparent 0%, 
+  rgba(0, 150, 255, 0.3) 50%, 
+  transparent 100%);
   border-radius: 3px;
   animation: sweep 0.8s ease-out;
   pointer-events: none;
@@ -218,15 +218,15 @@ const progressBarColor = computed(() => {
 
 @keyframes sweep {
   0% {
-    transform: translateX(-100%);
-    opacity: 0;
+  transform: translateX(-100%);
+  opacity: 0;
   }
   50% {
-    opacity: 1;
+  opacity: 1;
   }
   100% {
-    transform: translateX(100%);
-    opacity: 0;
+  transform: translateX(100%);
+  opacity: 0;
   }
 }
 
@@ -265,25 +265,25 @@ const progressBarColor = computed(() => {
 
 @keyframes slide-in {
   0% {
-    transform: translateY(-50%);
-    opacity: 0;
-    scale: 0.8;
+  transform: translateY(-50%);
+  opacity: 0;
+  scale: 0.8;
   }
   100% {
-    transform: translateY(-50%);
-    opacity: 1;
-    scale: 1;
+  transform: translateY(-50%);
+  opacity: 1;
+  scale: 1;
   }
 }
 
 @keyframes fade-out {
   0% {
-    opacity: 1;
-    transform: translateY(-50%);
+  opacity: 1;
+  transform: translateY(-50%);
   }
   100% {
-    opacity: 0;
-    transform: translateY(-50%);
+  opacity: 0;
+  transform: translateY(-50%);
   }
 }
 </style> 

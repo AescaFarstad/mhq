@@ -15,8 +15,8 @@ Players submit words, which are classified into three categories:
 ### Aspect Points & Progress
 
 *   **Aspect Points**: This is the primary currency of the minigame. It is earned by submitting new `Substantive Words`. Points are spent to:
-    *   Unlock and investigate potential characters for materialization.
-    *   Purchase upgrades that enhance the minigame experience.
+  *   Unlock and investigate potential characters for materialization.
+  *   Purchase upgrades that enhance the minigame experience.
 *   **Materialization Progress**: This is a bar that fills over time, representing the divine being's strengthening connection to the mortal realm. The speed is determined by the total points of all substantive words found. Submitting new substantive words provides a significant immediate boost to this progress. The minigame's objective is to reach 100% progress, which unlocks the final materialization.
 
 ### Character Discovery & Investigation

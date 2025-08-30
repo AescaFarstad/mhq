@@ -43,9 +43,9 @@ export interface SelectedCharacterInfo extends SimpleCharacterInfo {
   skillPoints: number;
   specPoints: number;
   xp: {
-    current: number;
-    progress: number;
-    nextLevelDelta: number;
+  current: number;
+  progress: number;
+  nextLevelDelta: number;
   };
 }
 
@@ -84,6 +84,6 @@ export interface SkillCategoryUIInfo {
  * Interface for debug stat information displayed in the DebugView.
  */
 export interface DebugStatInfo {
-    value: number;
-    params?: Record<string, number>; // Optional parameters (e.g., add, multiCache for Parameter, argument for FormulaStat)
+  value: number;
+  params?: Record<string, number>; // Optional parameters (e.g., add, multiCache for Parameter, argument for FormulaStat)
 }

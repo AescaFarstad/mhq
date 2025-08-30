@@ -1,15 +1,15 @@
 <template>
   <div 
-    class="crystal-ball-container"
-    :class="{ 'clickable': true, 'glowing': true }"
+  class="crystal-ball-container"
+  :class="{ 'clickable': true, 'glowing': true }"
   >
-    <div class="crystal-ball">
-      <img src="/img/ball.webp" alt="Crystal Ball Layer 1" class="ball-layer layer-1" />
-      <img src="/img/ball (1).webp" alt="Crystal Ball Layer 2" class="ball-layer layer-2" />
-      <img src="/img/ball (2).webp" alt="Crystal Ball Layer 3" class="ball-layer layer-3" />
-      <img src="/img/ball (3).webp" alt="Crystal Ball Layer 4" class="ball-layer layer-4" />
-      <img src="/img/ball (4).webp" alt="Crystal Ball Layer 5" class="ball-layer layer-5" />
-    </div>
+  <div class="crystal-ball">
+    <img src="/img/ball.webp" alt="Crystal Ball Layer 1" class="ball-layer layer-1" />
+    <img src="/img/ball (1).webp" alt="Crystal Ball Layer 2" class="ball-layer layer-2" />
+    <img src="/img/ball (2).webp" alt="Crystal Ball Layer 3" class="ball-layer layer-3" />
+    <img src="/img/ball (3).webp" alt="Crystal Ball Layer 4" class="ball-layer layer-4" />
+    <img src="/img/ball (4).webp" alt="Crystal Ball Layer 5" class="ball-layer layer-5" />
+  </div>
   </div>
 </template>
 

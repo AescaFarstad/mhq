@@ -1,16 +1,16 @@
 <template>
   <div v-if="activeKeywords.length > 0" class="active-keywords-container">
-    <h3 v-if="!shouldHideHeader" class="keywords-title">Active Keywords</h3>
-    <div class="keywords-grid">
-      <div 
-        v-for="[keyword, relatedItemIds] in activeKeywords" 
-        :key="keyword"
-        class="keyword-entry"
-      >
-        <span class="keyword-text">{{ keyword }}</span>
-        <span class="keyword-count">{{ relatedItemIds.length }}</span>
-      </div>
+  <h3 v-if="!shouldHideHeader" class="keywords-title">Active Keywords</h3>
+  <div class="keywords-grid">
+    <div 
+    v-for="[keyword, relatedItemIds] in activeKeywords" 
+    :key="keyword"
+    class="keyword-entry"
+    >
+    <span class="keyword-text">{{ keyword }}</span>
+    <span class="keyword-count">{{ relatedItemIds.length }}</span>
     </div>
+  </div>
   </div>
 </template>
 
@@ -23,18 +23,18 @@ const { gameState } = useGameState();
 
 const activeKeywords = computed(() => {
   if (!gameState.value) {
-    return [];
+  return [];
   }
   
   const keywords = Array.from(gameState.value.uiState.activeKeywords.entries())
-    .sort(([a], [b]) => a.localeCompare(b)); // Sort alphabetically
+  .sort(([a], [b]) => a.localeCompare(b)); // Sort alphabetically
   
   return keywords;
 });
 
 const shouldHideHeader = computed(() => {
   if (!gameState.value) {
-    return false;
+  return false;
   }
   
   // Depend on discoveredItemsCount for reactivity

@@ -1,8 +1,8 @@
 <template>
   <div class="quests-view-container">
-    <h3>Quests View</h3>
-    <p>Content for the Quests tab goes here. View available quests, track progress.</p>
-    <!-- Add Quests specific elements here -->
+  <h3>Quests View</h3>
+  <p>Content for the Quests tab goes here. View available quests, track progress.</p>
+  <!-- Add Quests specific elements here -->
   </div>
 </template>
 
@@ -19,6 +19,6 @@
 }
 
 h3 {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 </style> 

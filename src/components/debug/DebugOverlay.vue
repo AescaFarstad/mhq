@@ -1,16 +1,16 @@
 <template>
   <div
-    class="debug-overlay"
-    :style="{ top: `${position.y}px`, left: `${position.x}px` }"
+  class="debug-overlay"
+  :style="{ top: `${position.y}px`, left: `${position.x}px` }"
   >
-    <div class="header" @mousedown="startDrag">
-      <span>Debug Overlay</span>
-      <button @click="$emit('close')">X</button>
-    </div>
-    <div class="content">
-      <p>Debug content here.</p>
-      <button @click="copyDialogsToClipboard">Copy Dialogs</button>
-    </div>
+  <div class="header" @mousedown="startDrag">
+    <span>Debug Overlay</span>
+    <button @click="$emit('close')">X</button>
+  </div>
+  <div class="content">
+    <p>Debug content here.</p>
+    <button @click="copyDialogsToClipboard">Copy Dialogs</button>
+  </div>
   </div>
 </template>
 
@@ -29,12 +29,12 @@ const offset = reactive({ x: 0, y: 0 });
 
 const copyDialogsToClipboard = () => {
   if (gameState) {
-    const dialogsJson = JSON.stringify(gameState.dialogs, null, 2);
-    navigator.clipboard.writeText(dialogsJson).then(() => {
-      console.log('Dialogs copied to clipboard');
-    }).catch(err => {
-      console.error('Failed to copy dialogs: ', err);
-    });
+  const dialogsJson = JSON.stringify(gameState.dialogs, null, 2);
+  navigator.clipboard.writeText(dialogsJson).then(() => {
+    console.log('Dialogs copied to clipboard');
+  }).catch(err => {
+    console.error('Failed to copy dialogs: ', err);
+  });
   }
 };
 
@@ -52,8 +52,8 @@ const startDrag = (event: MouseEvent) => {
 
 const onDrag = (event: MouseEvent) => {
   if (dragging.value) {
-    position.x = event.clientX - offset.x;
-    position.y = event.clientY - offset.y;
+  position.x = event.clientX - offset.x;
+  position.y = event.clientY - offset.y;
   }
 };
 
@@ -99,12 +99,12 @@ onUnmounted(() => {
 }
 
 .header button {
-    cursor: pointer;
-    background: #555;
-    border: 1px solid #777;
-    color: white;
-    border-radius: 4px;
-    padding: 2px 6px;
+  cursor: pointer;
+  background: #555;
+  border: 1px solid #777;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 6px;
 }
 
 .content {

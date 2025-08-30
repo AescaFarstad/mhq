@@ -4,28 +4,28 @@ import type { WordDefinition } from './lib/definitions/WordDefinition';
 export const INGRESS_TYPE: MinigameType = 'Ingress';
 
 export interface SubmittedWord {
-    definition: WordDefinition;
-    pointsEarned: number;
-    wasTypo: boolean;
-    sourceCharacterIds?: string[];
-    originalTypedWord: string; // The word actually typed by the user
+  definition: WordDefinition;
+  pointsEarned: number;
+  wasTypo: boolean;
+  sourceCharacterIds?: string[];
+  originalTypedWord: string; // The word actually typed by the user
 }
 
 // Simple array to store all words entered during the game as strings
 export type AllSubmittedWords = string[];
 
 export type IngressUpgradeId = 
-    | 'char_attribute_point'
-    | 'char_skill_point'
-    | 'char_spec_point'
-    | 'char_xp_boost'
-    | 'breach_word_bonus'
-    | 'breach_typo_tolerance'
-    | 'breach_word_counter'
-    | 'breach_materialization_speed';
+  | 'char_attribute_point'
+  | 'char_skill_point'
+  | 'char_spec_point'
+  | 'char_xp_boost'
+  | 'breach_word_bonus'
+  | 'breach_typo_tolerance'
+  | 'breach_word_counter'
+  | 'breach_materialization_speed';
 
 export type IngressUpgrades = {
-    [K in IngressUpgradeId]: boolean;
+  [K in IngressUpgradeId]: boolean;
 };
 
 /**
@@ -41,14 +41,14 @@ export type IngressCharacterDiscoveryState = 'locked' | 'unexplored' | 'name_rev
  * Represents a discoverable character within the Ingress minigame.
  */
 export interface IngressCharacterOption {
-    characterId: string;
-    discoveryState: IngressCharacterDiscoveryState;
-    explorationCosts: number[]; // Costs for each stage of discovery
-    characterName?: string;
-    characterImage?: {
-        full: string;
-        portrait?: string;
-    };
+  characterId: string;
+  discoveryState: IngressCharacterDiscoveryState;
+  explorationCosts: number[]; // Costs for each stage of discovery
+  characterName?: string;
+  characterImage?: {
+    full: string;
+    portrait?: string;
+  };
 }
 
 /**
@@ -56,25 +56,25 @@ export interface IngressCharacterOption {
  * This state is managed by IngressGame and synced to the UI.
  */
 export interface IngressState extends MinigameState {
-    substantiveWords: SubmittedWord[];
-    offensiveWords: string[];
-    blankWords: string[];
-    allSubmittedWords: AllSubmittedWords; // Comprehensive storage of all words entered
-    aspectPoints: number;
-    totalAspectPoints: number; // Total points earned over time
-    chargesBarRevealed: boolean;
-    characterOptions: IngressCharacterOption[]; // Discoverable characters
-    charactersAvailableToEnvision: number; // Number of characters ready to be envisioned
-    hasEnvisioned: boolean; // Whether the player has used the envision button
-    inspectingCharacterId: string | null; // ID of character being viewed in detail
-    renamingCharacterId: string | null; // ID of character being renamed
-    characterRenames: { [characterId: string]: string }; // Map of characterId -> new name
-    characterXpBonuses: { [characterId: string]: number }; // Map of characterId -> % xp bonus
-    characterBioObfuscation: { [characterId: string]: number }; // Map of characterId -> bio obfuscation level (1.0 = 100%)
-    upgrades: IngressUpgrades;
-    upgradesRevealed: boolean;
-    materializationProgress: number; // From 0 to 100
-    engaged: boolean;
-    engagementProgress: number;
-    engagementCompletionTime: number | null;
+  substantiveWords: SubmittedWord[];
+  offensiveWords: string[];
+  blankWords: string[];
+  allSubmittedWords: AllSubmittedWords; // Comprehensive storage of all words entered
+  aspectPoints: number;
+  totalAspectPoints: number; // Total points earned over time
+  chargesBarRevealed: boolean;
+  characterOptions: IngressCharacterOption[]; // Discoverable characters
+  charactersAvailableToEnvision: number; // Number of characters ready to be envisioned
+  hasEnvisioned: boolean; // Whether the player has used the envision button
+  inspectingCharacterId: string | null; // ID of character being viewed in detail
+  renamingCharacterId: string | null; // ID of character being renamed
+  characterRenames: { [characterId: string]: string }; // Map of characterId -> new name
+  characterXpBonuses: { [characterId: string]: number }; // Map of characterId -> % xp bonus
+  characterBioObfuscation: { [characterId: string]: number }; // Map of characterId -> bio obfuscation level (1.0 = 100%)
+  upgrades: IngressUpgrades;
+  upgradesRevealed: boolean;
+  materializationProgress: number; // From 0 to 100
+  engaged: boolean;
+  engagementProgress: number;
+  engagementCompletionTime: number | null;
 }

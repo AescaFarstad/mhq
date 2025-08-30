@@ -1,10 +1,10 @@
 <template>
   <div class="ingress-character-hint" v-if="visible" :style="positionStyle">
-    <p>This word resonates with the following characters:</p>
-    <ul>
-      <li v-for="char in characterInfo" :key="char.id">{{ char.name }}</li>
-    </ul>
-    <p v-if="word">Grants +{{ word.pointsEarned }}% next level XP upon becoming them.</p>
+  <p>This word resonates with the following characters:</p>
+  <ul>
+    <li v-for="char in characterInfo" :key="char.id">{{ char.name }}</li>
+  </ul>
+  <p v-if="word">Grants +{{ word.pointsEarned }}% next level XP upon becoming them.</p>
   </div>
 </template>
 
@@ -26,38 +26,38 @@ const positionStyle = computed(() => {
   if (!props.position) return {};
   // Position hint to the left of the cursor, with a small offset
   return {
-    position: 'fixed' as const,
-    left: `${props.position.x - 15}px`,
-    top: `${props.position.y}px`,
-    transform: 'translateX(-100%) translateY(-50%)',
-    pointerEvents: 'none' as const,
+  position: 'fixed' as const,
+  left: `${props.position.x - 15}px`,
+  top: `${props.position.y}px`,
+  transform: 'translateX(-100%) translateY(-50%)',
+  pointerEvents: 'none' as const,
   };
 });
 
 const characterInfo = computed(() => {
   if (!props.word?.sourceCharacterIds || !gameState) {
-    return [];
+  return [];
   }
   const ingressState = gameState.uiState.activeMinigameState as IngressState | undefined;
 
   return props.word.sourceCharacterIds.map(id => {
-    const totalBonus = ingressState?.characterXpBonuses?.[id] || 0;
-    let name = 'Unknown Character';
+  const totalBonus = ingressState?.characterXpBonuses?.[id] || 0;
+  let name = 'Unknown Character';
 
-    // Priority:
-    // 1. Character in ingress options (discovered during this minigame)
-    const ingressOption = ingressState?.characterOptions.find(o => o.characterId === id);
-    if (ingressOption && ingressOption.characterName) {
-        name = ingressOption.characterName;
-    } else {
-        // 2. Fallback to definition from library
-        const charDef = gameState.lib.characters.getCharacter(id);
-        if (charDef) {
-            name = charDef.name;
-        }
+  // Priority:
+  // 1. Character in ingress options (discovered during this minigame)
+  const ingressOption = ingressState?.characterOptions.find(o => o.characterId === id);
+  if (ingressOption && ingressOption.characterName) {
+    name = ingressOption.characterName;
+  } else {
+    // 2. Fallback to definition from library
+    const charDef = gameState.lib.characters.getCharacter(id);
+    if (charDef) {
+      name = charDef.name;
     }
+  }
 
-    return { id, name, totalBonus };
+  return { id, name, totalBonus };
   });
 });
 </script>
@@ -78,22 +78,22 @@ const characterInfo = computed(() => {
 }
 
 .ingress-character-hint p {
-    margin: 0 0 10px 0;
-    color: #e2e8f0;
+  margin: 0 0 10px 0;
+  color: #e2e8f0;
 }
 .ingress-character-hint p:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .ingress-character-hint ul {
-    margin: 0 0 10px 0;
-    padding-left: 20px;
+  margin: 0 0 10px 0;
+  padding-left: 20px;
 }
 
 .ingress-character-hint ul li {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #f1c40f;
-    margin-bottom: 5px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #f1c40f;
+  margin-bottom: 5px;
 }
 </style> 

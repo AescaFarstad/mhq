@@ -1,105 +1,105 @@
 <template>
   <div v-if="!selectedCharacter" class="no-selection">
-    <p>Select a character to view details</p>
+  <p>Select a character to view details</p>
   </div>
   <div v-else class="character-details-container">
-    <!-- Top Row: Portrait, Character Info + XP, Bio -->
-    <div class="character-top-row">
-      <!-- Portrait (128x128) -->
-      <div class="portrait-section">
-        <div class="image-holder-placeholder">
-          <span>128x128 Image Placeholder</span>
-        </div>
-      </div>
-
-      <!-- Character Info + XP Bar -->
-      <div class="character-info-section">
-        <div class="character-header">
-          <h3>{{ selectedCharacter.name }}</h3>
-          <!-- Unspent Points Indicators -->
-          <div class="unspent-points-container">
-            <span 
-              v-if="selectedCharacter.attributePoints > 0"
-              class="unspent-points-badge"
-              @mouseenter="$emit('set-hint', `You have unspent attribute points: ${selectedCharacter.attributePoints}`)"
-              @mouseleave="$emit('set-hint', null)"
-            >
-              +{{ selectedCharacter.attributePoints }}
-            </span>
-            <span 
-              v-if="selectedCharacter.skillPoints > 0"
-              class="unspent-points-badge"
-              @mouseenter="$emit('set-hint', `You have unspent skill points: ${selectedCharacter.skillPoints}`)"
-              @mouseleave="$emit('set-hint', null)"
-            >
-              +{{ selectedCharacter.skillPoints }}
-            </span>
-            <span 
-              v-if="selectedCharacter.specPoints > 0"
-              class="unspent-points-badge"
-              @mouseenter="$emit('set-hint', `You have unspent specialization points: ${selectedCharacter.specPoints}`)"
-              @mouseleave="$emit('set-hint', null)"
-            >
-              +{{ selectedCharacter.specPoints }}
-            </span>
-          </div>
-          <div class="character-stats">
-            <span class="stat-badge">Level {{ selectedCharacter.level }}</span>
-            <span class="stat-badge">Upkeep: {{ selectedCharacter.upkeep.toFixed(1) }} gold</span>
-            <button class="fire-button" @click="fireCharacter">Fire</button>
-          </div>
-        </div>
-        <!-- XP Progress Bar -->
-        <ProgressBar
-          v-if="selectedCharacter.xp"
-          :currentProgress="selectedCharacter.xp.progress"
-          :maxValue="selectedCharacter.xp.nextLevelDelta"
-          progressLabel="XP"
-        />
-      </div>
-
-      <!-- Bio Section Wrapper -->
-      <div class="bio-section-wrapper">
-        <div class="bio-section" :class="{ 'keywords-mode': currentHint && currentHint.includes('\n') }">
-          <p v-if="currentHint" :class="{ 'keywords-text': currentHint && currentHint.includes('\n') }">{{ currentHint }}</p>
-          <p v-else-if="selectedCharacter.bio" class="bio-text">{{ selectedCharacter.bio }}</p>
-          <p v-else class="bio-placeholder">No description available.</p>
-        </div>
-      </div>
+  <!-- Top Row: Portrait, Character Info + XP, Bio -->
+  <div class="character-top-row">
+    <!-- Portrait (128x128) -->
+    <div class="portrait-section">
+    <div class="image-holder-placeholder">
+      <span>128x128 Image Placeholder</span>
+    </div>
     </div>
 
-    <!-- Attribute Tabs -->
-    <div class="attribute-tabs-section">
-      <CharacterAttributes
-        v-if="selectedCharacter.attributes"
-        :attributes="selectedCharacter.attributes"
-        :attributePoints="selectedCharacter.attributePoints"
-        :current-hint="currentHint"
-        :selectedTab="selectedAttributeTab"
-        :characterId="selectedCharacter.id"
-        @set-hint="$emit('set-hint', $event)"
-        @tab-selected="selectedAttributeTab = $event"
-      />
-      <div v-else class="no-attributes">
-        No attribute data available.
+    <!-- Character Info + XP Bar -->
+    <div class="character-info-section">
+    <div class="character-header">
+      <h3>{{ selectedCharacter.name }}</h3>
+      <!-- Unspent Points Indicators -->
+      <div class="unspent-points-container">
+      <span 
+        v-if="selectedCharacter.attributePoints > 0"
+        class="unspent-points-badge"
+        @mouseenter="$emit('set-hint', `You have unspent attribute points: ${selectedCharacter.attributePoints}`)"
+        @mouseleave="$emit('set-hint', null)"
+      >
+        +{{ selectedCharacter.attributePoints }}
+      </span>
+      <span 
+        v-if="selectedCharacter.skillPoints > 0"
+        class="unspent-points-badge"
+        @mouseenter="$emit('set-hint', `You have unspent skill points: ${selectedCharacter.skillPoints}`)"
+        @mouseleave="$emit('set-hint', null)"
+      >
+        +{{ selectedCharacter.skillPoints }}
+      </span>
+      <span 
+        v-if="selectedCharacter.specPoints > 0"
+        class="unspent-points-badge"
+        @mouseenter="$emit('set-hint', `You have unspent specialization points: ${selectedCharacter.specPoints}`)"
+        @mouseleave="$emit('set-hint', null)"
+      >
+        +{{ selectedCharacter.specPoints }}
+      </span>
       </div>
+      <div class="character-stats">
+      <span class="stat-badge">Level {{ selectedCharacter.level }}</span>
+      <span class="stat-badge">Upkeep: {{ selectedCharacter.upkeep.toFixed(1) }} gold</span>
+      <button class="fire-button" @click="fireCharacter">Fire</button>
+      </div>
+    </div>
+    <!-- XP Progress Bar -->
+    <ProgressBar
+      v-if="selectedCharacter.xp"
+      :currentProgress="selectedCharacter.xp.progress"
+      :maxValue="selectedCharacter.xp.nextLevelDelta"
+      progressLabel="XP"
+    />
     </div>
 
-    <!-- Skills Section (Filtered by Selected Attribute) -->
-    <div class="character-skills-section">
-              <CharacterSkills
-          v-if="selectedCharacter.skills && selectedCharacter.skills.length > 0"
-          :skills="filteredSkills"
-          :characterId="selectedCharacter.id"
-          :skillPoints="selectedCharacter.skillPoints"
-          :specPoints="selectedCharacter.specPoints"
-          :selectedAttribute="selectedAttributeTab"
-          @set-hint="$emit('set-hint', $event)"
-        />
-      <div v-else class="no-skills">
-        No skills data available.
-      </div>
+    <!-- Bio Section Wrapper -->
+    <div class="bio-section-wrapper">
+    <div class="bio-section" :class="{ 'keywords-mode': currentHint && currentHint.includes('\n') }">
+      <p v-if="currentHint" :class="{ 'keywords-text': currentHint && currentHint.includes('\n') }">{{ currentHint }}</p>
+      <p v-else-if="selectedCharacter.bio" class="bio-text">{{ selectedCharacter.bio }}</p>
+      <p v-else class="bio-placeholder">No description available.</p>
     </div>
+    </div>
+  </div>
+
+  <!-- Attribute Tabs -->
+  <div class="attribute-tabs-section">
+    <CharacterAttributes
+    v-if="selectedCharacter.attributes"
+    :attributes="selectedCharacter.attributes"
+    :attributePoints="selectedCharacter.attributePoints"
+    :current-hint="currentHint"
+    :selectedTab="selectedAttributeTab"
+    :characterId="selectedCharacter.id"
+    @set-hint="$emit('set-hint', $event)"
+    @tab-selected="selectedAttributeTab = $event"
+    />
+    <div v-else class="no-attributes">
+    No attribute data available.
+    </div>
+  </div>
+
+  <!-- Skills Section (Filtered by Selected Attribute) -->
+  <div class="character-skills-section">
+        <CharacterSkills
+      v-if="selectedCharacter.skills && selectedCharacter.skills.length > 0"
+      :skills="filteredSkills"
+      :characterId="selectedCharacter.id"
+      :skillPoints="selectedCharacter.skillPoints"
+      :specPoints="selectedCharacter.specPoints"
+      :selectedAttribute="selectedAttributeTab"
+      @set-hint="$emit('set-hint', $event)"
+    />
+    <div v-else class="no-skills">
+    No skills data available.
+    </div>
+  </div>
   </div>
 </template>
 
@@ -114,12 +114,12 @@ import type { CmdFireCharacter } from '../../logic/input/InputCommands';
 
 const props = defineProps({
   selectedCharacter: {
-    type: Object as PropType<SelectedCharacterInfo | null>,
-    default: null,
+  type: Object as PropType<SelectedCharacterInfo | null>,
+  default: null,
   },
   currentHint: {
-    type: String as PropType<string | null>,
-    default: null,
+  type: String as PropType<string | null>,
+  default: null,
   },
 });
 
@@ -133,22 +133,22 @@ const selectedAttributeTab = ref<string>('physique'); // Default to physique ini
 // Filter skills by the selected attribute
 const filteredSkills = computed(() => {
   if (!props.selectedCharacter?.skills || !selectedAttributeTab.value) {
-    return props.selectedCharacter?.skills || [];
+  return props.selectedCharacter?.skills || [];
   }
   
   // Filter skills by the selected attribute
   return props.selectedCharacter.skills.filter(skill => 
-    skill.definition.attribute === selectedAttributeTab.value
+  skill.definition.attribute === selectedAttributeTab.value
   );
 });
 
 const fireCharacter = () => {
   if (props.selectedCharacter) {
-    const command: CmdFireCharacter = {
-      name: "CmdFireCharacter",
-      characterId: props.selectedCharacter.id
-    };
-    globalInputQueue.push(command);
+  const command: CmdFireCharacter = {
+    name: "CmdFireCharacter",
+    characterId: props.selectedCharacter.id
+  };
+  globalInputQueue.push(command);
   }
 };
 </script>

@@ -6,6 +6,6 @@ export default defineConfig({
   base: '/mhq/',
   plugins: [vue()],
   build: {
-    target: 'esnext'
+  target: 'esnext'
   }
 }); 

@@ -1,37 +1,37 @@
 <template>
   <div class="crystal-view-container">
-    <div class="crystal-view-header">
-      <button class="close-button" @click="closeCrystalView">✕</button>
-    </div>
-    
-    <!-- Inspiration Choices Section - moved above crystal ball -->
-    <InspirationChoices />
-    
-    <div class="crystal-ball-large">
-      <CrystalBall />
-    </div>
+  <div class="crystal-view-header">
+    <button class="close-button" @click="closeCrystalView">✕</button>
+  </div>
+  
+  <!-- Inspiration Choices Section - moved above crystal ball -->
+  <InspirationChoices />
+  
+  <div class="crystal-ball-large">
+    <CrystalBall />
+  </div>
 
-    <div class="crystal-instruction">
-      Words accumulated through possession or inspiration.
+  <div class="crystal-instruction">
+    Words accumulated through possession or inspiration.
+  </div>
+  <div class="crystal-instruction">
+    Click to try them, right click to dismiss.
+  </div>
+  
+  <div class="crystal-words-container">
+    <div 
+    v-for="word in crystalWords" 
+    :key="word"
+    class="crystal-word"
+    @click="submitWord(word)"
+    @contextmenu.prevent="removeWord(word)"
+    >
+    {{ word }}
     </div>
-    <div class="crystal-instruction">
-      Click to try them, right click to dismiss.
+    <div v-if="crystalWords.length === 0" class="no-words-message">
+    No words available. Need an inspiration.
     </div>
-    
-    <div class="crystal-words-container">
-      <div 
-        v-for="word in crystalWords" 
-        :key="word"
-        class="crystal-word"
-        @click="submitWord(word)"
-        @contextmenu.prevent="removeWord(word)"
-      >
-        {{ word }}
-      </div>
-      <div v-if="crystalWords.length === 0" class="no-words-message">
-        No words available. Need an inspiration.
-      </div>
-    </div>
+  </div>
   </div>
 </template>
 
@@ -53,8 +53,8 @@ const submitWord = (word: string) => {
   if (!gameState) return;
   
   const command: CmdSubmitDiscovery = {
-    name: "CmdSubmitDiscovery",
-    input: word
+  name: "CmdSubmitDiscovery",
+  input: word
   };
   
   globalInputQueue.push(command);
@@ -64,8 +64,8 @@ const removeWord = (word: string) => {
   if (!gameState) return;
   
   const command: CmdRemoveCrystalWord = {
-    name: "CmdRemoveCrystalWord",
-    word: word
+  name: "CmdRemoveCrystalWord",
+  word: word
   };
   
   globalInputQueue.push(command);
@@ -73,7 +73,7 @@ const removeWord = (word: string) => {
 
 const closeCrystalView = () => {
   if (gameState) {
-    gameState.closeCrystalView();
+  gameState.closeCrystalView();
   }
 };
 </script>

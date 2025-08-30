@@ -1,12 +1,12 @@
 <template>
   <button 
-    class="spend-point-btn"
-    @click="handleClick"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
-    :title="title"
+  class="spend-point-btn"
+  @click="handleClick"
+  @mouseenter="handleMouseEnter"
+  @mouseleave="handleMouseLeave"
+  :title="title"
   >
-    <span class="plus-text">+</span>
+  <span class="plus-text">+</span>
   </button>
 </template>
 

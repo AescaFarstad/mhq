@@ -1,17 +1,17 @@
 <template>
   <div class="buff-bar-container">
-    <span
-      class="work-speed-buff"
-      @mouseover="showTooltip = true"
-      @mouseleave="showTooltip = false"
-      ref="workSpeedBuffElement"
-    >
-      Work Speed: {{ formattedWorkSpeed }}
-    </span>
-    <TooltipBubble :visible="showTooltip" :targetElement="workSpeedBuffElement">
-      {{ workSpeedTooltipContent }}
-    </TooltipBubble>
-    <!-- Add more buffs here as needed -->
+  <span
+    class="work-speed-buff"
+    @mouseover="showTooltip = true"
+    @mouseleave="showTooltip = false"
+    ref="workSpeedBuffElement"
+  >
+    Work Speed: {{ formattedWorkSpeed }}
+  </span>
+  <TooltipBubble :visible="showTooltip" :targetElement="workSpeedBuffElement">
+    {{ workSpeedTooltipContent }}
+  </TooltipBubble>
+  <!-- Add more buffs here as needed -->
   </div>
 </template>
 

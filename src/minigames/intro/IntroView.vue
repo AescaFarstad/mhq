@@ -14,26 +14,26 @@ const previousBackgroundImage = ref<string | null>(null);
 
 const minigameState = computed(() => {
   if (gameState?.activeMinigame?.type === 'Intro' && gameState.uiState.activeMinigameState) {
-    const state = gameState.uiState.activeMinigameState as IntroState;
-    // Force tracking of all state properties by accessing them for reactivity
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const historyLength = state.dialogHistory?.length || 0;
-    // @ts-ignore - These variables are used to establish reactive dependencies  
-    const currentText = state.currentText;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const currentChoices = state.currentChoices;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const isWaitingForChoice = state.isWaitingForChoice;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const backgroundImage = state.backgroundImage;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const isEnded = state.isEnded;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const isEnding = state.isEnding;
-    // @ts-ignore - These variables are used to establish reactive dependencies
-    const endingStartTime = state.endingStartTime;
-    
-    return state;
+  const state = gameState.uiState.activeMinigameState as IntroState;
+  // Force tracking of all state properties by accessing them for reactivity
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const historyLength = state.dialogHistory?.length || 0;
+  // @ts-ignore - These variables are used to establish reactive dependencies  
+  const currentText = state.currentText;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const currentChoices = state.currentChoices;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const isWaitingForChoice = state.isWaitingForChoice;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const backgroundImage = state.backgroundImage;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const isEnded = state.isEnded;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const isEnding = state.isEnding;
+  // @ts-ignore - These variables are used to establish reactive dependencies
+  const endingStartTime = state.endingStartTime;
+  
+  return state;
   }
   return null;
 });
@@ -42,7 +42,7 @@ const minigameState = computed(() => {
 const dialogHistory = computed(() => {
   const state = gameState?.uiState.activeMinigameState as IntroState;
   if (state?.dialogHistory) {
-    return state.dialogHistory;
+  return state.dialogHistory;
   }
   return [];
 });
@@ -50,19 +50,19 @@ const dialogHistory = computed(() => {
 // Watch for background image changes to trigger transitions
 watch(() => minigameState.value?.backgroundImage, (newImage, oldImage) => {
   if (newImage && newImage !== oldImage && oldImage) {
-    // Start transition
-    previousBackgroundImage.value = oldImage;
-    currentBackgroundImage.value = newImage;
-    isTransitioning.value = true;
-    
-    // End transition after 20 seconds
-    setTimeout(() => {
-      isTransitioning.value = false;
-      previousBackgroundImage.value = null;
-    }, 20000);
+  // Start transition
+  previousBackgroundImage.value = oldImage;
+  currentBackgroundImage.value = newImage;
+  isTransitioning.value = true;
+  
+  // End transition after 20 seconds
+  setTimeout(() => {
+    isTransitioning.value = false;
+    previousBackgroundImage.value = null;
+  }, 20000);
   } else if (newImage && !oldImage) {
-    // First image load, no transition needed
-    currentBackgroundImage.value = newImage;
+  // First image load, no transition needed
+  currentBackgroundImage.value = newImage;
   }
 }, { immediate: true });
 
@@ -70,13 +70,13 @@ watch(() => minigameState.value?.backgroundImage, (newImage, oldImage) => {
 const oldBackgroundStyle = computed(() => {
   const baseUrl = import.meta.env.BASE_URL;
   if (isTransitioning.value && previousBackgroundImage.value) {
-    const imagePath = `${baseUrl}img/${previousBackgroundImage.value}`;
-    return { 
-      backgroundImage: `url("${imagePath}")`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
-    };
+  const imagePath = `${baseUrl}img/${previousBackgroundImage.value}`;
+  return { 
+    backgroundImage: `url("${imagePath}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
   }
   return {};
 });
@@ -85,20 +85,20 @@ const newBackgroundStyle = computed(() => {
   const baseUrl = import.meta.env.BASE_URL;
   const activeImage = currentBackgroundImage.value || minigameState.value?.backgroundImage;
   if (activeImage) {
-    const imagePath = `${baseUrl}img/${activeImage}`;
-    return { 
-      backgroundImage: `url("${imagePath}")`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
-    };
+  const imagePath = `${baseUrl}img/${activeImage}`;
+  return { 
+    backgroundImage: `url("${imagePath}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
   }
   return {};
 });
 
 const introGame = computed(() => {
   if (gameState?.activeMinigame?.type === 'Intro') {
-    return gameState.activeMinigame as IntroGame;
+  return gameState.activeMinigame as IntroGame;
   }
   return null;
 });
@@ -113,7 +113,7 @@ const currentTime = ref(Date.now());
 // Computed properties for ending sequence
 const endingProgress = computed(() => {
   if (!minigameState.value?.isEnding || !minigameState.value?.endingStartTime) {
-    return 0;
+  return 0;
   }
   const elapsed = currentTime.value - minigameState.value.endingStartTime;
   return Math.min(elapsed / 15000, 1); // Progress from 0 to 1 over 15 seconds (5 sec wait + 5 sec blur + 5 sec for text)
@@ -137,90 +137,90 @@ const endingBlurAmount = computed(() => {
 onMounted(() => {
   // Initialize intro with gameState
   if (introGame.value && gameState) {
-    introGame.value.startIntro(gameState);
+  introGame.value.startIntro(gameState);
   }
   
   // Ensure initial background image is set
   if (minigameState.value?.backgroundImage && !currentBackgroundImage.value) {
-    currentBackgroundImage.value = minigameState.value.backgroundImage;
+  currentBackgroundImage.value = minigameState.value.backgroundImage;
   }
   
   // Set up ending sequence animation update
   const updateEndingAnimation = () => {
-    if (minigameState.value?.isEnding && !minigameState.value?.isEnded) {
-      currentTime.value = Date.now(); // Update reactive time to trigger computed property updates
-      requestAnimationFrame(updateEndingAnimation);
-    }
+  if (minigameState.value?.isEnding && !minigameState.value?.isEnded) {
+    currentTime.value = Date.now(); // Update reactive time to trigger computed property updates
+    requestAnimationFrame(updateEndingAnimation);
+  }
   };
   
   // Watch for ending state to start animation updates
   watch(() => minigameState.value?.isEnding, (isEnding) => {
-    if (isEnding) {
-      updateEndingAnimation();
-    }
+  if (isEnding) {
+    updateEndingAnimation();
+  }
   });
 });
 </script>
 
 <template>
   <div class="intro-view-container">
-    <!-- Background layers for smooth transitions -->
-    <div 
-      class="background-layer old-background"
-      :class="{ 'transitioning': isTransitioning }"
-      :style="oldBackgroundStyle"
-    ></div>
-    <div 
-      class="background-layer new-background"
-      :class="{ 'transitioning': isTransitioning }"
-      :style="newBackgroundStyle"
-    ></div>
-    
-    <div 
-      class="intro-content"
-      :style="{ filter: `blur(${endingBlurAmount}px)` }"
-    >
-      <div v-if="minigameState && !minigameState.isEnded" class="dialog-history">
-        <!-- Display all dialog history -->
-        <div v-for="(item, index) in dialogHistory" :key="index" 
-             :class="['history-item', { 'speaker-change': index > 0 && ((dialogHistory[index-1].type === 'message' && item.type === 'player_choice') || (dialogHistory[index-1].type === 'player_choice' && item.type === 'message')) }]">
-          
-          <!-- Message from character (left bubble) -->
-          <div v-if="item.type === 'message'" class="message-bubble-container left">
-            <div class="message-bubble character-bubble">
-              <div class="message-text" v-html="item.text"></div>
-            </div>
-          </div>
-          
-          <!-- Choice options (only show if this is the current choice and waiting for choice) -->
-          <div v-else-if="item.type === 'choice' && minigameState.isWaitingForChoice && index === dialogHistory.length - 1" class="choice-container">
-            <div class="choices-grid">
-              <button 
-                v-for="choice in item.choices"
-                :key="choice.id"
-                @click="handleChoice(choice.id)"
-                class="choice-btn"
-              >
-                {{ choice.text }}
-              </button>
-            </div>
-          </div>
-          
-          <!-- Player's selected choice (right bubble) -->
-          <div v-else-if="item.type === 'player_choice'" class="message-bubble-container right">
-            <div class="message-bubble player-bubble">
-              <div class="message-text">{{ item.selectedChoiceText }}</div>
-            </div>
-          </div>
-          
-        </div>
+  <!-- Background layers for smooth transitions -->
+  <div 
+    class="background-layer old-background"
+    :class="{ 'transitioning': isTransitioning }"
+    :style="oldBackgroundStyle"
+  ></div>
+  <div 
+    class="background-layer new-background"
+    :class="{ 'transitioning': isTransitioning }"
+    :style="newBackgroundStyle"
+  ></div>
+  
+  <div 
+    class="intro-content"
+    :style="{ filter: `blur(${endingBlurAmount}px)` }"
+  >
+    <div v-if="minigameState && !minigameState.isEnded" class="dialog-history">
+    <!-- Display all dialog history -->
+    <div v-for="(item, index) in dialogHistory" :key="index" 
+       :class="['history-item', { 'speaker-change': index > 0 && ((dialogHistory[index-1].type === 'message' && item.type === 'player_choice') || (dialogHistory[index-1].type === 'player_choice' && item.type === 'message')) }]">
+      
+      <!-- Message from character (left bubble) -->
+      <div v-if="item.type === 'message'" class="message-bubble-container left">
+      <div class="message-bubble character-bubble">
+        <div class="message-text" v-html="item.text"></div>
       </div>
+      </div>
+      
+      <!-- Choice options (only show if this is the current choice and waiting for choice) -->
+      <div v-else-if="item.type === 'choice' && minigameState.isWaitingForChoice && index === dialogHistory.length - 1" class="choice-container">
+      <div class="choices-grid">
+        <button 
+        v-for="choice in item.choices"
+        :key="choice.id"
+        @click="handleChoice(choice.id)"
+        class="choice-btn"
+        >
+        {{ choice.text }}
+        </button>
+      </div>
+      </div>
+      
+      <!-- Player's selected choice (right bubble) -->
+      <div v-else-if="item.type === 'player_choice'" class="message-bubble-container right">
+      <div class="message-bubble player-bubble">
+        <div class="message-text">{{ item.selectedChoiceText }}</div>
+      </div>
+      </div>
+      
     </div>
-    
-    <!-- The End overlay -->
-    <div v-if="shouldShowTheEnd" class="the-end-overlay">
-      <div class="the-end-text">The End</div>
     </div>
+  </div>
+  
+  <!-- The End overlay -->
+  <div v-if="shouldShowTheEnd" class="the-end-overlay">
+    <div class="the-end-text">The End</div>
+  </div>
   </div>
 </template>
 
@@ -262,39 +262,39 @@ onMounted(() => {
 
 @keyframes oldBackgroundTransition {
   0% {
-    filter: blur(0px);
-    opacity: 1;
+  filter: blur(0px);
+  opacity: 1;
   }
   50% {
-    filter: blur(12px);
-    opacity: 1;
+  filter: blur(12px);
+  opacity: 1;
   }
   70% {
-    filter: blur(12px);
-    opacity: 1;
+  filter: blur(12px);
+  opacity: 1;
   }
   100% {
-    filter: blur(12px);
-    opacity: 0;
+  filter: blur(12px);
+  opacity: 0;
   }
 }
 
 @keyframes newBackgroundTransition {
   0% {
-    filter: blur(12px);
-    opacity: 0;
+  filter: blur(12px);
+  opacity: 0;
   }
   30% {
-    filter: blur(12px);
-    opacity: 0;
+  filter: blur(12px);
+  opacity: 0;
   }
   70% {
-    filter: blur(12px);
-    opacity: 1;
+  filter: blur(12px);
+  opacity: 1;
   }
   100% {
-    filter: blur(0px);
-    opacity: 1;
+  filter: blur(0px);
+  opacity: 1;
   }
 }
 
@@ -378,8 +378,8 @@ onMounted(() => {
   color: #ffffff;
   font-family: "IM Fell English", serif;
   text-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.55),
-    0 0 8px rgba(52, 152, 219, 0.4);
+  0 0 10px rgba(255, 255, 255, 0.55),
+  0 0 8px rgba(52, 152, 219, 0.4);
 }
 
 /* Enhanced styling for emphasized text within character messages */
@@ -473,10 +473,10 @@ onMounted(() => {
   font-weight: bold;
   color: #ecf0f1;
   text-shadow: 
-    0 0 20px rgba(255, 255, 255, 0.8),
-    0 0 40px rgba(255, 255, 255, 0.6),
-    0 0 60px rgba(255, 255, 255, 0.4),
-    0 0 80px rgba(255, 255, 255, 0.2);
+  0 0 20px rgba(255, 255, 255, 0.8),
+  0 0 40px rgba(255, 255, 255, 0.6),
+  0 0 60px rgba(255, 255, 255, 0.4),
+  0 0 80px rgba(255, 255, 255, 0.2);
   text-align: center;
   white-space: nowrap;
   animation: theEndAppear 2s ease-out forwards;
@@ -492,21 +492,21 @@ onMounted(() => {
 
 @keyframes theEndFadeIn {
   from { 
-    opacity: 0; 
+  opacity: 0; 
   }
   to { 
-    opacity: 1; 
+  opacity: 1; 
   }
 }
 
 @keyframes theEndAppear {
   from {
-    opacity: 0;
-    transform: scale(0.8);
+  opacity: 0;
+  transform: scale(0.8);
   }
   to {
-    opacity: 1;
-    transform: scale(1);
+  opacity: 1;
+  transform: scale(1);
   }
 }
 
@@ -534,30 +534,30 @@ onMounted(() => {
 /* Responsive design */
 @media (max-width: 768px) {
   .intro-view-container {
-    padding: 1rem;
+  padding: 1rem;
   }
   
   .message-bubble {
-    max-width: 85%;
+  max-width: 85%;
   }
   
   .choices-grid {
-    max-width: 100%;
+  max-width: 100%;
   }
   
   .choice-btn {
-    min-width: 100px;
-    font-size: 0.9rem;
+  min-width: 100px;
+  font-size: 0.9rem;
   }
   
   .the-end-text {
-    font-size: 24vh; /* Proportionally smaller on mobile */
+  font-size: 24vh; /* Proportionally smaller on mobile */
   }
 }
 
 @media (max-width: 480px) {
   .the-end-text {
-    font-size: max(20vh, 160px); /* Ensure minimum readable size on very small screens */
+  font-size: max(20vh, 160px); /* Ensure minimum readable size on very small screens */
   }
 }
 </style> 

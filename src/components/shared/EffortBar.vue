@@ -1,15 +1,15 @@
 <template>
   <div class="progress-section">
-    <progress
-      :value="investedEffort"
-      :max="totalEffort"
-      class="task-progress"
-      :style="{ '--progress-bar-color': progressBarColor }"
-    ></progress>
-    <div class="progress-overlay-text-container">
-      <span class="progress-effort-text">{{ Math.round(investedEffort) }}/{{ Math.round(totalEffort) }}</span>
-      <span class="progress-speed-text" v-if="status === 'Processing' && speed !== undefined && speed > 0">+{{ effectiveSpeed.toFixed(1) }}</span>
-    </div>
+  <progress
+    :value="investedEffort"
+    :max="totalEffort"
+    class="task-progress"
+    :style="{ '--progress-bar-color': progressBarColor }"
+  ></progress>
+  <div class="progress-overlay-text-container">
+    <span class="progress-effort-text">{{ Math.round(investedEffort) }}/{{ Math.round(totalEffort) }}</span>
+    <span class="progress-speed-text" v-if="status === 'Processing' && speed !== undefined && speed > 0">+{{ effectiveSpeed.toFixed(1) }}</span>
+  </div>
   </div>
 </template>
 
@@ -20,20 +20,20 @@ import { useGameState } from '../../composables/useGameState';
 
 const props = defineProps({
   investedEffort: {
-    type: Number,
-    required: true,
+  type: Number,
+  required: true,
   },
   totalEffort: {
-    type: Number,
-    required: true,
+  type: Number,
+  required: true,
   },
   speed: {
-    type: Number,
-    default: 0,
+  type: Number,
+  default: 0,
   },
   status: {
-    type: String as PropType<GameTaskStatus>,
-    required: true,
+  type: String as PropType<GameTaskStatus>,
+  required: true,
   }
 });
 
@@ -61,17 +61,17 @@ function interpolateColor(color1: {r:number,g:number,b:number}, color2: {r:numbe
 
 function getProgressColor(timeToComplete: number): string {
   if (timeToComplete <= PROGRESS_COLOR_MAP[0].time) {
-    const c = PROGRESS_COLOR_MAP[0].color;
-    return `rgb(${c.r}, ${c.g}, ${c.b})`;
+  const c = PROGRESS_COLOR_MAP[0].color;
+  return `rgb(${c.r}, ${c.g}, ${c.b})`;
   }
 
   for (let i = 0; i < PROGRESS_COLOR_MAP.length - 1; i++) {
-    const lowerBound = PROGRESS_COLOR_MAP[i];
-    const upperBound = PROGRESS_COLOR_MAP[i+1];
-    if (timeToComplete >= lowerBound.time && timeToComplete <= upperBound.time) {
-      const factor = (timeToComplete - lowerBound.time) / (upperBound.time - lowerBound.time);
-      return interpolateColor(lowerBound.color, upperBound.color, factor);
-    }
+  const lowerBound = PROGRESS_COLOR_MAP[i];
+  const upperBound = PROGRESS_COLOR_MAP[i+1];
+  if (timeToComplete >= lowerBound.time && timeToComplete <= upperBound.time) {
+    const factor = (timeToComplete - lowerBound.time) / (upperBound.time - lowerBound.time);
+    return interpolateColor(lowerBound.color, upperBound.color, factor);
+  }
   }
   const lastColor = PROGRESS_COLOR_MAP[PROGRESS_COLOR_MAP.length - 1].color;
   return `rgb(${lastColor.r}, ${lastColor.g}, ${lastColor.b})`;
@@ -79,14 +79,14 @@ function getProgressColor(timeToComplete: number): string {
 
 const timeToComplete = computed(() => {
   if (effectiveSpeed.value && effectiveSpeed.value > 0 && props.totalEffort > props.investedEffort) {
-    return (props.totalEffort - props.investedEffort) / effectiveSpeed.value;
+  return (props.totalEffort - props.investedEffort) / effectiveSpeed.value;
   }
   return Infinity;
 });
 
 const progressBarColor = computed(() => {
   if (props.investedEffort >= props.totalEffort || props.status === GameTaskStatus.Complete) {
-    return 'rgb(100, 100, 100)';
+  return 'rgb(100, 100, 100)';
   }
   return getProgressColor(timeToComplete.value);
 });

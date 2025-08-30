@@ -1,38 +1,38 @@
 <template>
   <div
-    v-if="visible"
-    class="custom-tooltip"
-    :style="{ left: x + 'px', top: y + 'px' }"
+  v-if="visible"
+  class="custom-tooltip"
+  :style="{ left: x + 'px', top: y + 'px' }"
   >
-    <div class="tooltip-content">
-      <!-- Skills/Specializations: Image + Description + Keywords -->
-      <div v-if="(imageType === 'skill' || imageType === 'skill_specialization') && content" class="tooltip-with-image">
-        <canvas 
-          ref="skillImageCanvas"
-          width="72"
-          height="72"
-          class="tooltip-skill-icon"
-        ></canvas>
-        <div class="tooltip-text-section">
-          <div class="tooltip-description" v-html="descriptionOnly"></div>
-          <!-- Keywords section for skills/specializations -->
-          <div v-if="keywords.length > 0" class="tooltip-keywords-section">
-            <div class="tooltip-keywords-label">Keywords that led to this discovery:</div>
-            <div class="tooltip-keywords">
-              <span v-for="(keyword, index) in keywords" :key="keyword" class="keyword-highlight">
-                {{ keyword }}<span v-if="index < keywords.length - 1">, </span>
-              </span>
-            </div>
-          </div>
-        </div>
+  <div class="tooltip-content">
+    <!-- Skills/Specializations: Image + Description + Keywords -->
+    <div v-if="(imageType === 'skill' || imageType === 'skill_specialization') && content" class="tooltip-with-image">
+    <canvas 
+      ref="skillImageCanvas"
+      width="72"
+      height="72"
+      class="tooltip-skill-icon"
+    ></canvas>
+    <div class="tooltip-text-section">
+      <div class="tooltip-description" v-html="descriptionOnly"></div>
+      <!-- Keywords section for skills/specializations -->
+      <div v-if="keywords.length > 0" class="tooltip-keywords-section">
+      <div class="tooltip-keywords-label">Keywords that led to this discovery:</div>
+      <div class="tooltip-keywords">
+        <span v-for="(keyword, index) in keywords" :key="keyword" class="keyword-highlight">
+        {{ keyword }}<span v-if="index < keywords.length - 1">, </span>
+        </span>
       </div>
-      
-      <!-- Attributes/Categories/Buildings: Description only -->
-      <div v-if="imageType !== 'skill' && imageType !== 'skill_specialization' && content" 
-           class="tooltip-description" 
-           v-html="content">
       </div>
     </div>
+    </div>
+    
+    <!-- Attributes/Categories/Buildings: Description only -->
+    <div v-if="imageType !== 'skill' && imageType !== 'skill_specialization' && content" 
+       class="tooltip-description" 
+       v-html="content">
+    </div>
+  </div>
   </div>
 </template>
 
@@ -58,16 +58,16 @@ const skillImageCanvas = ref<HTMLCanvasElement>();
 
 const getAtlasName = (itemType: string): string => {
   switch (itemType) {
-    case 'skill':
-    case 'skill_specialization':
-      return 'skills';
-    case 'building':
-      return 'buildings';
-    case 'attribute':
-    case 'attribute_category':
-      return 'attributes';
-    default:
-      return 'skills';
+  case 'skill':
+  case 'skill_specialization':
+    return 'skills';
+  case 'building':
+    return 'buildings';
+  case 'attribute':
+  case 'attribute_category':
+    return 'attributes';
+  default:
+    return 'skills';
   }
 };
 
@@ -82,39 +82,39 @@ const renderSkillImage = async (itemId: string, itemType: string) => {
   ctx.clearRect(0, 0, 72, 72);
   
   try {
-    const atlasManager = AtlasManager.getInstance();
-    const atlasName = getAtlasName(itemType);
-    const imageData = await atlasManager.getAtlasImage(atlasName, itemId);
+  const atlasManager = AtlasManager.getInstance();
+  const atlasName = getAtlasName(itemType);
+  const imageData = await atlasManager.getAtlasImage(atlasName, itemId);
+  
+  if (imageData) {
+    const { image, rect } = imageData;
     
-    if (imageData) {
-      const { image, rect } = imageData;
-      
-      // Calculate scale to fit 72x72 while maintaining aspect ratio
-      const scale = Math.min(72 / rect.w, 72 / rect.h);
-      const scaledWidth = rect.w * scale;
-      const scaledHeight = rect.h * scale;
-      
-      // Center the scaled image
-      const offsetX = (72 - scaledWidth) / 2;
-      const offsetY = (72 - scaledHeight) / 2;
-      
-      // Draw the scaled image
-      ctx.drawImage(
-        image, 
-        rect.x, rect.y, rect.w, rect.h,  // Source rectangle
-        offsetX, offsetY, scaledWidth, scaledHeight  // Destination rectangle
-      );
-    }
+    // Calculate scale to fit 72x72 while maintaining aspect ratio
+    const scale = Math.min(72 / rect.w, 72 / rect.h);
+    const scaledWidth = rect.w * scale;
+    const scaledHeight = rect.h * scale;
+    
+    // Center the scaled image
+    const offsetX = (72 - scaledWidth) / 2;
+    const offsetY = (72 - scaledHeight) / 2;
+    
+    // Draw the scaled image
+    ctx.drawImage(
+    image, 
+    rect.x, rect.y, rect.w, rect.h,  // Source rectangle
+    offsetX, offsetY, scaledWidth, scaledHeight  // Destination rectangle
+    );
+  }
   } catch (error) {
-    console.warn('Failed to render skill image:', error);
+  console.warn('Failed to render skill image:', error);
   }
 };
 
 // Watch for tooltip visibility and render image when needed
 watch([() => props.visible, () => props.itemId, () => props.imageType], async () => {
   if (props.visible && (props.imageType === 'skill' || props.imageType === 'skill_specialization')) {
-    await nextTick(); // Wait for DOM update
-    renderSkillImage(props.itemId, props.imageType);
+  await nextTick(); // Wait for DOM update
+  renderSkillImage(props.itemId, props.imageType);
   }
 });
 </script>
@@ -136,12 +136,12 @@ watch([() => props.visible, () => props.itemId, () => props.imageType], async ()
 
 @keyframes fadeIn {
   from {
-    opacity: 0;
-    transform: translateY(-5px);
+  opacity: 0;
+  transform: translateY(-5px);
   }
   to {
-    opacity: 0.95;
-    transform: translateY(0);
+  opacity: 0.95;
+  transform: translateY(0);
   }
 }
 

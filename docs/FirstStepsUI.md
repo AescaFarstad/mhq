@@ -27,9 +27,9 @@ The component's script is responsible for transforming a flat list of dialog nod
 
 -   The **Main Thread** area iterates over `mainThreadNodes` and renders each one using the `FirstStepsNodeView` component.
 -   The template then iterates through the `levelGated` branches from the `dialogTree`. For each branch:
-    -   It uses `getGridPosition` to place a container in the correct grid cell.
-    -   The root node of the branch if not yet active, still has its designated space.
-    -   All subsequent *active* nodes within that branch's subtree are then rendered inside the same container, ensuring the entire branch is visually grouped together.
+  -   It uses `getGridPosition` to place a container in the correct grid cell.
+  -   The root node of the branch if not yet active, still has its designated space.
+  -   All subsequent *active* nodes within that branch's subtree are then rendered inside the same container, ensuring the entire branch is visually grouped together.
 
 ## 4. Component Interaction (`FirstStepsNodeView.vue`)
 

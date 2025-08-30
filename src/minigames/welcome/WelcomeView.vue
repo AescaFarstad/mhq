@@ -10,23 +10,23 @@ const gameState = inject<GameState>('gameState');
 
 const minigameState = computed(() => {
   if (gameState?.activeMinigame?.type === 'Welcome' && gameState.uiState.activeMinigameState) {
-    return gameState.uiState.activeMinigameState as WelcomeState;
+  return gameState.uiState.activeMinigameState as WelcomeState;
   }
   return null;
 });
 
 const welcomeGame = computed(() => {
   if (gameState?.activeMinigame?.type === 'Welcome') {
-    return gameState.activeMinigame as WelcomeGame;
+  return gameState.activeMinigame as WelcomeGame;
   }
   return null;
 });
 
 const handleChoiceMade = (choiceId: string) => {
   if (welcomeGame.value && gameState) {
-    welcomeGame.value.makeChoiceAndPrepareExit(choiceId, gameState);
+  welcomeGame.value.makeChoiceAndPrepareExit(choiceId, gameState);
   } else {
-    console.error('WelcomeGame instance or gameState not available for handleChoiceMade');
+  console.error('WelcomeGame instance or gameState not available for handleChoiceMade');
   }
 };
 
@@ -36,24 +36,24 @@ const handleStartExploration = (choiceId: string) => {
 
 onMounted(() => {
   if (!minigameState.value?.lib?.isLoaded) {
-    // Lib not loaded, consider logging or handling
+  // Lib not loaded, consider logging or handling
   }
   if (minigameState.value) {
-    // selectedLocation is managed by WelcomeGame.ts upon choice and exit
-    // minigameState.value.selectedLocation = undefined; // This might not be necessary if WelcomeGame handles state correctly on init/exit
+  // selectedLocation is managed by WelcomeGame.ts upon choice and exit
+  // minigameState.value.selectedLocation = undefined; // This might not be necessary if WelcomeGame handles state correctly on init/exit
   }
 });
 </script>
 
 <template>
   <div class="connection-view-container">
-    <WelcomeChoices
-      v-if="minigameState && minigameState.lib && minigameState.explorableChoices"
-      :explorableChoices="minigameState.explorableChoices"
-      @choiceMade="handleChoiceMade"
-      @startExploration="handleStartExploration"
-    />
-    <!-- <button @click="toggleStageDev">Dev: Toggle Stage (Current: {{ currentStage }})</button> -->
+  <WelcomeChoices
+    v-if="minigameState && minigameState.lib && minigameState.explorableChoices"
+    :explorableChoices="minigameState.explorableChoices"
+    @choiceMade="handleChoiceMade"
+    @startExploration="handleStartExploration"
+  />
+  <!-- <button @click="toggleStageDev">Dev: Toggle Stage (Current: {{ currentStage }})</button> -->
   </div>
 </template>
 

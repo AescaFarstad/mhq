@@ -1,6 +1,6 @@
 <template>
   <div class="image-holder-wrapper">
-    <canvas ref="canvasRef"></canvas>
+  <canvas ref="canvasRef"></canvas>
   </div>
 </template>
 
@@ -24,7 +24,7 @@ const atlasManagerInstance = AtlasManager.getInstance(); // Get the singleton in
 
 watchEffect(async () => {
   if (!canvasRef.value) {
-    return; // Canvas element not ready
+  return; // Canvas element not ready
   }
   const canvas = canvasRef.value;
   
@@ -35,9 +35,9 @@ watchEffect(async () => {
   const ctx = canvas.getContext('2d');
 
   if (!ctx) {
-    console.error("ImageHolder: Could not get 2D context from canvas.");
-    // Canvas dimensions are set, but we can't draw or clear without context
-    return;
+  console.error("ImageHolder: Could not get 2D context from canvas.");
+  // Canvas dimensions are set, but we can't draw or clear without context
+  return;
   }
 
   // Clear the canvas with its defined dimensions
@@ -45,30 +45,30 @@ watchEffect(async () => {
 
   // If manager or essential props are missing, canvas is already cleared and sized.
   if (!props.atlasName || !props.imageName) {
-    // console.warn("ImageHolder: atlasName or imageName is missing.");
-    return;
+  // console.warn("ImageHolder: atlasName or imageName is missing.");
+  return;
   }
   
   try {
-    // Use the singleton instance directly
-    const imageData = await atlasManagerInstance.getAtlasImage(props.atlasName, props.imageName);
+  // Use the singleton instance directly
+  const imageData = await atlasManagerInstance.getAtlasImage(props.atlasName, props.imageName);
 
-    if (imageData) {
-      const { image, rect } = imageData;
-      
-      // Calculate destination X and Y to center the image (at its native size)
-      const destX = (props.displayWidth - rect.w) / 2;
-      const destY = (props.displayHeight - rect.h) / 2;
-      
-      // Draw the image from atlas at its native size, centered on the canvas
-      ctx.drawImage(image, rect.x, rect.y, rect.w, rect.h, destX, destY, rect.w, rect.h);
-    } else {
-      // Image not found in atlas or atlas not loaded. Canvas is already cleared and sized.
-      // console.warn('ImageHolder: Image ' + props.imageName + ' not found in atlas ' + props.atlasName + '.');
-    }
+  if (imageData) {
+    const { image, rect } = imageData;
+    
+    // Calculate destination X and Y to center the image (at its native size)
+    const destX = (props.displayWidth - rect.w) / 2;
+    const destY = (props.displayHeight - rect.h) / 2;
+    
+    // Draw the image from atlas at its native size, centered on the canvas
+    ctx.drawImage(image, rect.x, rect.y, rect.w, rect.h, destX, destY, rect.w, rect.h);
+  } else {
+    // Image not found in atlas or atlas not loaded. Canvas is already cleared and sized.
+    // console.warn('ImageHolder: Image ' + props.imageName + ' not found in atlas ' + props.atlasName + '.');
+  }
   } catch (error) {
-    // Error occurred. Canvas is already cleared and sized.
-    console.error('ImageHolder: Error getting image from atlas:', error);
+  // Error occurred. Canvas is already cleared and sized.
+  console.error('ImageHolder: Error getting image from atlas:', error);
   }
 });
 

@@ -1,38 +1,38 @@
 <template>
   <div class="discovery-input-section">
-    <div class="input-container">
-      <div class="crystal-ball-mini" @click="toggleCrystalView">
-        <CrystalBall />
-        <div v-if="crystalWordCount > 0" class="crystal-count-badge">
-          {{ crystalWordCount }}
-        </div>
-      </div>
-      <div
-        class="input-area"
-        :class="{
-          'shake-animation': inputInteractionState === 'error',
-          'flash-green-animation': inputInteractionState === 'success'
-        }"
-      >
-        <input
-          ref="inputElementRef"
-          v-model="discoveryInput"
-          @keydown.enter="submitDiscovery"
-          @input="onInputChange"
-          type="text"
-          placeholder="Type something to discover..."
-          class="discovery-input"
-          :class="{
-            'input-error-highlight': inputInteractionState === 'error',
-            'input-typing-highlight': inputInteractionState === 'typing'
-          }"
-          maxlength="100"
-        />
-        <button @click="submitDiscovery" class="discovery-submit-btn">
-          Enter
-        </button>
-      </div>
+  <div class="input-container">
+    <div class="crystal-ball-mini" @click="toggleCrystalView">
+    <CrystalBall />
+    <div v-if="crystalWordCount > 0" class="crystal-count-badge">
+      {{ crystalWordCount }}
     </div>
+    </div>
+    <div
+    class="input-area"
+    :class="{
+      'shake-animation': inputInteractionState === 'error',
+      'flash-green-animation': inputInteractionState === 'success'
+    }"
+    >
+    <input
+      ref="inputElementRef"
+      v-model="discoveryInput"
+      @keydown.enter="submitDiscovery"
+      @input="onInputChange"
+      type="text"
+      placeholder="Type something to discover..."
+      class="discovery-input"
+      :class="{
+      'input-error-highlight': inputInteractionState === 'error',
+      'input-typing-highlight': inputInteractionState === 'typing'
+      }"
+      maxlength="100"
+    />
+    <button @click="submitDiscovery" class="discovery-submit-btn">
+      Enter
+    </button>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -56,7 +56,7 @@ const crystalWordCount = computed(() => {
 // Function to toggle crystal view when crystal ball is clicked
 const toggleCrystalView = () => {
   if (gameState) {
-    gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
+  gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
   }
 };
 
@@ -64,8 +64,8 @@ let lastAnalysisLogEntry: any = null;
 
 const submitDiscovery = async () => {
   if (!gameState || !discoveryInput.value.trim()) {
-    await showError();
-    return;
+  await showError();
+  return;
   }
   
   const inputBefore = discoveryInput.value.trim();
@@ -74,47 +74,47 @@ const submitDiscovery = async () => {
   lastAnalysisLogEntry = currentLog.length > 0 ? currentLog[currentLog.length - 1] : null;
   
   const command: CmdSubmitDiscovery = {
-    name: "CmdSubmitDiscovery",
-    input: inputBefore
+  name: "CmdSubmitDiscovery",
+  input: inputBefore
   };
   
   globalInputQueue.push(command);
   
   // Check for discovery result after a short delay
   setTimeout(async () => {
-    if (!gameState) return;
+  if (!gameState) return;
+  
+  const currentLog = gameState.uiState.discoveryAnalysisLog;
+  const currentLastEntry = currentLog.length > 0 ? currentLog[currentLog.length - 1] : null;
+  
+  // Check if we have a new entry by comparing object references
+  const hasNewEntry = currentLastEntry !== lastAnalysisLogEntry;
+  
+  if (hasNewEntry && currentLastEntry) {
+    // Check if ANY action in the entry represents a success
+    const hasSuccessAction = currentLastEntry.actions.some(isSuccessfulDiscoveryAction);
     
-    const currentLog = gameState.uiState.discoveryAnalysisLog;
-    const currentLastEntry = currentLog.length > 0 ? currentLog[currentLog.length - 1] : null;
-    
-    // Check if we have a new entry by comparing object references
-    const hasNewEntry = currentLastEntry !== lastAnalysisLogEntry;
-    
-    if (hasNewEntry && currentLastEntry) {
-      // Check if ANY action in the entry represents a success
-      const hasSuccessAction = currentLastEntry.actions.some(isSuccessfulDiscoveryAction);
-      
-      if (hasSuccessAction) {
-        // Success - clear input, show success animation, maintain focus
-        discoveryInput.value = '';
-        showSuccess();
-        await nextTick();
-        inputElementRef.value?.focus();
-      } else {
-        // Error or other result
-        await showError();
-      }
+    if (hasSuccessAction) {
+    // Success - clear input, show success animation, maintain focus
+    discoveryInput.value = '';
+    showSuccess();
+    await nextTick();
+    inputElementRef.value?.focus();
     } else {
-      // No new entry means no success
-      await showError();
+    // Error or other result
+    await showError();
     }
+  } else {
+    // No new entry means no success
+    await showError();
+  }
   }, 100);
 };
 
 const onInputChange = () => {
   // Clear error state when user starts typing
   if (inputInteractionState.value === 'error' || inputInteractionState.value === 'success') {
-    inputInteractionState.value = 'typing';
+  inputInteractionState.value = 'typing';
   }
 };
 
@@ -128,20 +128,20 @@ const showError = async () => {
   
   // Keep the error state longer to ensure animation completes
   setTimeout(() => {
-    // Reset to default if we're still in error state OR if we're stuck in typing state
-    if (inputInteractionState.value === 'error' || inputInteractionState.value === 'typing') {
-      inputInteractionState.value = 'default';
-    }
+  // Reset to default if we're still in error state OR if we're stuck in typing state
+  if (inputInteractionState.value === 'error' || inputInteractionState.value === 'typing') {
+    inputInteractionState.value = 'default';
+  }
   }, 600); // Match the animation duration
 };
 
 const showSuccess = () => {
   inputInteractionState.value = 'success';
   setTimeout(() => {
-    // Reset to default if we're still in success state OR if we're stuck in typing state
-    if (inputInteractionState.value === 'success' || inputInteractionState.value === 'typing') {
-      inputInteractionState.value = 'default';
-    }
+  // Reset to default if we're still in success state OR if we're stuck in typing state
+  if (inputInteractionState.value === 'success' || inputInteractionState.value === 'typing') {
+    inputInteractionState.value = 'default';
+  }
   }, 2100); // Match the animation duration (3x longer)
 };
 </script>
@@ -275,16 +275,16 @@ const showSuccess = () => {
 
 @keyframes flashGreenBorder {
   0% { 
-    border-color: transparent;
-    background-color: rgba(46, 204, 113, 0.1);
+  border-color: transparent;
+  background-color: rgba(46, 204, 113, 0.1);
   }
   50% { 
-    border-color: #2ecc71;
-    background-color: rgba(46, 204, 113, 0.2);
+  border-color: #2ecc71;
+  background-color: rgba(46, 204, 113, 0.2);
   }
   100% { 
-    border-color: transparent;
-    background-color: rgba(46, 204, 113, 0.1);
+  border-color: transparent;
+  background-color: rgba(46, 204, 113, 0.1);
   }
 }
 

@@ -1,77 +1,77 @@
 <template>
   <div class="discover-view-container">
-    <div class="discover-layout">
-      <!-- Skill Browser Panel -->
-      <div class="skill-browser-panel">
-        <SkillBrowser />
-        <!-- Crystal View positioned over skill browser -->
-        <CrystalView v-if="showCrystalView" />
-        
-        <!-- Skill Browser Overlay -->
-        <div v-if="!showSkillBrowser" class="skill-browser-overlay fade-overlay">
-          <button 
-            @click="discoverSkillBrowser"
-            class="discovery-button"
-          >
-            Contemplate skills and specialization
-          </button>
-        </div>
+  <div class="discover-layout">
+    <!-- Skill Browser Panel -->
+    <div class="skill-browser-panel">
+    <SkillBrowser />
+    <!-- Crystal View positioned over skill browser -->
+    <CrystalView v-if="showCrystalView" />
+    
+    <!-- Skill Browser Overlay -->
+    <div v-if="!showSkillBrowser" class="skill-browser-overlay fade-overlay">
+      <button 
+      @click="discoverSkillBrowser"
+      class="discovery-button"
+      >
+      Contemplate skills and specialization
+      </button>
+    </div>
+    </div>
+    
+    <!-- Inner Cosmos Panel -->
+    <div class="crystal-ball-panel">
+    <!-- Character XP Bar -->
+    <div v-if="protagonistCharacter" class="character-progress-bars">
+      <div class="character-xp-bar">
+      <span class="character-name">{{ protagonistCharacter.name }} xp:</span>
+      <div class="bar-container">
+      <ProgressBar 
+        :currentProgress="protagonistCharacter.xp.progress" 
+        :maxValue="protagonistCharacter.xp.nextLevelDelta" 
+        progressLabel="XP"
+        progressColor="blue"
+        />
+      </div>
       </div>
       
-      <!-- Inner Cosmos Panel -->
-      <div class="crystal-ball-panel">
-        <!-- Character XP Bar -->
-        <div v-if="protagonistCharacter" class="character-progress-bars">
-          <div class="character-xp-bar">
-          <span class="character-name">{{ protagonistCharacter.name }} xp:</span>
-            <div class="bar-container">
-            <ProgressBar 
-              :currentProgress="protagonistCharacter.xp.progress" 
-              :maxValue="protagonistCharacter.xp.nextLevelDelta" 
-              progressLabel="XP"
-                progressColor="blue"
-              />
-            </div>
-          </div>
-          
-          <!-- Inspiration Bar -->
-          <div class="character-inspiration-bar">
-            <span 
-              class="character-name"
-              :class="{ 'inspiration-clickable': hasInspirationCharges }"
-              @click="toggleCrystalView"
-            >
-              Inspiration:
-            </span>
-            <div class="bar-container">
-              <ProgressBar 
-                :currentProgress="inspirationProgress" 
-                :maxValue="inspirationMax" 
-                progressLabel=""
-                progressColor="purple"
-                :disableGainEffect="true"
-            />
-            </div>
-          </div>
-        </div>
-        
-        <ActiveKeywords />
-        <div class="discovery-input-wrapper">
-          <DiscoveryLog />
-          <DiscoveryInput v-if="showInnerCosmos" />
-        </div>
-        
-        <!-- Inner Cosmos Overlay -->
-        <div v-if="!showInnerCosmos" class="inner-cosmos-overlay fade-overlay">
-          <button 
-            @click="discoverInnerCosmos"
-            class="discovery-button"
-          >
-            Talk to inner cosmos
-          </button>
-        </div>
+      <!-- Inspiration Bar -->
+      <div class="character-inspiration-bar">
+      <span 
+        class="character-name"
+        :class="{ 'inspiration-clickable': hasInspirationCharges }"
+        @click="toggleCrystalView"
+      >
+        Inspiration:
+      </span>
+      <div class="bar-container">
+        <ProgressBar 
+        :currentProgress="inspirationProgress" 
+        :maxValue="inspirationMax" 
+        progressLabel=""
+        progressColor="purple"
+        :disableGainEffect="true"
+      />
+      </div>
       </div>
     </div>
+    
+    <ActiveKeywords />
+    <div class="discovery-input-wrapper">
+      <DiscoveryLog />
+      <DiscoveryInput v-if="showInnerCosmos" />
+    </div>
+    
+    <!-- Inner Cosmos Overlay -->
+    <div v-if="!showInnerCosmos" class="inner-cosmos-overlay fade-overlay">
+      <button 
+      @click="discoverInnerCosmos"
+      class="discovery-button"
+      >
+      Talk to inner cosmos
+      </button>
+    </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -111,7 +111,7 @@ const showCrystalView = computed(() => {
 // Find the protagonist character for the XP bar
 const protagonistCharacter = computed(() => {
   return gameState?.uiState.characters.find(char => char.id === gameState.uiState.selectedCharacterId) || 
-         gameState?.uiState.characters[0] || null;
+     gameState?.uiState.characters[0] || null;
 });
 
 const inspirationProgress = computed(() => {
@@ -137,23 +137,23 @@ const hasInspirationCharges = computed(() => {
 // Function to toggle crystal view when inspiration is clicked
 const toggleCrystalView = () => {
   if (hasInspirationCharges.value && gameState) {
-    gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
+  gameState.uiState.showCrystalView = !gameState.uiState.showCrystalView;
   }
 };
 
 // Functions to trigger discovery
 const discoverSkillBrowser = () => {
   const command: CmdDiscover = {
-    name: "CmdDiscover",
-    identifier: C.DISCOVERY_SKILL_BROWSER
+  name: "CmdDiscover",
+  identifier: C.DISCOVERY_SKILL_BROWSER
   };
   globalInputQueue.push(command);
 };
 
 const discoverInnerCosmos = () => {
   const command: CmdDiscover = {
-    name: "CmdDiscover",
-    identifier: C.DISCOVERY_INNER_COSMOS
+  name: "CmdDiscover",
+  identifier: C.DISCOVERY_INNER_COSMOS
   };
   globalInputQueue.push(command);
 };

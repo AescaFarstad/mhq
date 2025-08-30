@@ -458,77 +458,77 @@ The Mayor: Theoretical authority, actual control limited to Old Fort
 Create character data for each. Use the format from the example (note, this is typescript, not json)
 ```
 "ingress_sequoiter_fire_mage": {
-        name: "You",
-        gender: "male",
-        initialLevel: 1,
-        baseUpkeep: 0.0,
-        bio: "This is you — the master of this place. You work for free. But on the bright side, you work for no one!",
-        initialAttributes: {
-            physique: 2,
-            strength: 2,
-            agility: 2,
-            constitution: 2,
-            senses: 2,
-            spirit: 2,
-            attunement: 2,
-            channeling: 2,
-            weaving: 2,
-            resilience: 2,
-            mind: 2,
-            knowledge: 2,
-            wisdom: 2,
-            ingenuity: 2,
-            willpower: 2,
-            social: 2,
-            composure: 2,
-            charisma: 2,
-            empathy: 2,
-            leadership: 2
-        },
-        initialSkills: {
-            // Physique skills
-            melee_combat: {
-                level: 2,
-                specializations: {
-                    one_handed_blades: 3
-                }
-            },
-            ranged_combat: {
-                level: 1,
-                specializations: {
-                    throwing_weapons: 2
-                }
-            },
-            
-            // Mind skills
-            engineering: {
-                level: 3,
-                specializations: {
-                    clockwork: 4
-                }
-            },
-            meditation: {
-                level: 2,
-                specializations: {
-                    introspection: 3
-                }
-            },
-            memory: {
-                level: 2,
-                specializations: {
-                    mental_mapping: 2
-                }
-            },
-            
-            // Social skills
-            performance: {
-                level: 2,
-                specializations: {
-                    storytelling: 3
-                }
-            }
-        }
+    name: "You",
+    gender: "male",
+    initialLevel: 1,
+    baseUpkeep: 0.0,
+    bio: "This is you — the master of this place. You work for free. But on the bright side, you work for no one!",
+    initialAttributes: {
+      physique: 2,
+      strength: 2,
+      agility: 2,
+      constitution: 2,
+      senses: 2,
+      spirit: 2,
+      attunement: 2,
+      channeling: 2,
+      weaving: 2,
+      resilience: 2,
+      mind: 2,
+      knowledge: 2,
+      wisdom: 2,
+      ingenuity: 2,
+      willpower: 2,
+      social: 2,
+      composure: 2,
+      charisma: 2,
+      empathy: 2,
+      leadership: 2
     },
+    initialSkills: {
+      // Physique skills
+      melee_combat: {
+        level: 2,
+        specializations: {
+          one_handed_blades: 3
+        }
+      },
+      ranged_combat: {
+        level: 1,
+        specializations: {
+          throwing_weapons: 2
+        }
+      },
+      
+      // Mind skills
+      engineering: {
+        level: 3,
+        specializations: {
+          clockwork: 4
+        }
+      },
+      meditation: {
+        level: 2,
+        specializations: {
+          introspection: 3
+        }
+      },
+      memory: {
+        level: 2,
+        specializations: {
+          mental_mapping: 2
+        }
+      },
+      
+      // Social skills
+      performance: {
+        level: 2,
+        specializations: {
+          storytelling: 3
+        }
+      }
+    }
+  },
 ```
 considerations:
 the id (ingress_sequoiter_fire_mage) must start with 'ingress' then the city name, then a key aspect of the character

@@ -1,32 +1,32 @@
 <template>
   <div class="stage-one-container">
-    <p class="stage-text">Where do you prefer to descend and awaken your mortal form?</p>
-    <div class="choices-container">
-      <ChoiceOption
-        v-for="choice in choices"
-        :key="choice.id"
-        :id="choice.id"
-        :name="choice.nameObfuscationPercentage > 0 ? obfuscateString(choice.name, choice.nameObfuscationPercentage) : choice.name"
-        :imageName="choice.imageName"
-        :atlasName="choice.atlasName"
-        :pros="choice.pros.slice(0, choice.revealedProsCount)"
-        :cons="choice.cons.slice(0, choice.revealedConsCount)"
-        :description="choice.description" 
-        :isExploring="choice.isExploring"
-        :explorationProgress="choice.explorationProgress" 
-        :canBeSelected="choice.canBeSelected"
-        :areProsConsTitlesVisible="choice.areProsConsTitlesVisible" 
-        :nameObfuscationPercentage="choice.nameObfuscationPercentage"
-        @selected="handleChoiceSelected(choice.id)" 
-        @explore="handleStartExploration(choice.id)" 
-        @mouseenter-choice="handleChoiceHover(choice)" 
-        @mouseleave-choice="handleChoiceLeave" 
-      />
-    </div>
-    <div class="hovered-description-container">
-      <p v-if="currentDescription">{{ currentDescription }}</p>
-      <p v-else>&nbsp;</p> <!-- Ensure space is reserved -->
-    </div>
+  <p class="stage-text">Where do you prefer to descend and awaken your mortal form?</p>
+  <div class="choices-container">
+    <ChoiceOption
+    v-for="choice in choices"
+    :key="choice.id"
+    :id="choice.id"
+    :name="choice.nameObfuscationPercentage > 0 ? obfuscateString(choice.name, choice.nameObfuscationPercentage) : choice.name"
+    :imageName="choice.imageName"
+    :atlasName="choice.atlasName"
+    :pros="choice.pros.slice(0, choice.revealedProsCount)"
+    :cons="choice.cons.slice(0, choice.revealedConsCount)"
+    :description="choice.description" 
+    :isExploring="choice.isExploring"
+    :explorationProgress="choice.explorationProgress" 
+    :canBeSelected="choice.canBeSelected"
+    :areProsConsTitlesVisible="choice.areProsConsTitlesVisible" 
+    :nameObfuscationPercentage="choice.nameObfuscationPercentage"
+    @selected="handleChoiceSelected(choice.id)" 
+    @explore="handleStartExploration(choice.id)" 
+    @mouseenter-choice="handleChoiceHover(choice)" 
+    @mouseleave-choice="handleChoiceLeave" 
+    />
+  </div>
+  <div class="hovered-description-container">
+    <p v-if="currentDescription">{{ currentDescription }}</p>
+    <p v-else>&nbsp;</p> <!-- Ensure space is reserved -->
+  </div>
   </div>
 </template>
 
@@ -50,13 +50,13 @@ const currentHoveredChoiceId = ref<string | null>(null);
 
 const currentDescription = computed(() => {
   if (!currentHoveredChoiceId.value) {
-    return null;
+  return null;
   }
   const hoveredChoice = choices.value.find(c => c.id === currentHoveredChoiceId.value);
   if (hoveredChoice && hoveredChoice.isDescriptionVisible) {
-    return hoveredChoice.descriptionObfuscationPercentage > 0 && hoveredChoice.description
-           ? obfuscateString(hoveredChoice.description, hoveredChoice.descriptionObfuscationPercentage)
-           : hoveredChoice.description || null;
+  return hoveredChoice.descriptionObfuscationPercentage > 0 && hoveredChoice.description
+       ? obfuscateString(hoveredChoice.description, hoveredChoice.descriptionObfuscationPercentage)
+       : hoveredChoice.description || null;
   }
   return null;
 });
@@ -64,7 +64,7 @@ const currentDescription = computed(() => {
 const handleChoiceSelected = (choiceId: string) => {
   const selectedChoice = choices.value.find(c => c.id === choiceId);
   if (selectedChoice && selectedChoice.canBeSelected) {
-    emit('choiceMade', choiceId);
+  emit('choiceMade', choiceId);
   }
   // If not canBeSelected, click does nothing as per requirements
 };
@@ -142,23 +142,23 @@ const handleChoiceLeave = () => {
 
 @media (max-height: 900px) {
   .stage-one-container {
-    padding: 10px;
+  padding: 10px;
   }
   .stage-text {
-    font-size: 0.9em;
-    margin-bottom: 0.25em;
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
   }
   .stage-text:first-of-type {
-    font-size: 1em;
-    margin-bottom: 0.6em;
+  font-size: 1em;
+  margin-bottom: 0.6em;
   }
   .choices-container {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
   }
   .hovered-description-container {
-    min-height: 40px;
-    padding: 5px 10px;
-    font-size: 0.9em;
+  min-height: 40px;
+  padding: 5px 10px;
+  font-size: 0.9em;
   }
 }
 </style> 

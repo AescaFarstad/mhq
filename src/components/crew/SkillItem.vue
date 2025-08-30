@@ -23,7 +23,7 @@ const currentHint = ref<string>('');
 
 const skillAttributeClass = computed(() => {
   if (!props.skill || !props.skill.definition.attribute) {
-    return '';
+  return '';
   }
   return `skill-attribute-${props.skill.definition.attribute.toLowerCase()}`;
 });
@@ -31,15 +31,15 @@ const skillAttributeClass = computed(() => {
 const formatValue = (value: number | string | undefined, roundToInt: boolean = false): string => {
   if (value === undefined) return '0';
   if (typeof value === 'number') {
-    if (roundToInt) return Math.round(value).toString();
-    return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  if (roundToInt) return Math.round(value).toString();
+  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
   }
   return value.toString();
 };
 
 const formatKeywords = (keywords: string[][] | undefined): string => {
   if (!keywords || keywords.length === 0) {
-    return 'No keywords available';
+  return 'No keywords available';
   }
   // Join each keyword array with commas, then join all arrays with line breaks
   return keywords.map(keywordArray => keywordArray.join(', ')).join('\n');
@@ -48,37 +48,37 @@ const formatKeywords = (keywords: string[][] | undefined): string => {
 const showSkillHint = (description: string | undefined) => {
   // Show local hint with description
   if (props.skill && gameState && !gameState.isDiscovered(props.skill.id)) {
-    currentHint.value = obfuscateString(description || '');
+  currentHint.value = obfuscateString(description || '');
   } else {
-    currentHint.value = description || '';
+  currentHint.value = description || '';
   }
   
   // Also emit keywords to bio box
   if (props.skill && gameState && !gameState.isDiscovered(props.skill.id)) {
-    const keywordsText = formatKeywords(props.skill.definition.keywords);
-    emit('set-hint', obfuscateString(keywordsText));
+  const keywordsText = formatKeywords(props.skill.definition.keywords);
+  emit('set-hint', obfuscateString(keywordsText));
   } else {
-    emit('set-hint', formatKeywords(props.skill.definition.keywords));
+  emit('set-hint', formatKeywords(props.skill.definition.keywords));
   }
 };
 
 const showSpecializationHint = (description: string | undefined, specId: string) => {
   // Show local hint with description
   if (gameState && !gameState.isDiscovered(specId)) {
-    currentHint.value = obfuscateString(description || '');
+  currentHint.value = obfuscateString(description || '');
   } else {
-    currentHint.value = description || '';
+  currentHint.value = description || '';
   }
   
   // Also emit keywords to bio box
   const spec = props.skill.specializations.find(s => s.id === specId);
   if (spec) {
-    if (gameState && !gameState.isDiscovered(specId)) {
-      const keywordsText = formatKeywords(spec.definition.keywords);
-      emit('set-hint', obfuscateString(keywordsText));
-    } else {
-      emit('set-hint', formatKeywords(spec.definition.keywords));
-    }
+  if (gameState && !gameState.isDiscovered(specId)) {
+    const keywordsText = formatKeywords(spec.definition.keywords);
+    emit('set-hint', obfuscateString(keywordsText));
+  } else {
+    emit('set-hint', formatKeywords(spec.definition.keywords));
+  }
   }
 };
 
@@ -91,76 +91,76 @@ const gameState = inject<GameState>('gameState');
 
 const handleMouseEnter = () => {
   if (gameState && props.skill.definition.governedBy) {
-    (gameState.uiState as any).highlightedAttributes = props.skill.definition.governedBy;
+  (gameState.uiState as any).highlightedAttributes = props.skill.definition.governedBy;
   }
 };
 
 const handleMouseLeave = () => {
   if (gameState) {
-    (gameState.uiState as any).highlightedAttributes = null;
+  (gameState.uiState as any).highlightedAttributes = null;
   }
   clearHint();
 };
 
 const spendSkillPoint = () => {
   if (props.skill && props.characterId && (props.skillPoints || 0) > 0) {
-    const willHavePointsAfterSpend = (props.skillPoints || 0) > 1;
-    
-    // Clear hypothetical before spending point
-    clearHypothetical();
-    
-    const command: CmdSpendSkillPoint = {
-      name: "CmdSpendSkillPoint",
-      characterId: props.characterId,
-      skillId: props.skill.id,
-    };
-    globalInputQueue.push(command);
-    
-    // If we'll still have points after this spend, create a new hypothetical
-    // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
-    if (willHavePointsAfterSpend) {
-      Hypothetical.createHypotheticalForSkillUpgrade(gameState!, props.skill.stat, 2);
-    }
+  const willHavePointsAfterSpend = (props.skillPoints || 0) > 1;
+  
+  // Clear hypothetical before spending point
+  clearHypothetical();
+  
+  const command: CmdSpendSkillPoint = {
+    name: "CmdSpendSkillPoint",
+    characterId: props.characterId,
+    skillId: props.skill.id,
+  };
+  globalInputQueue.push(command);
+  
+  // If we'll still have points after this spend, create a new hypothetical
+  // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
+  if (willHavePointsAfterSpend) {
+    Hypothetical.createHypotheticalForSkillUpgrade(gameState!, props.skill.stat, 2);
+  }
   }
 };
 
 const spendSpecPoint = (spec: SkillUIInfo['specializations'][0]) => {
   if (props.characterId && (props.specPoints || 0) > 0) {
-    const willHavePointsAfterSpend = (props.specPoints || 0) > 1;
-    
-    // Clear hypothetical before spending point
-    clearHypothetical();
-    
-    const command: CmdSpendSpecPoint = {
-      name: "CmdSpendSpecPoint",
-      characterId: props.characterId,
-      specId: spec.id,
-    };
-    globalInputQueue.push(command);
-    
-    // If we'll still have points after this spend, create a new hypothetical
-    // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
-    if (willHavePointsAfterSpend) {
-      Hypothetical.createHypotheticalForSpecUpgrade(gameState!, spec.stat, 2);
-    }
+  const willHavePointsAfterSpend = (props.specPoints || 0) > 1;
+  
+  // Clear hypothetical before spending point
+  clearHypothetical();
+  
+  const command: CmdSpendSpecPoint = {
+    name: "CmdSpendSpecPoint",
+    characterId: props.characterId,
+    specId: spec.id,
+  };
+  globalInputQueue.push(command);
+  
+  // If we'll still have points after this spend, create a new hypothetical
+  // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
+  if (willHavePointsAfterSpend) {
+    Hypothetical.createHypotheticalForSpecUpgrade(gameState!, spec.stat, 2);
+  }
   }
 };
 
 const showSkillHypothetical = () => {
   if (gameState && props.characterId && (props.skillPoints || 0) > 0) {
-    Hypothetical.createHypotheticalForSkillUpgrade(gameState, props.skill.stat, 1);
+  Hypothetical.createHypotheticalForSkillUpgrade(gameState, props.skill.stat, 1);
   }
 };
 
 const showSpecHypothetical = (spec: SkillUIInfo['specializations'][0]) => {
   if (gameState && props.characterId && (props.specPoints || 0) > 0) {
-    Hypothetical.createHypotheticalForSpecUpgrade(gameState, spec.stat, 1);
+  Hypothetical.createHypotheticalForSpecUpgrade(gameState, spec.stat, 1);
   }
 };
 
 const getHypotheticalProficiency = (proficiencyStat: any): number | undefined => {
   if (!gameState || !(gameState.uiState as any).hypotheticalConnections) {
-    return undefined;
+  return undefined;
   }
   const hypotheticalProfStat = Stats.getStat(proficiencyStat.name, (gameState.uiState as any).hypotheticalConnections);
   return hypotheticalProfStat?.value;
@@ -171,7 +171,7 @@ const skillProficiencyHypothetical = computed(() => {
   const hypotheticalValue = getHypotheticalProficiency(props.skill.proficiencyStat);
   
   if (hypotheticalValue !== undefined && Math.abs(hypotheticalValue - currentProficiency) > 0.05) {
-    return hypotheticalValue;
+  return hypotheticalValue;
   }
   return undefined;
 });
@@ -181,86 +181,86 @@ const getSpecProficiencyHypothetical = (spec: SkillUIInfo['specializations'][0])
   const hypotheticalValue = getHypotheticalProficiency(spec.proficiencyStat);
 
   if (hypotheticalValue !== undefined && Math.abs(hypotheticalValue - currentProficiency) > 0.05) {
-    return hypotheticalValue;
+  return hypotheticalValue;
   }
   return undefined;
 };
 
 const clearHypothetical = () => {
   if (gameState) {
-    Hypothetical.clearHypothetical(gameState);
+  Hypothetical.clearHypothetical(gameState);
   }
 };
 </script>
 
 <template>
   <div 
-    class="skill-item"
-    :class="skillAttributeClass"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
+  class="skill-item"
+  :class="skillAttributeClass"
+  @mouseenter="handleMouseEnter"
+  @mouseleave="handleMouseLeave"
   >
-          <div 
-        class="skill-image-container" 
-        @mouseover="showSkillHint(props.skill.definition.description)"
-      >
-      <ImageHolder 
-        atlasName="skills"
-        :imageName="props.skill.id" 
-        :displayWidth="128"
-        :displayHeight="128"
-        class="skill-icon"
-      />
-      <div class="image-overlay skill-name-overlay">{{ gameState && gameState.isDiscovered(props.skill.id) ? props.skill.definition.displayName : obfuscateString(props.skill.definition.displayName) }}</div>
-      <div class="image-overlay level-overlay">{{ formatValue(props.skill.stat.value) }}</div>
-      <SpendPointButton 
-        v-if="skillPoints && skillPoints > 0"
-        class="skill-level-btn"
-        @click.stop="spendSkillPoint()"
-        @mouseenter="showSkillHypothetical()"
-        @mouseleave="clearHypothetical()"
-        title="Spend skill point"
-      />
-      <div v-if="props.skill.proficiencyStat" class="image-overlay proficiency-overlay">
-        <div class="proficiency-current">{{ formatValue(props.skill.proficiencyStat.value, false) }}</div>
-        <div v-if="skillProficiencyHypothetical" class="proficiency-hypothetical">{{ formatValue(skillProficiencyHypothetical, false) }}</div>
-      </div>
+      <div 
+    class="skill-image-container" 
+    @mouseover="showSkillHint(props.skill.definition.description)"
+    >
+    <ImageHolder 
+    atlasName="skills"
+    :imageName="props.skill.id" 
+    :displayWidth="128"
+    :displayHeight="128"
+    class="skill-icon"
+    />
+    <div class="image-overlay skill-name-overlay">{{ gameState && gameState.isDiscovered(props.skill.id) ? props.skill.definition.displayName : obfuscateString(props.skill.definition.displayName) }}</div>
+    <div class="image-overlay level-overlay">{{ formatValue(props.skill.stat.value) }}</div>
+    <SpendPointButton 
+    v-if="skillPoints && skillPoints > 0"
+    class="skill-level-btn"
+    @click.stop="spendSkillPoint()"
+    @mouseenter="showSkillHypothetical()"
+    @mouseleave="clearHypothetical()"
+    title="Spend skill point"
+    />
+    <div v-if="props.skill.proficiencyStat" class="image-overlay proficiency-overlay">
+    <div class="proficiency-current">{{ formatValue(props.skill.proficiencyStat.value, false) }}</div>
+    <div v-if="skillProficiencyHypothetical" class="proficiency-hypothetical">{{ formatValue(skillProficiencyHypothetical, false) }}</div>
     </div>
+  </div>
+  
+  <div class="skill-details-container">
+    <div class="hint-line">{{ currentHint }}&nbsp;</div>
     
-    <div class="skill-details-container">
-      <div class="hint-line">{{ currentHint }}&nbsp;</div>
-      
-      <div v-if="props.skill.specializations && props.skill.specializations.length > 0" class="specializations-row">
-        <div 
-          v-for="spec in props.skill.specializations" 
-          :key="spec.id" 
-          class="specialization-item"
-          @mouseover="showSpecializationHint(spec.definition.description, spec.id)"
-        >
-          <ImageHolder 
-            atlasName="skills"
-            :imageName="spec.id" 
-            :displayWidth="128"
-            :displayHeight="96"
-            class="specialization-icon"
-          />
-          <div class="image-overlay spec-name-overlay">{{ gameState && gameState.isDiscovered(spec.id) ? spec.definition.displayName : obfuscateString(spec.definition.displayName) }}</div>
-          <div class="image-overlay level-overlay spec-level-overlay">{{ formatValue(spec.stat.value) }}</div>
-          <SpendPointButton 
-            v-if="specPoints && specPoints > 0"
-            class="spec-level-btn"
-            @click.stop="spendSpecPoint(spec)"
-            @mouseenter="showSpecHypothetical(spec)"
-            @mouseleave="clearHypothetical()"
-            title="Spend specialization point"
-          />
-          <div v-if="spec.proficiencyStat" class="image-overlay proficiency-overlay spec-proficiency-overlay">
-            <div class="proficiency-current">{{ formatValue(spec.proficiencyStat.value, false) }}</div>
-            <div v-if="getSpecProficiencyHypothetical(spec)" class="proficiency-hypothetical">{{ formatValue(getSpecProficiencyHypothetical(spec)!, false) }}</div>
-          </div>
-        </div>
+    <div v-if="props.skill.specializations && props.skill.specializations.length > 0" class="specializations-row">
+    <div 
+      v-for="spec in props.skill.specializations" 
+      :key="spec.id" 
+      class="specialization-item"
+      @mouseover="showSpecializationHint(spec.definition.description, spec.id)"
+    >
+      <ImageHolder 
+      atlasName="skills"
+      :imageName="spec.id" 
+      :displayWidth="128"
+      :displayHeight="96"
+      class="specialization-icon"
+      />
+      <div class="image-overlay spec-name-overlay">{{ gameState && gameState.isDiscovered(spec.id) ? spec.definition.displayName : obfuscateString(spec.definition.displayName) }}</div>
+      <div class="image-overlay level-overlay spec-level-overlay">{{ formatValue(spec.stat.value) }}</div>
+      <SpendPointButton 
+      v-if="specPoints && specPoints > 0"
+      class="spec-level-btn"
+      @click.stop="spendSpecPoint(spec)"
+      @mouseenter="showSpecHypothetical(spec)"
+      @mouseleave="clearHypothetical()"
+      title="Spend specialization point"
+      />
+      <div v-if="spec.proficiencyStat" class="image-overlay proficiency-overlay spec-proficiency-overlay">
+      <div class="proficiency-current">{{ formatValue(spec.proficiencyStat.value, false) }}</div>
+      <div v-if="getSpecProficiencyHypothetical(spec)" class="proficiency-hypothetical">{{ formatValue(getSpecProficiencyHypothetical(spec)!, false) }}</div>
       </div>
     </div>
+    </div>
+  </div>
   </div>
 </template>
 

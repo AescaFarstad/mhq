@@ -1,15 +1,15 @@
 <template>
   <transition-group appear name="slide-from-right" tag="div" class="ingress-word-columns-container">
-    <IngressWordColumn
-      v-for="column in columns"
-      :key="column.id"
-      :title="column.title"
-      :words="column.words"
-      class="word-column"
-      @word-hover="$emit('word-hover', $event)"
-      @word-leave="$emit('word-leave')"
-      :any-badge-hovered="anyBadgeHovered"
-    />
+  <IngressWordColumn
+    v-for="column in columns"
+    :key="column.id"
+    :title="column.title"
+    :words="column.words"
+    class="word-column"
+    @word-hover="$emit('word-hover', $event)"
+    @word-leave="$emit('word-leave')"
+    :any-badge-hovered="anyBadgeHovered"
+  />
   </transition-group>
 </template>
 
@@ -19,9 +19,9 @@ import type { SubmittedWord } from '../IngressTypes';
 
 defineProps<{
   columns: {
-    id: string;
-    title: string;
-    words: (SubmittedWord | string)[];
+  id: string;
+  title: string;
+  words: (SubmittedWord | string)[];
   }[];
   anyBadgeHovered: boolean;
 }>();

@@ -1,22 +1,22 @@
 <template>
   <div class="crew-container">
-    <!-- Character List Panel (right side) -->
-    <div class="character-list">
-      <CharacterList
-        :characters="characters"
-        :selected-character-id="selectedCharacterId"
-        @select-character="selectCharacter"
-      />
-    </div>
+  <!-- Character List Panel (right side) -->
+  <div class="character-list">
+    <CharacterList
+    :characters="characters"
+    :selected-character-id="selectedCharacterId"
+    @select-character="selectCharacter"
+    />
+  </div>
 
-    <!-- Character Details Panel (main content area) -->
-    <div class="character-details">
-       <CharacterDetails
-         :selected-character="selectedCharacter"
-         :current-hint="currentHint"
-         @set-hint="setHint" 
-       />
-    </div>
+  <!-- Character Details Panel (main content area) -->
+  <div class="character-details">
+     <CharacterDetails
+     :selected-character="selectedCharacter"
+     :current-hint="currentHint"
+     @set-hint="setHint" 
+     />
+  </div>
   </div>
 </template>
 
@@ -48,8 +48,8 @@ const selectedCharacter = computed(() => {
 
 const selectCharacter = (id: string) => {
   if (gameState) {
-    gameState.uiState.selectedCharacterId = id;
-    currentHint.value = null; 
+  gameState.uiState.selectedCharacterId = id;
+  currentHint.value = null; 
   }
 };
 
@@ -83,11 +83,11 @@ const setHint = (hint: string | null) => {
 }
 
 .character-list h3 {
-    margin: 0 0 15px 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 1.2em;
-    color: #333;
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 1.2em;
+  color: #333;
 }
 
 .character-details {

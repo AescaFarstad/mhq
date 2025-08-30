@@ -1,9 +1,9 @@
 <template>
   <div class="building-item">
-    <h4>{{ gameState && gameState.isDiscovered(building.id) ? building.name : obfuscateString(building.name) }}</h4>
-    <p>{{ building.description }}</p>
-    <p>Clutter: {{ building.clutterPerSecond }}/s</p>
-    <button v-if="showConstructButton" @click="constructBuilding">Construct</button>
+  <h4>{{ gameState && gameState.isDiscovered(building.id) ? building.name : obfuscateString(building.name) }}</h4>
+  <p>{{ building.description }}</p>
+  <p>Clutter: {{ building.clutterPerSecond }}/s</p>
+  <button v-if="showConstructButton" @click="constructBuilding">Construct</button>
   </div>
 </template>
 
@@ -27,11 +27,11 @@ const showConstructButton = !props.isConstructed;
 
 function constructBuilding() {
   if (!props.isConstructed) {
-    const command: CmdConstructBuilding = {
-      name: 'CmdConstructBuilding',
-      buildingId: props.building.id,
-    };
-    globalInputQueue.push(command);
+  const command: CmdConstructBuilding = {
+    name: 'CmdConstructBuilding',
+    buildingId: props.building.id,
+  };
+  globalInputQueue.push(command);
   }
 }
 </script>

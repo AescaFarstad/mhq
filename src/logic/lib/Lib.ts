@@ -30,116 +30,116 @@ import { firstStepsDialogRaw } from '../data/firstStepsDialog';
  * It is responsible for loading data from the /data folder and making it accessible.
  */
 export class Lib {
-    public events: Map<string, EventDefinition> = new Map<string, EventDefinition>();
-    public characters: CharacterLib = new CharacterLib();
-    public attributes: AttributeLib = new AttributeLib();
-    public skills: SkillLib;
-    public tasks: TaskLib = new TaskLib();
-    public buildings: BuildingLib = new BuildingLib();
-    public discovery: DiscoveryLib;
-    public techs: Map<string, LibItem> = new Map<string, LibItem>();
-    public ingressWords: IngressWordsLib;
-    public welcomeLocations: WelcomeLocationsLib;
-    public behTrees: BehTreeLib;
-    public dialogs: DialogLib;
+  public events: Map<string, EventDefinition> = new Map<string, EventDefinition>();
+  public characters: CharacterLib = new CharacterLib();
+  public attributes: AttributeLib = new AttributeLib();
+  public skills: SkillLib;
+  public tasks: TaskLib = new TaskLib();
+  public buildings: BuildingLib = new BuildingLib();
+  public discovery: DiscoveryLib;
+  public techs: Map<string, LibItem> = new Map<string, LibItem>();
+  public ingressWords: IngressWordsLib;
+  public welcomeLocations: WelcomeLocationsLib;
+  public behTrees: BehTreeLib;
+  public dialogs: DialogLib;
 
-    public isLoaded: boolean = false;
+  public isLoaded: boolean = false;
 
-    constructor() {
-        this.skills = new SkillLib(this.attributes);
-        this.ingressWords = new IngressWordsLib();
-        this.welcomeLocations = new WelcomeLocationsLib();
-        this.behTrees = new BehTreeLib();
-        this.dialogs = new DialogLib();
-        this.loadAllDefinitions();
-        // Initialize DiscoveryLib after other libs are loaded
-        this.discovery = new DiscoveryLib(this.skills, this.attributes, this.buildings);
+  constructor() {
+    this.skills = new SkillLib(this.attributes);
+    this.ingressWords = new IngressWordsLib();
+    this.welcomeLocations = new WelcomeLocationsLib();
+    this.behTrees = new BehTreeLib();
+    this.dialogs = new DialogLib();
+    this.loadAllDefinitions();
+    // Initialize DiscoveryLib after other libs are loaded
+    this.discovery = new DiscoveryLib(this.skills, this.attributes, this.buildings);
+  }
+
+  private loadAllDefinitions(): void {
+    if (this.isLoaded) {
+      return;
     }
 
-    private loadAllDefinitions(): void {
-        if (this.isLoaded) {
-            return;
-        }
-
-        try {
-            this.events = this._processDataDefinitions<EventDefinition>(eventsData);
-            this.characters.loadCharacters(mainCharacters);
-            this.characters.loadCharacters(turfablieCharacters);
-            this.characters.loadCharacters(aeigareikaCharacters);
-            this.characters.loadCharacters(sequoiterCharacters);
-            this.buildings.loadBuildings(buildingDefinitions);
-            this.tasks.loadTasks(taskDefinitions);
-            this.tasks.verifyAllTasks(this.skills, this.buildings);
-            this.dialogs.loadRawDialogs({
-                introDialog: introDialogRaw,
-                firstStepsDialog: firstStepsDialogRaw
-            });
-            this.isLoaded = true;
-        } catch (error) {
-            console.error("Failed to process library definitions:", error);
-            this.isLoaded = false;
-        }
+    try {
+      this.events = this._processDataDefinitions<EventDefinition>(eventsData);
+      this.characters.loadCharacters(mainCharacters);
+      this.characters.loadCharacters(turfablieCharacters);
+      this.characters.loadCharacters(aeigareikaCharacters);
+      this.characters.loadCharacters(sequoiterCharacters);
+      this.buildings.loadBuildings(buildingDefinitions);
+      this.tasks.loadTasks(taskDefinitions);
+      this.tasks.verifyAllTasks(this.skills, this.buildings);
+      this.dialogs.loadRawDialogs({
+        introDialog: introDialogRaw,
+        firstStepsDialog: firstStepsDialogRaw
+      });
+      this.isLoaded = true;
+    } catch (error) {
+      console.error("Failed to process library definitions:", error);
+      this.isLoaded = false;
     }
+  }
 
-    private _processDataDefinitions<T extends LibItem>(data: Record<string, any>): Map<string, T> {
-        const items = new Map<string, T>();
-        for (const key in data) {
-            if (Object.prototype.hasOwnProperty.call(data, key)) {
-                const itemData = data[key];
-                const item: T = { ...itemData, id: key } as T;
-                items.set(key, item);
-            }
-        }
-        return items;
+  private _processDataDefinitions<T extends LibItem>(data: Record<string, any>): Map<string, T> {
+    const items = new Map<string, T>();
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        const itemData = data[key];
+        const item: T = { ...itemData, id: key } as T;
+        items.set(key, item);
+      }
     }
+    return items;
+  }
 
-    /**
-     * Retrieves a specific event definition by its ID.
-     *
-     * @param id The unique ID of the event.
-     * @returns The event definition or undefined if not found.
-     */
-    public getEvent(id: string): EventDefinition | undefined {
-        return this.events.get(id);
-    }
+  /**
+   * Retrieves a specific event definition by its ID.
+   *
+   * @param id The unique ID of the event.
+   * @returns The event definition or undefined if not found.
+   */
+  public getEvent(id: string): EventDefinition | undefined {
+    return this.events.get(id);
+  }
 
-    /**
-     * Retrieves a specific building definition by its ID.
-     *
-     * @param id The unique ID of the building.
-     * @returns The building definition or undefined if not found.
-     */
-    public getBuilding(id: string): BuildingDefinition | undefined {
-        return this.buildings.getBuilding(id);
-    }
+  /**
+   * Retrieves a specific building definition by its ID.
+   *
+   * @param id The unique ID of the building.
+   * @returns The building definition or undefined if not found.
+   */
+  public getBuilding(id: string): BuildingDefinition | undefined {
+    return this.buildings.getBuilding(id);
+  }
 
-    /**
-     * Retrieves a specific technology definition by its ID.
-     *
-     * @param id The unique ID of the technology.
-     * @returns The technology definition or undefined if not found.
-     */
-    public getTech(id: string): LibItem | undefined { // Should return specific TechDefinition
-        return this.techs.get(id);
-    }
+  /**
+   * Retrieves a specific technology definition by its ID.
+   *
+   * @param id The unique ID of the technology.
+   * @returns The technology definition or undefined if not found.
+   */
+  public getTech(id: string): LibItem | undefined { // Should return specific TechDefinition
+    return this.techs.get(id);
+  }
 
-    /**
-     * Retrieves a specific character definition by its ID.
-     *
-     * @param id The unique ID of the character.
-     * @returns The character definition or undefined if not found.
-     */
-    public getCharacter(id: string): CharacterDefinition | undefined {
-        return this.characters.getCharacter(id);
-    }
+  /**
+   * Retrieves a specific character definition by its ID.
+   *
+   * @param id The unique ID of the character.
+   * @returns The character definition or undefined if not found.
+   */
+  public getCharacter(id: string): CharacterDefinition | undefined {
+    return this.characters.getCharacter(id);
+  }
 
-    /**
-     * Retrieves a specific dialog definition by its ID.
-     *
-     * @param id The unique ID of the dialog.
-     * @returns The dialog definition or undefined if not found.
-     */
-    public getDialog(id: string): DialogDefinition | undefined {
-        return this.dialogs.getDialog(id);
-    }
+  /**
+   * Retrieves a specific dialog definition by its ID.
+   *
+   * @param id The unique ID of the dialog.
+   * @returns The dialog definition or undefined if not found.
+   */
+  public getDialog(id: string): DialogDefinition | undefined {
+    return this.dialogs.getDialog(id);
+  }
 }

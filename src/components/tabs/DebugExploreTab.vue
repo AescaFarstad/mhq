@@ -1,69 +1,69 @@
 <template>
   <div class="explore-tab">
-    <div class="explore-controls">
-      <input 
-        type="text" 
-        v-model="exploreInput" 
-        class="explore-input" 
-        placeholder="Enter stat name to explore its connections..."
-      />
+  <div class="explore-controls">
+    <input 
+    type="text" 
+    v-model="exploreInput" 
+    class="explore-input" 
+    placeholder="Enter stat name to explore its connections..."
+    />
 
-      <button @click="clearTree" class="clear-button">Clear</button>
-      <div class="controls-right">
-        <label>
-          <input type="checkbox" v-model="showIncoming" @change="buildConnectionTree"> 
-          Show incoming connections
-        </label>
-        <label>
-          <input type="checkbox" v-model="showOutgoing" @change="buildConnectionTree"> 
-          Show outgoing connections
-        </label>
-        <label>
-          Max depth: 
-          <input type="number" v-model.number="maxDepth" min="1" max="10" @change="buildConnectionTree" class="depth-input">
-        </label>
+    <button @click="clearTree" class="clear-button">Clear</button>
+    <div class="controls-right">
+    <label>
+      <input type="checkbox" v-model="showIncoming" @change="buildConnectionTree"> 
+      Show incoming connections
+    </label>
+    <label>
+      <input type="checkbox" v-model="showOutgoing" @change="buildConnectionTree"> 
+      Show outgoing connections
+    </label>
+    <label>
+      Max depth: 
+      <input type="number" v-model.number="maxDepth" min="1" max="10" @change="buildConnectionTree" class="depth-input">
+    </label>
+    </div>
+  </div>
+  
+  <div class="tree-container" v-if="nodes.length > 0">
+    <VueFlow 
+    :nodes="nodes" 
+    :edges="edges"
+    :fit-view-on-init="true"
+    :nodes-draggable="true"
+    :nodes-connectable="false"
+    :elements-selectable="true"
+    :min-zoom="0.1"
+    :max-zoom="2"
+    @nodes-initialized="onNodesInitialized"
+    >
+    <Background />
+    <Controls />
+    <MiniMap />
+    
+    <template #node-stat="{ data }">
+      <div :class="['stat-node', data.nodeType]">
+      <div class="stat-name">{{ data.label }}</div>
+      <div class="stat-value">{{ data.value }}</div>
+      <div v-if="data.params" class="stat-params">
+        <div v-for="(value, key) in data.params" :key="key" class="param-item">
+        {{ key }}: {{ formatParamValue(value) }}
+        </div>
       </div>
-    </div>
-    
-    <div class="tree-container" v-if="nodes.length > 0">
-      <VueFlow 
-        :nodes="nodes" 
-        :edges="edges"
-        :fit-view-on-init="true"
-        :nodes-draggable="true"
-        :nodes-connectable="false"
-        :elements-selectable="true"
-        :min-zoom="0.1"
-        :max-zoom="2"
-        @nodes-initialized="onNodesInitialized"
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-        
-        <template #node-stat="{ data }">
-          <div :class="['stat-node', data.nodeType]">
-            <div class="stat-name">{{ data.label }}</div>
-            <div class="stat-value">{{ data.value }}</div>
-            <div v-if="data.params" class="stat-params">
-              <div v-for="(value, key) in data.params" :key="key" class="param-item">
-                {{ key }}: {{ formatParamValue(value) }}
-              </div>
-            </div>
-            <div class="stat-type">{{ data.statType }}</div>
-          </div>
-        </template>
-      </VueFlow>
-    </div>
-    
-    <div v-else-if="exploreInput.trim() && searchAttempted" class="no-results">
-      <p>No stat found with name: "{{ exploreInput }}"</p>
-    </div>
-    
-    <div v-else class="instructions">
-      <p>Enter a stat name above to visualize its connection tree.</p>
-      <p>The visualization will show how stats are connected and how changes propagate through the system.</p>
-    </div>
+      <div class="stat-type">{{ data.statType }}</div>
+      </div>
+    </template>
+    </VueFlow>
+  </div>
+  
+  <div v-else-if="exploreInput.trim() && searchAttempted" class="no-results">
+    <p>No stat found with name: "{{ exploreInput }}"</p>
+  </div>
+  
+  <div v-else class="instructions">
+    <p>Enter a stat name above to visualize its connection tree.</p>
+    <p>The visualization will show how stats are connected and how changes propagate through the system.</p>
+  </div>
   </div>
 </template>
 
@@ -117,13 +117,13 @@ function getStatType(stat: Stat): string {
 // Format parameter values for display
 function formatParamValue(value: any): string {
   if (typeof value === 'number') {
-    return value.toFixed(3);
+  return value.toFixed(3);
   }
   if (Array.isArray(value)) {
-    return `[${value.join(', ')}]`;
+  return `[${value.join(', ')}]`;
   }
   if (typeof value === 'boolean') {
-    return value ? 'true' : 'false';
+  return value ? 'true' : 'false';
   }
   return String(value);
 }
@@ -131,37 +131,37 @@ function formatParamValue(value: any): string {
 // Get stat parameters for display
 function getStatParams(stat: Stat): Record<string, any> | undefined {
   if (stat instanceof Parameter) {
-    const params: Record<string, any> = { 
-      add: stat.add, 
-      multiCache: stat.multiCache 
-    };
-    if (stat.multi.length > 0) {
-      params.multiSources = stat.multi;
-    }
-    if (stat.divSources.length > 0) {
-      params.divSources = stat.divSources;
-    }
-    return params;
+  const params: Record<string, any> = { 
+    add: stat.add, 
+    multiCache: stat.multiCache 
+  };
+  if (stat.multi.length > 0) {
+    params.multiSources = stat.multi;
+  }
+  if (stat.divSources.length > 0) {
+    params.divSources = stat.divSources;
+  }
+  return params;
   }
   if (stat instanceof FormulaStat) {
-    return { argument: stat.argument };
+  return { argument: stat.argument };
   }
   if (stat instanceof FormulaParameter) {
-    const params: Record<string, any> = {};
-    // Show each named input with its value
-    Object.entries(stat.inputs).forEach(([key, value]) => {
-      params[`input_${key}`] = value;
-    });
-    params.totalInputs = Object.keys(stat.inputs).length;
-    return params;
+  const params: Record<string, any> = {};
+  // Show each named input with its value
+  Object.entries(stat.inputs).forEach(([key, value]) => {
+    params[`input_${key}`] = value;
+  });
+  params.totalInputs = Object.keys(stat.inputs).length;
+  return params;
   }
   if (stat instanceof GateParameter) {
-    return { 
-      baseValue: stat.baseValue, 
-      threshold: stat.threshold, 
-      inputValue: stat.inputValue,
-      isAboveThreshold: stat.isAboveThreshold 
-    };
+  return { 
+    baseValue: stat.baseValue, 
+    threshold: stat.threshold, 
+    inputValue: stat.inputValue,
+    isAboveThreshold: stat.isAboveThreshold 
+  };
   }
   return undefined;
 }
@@ -174,11 +174,11 @@ function findIncomingConnections(targetStatName: string): Array<{from: string, c
   
   // Search through all established connections
   for (const [fromStatName, connections] of gameState.connections.establishedConnections) {
-    for (const connection of connections) {
-      if (connection.target === targetStatName) {
-        incoming.push({ from: fromStatName, connection });
-      }
+  for (const connection of connections) {
+    if (connection.target === targetStatName) {
+    incoming.push({ from: fromStatName, connection });
     }
+  }
   }
   
   return incoming;
@@ -193,8 +193,8 @@ function findOutgoingConnections(fromStatName: string): Connection[] {
 // Build the connection tree
 function buildConnectionTree() {
   if (!gameState || !exploreInput.value.trim()) {
-    clearTree();
-    return;
+  clearTree();
+  return;
   }
   
   searchAttempted.value = true;
@@ -203,9 +203,9 @@ function buildConnectionTree() {
   const rootStat = gameState.connections.connectablesByName.get(rootStatName);
   
   if (!rootStat) {
-    nodes.value = [];
-    edges.value = [];
-    return;
+  nodes.value = [];
+  edges.value = [];
+  return;
   }
   
   const newNodes: any[] = [];
@@ -216,16 +216,16 @@ function buildConnectionTree() {
   // Add root node
   const rootNodeType = rootStat.independent ? 'root-independent' : 'root';
   newNodes.push({
-    id: rootStatName,
-    type: 'stat',
-    position: { x: 0, y: 0 },
-    data: {
-      label: rootStatName,
-      value: rootStat.value.toFixed(3),
-      params: getStatParams(rootStat),
-      statType: getStatType(rootStat),
-      nodeType: rootNodeType
-    }
+  id: rootStatName,
+  type: 'stat',
+  position: { x: 0, y: 0 },
+  data: {
+    label: rootStatName,
+    value: rootStat.value.toFixed(3),
+    params: getStatParams(rootStat),
+    statType: getStatType(rootStat),
+    nodeType: rootNodeType
+  }
   });
   nodePositions.set(rootStatName, { x: 0, y: 0 });
   visited.add(rootStatName);
@@ -237,106 +237,106 @@ function buildConnectionTree() {
   
   // Process incoming connections (stats that affect this one)
   if (showIncoming.value) {
-    const queue: Array<{statName: string, depth: number, level: number}> = [];
-    const incoming = findIncomingConnections(rootStatName);
+  const queue: Array<{statName: string, depth: number, level: number}> = [];
+  const incoming = findIncomingConnections(rootStatName);
+  
+  incoming.forEach((inc, _index) => {
+    queue.push({ statName: inc.from, depth: 1, level: -1 });
+  });
+  
+  while (queue.length > 0 && currentLevel > -maxDepth.value) {
+    const { statName, depth, level } = queue.shift()!;
     
-    incoming.forEach((inc, _index) => {
-      queue.push({ statName: inc.from, depth: 1, level: -1 });
+    if (depth > maxDepth.value || visited.has(statName)) continue;
+    
+    const stat = gameState.connections.connectablesByName.get(statName);
+    if (!stat) continue;
+    
+    visited.add(statName);
+    
+    // Position nodes at the current level
+    if (!levelNodes.has(level)) {
+    levelNodes.set(level, []);
+    }
+    levelNodes.get(level)!.push(statName);
+    
+    const nodeType = stat.independent ? 'source' : 'intermediate';
+    newNodes.push({
+    id: statName,
+    type: 'stat',
+    position: { x: 0, y: 0 }, // Will be calculated later
+    data: {
+      label: statName,
+      value: stat.value.toFixed(3),
+      params: getStatParams(stat),
+      statType: getStatType(stat),
+      nodeType: nodeType
+    }
     });
     
-    while (queue.length > 0 && currentLevel > -maxDepth.value) {
-      const { statName, depth, level } = queue.shift()!;
-      
-      if (depth > maxDepth.value || visited.has(statName)) continue;
-      
-      const stat = gameState.connections.connectablesByName.get(statName);
-      if (!stat) continue;
-      
-      visited.add(statName);
-      
-      // Position nodes at the current level
-      if (!levelNodes.has(level)) {
-        levelNodes.set(level, []);
-      }
-      levelNodes.get(level)!.push(statName);
-      
-      const nodeType = stat.independent ? 'source' : 'intermediate';
-      newNodes.push({
-        id: statName,
-        type: 'stat',
-        position: { x: 0, y: 0 }, // Will be calculated later
-        data: {
-          label: statName,
-          value: stat.value.toFixed(3),
-          params: getStatParams(stat),
-          statType: getStatType(stat),
-          nodeType: nodeType
-        }
-      });
-      
-      // Add edges for incoming connections to this stat
-      const incomingToThis = findIncomingConnections(statName);
-      incomingToThis.forEach(inc => {
-        if (!visited.has(inc.from) && depth < maxDepth.value) {
-          queue.push({ statName: inc.from, depth: depth + 1, level: level - 1 });
-        }
-      });
-      
-      currentLevel = Math.min(currentLevel, level);
+    // Add edges for incoming connections to this stat
+    const incomingToThis = findIncomingConnections(statName);
+    incomingToThis.forEach(inc => {
+    if (!visited.has(inc.from) && depth < maxDepth.value) {
+      queue.push({ statName: inc.from, depth: depth + 1, level: level - 1 });
     }
+    });
+    
+    currentLevel = Math.min(currentLevel, level);
+  }
   }
   
   // Process outgoing connections (stats affected by this one)
   if (showOutgoing.value) {
-    const queue: Array<{statName: string, depth: number, level: number}> = [];
-    const outgoing = findOutgoingConnections(rootStatName);
+  const queue: Array<{statName: string, depth: number, level: number}> = [];
+  const outgoing = findOutgoingConnections(rootStatName);
+  
+  outgoing.forEach((conn, _index) => {
+    queue.push({ statName: conn.target, depth: 1, level: 1 });
+  });
+  
+  let maxLevel = 0;
+  
+  while (queue.length > 0 && maxLevel < maxDepth.value) {
+    const { statName, depth, level } = queue.shift()!;
     
-    outgoing.forEach((conn, _index) => {
-      queue.push({ statName: conn.target, depth: 1, level: 1 });
+    if (depth > maxDepth.value || visited.has(statName)) continue;
+    
+    const stat = gameState.connections.connectablesByName.get(statName);
+    if (!stat) continue;
+    
+    visited.add(statName);
+    
+    // Position nodes at the current level
+    if (!levelNodes.has(level)) {
+    levelNodes.set(level, []);
+    }
+    levelNodes.get(level)!.push(statName);
+    
+    const nodeType = 'target';
+    newNodes.push({
+    id: statName,
+    type: 'stat',
+    position: { x: 0, y: 0 }, // Will be calculated later
+    data: {
+      label: statName,
+      value: stat.value.toFixed(3),
+      params: getStatParams(stat),
+      statType: getStatType(stat),
+      nodeType: nodeType
+    }
     });
     
-    let maxLevel = 0;
-    
-    while (queue.length > 0 && maxLevel < maxDepth.value) {
-      const { statName, depth, level } = queue.shift()!;
-      
-      if (depth > maxDepth.value || visited.has(statName)) continue;
-      
-      const stat = gameState.connections.connectablesByName.get(statName);
-      if (!stat) continue;
-      
-      visited.add(statName);
-      
-      // Position nodes at the current level
-      if (!levelNodes.has(level)) {
-        levelNodes.set(level, []);
-      }
-      levelNodes.get(level)!.push(statName);
-      
-      const nodeType = 'target';
-      newNodes.push({
-        id: statName,
-        type: 'stat',
-        position: { x: 0, y: 0 }, // Will be calculated later
-        data: {
-          label: statName,
-          value: stat.value.toFixed(3),
-          params: getStatParams(stat),
-          statType: getStatType(stat),
-          nodeType: nodeType
-        }
-      });
-      
-      // Add outgoing connections from this stat
-      const outgoingFromThis = findOutgoingConnections(statName);
-      outgoingFromThis.forEach(conn => {
-        if (!visited.has(conn.target) && depth < maxDepth.value) {
-          queue.push({ statName: conn.target, depth: depth + 1, level: level + 1 });
-        }
-      });
-      
-      maxLevel = Math.max(maxLevel, level);
+    // Add outgoing connections from this stat
+    const outgoingFromThis = findOutgoingConnections(statName);
+    outgoingFromThis.forEach(conn => {
+    if (!visited.has(conn.target) && depth < maxDepth.value) {
+      queue.push({ statName: conn.target, depth: depth + 1, level: level + 1 });
     }
+    });
+    
+    maxLevel = Math.max(maxLevel, level);
+  }
   }
   
   // Calculate positions for all nodes
@@ -344,41 +344,41 @@ function buildConnectionTree() {
   const nodeSpacing = 150;
   
   for (const [level, nodeNames] of levelNodes) {
-    const y = level * levelSpacing;
-    const totalWidth = (nodeNames.length - 1) * nodeSpacing;
-    const startX = -totalWidth / 2;
+  const y = level * levelSpacing;
+  const totalWidth = (nodeNames.length - 1) * nodeSpacing;
+  const startX = -totalWidth / 2;
+  
+  nodeNames.forEach((nodeName, index) => {
+    const x = startX + index * nodeSpacing;
+    nodePositions.set(nodeName, { x, y });
     
-    nodeNames.forEach((nodeName, index) => {
-      const x = startX + index * nodeSpacing;
-      nodePositions.set(nodeName, { x, y });
-      
-      // Update node position
-      const node = newNodes.find(n => n.id === nodeName);
-      if (node) {
-        node.position = { x, y };
-      }
-    });
+    // Update node position
+    const node = newNodes.find(n => n.id === nodeName);
+    if (node) {
+    node.position = { x, y };
+    }
+  });
   }
   
   // Add edges
   for (const [fromStatName, connections] of gameState.connections.establishedConnections) {
-    if (!visited.has(fromStatName)) continue;
+  if (!visited.has(fromStatName)) continue;
+  
+  for (const connection of connections) {
+    if (!visited.has(connection.target)) continue;
     
-    for (const connection of connections) {
-      if (!visited.has(connection.target)) continue;
-      
-      const edgeLabel = connectionTypeLabels[connection.type];
-      const edgeId = `${fromStatName}-${connection.target}-${connection.type}`;
-      
-      newEdges.push({
-        id: edgeId,
-        source: fromStatName,
-        target: connection.target,
-        label: connection.inputName ? `${edgeLabel}(${connection.inputName})` : edgeLabel,
-        type: 'default',
-        style: { stroke: getConnectionColor(connection.type) }
-      });
-    }
+    const edgeLabel = connectionTypeLabels[connection.type];
+    const edgeId = `${fromStatName}-${connection.target}-${connection.type}`;
+    
+    newEdges.push({
+    id: edgeId,
+    source: fromStatName,
+    target: connection.target,
+    label: connection.inputName ? `${edgeLabel}(${connection.inputName})` : edgeLabel,
+    type: 'default',
+    style: { stroke: getConnectionColor(connection.type) }
+    });
+  }
   }
   
   nodes.value = newNodes;
@@ -388,14 +388,14 @@ function buildConnectionTree() {
 // Get color for connection type
 function getConnectionColor(type: ConnectionType): string {
   const colors: Record<ConnectionType, string> = {
-    [ConnectionType.ADD]: '#4CAF50',
-    [ConnectionType.SUB]: '#F44336',
-    [ConnectionType.MULTY]: '#2196F3',
-    [ConnectionType.DIV]: '#FF9800',
-    [ConnectionType.FORMULA]: '#9C27B0',
-    [ConnectionType.NAMED_INPUT]: '#607D8B',
-    [ConnectionType.GATE_THRESHOLD]: '#795548',
-    [ConnectionType.GATE_VALUE]: '#009688',
+  [ConnectionType.ADD]: '#4CAF50',
+  [ConnectionType.SUB]: '#F44336',
+  [ConnectionType.MULTY]: '#2196F3',
+  [ConnectionType.DIV]: '#FF9800',
+  [ConnectionType.FORMULA]: '#9C27B0',
+  [ConnectionType.NAMED_INPUT]: '#607D8B',
+  [ConnectionType.GATE_THRESHOLD]: '#795548',
+  [ConnectionType.GATE_VALUE]: '#009688',
   };
   return colors[type] || '#666666';
 }
@@ -419,24 +419,24 @@ let debounceTimer: number | null = null;
 watch(exploreInput, async (newValue) => {
   // Save to UI state
   if (gameState) {
-    gameState.uiState.debugExploreInput = newValue;
+  gameState.uiState.debugExploreInput = newValue;
   }
   
   // Clear existing timer
   if (debounceTimer) {
-    clearTimeout(debounceTimer);
+  clearTimeout(debounceTimer);
   }
   
   // Debounce the tree building to avoid too many updates
   debounceTimer = setTimeout(() => {
-    buildConnectionTree();
+  buildConnectionTree();
   }, 300) as any;
 }, { immediate: false });
 
 // Watch for other control changes
 watch([showIncoming, showOutgoing, maxDepth], () => {
   if (exploreInput.value.trim()) {
-    buildConnectionTree();
+  buildConnectionTree();
   }
 });
 
@@ -444,7 +444,7 @@ watch([showIncoming, showOutgoing, maxDepth], () => {
 onMounted(() => {
   // Build initial tree if there's a saved input
   if (exploreInput.value.trim()) {
-    buildConnectionTree();
+  buildConnectionTree();
   }
 });
 </script>

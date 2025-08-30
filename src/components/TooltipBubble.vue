@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible" class="tooltip-bubble" :style="style">
-    <slot></slot>
+  <slot></slot>
   </div>
 </template>
 
@@ -9,12 +9,12 @@ import { ref, watchEffect, toRefs, type PropType, type CSSProperties } from 'vue
 
 const props = defineProps({
   visible: {
-    type: Boolean,
-    default: false,
+  type: Boolean,
+  default: false,
   },
   targetElement: {
-    type: Object as PropType<HTMLElement | null>,
-    default: null,
+  type: Object as PropType<HTMLElement | null>,
+  default: null,
   },
 });
 
@@ -23,15 +23,15 @@ const style = ref<CSSProperties>({});
 
 watchEffect(() => {
   if (visible.value && targetElement.value) {
-    const rect = targetElement.value.getBoundingClientRect();
-    style.value = {
-      position: 'fixed',
-      left: `${rect.left}px`,
-      top: `${rect.bottom + 5}px`, // Position below the target element
-      zIndex: '1000', // Ensure it's above other elements
-    };
+  const rect = targetElement.value.getBoundingClientRect();
+  style.value = {
+    position: 'fixed',
+    left: `${rect.left}px`,
+    top: `${rect.bottom + 5}px`, // Position below the target element
+    zIndex: '1000', // Ensure it's above other elements
+  };
   } else {
-    style.value = {};
+  style.value = {};
   }
 });
 

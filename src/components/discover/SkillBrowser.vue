@@ -1,126 +1,126 @@
 <template>
   <div class="skill-browser">
-    <div class="skill-browser-header">
-      <div class="settings-row">
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="showDiscovered" />
-          Discovered
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="showNotOwned" />
-          Not owned
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="sortByProgress" />
-          Sort by progress
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="useSymbols" />
-          Symbols
-        </label>
+  <div class="skill-browser-header">
+    <div class="settings-row">
+    <label class="checkbox-label">
+      <input type="checkbox" v-model="showDiscovered" />
+      Discovered
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" v-model="showNotOwned" />
+      Not owned
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" v-model="sortByProgress" />
+      Sort by progress
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" v-model="useSymbols" />
+      Symbols
+    </label>
+    </div>
+  </div>
+  
+  <div class="skills-container">
+    <div 
+    v-for="skillData in displaySkills" 
+    :key="skillData.id"
+    class="skill-card"
+    >
+    <!-- Main Skill -->
+    <div class="skill-main">
+      <div class="skill-title">
+      <div class="level-badge-container">
+        <span 
+        v-if="skillData.keywordStars > 0" 
+        class="keyword-badge"
+        :class="`keyword-level-${skillData.keywordStars}`"
+        >
+        {{ skillData.keywordStars }}
+        </span>
+      </div>
+      <span 
+        class="skill-name"
+        @mouseenter="handleSkillHover($event, skillData)"
+        @mouseleave="hideDiscoveryTooltip"
+      >{{ skillData.displayName }}</span>
+      <div class="relation-badge-container">
+        <span 
+        v-if="skillData.relationCount > 0 && !skillData.isDiscovered" 
+        class="relation-badge"
+        @mouseenter="showTooltip($event, skillData.relationDetails)"
+        @mouseleave="hideTooltip"
+        >
+        {{ skillData.relationCount }}
+        </span>
+      </div>
       </div>
     </div>
     
-    <div class="skills-container">
+    <!-- Specializations -->
+    <div v-if="skillData.specializations.length > 0" class="specializations">
       <div 
-        v-for="skillData in displaySkills" 
-        :key="skillData.id"
-        class="skill-card"
+      v-for="spec in skillData.specializations"
+      :key="spec.id"
+      class="specialization"
       >
-        <!-- Main Skill -->
-        <div class="skill-main">
-          <div class="skill-title">
-            <div class="level-badge-container">
-              <span 
-                v-if="skillData.keywordStars > 0" 
-                class="keyword-badge"
-                :class="`keyword-level-${skillData.keywordStars}`"
-              >
-                {{ skillData.keywordStars }}
-              </span>
-            </div>
-            <span 
-              class="skill-name"
-              @mouseenter="handleSkillHover($event, skillData)"
-              @mouseleave="hideDiscoveryTooltip"
-            >{{ skillData.displayName }}</span>
-            <div class="relation-badge-container">
-              <span 
-                v-if="skillData.relationCount > 0 && !skillData.isDiscovered" 
-                class="relation-badge"
-                @mouseenter="showTooltip($event, skillData.relationDetails)"
-                @mouseleave="hideTooltip"
-              >
-                {{ skillData.relationCount }}
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Specializations -->
-        <div v-if="skillData.specializations.length > 0" class="specializations">
-          <div 
-            v-for="spec in skillData.specializations"
-            :key="spec.id"
-            class="specialization"
-          >
-            <div class="level-badge-container">
-              <span 
-                v-if="spec.keywordStars > 0" 
-                class="keyword-badge"
-                :class="`keyword-level-${spec.keywordStars}`"
-              >
-                {{ spec.keywordStars }}
-              </span>
-            </div>
-            <span 
-              class="spec-name"
-              @mouseenter="handleSpecializationHover($event, spec)"
-              @mouseleave="hideDiscoveryTooltip"
-            >{{ spec.displayName }}</span>
-            <div class="relation-badge-container">
-              <span 
-                v-if="spec.relationCount > 0 && !spec.isDiscovered" 
-                class="relation-badge"
-                @mouseenter="showTooltip($event, spec.relationDetails)"
-                @mouseleave="hideTooltip"
-              >
-                {{ spec.relationCount }}
-              </span>
-            </div>
-          </div>
-        </div>
+      <div class="level-badge-container">
+        <span 
+        v-if="spec.keywordStars > 0" 
+        class="keyword-badge"
+        :class="`keyword-level-${spec.keywordStars}`"
+        >
+        {{ spec.keywordStars }}
+        </span>
+      </div>
+      <span 
+        class="spec-name"
+        @mouseenter="handleSpecializationHover($event, spec)"
+        @mouseleave="hideDiscoveryTooltip"
+      >{{ spec.displayName }}</span>
+      <div class="relation-badge-container">
+        <span 
+        v-if="spec.relationCount > 0 && !spec.isDiscovered" 
+        class="relation-badge"
+        @mouseenter="showTooltip($event, spec.relationDetails)"
+        @mouseleave="hideTooltip"
+        >
+        {{ spec.relationCount }}
+        </span>
+      </div>
       </div>
     </div>
+    </div>
+  </div>
   </div>
   
   <!-- Relation Tooltip -->
   <div 
-    v-if="tooltipVisible" 
-    class="relation-tooltip"
-    :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 'px' }"
+  v-if="tooltipVisible" 
+  class="relation-tooltip"
+  :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 'px' }"
   >
-    <div v-for="relation in tooltipContent" :key="`${relation.type}-${relation.name}`" class="tooltip-item">
-      <span v-if="relation.type === 'character'">
-        Mastered by <span class="tooltip-item-name">{{ relation.name }}</span> (Lv {{ relation.level }})
-      </span>
-      <span v-else>
-        Relevant to: <span class="tooltip-item-name">{{ relation.name }}</span>
-      </span>
-    </div>
+  <div v-for="relation in tooltipContent" :key="`${relation.type}-${relation.name}`" class="tooltip-item">
+    <span v-if="relation.type === 'character'">
+    Mastered by <span class="tooltip-item-name">{{ relation.name }}</span> (Lv {{ relation.level }})
+    </span>
+    <span v-else>
+    Relevant to: <span class="tooltip-item-name">{{ relation.name }}</span>
+    </span>
+  </div>
   </div>
   
   <!-- Discovery Tooltip -->
   <ItemDiscoveryTooltip
-    :visible="discoveryTooltipVisible"
-    :x="discoveryTooltipX"
-    :y="discoveryTooltipY"
-    :item-id="discoveryTooltipItemId"
-    :item-name="discoveryTooltipItemName"
-    :image-type="discoveryTooltipImageType"
-    :content="discoveryTooltipContent"
-    :description-only="discoveryTooltipDescriptionOnly"
-    :keywords="[]"
+  :visible="discoveryTooltipVisible"
+  :x="discoveryTooltipX"
+  :y="discoveryTooltipY"
+  :item-id="discoveryTooltipItemId"
+  :item-name="discoveryTooltipItemName"
+  :image-type="discoveryTooltipImageType"
+  :content="discoveryTooltipContent"
+  :description-only="discoveryTooltipDescriptionOnly"
+  :keywords="[]"
   />
 </template>
 
@@ -138,13 +138,13 @@ interface SkillBrowserData {
   hasLevels: boolean;
   isDiscovered: boolean;
   specializations: {
-    id: string;
-    displayName: string;
-    hasLevels: boolean;
-    isDiscovered: boolean;
-    keywordStars: number;
-    relationCount: number;
-    relationDetails: RelationDetail[];
+  id: string;
+  displayName: string;
+  hasLevels: boolean;
+  isDiscovered: boolean;
+  keywordStars: number;
+  relationCount: number;
+  relationDetails: RelationDetail[];
   }[];
   keywordStars: number;
   progressRatio: number;
@@ -196,14 +196,14 @@ const tooltipPosition = ref<{ x: number; y: number }>({ x: 0, y: 0 });
  */
 function getObfuscationPercentage(keywordCount: number): number {
   switch (keywordCount) {
-    case 0: return 1.0;
-    case 1: return 0.85;
-    case 2: return 0.75;
-    case 3: return 0.65;
-    case 4: return 0.55;
-    case 5: return 0.45;
-    case 6: return 0.35;
-    default: return 0.20; // for 7+ keywords
+  case 0: return 1.0;
+  case 1: return 0.85;
+  case 2: return 0.75;
+  case 3: return 0.65;
+  case 4: return 0.55;
+  case 5: return 0.45;
+  case 6: return 0.35;
+  default: return 0.20; // for 7+ keywords
   }
 }
 
@@ -217,18 +217,18 @@ function calculateProgressRatio(skillData: SkillBrowserData): number {
   
   // Main skill contribution
   if (skillData.isDiscovered) {
-    ratio += 5;
+  ratio += 5;
   } else {
-    ratio += skillData.keywordStars;
+  ratio += skillData.keywordStars;
   }
   
   // Specializations contribution
   for (const spec of skillData.specializations) {
-    if (spec.isDiscovered) {
-      ratio += 5;
-    } else {
-      ratio += spec.keywordStars;
-    }
+  if (spec.isDiscovered) {
+    ratio += 5;
+  } else {
+    ratio += spec.keywordStars;
+  }
   }
   
   return ratio;
@@ -245,44 +245,44 @@ function calculateRelations(skillOrSpecId: string): { count: number; details: Re
   
   // Check characters
   for (const character of gameState.characters) {
-    // Check skills
-    if (character.skills[skillOrSpecId] && character.skills[skillOrSpecId].value > 0) {
-      details.push({
-        type: 'character',
-        name: character.name,
-        level: character.skills[skillOrSpecId].value
-      });
-    }
-    
-    // Check specializations
-    if (character.specializations[skillOrSpecId] && character.specializations[skillOrSpecId].value > 0) {
-      details.push({
-        type: 'character',
-        name: character.name,
-        level: character.specializations[skillOrSpecId].value
-      });
-    }
+  // Check skills
+  if (character.skills[skillOrSpecId] && character.skills[skillOrSpecId].value > 0) {
+    details.push({
+    type: 'character',
+    name: character.name,
+    level: character.skills[skillOrSpecId].value
+    });
+  }
+  
+  // Check specializations
+  if (character.specializations[skillOrSpecId] && character.specializations[skillOrSpecId].value > 0) {
+    details.push({
+    type: 'character',
+    name: character.name,
+    level: character.specializations[skillOrSpecId].value
+    });
+  }
   }
   
   // Check tasks (all task lists)
   const allTasks = [
-    ...gameState.availableTasks,
-    ...gameState.queuedTasks,
-    ...gameState.processingTasks,
-    ...gameState.completedTasks
+  ...gameState.availableTasks,
+  ...gameState.queuedTasks,
+  ...gameState.processingTasks,
+  ...gameState.completedTasks
   ];
   
   for (const task of allTasks) {
-    if (task.resolvedDefinitionDetails.skills && 
-        task.resolvedDefinitionDetails.skills.includes(skillOrSpecId)) {
-      // Avoid duplicate task names
-      if (!details.some(d => d.type === 'task' && d.name === task.name)) {
-        details.push({
-          type: 'task',
-          name: task.name
-        });
-      }
+  if (task.resolvedDefinitionDetails.skills && 
+    task.resolvedDefinitionDetails.skills.includes(skillOrSpecId)) {
+    // Avoid duplicate task names
+    if (!details.some(d => d.type === 'task' && d.name === task.name)) {
+    details.push({
+      type: 'task',
+      name: task.name
+    });
     }
+  }
   }
   
   return { count: details.length, details };
@@ -294,8 +294,8 @@ function calculateRelations(skillOrSpecId: string): { count: number; details: Re
 function showTooltip(event: MouseEvent, relations: RelationDetail[]): void {
   tooltipContent.value = relations;
   tooltipPosition.value = {
-    x: event.clientX + 10,
-    y: event.clientY + 10
+  x: event.clientX + 10,
+  y: event.clientY + 10
   };
   tooltipVisible.value = true;
 }
@@ -317,8 +317,8 @@ function handleSkillHover(event: MouseEvent, skillData: SkillBrowserData): void 
   // Calculate obfuscation percentage in real-time instead of using cached value
   let obfuscationPercentage: number | undefined;
   if (!skillData.isDiscovered && gameState) {
-    const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
-    obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
+  const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
+  obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
   }
   
   showDiscoveryTooltip(event, itemId, itemType, undefined, undefined, obfuscationPercentage);
@@ -334,8 +334,8 @@ function handleSpecializationHover(event: MouseEvent, spec: SkillBrowserData['sp
   // Calculate obfuscation percentage in real-time instead of using cached value
   let obfuscationPercentage: number | undefined;
   if (!spec.isDiscovered && gameState) {
-    const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
-    obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
+  const currentKeywordCount = countActiveKeywordsForItem(itemId, gameState);
+  obfuscationPercentage = getObfuscationPercentage(currentKeywordCount);
   }
   
   showDiscoveryTooltip(event, itemId, itemType, undefined, undefined, obfuscationPercentage);
@@ -375,117 +375,117 @@ const displaySkills = computed((): SkillBrowserData[] => {
   const allSkills = gameState.lib.skills.getAllSkills();
   
   for (const [skillId, skillDef] of Object.entries(allSkills)) {
-    // Check if skill is encountered
-    const isSkillEncountered = gameState.isEncountered(skillId);
+  // Check if skill is encountered
+  const isSkillEncountered = gameState.isEncountered(skillId);
+  
+  // Only include skill if it is encountered
+  if (!isSkillEncountered) {
+    continue;
+  }
+  
+  // Check if any character has levels in this skill
+  const hasSkillLevels = gameState.characters.some(char => 
+    char.skills[skillId] && char.skills[skillId].value > 0
+  );
+  
+  // Check if skill is discovered
+  const isSkillDiscovered = gameState.isDiscovered(skillId);
+  
+  // Get keyword count for obfuscation
+  const skillKeywordCount = !isSkillDiscovered ? countActiveKeywordsForItem(skillId, gameState) : 0;
+  const obfuscationLevel = getObfuscationPercentage(skillKeywordCount);
+  
+  // Process specializations
+  const specializations: SkillBrowserData['specializations'] = [];
+  
+  for (const specId of skillDef.specializations) {
+    const specDef = gameState.lib.skills.getSpecialization(specId);
+    if (!specDef) continue;
     
-    // Only include skill if it is encountered
-    if (!isSkillEncountered) {
-      continue;
-    }
+    // Check if specialization is encountered
+    const isSpecEncountered = gameState.isEncountered(specId);
     
-    // Check if any character has levels in this skill
-    const hasSkillLevels = gameState.characters.some(char => 
-      char.skills[skillId] && char.skills[skillId].value > 0
+    // Only include specialization if it is encountered
+    if (isSpecEncountered) {
+    // Check if any character has levels in this specialization
+    const hasSpecLevels = gameState.characters.some(char => 
+      char.specializations[specId] && char.specializations[specId].value > 0
     );
     
-    // Check if skill is discovered
-    const isSkillDiscovered = gameState.isDiscovered(skillId);
+    // Check if specialization is discovered
+    const isSpecDiscovered = gameState.isDiscovered(specId);
     
-    // Get keyword count for obfuscation
-    const skillKeywordCount = !isSkillDiscovered ? countActiveKeywordsForItem(skillId, gameState) : 0;
-    const obfuscationLevel = getObfuscationPercentage(skillKeywordCount);
+    const specKeywordCount = !isSpecDiscovered ? countActiveKeywordsForItem(specId, gameState) : 0;
+    const specObfuscationLevel = getObfuscationPercentage(specKeywordCount);
     
-    // Process specializations
-    const specializations: SkillBrowserData['specializations'] = [];
-    
-    for (const specId of skillDef.specializations) {
-      const specDef = gameState.lib.skills.getSpecialization(specId);
-      if (!specDef) continue;
-      
-      // Check if specialization is encountered
-      const isSpecEncountered = gameState.isEncountered(specId);
-      
-      // Only include specialization if it is encountered
-      if (isSpecEncountered) {
-        // Check if any character has levels in this specialization
-        const hasSpecLevels = gameState.characters.some(char => 
-          char.specializations[specId] && char.specializations[specId].value > 0
-        );
-        
-        // Check if specialization is discovered
-        const isSpecDiscovered = gameState.isDiscovered(specId);
-        
-        const specKeywordCount = !isSpecDiscovered ? countActiveKeywordsForItem(specId, gameState) : 0;
-        const specObfuscationLevel = getObfuscationPercentage(specKeywordCount);
-        
-        specializations.push({
-          id: specId,
-          displayName: isSpecDiscovered 
-            ? specDef.displayName 
-            : obfuscateString(specDef.displayName, specObfuscationLevel, 0, useSymbols.value),
-          hasLevels: hasSpecLevels,
-          isDiscovered: isSpecDiscovered,
-          keywordStars: specKeywordCount,
-          relationCount: 0,
-          relationDetails: []
-        });
-      }
-    }
-    
-    const skillData: SkillBrowserData = {
-      id: skillId,
-      displayName: isSkillDiscovered 
-        ? skillDef.displayName 
-        : obfuscateString(skillDef.displayName, obfuscationLevel, 0, useSymbols.value),
-      hasLevels: hasSkillLevels,
-      isDiscovered: isSkillDiscovered,
-      specializations,
-      keywordStars: skillKeywordCount,
-      progressRatio: 0, // Will be calculated below
+    specializations.push({
+      id: specId,
+      displayName: isSpecDiscovered 
+      ? specDef.displayName 
+      : obfuscateString(specDef.displayName, specObfuscationLevel, 0, useSymbols.value),
+      hasLevels: hasSpecLevels,
+      isDiscovered: isSpecDiscovered,
+      keywordStars: specKeywordCount,
       relationCount: 0,
       relationDetails: []
-    };
-    
-    // Calculate progress ratio
-    skillData.progressRatio = calculateProgressRatio(skillData);
-    
-    // Calculate relations for the skill (only if not discovered)
-    if (!isSkillDiscovered) {
-      const skillRelations = calculateRelations(skillId);
-      skillData.relationCount = skillRelations.count;
-      skillData.relationDetails = skillRelations.details;
+    });
     }
-    
-    // Calculate relations for specializations (only if not discovered)
-    for (const spec of skillData.specializations) {
-      if (!spec.isDiscovered) {
-        const specRelations = calculateRelations(spec.id);
-        spec.relationCount = specRelations.count;
-        spec.relationDetails = specRelations.details;
-      }
+  }
+  
+  const skillData: SkillBrowserData = {
+    id: skillId,
+    displayName: isSkillDiscovered 
+    ? skillDef.displayName 
+    : obfuscateString(skillDef.displayName, obfuscationLevel, 0, useSymbols.value),
+    hasLevels: hasSkillLevels,
+    isDiscovered: isSkillDiscovered,
+    specializations,
+    keywordStars: skillKeywordCount,
+    progressRatio: 0, // Will be calculated below
+    relationCount: 0,
+    relationDetails: []
+  };
+  
+  // Calculate progress ratio
+  skillData.progressRatio = calculateProgressRatio(skillData);
+  
+  // Calculate relations for the skill (only if not discovered)
+  if (!isSkillDiscovered) {
+    const skillRelations = calculateRelations(skillId);
+    skillData.relationCount = skillRelations.count;
+    skillData.relationDetails = skillRelations.details;
+  }
+  
+  // Calculate relations for specializations (only if not discovered)
+  for (const spec of skillData.specializations) {
+    if (!spec.isDiscovered) {
+    const specRelations = calculateRelations(spec.id);
+    spec.relationCount = specRelations.count;
+    spec.relationDetails = specRelations.details;
     }
-    
-    result.push(skillData);
+  }
+  
+  result.push(skillData);
   }
   
   // Apply filters
   let filteredResult = result.filter(skillData => {
-    // Filter by discovered setting
-    if (!showDiscovered.value && isFullyDiscovered(skillData)) {
-      return false;
-    }
-    
-    // Filter by not owned setting
-    if (!showNotOwned.value && !skillData.hasLevels && !skillData.specializations.some(spec => spec.hasLevels)) {
-      return false;
-    }
-    
-    return true;
+  // Filter by discovered setting
+  if (!showDiscovered.value && isFullyDiscovered(skillData)) {
+    return false;
+  }
+  
+  // Filter by not owned setting
+  if (!showNotOwned.value && !skillData.hasLevels && !skillData.specializations.some(spec => spec.hasLevels)) {
+    return false;
+  }
+  
+  return true;
   });
   
   // Apply sorting
   if (sortByProgress.value) {
-    filteredResult.sort((a, b) => b.progressRatio - a.progressRatio);
+  filteredResult.sort((a, b) => b.progressRatio - a.progressRatio);
   }
   
   return filteredResult;
@@ -494,32 +494,32 @@ const displaySkills = computed((): SkillBrowserData[] => {
 // Component lifecycle - calculate on mount
 onMounted(() => {
   if (gameState) {
-    lastDiscoveredCount.value = gameState.uiState.discoveredItemsCount;
-    lastEncounteredCount.value = gameState.uiState.encounteredItemsCount;
-    lastActiveKeywordsCount.value = gameState.uiState.activeKeywords.size;
-    forceRecalculate.value += 1; // Trigger initial calculation
+  lastDiscoveredCount.value = gameState.uiState.discoveredItemsCount;
+  lastEncounteredCount.value = gameState.uiState.encounteredItemsCount;
+  lastActiveKeywordsCount.value = gameState.uiState.activeKeywords.size;
+  forceRecalculate.value += 1; // Trigger initial calculation
   }
 });
 
 // Watch for changes in discovered items count and active keywords count
 watch(() => gameState?.uiState.discoveredItemsCount, (newCount) => {
   if (newCount !== undefined && newCount !== lastDiscoveredCount.value) {
-    lastDiscoveredCount.value = newCount;
-    forceRecalculate.value += 1; // Trigger recalculation
+  lastDiscoveredCount.value = newCount;
+  forceRecalculate.value += 1; // Trigger recalculation
   }
 });
 
 watch(() => gameState?.uiState.encounteredItemsCount, (newCount) => {
   if (newCount !== undefined && newCount !== lastEncounteredCount.value) {
-    lastEncounteredCount.value = newCount;
-    forceRecalculate.value += 1; // Trigger recalculation
+  lastEncounteredCount.value = newCount;
+  forceRecalculate.value += 1; // Trigger recalculation
   }
 });
 
 watch(() => gameState?.uiState.activeKeywords.size, (newCount) => {
   if (newCount !== undefined && newCount !== lastActiveKeywordsCount.value) {
-    lastActiveKeywordsCount.value = newCount;
-    forceRecalculate.value += 1; // Trigger recalculation
+  lastActiveKeywordsCount.value = newCount;
+  forceRecalculate.value += 1; // Trigger recalculation
   }
 });
 </script>

@@ -6,15 +6,15 @@ import type { MinigameUISyncFn } from '../../logic/minigames/MinigameUIStateMana
  * UI Sync function for the ClickCounter minigame.
  */
 export const syncClickCounterUI: MinigameUISyncFn = (
-    gameState: GameState
+  gameState: GameState
 ): void => {
-    const logicState = gameState.activeMinigame?.state as ClickCounterState;
-    const UIMinigameState = gameState.uiState.activeMinigameState;
+  const logicState = gameState.activeMinigame?.state as ClickCounterState;
+  const UIMinigameState = gameState.uiState.activeMinigameState;
 
-    if (logicState && UIMinigameState && typeof UIMinigameState === 'object') {
-        (UIMinigameState as any).clickCount = logicState.clickCount;
-        (UIMinigameState as any).clicksToWin = logicState.clicksToWin;
-    } else {
-        console.warn('syncClickCounterUI: logicState or UIMinigameState is null or not an object during sync.');
-    }
+  if (logicState && UIMinigameState && typeof UIMinigameState === 'object') {
+    (UIMinigameState as any).clickCount = logicState.clickCount;
+    (UIMinigameState as any).clicksToWin = logicState.clicksToWin;
+  } else {
+    console.warn('syncClickCounterUI: logicState or UIMinigameState is null or not an object during sync.');
+  }
 }; 

@@ -1,15 +1,15 @@
 <template>
   <div v-if="!characters || characters.length === 0" class="no-characters">
-    No characters available.
+  No characters available.
   </div>
   <div v-else class="character-items">
-    <CharacterListItem
-      v-for="character in characters"
-      :key="character.id"
-      :character="character"
-      :is-selected="character.id === selectedCharacterId"
-      @select="$emit('select-character', character.id)"
-    />
+  <CharacterListItem
+    v-for="character in characters"
+    :key="character.id"
+    :character="character"
+    :is-selected="character.id === selectedCharacterId"
+    @select="$emit('select-character', character.id)"
+  />
   </div>
 </template>
 
@@ -20,12 +20,12 @@ import { SimpleCharacterInfo } from '../../types/uiTypes';
 
 defineProps({
   characters: {
-    type: Array as PropType<SimpleCharacterInfo[]>, // Use imported type
-    required: true,
+  type: Array as PropType<SimpleCharacterInfo[]>, // Use imported type
+  required: true,
   },
   selectedCharacterId: {
-    type: String as PropType<string | null>,
-    default: null,
+  type: String as PropType<string | null>,
+  default: null,
   },
 });
 

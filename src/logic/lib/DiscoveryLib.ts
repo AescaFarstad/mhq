@@ -9,328 +9,328 @@ import { C } from './C';
  * Aggregates data from SkillLib, AttributeLib, BuildingLib and creates efficient lookup indexes.
  */
 export class DiscoveryLib {
-    private _byId: Map<string, DiscoverableItem> = new Map();
-    private _bySearchableName: Map<string, DiscoverableItem> = new Map();
-    private _keywordLookup: Map<string, string[]> = new Map();
+  private _byId: Map<string, DiscoverableItem> = new Map();
+  private _bySearchableName: Map<string, DiscoverableItem> = new Map();
+  private _keywordLookup: Map<string, string[]> = new Map();
+  
+  id: string = 'discovery';
+  name: string = 'Discovery Library';
+  description: string = 'Central repository for all discoverable game items';
+  
+  constructor(skillLib: SkillLib, attributeLib: AttributeLib, buildingLib: BuildingLib) {
+    this.aggregateDiscoverableItems(skillLib, attributeLib, buildingLib);
+    this.createKeywordLookup();
+    this.verifyNameWordCounts();
+    this.verifyKeywordUniqueness();
+  }
+  
+  /**
+   * Cleans and normalizes input text for discovery matching.
+   * This is the canonical cleaning function.
+   */
+  public static getSearchableName(input: string): string {
+    return input
+      .trim()
+      .toLowerCase()
+      .replace(/ and /g, ' ') // Replace ' and ' with single space
+      .replace(/&/g, '') // Remove ampersands 
+      .replace(/-/g, ' ') // Replace hyphens with spaces
+      .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+      .trim();
+  }
+  
+  /**
+   * Gets a discoverable item by its ID
+   */
+  public getById(id: string): DiscoverableItem | undefined {
+    return this._byId.get(id);
+  }
+  
+  /**
+   * Gets a discoverable item by its searchable name
+   */
+  public getBySearchableName(searchableName: string): DiscoverableItem | undefined {
+    return this._bySearchableName.get(searchableName);
+  }
+  
+  /**
+   * Gets all discoverable items
+   */
+  public getAllItems(): ReadonlyMap<string, DiscoverableItem> {
+    return this._byId;
+  }
+  
+  /**
+   * Gets the lookup index by searchable name
+   */
+  public getSearchableNameIndex(): ReadonlyMap<string, DiscoverableItem> {
+    return this._bySearchableName;
+  }
+  
+  /**
+   * Gets item IDs that relate to a given keyword
+   * @param keyword - The keyword to look up (will be normalized to lowercase)
+   * @returns Array of item IDs that have this keyword, or empty array if none
+   */
+  public getItemIdsByKeyword(keyword: string): string[] {
+    return this._keywordLookup.get(keyword.toLowerCase()) || [];
+  }
+  
+  /**
+   * Gets the complete keyword lookup map
+   * Keys are lowercase keywords, values are arrays of item IDs
+   */
+  public getKeywordLookup(): ReadonlyMap<string, string[]> {
+    return this._keywordLookup;
+  }
+  
+  /**
+   * Aggregates discoverable items from all source libraries
+   */
+  private aggregateDiscoverableItems(skillLib: SkillLib, attributeLib: AttributeLib, buildingLib: BuildingLib): void {
+    // Clear existing data
+    this._byId.clear();
+    this._bySearchableName.clear();
     
-    id: string = 'discovery';
-    name: string = 'Discovery Library';
-    description: string = 'Central repository for all discoverable game items';
+    // Aggregate skills and specializations
+    this.aggregateSkills(skillLib);
     
-    constructor(skillLib: SkillLib, attributeLib: AttributeLib, buildingLib: BuildingLib) {
-        this.aggregateDiscoverableItems(skillLib, attributeLib, buildingLib);
-        this.createKeywordLookup();
-        this.verifyNameWordCounts();
-        this.verifyKeywordUniqueness();
-    }
+    // Aggregate attributes
+    this.aggregateAttributes(attributeLib);
     
-    /**
-     * Cleans and normalizes input text for discovery matching.
-     * This is the canonical cleaning function.
-     */
-    public static getSearchableName(input: string): string {
-        return input
-            .trim()
-            .toLowerCase()
-            .replace(/ and /g, ' ') // Replace ' and ' with single space
-            .replace(/&/g, '') // Remove ampersands 
-            .replace(/-/g, ' ') // Replace hyphens with spaces
-            .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
-            .trim();
-    }
+    // Aggregate buildings
+    this.aggregateBuildings(buildingLib);
     
-    /**
-     * Gets a discoverable item by its ID
-     */
-    public getById(id: string): DiscoverableItem | undefined {
-        return this._byId.get(id);
-    }
+    // Add static discoverable items (tabs, resources, etc.)
+    this.aggregateStaticItems();
+  }
+  
+  /**
+   * Aggregates skills and specializations from SkillLib
+   */
+  private aggregateSkills(skillLib: SkillLib): void {
+    const allSkills = skillLib.getAllSkillItems();
     
-    /**
-     * Gets a discoverable item by its searchable name
-     */
-    public getBySearchableName(searchableName: string): DiscoverableItem | undefined {
-        return this._bySearchableName.get(searchableName);
-    }
-    
-    /**
-     * Gets all discoverable items
-     */
-    public getAllItems(): ReadonlyMap<string, DiscoverableItem> {
-        return this._byId;
-    }
-    
-    /**
-     * Gets the lookup index by searchable name
-     */
-    public getSearchableNameIndex(): ReadonlyMap<string, DiscoverableItem> {
-        return this._bySearchableName;
-    }
-    
-    /**
-     * Gets item IDs that relate to a given keyword
-     * @param keyword - The keyword to look up (will be normalized to lowercase)
-     * @returns Array of item IDs that have this keyword, or empty array if none
-     */
-    public getItemIdsByKeyword(keyword: string): string[] {
-        return this._keywordLookup.get(keyword.toLowerCase()) || [];
-    }
-    
-    /**
-     * Gets the complete keyword lookup map
-     * Keys are lowercase keywords, values are arrays of item IDs
-     */
-    public getKeywordLookup(): ReadonlyMap<string, string[]> {
-        return this._keywordLookup;
-    }
-    
-    /**
-     * Aggregates discoverable items from all source libraries
-     */
-    private aggregateDiscoverableItems(skillLib: SkillLib, attributeLib: AttributeLib, buildingLib: BuildingLib): void {
-        // Clear existing data
-        this._byId.clear();
-        this._bySearchableName.clear();
+    for (const [skillId, skillItem] of Object.entries(allSkills)) {
+      if (skillItem.type === 'skill') {
+        const skill = skillItem as any; // Cast to access properties
+        const searchableName = this.createSearchableName(skill.displayName);
         
-        // Aggregate skills and specializations
-        this.aggregateSkills(skillLib);
+        const discoverableSkill: DiscoverableItem = {
+          id: skillId,
+          type: 'skill',
+          originalItem: skill,
+          searchableName: searchableName,
+          keywords: skill.keywords || []
+        };
         
-        // Aggregate attributes
-        this.aggregateAttributes(attributeLib);
+        this.addDiscoverableItem(discoverableSkill);
+      } else if (skillItem.type === 'specialization') {
+        const specialization = skillItem as any; // Cast to access properties
+        const discoverableSpecialization: DiscoverableItem = {
+          id: skillId,
+          type: 'skill_specialization',
+          originalItem: specialization,
+          searchableName: this.createSearchableName(specialization.displayName),
+          keywords: specialization.keywords || []
+        };
         
-        // Aggregate buildings
-        this.aggregateBuildings(buildingLib);
-        
-        // Add static discoverable items (tabs, resources, etc.)
-        this.aggregateStaticItems();
+        this.addDiscoverableItem(discoverableSpecialization);
+      }
     }
+  }
+  
+  /**
+   * Aggregates attributes from AttributeLib
+   */
+  private aggregateAttributes(attributeLib: AttributeLib): void {
+    const attributeDefs = attributeLib.getAttributeDefinitions();
     
-    /**
-     * Aggregates skills and specializations from SkillLib
-     */
-    private aggregateSkills(skillLib: SkillLib): void {
-        const allSkills = skillLib.getAllSkillItems();
-        
-        for (const [skillId, skillItem] of Object.entries(allSkills)) {
-            if (skillItem.type === 'skill') {
-                const skill = skillItem as any; // Cast to access properties
-                const searchableName = this.createSearchableName(skill.displayName);
-                
-                const discoverableSkill: DiscoverableItem = {
-                    id: skillId,
-                    type: 'skill',
-                    originalItem: skill,
-                    searchableName: searchableName,
-                    keywords: skill.keywords || []
-                };
-                
-                this.addDiscoverableItem(discoverableSkill);
-            } else if (skillItem.type === 'specialization') {
-                const specialization = skillItem as any; // Cast to access properties
-                const discoverableSpecialization: DiscoverableItem = {
-                    id: skillId,
-                    type: 'skill_specialization',
-                    originalItem: specialization,
-                    searchableName: this.createSearchableName(specialization.displayName),
-                    keywords: specialization.keywords || []
-                };
-                
-                this.addDiscoverableItem(discoverableSpecialization);
-            }
+    for (const [categoryKey, categoryDef] of Object.entries(attributeDefs)) {
+      // Add the attribute category itself
+      const discoverableCategory: DiscoverableItem = {
+        id: categoryKey,
+        type: 'attribute_category',
+        originalItem: categoryDef,
+        searchableName: this.createSearchableName(categoryDef.displayName)
+      };
+      
+      this.addDiscoverableItem(discoverableCategory);
+      
+      // Add individual attributes within the category
+      if (categoryDef.attributes) {
+        for (const [attributeKey, attributeDef] of Object.entries(categoryDef.attributes)) {
+          const fullAttributeId = `${categoryKey}.${attributeKey}`;
+          const discoverableAttribute: DiscoverableItem = {
+            id: fullAttributeId,
+            type: 'attribute',
+            originalItem: attributeDef,
+            searchableName: this.createSearchableName(attributeDef.displayName)
+          };
+          
+          this.addDiscoverableItem(discoverableAttribute);
         }
+      }
+    }
+  }
+  
+  /**
+   * Aggregates buildings from BuildingLib
+   */
+  private aggregateBuildings(buildingLib: BuildingLib): void {
+    for (const buildingDef of buildingLib.values()) {
+      const discoverableBuilding: DiscoverableItem = {
+        id: buildingDef.id,
+        type: 'building',
+        originalItem: buildingDef,
+        searchableName: this.createSearchableName(buildingDef.name)
+      };
+      
+      this.addDiscoverableItem(discoverableBuilding);
+    }
+  }
+  
+  /**
+   * Aggregates static discoverable items like tabs and resources
+   */
+  private aggregateStaticItems(): void {
+    // Tab items - these are the main UI tabs
+    const tabs = C.ALL_TAB_IDS.map(tabId => ({
+      id: tabId,
+      displayName: tabId
+    }));
+    
+    for (const tab of tabs) {
+      const discoverableTab: DiscoverableItem = {
+        id: tab.id,
+        type: 'tab',
+        originalItem: tab,
+        searchableName: this.createSearchableName(tab.displayName)
+      };
+      
+      this.addDiscoverableItem(discoverableTab);
     }
     
-    /**
-     * Aggregates attributes from AttributeLib
-     */
-    private aggregateAttributes(attributeLib: AttributeLib): void {
-        const attributeDefs = attributeLib.getAttributeDefinitions();
-        
-        for (const [categoryKey, categoryDef] of Object.entries(attributeDefs)) {
-            // Add the attribute category itself
-            const discoverableCategory: DiscoverableItem = {
-                id: categoryKey,
-                type: 'attribute_category',
-                originalItem: categoryDef,
-                searchableName: this.createSearchableName(categoryDef.displayName)
-            };
-            
-            this.addDiscoverableItem(discoverableCategory);
-            
-            // Add individual attributes within the category
-            if (categoryDef.attributes) {
-                for (const [attributeKey, attributeDef] of Object.entries(categoryDef.attributes)) {
-                    const fullAttributeId = `${categoryKey}.${attributeKey}`;
-                    const discoverableAttribute: DiscoverableItem = {
-                        id: fullAttributeId,
-                        type: 'attribute',
-                        originalItem: attributeDef,
-                        searchableName: this.createSearchableName(attributeDef.displayName)
-                    };
-                    
-                    this.addDiscoverableItem(discoverableAttribute);
-                }
-            }
-        }
-    }
+    // Resource items - basic game resources
+    const resources = [
+      { id: 'gold', displayName: 'Gold' },
+      { id: 'clutter', displayName: 'Clutter' }
+    ];
     
-    /**
-     * Aggregates buildings from BuildingLib
-     */
-    private aggregateBuildings(buildingLib: BuildingLib): void {
-        for (const buildingDef of buildingLib.values()) {
-            const discoverableBuilding: DiscoverableItem = {
-                id: buildingDef.id,
-                type: 'building',
-                originalItem: buildingDef,
-                searchableName: this.createSearchableName(buildingDef.name)
-            };
-            
-            this.addDiscoverableItem(discoverableBuilding);
-        }
+    for (const resource of resources) {
+      const discoverableResource: DiscoverableItem = {
+        id: resource.id,
+        type: 'resource',
+        originalItem: resource,
+        searchableName: this.createSearchableName(resource.displayName)
+      };
+      
+      this.addDiscoverableItem(discoverableResource);
     }
-    
-    /**
-     * Aggregates static discoverable items like tabs and resources
-     */
-    private aggregateStaticItems(): void {
-        // Tab items - these are the main UI tabs
-        const tabs = C.ALL_TAB_IDS.map(tabId => ({
-            id: tabId,
-            displayName: tabId
-        }));
-        
-        for (const tab of tabs) {
-            const discoverableTab: DiscoverableItem = {
-                id: tab.id,
-                type: 'tab',
-                originalItem: tab,
-                searchableName: this.createSearchableName(tab.displayName)
-            };
-            
-            this.addDiscoverableItem(discoverableTab);
-        }
-        
-        // Resource items - basic game resources
-        const resources = [
-            { id: 'gold', displayName: 'Gold' },
-            { id: 'clutter', displayName: 'Clutter' }
-        ];
-        
-        for (const resource of resources) {
-            const discoverableResource: DiscoverableItem = {
-                id: resource.id,
-                type: 'resource',
-                originalItem: resource,
-                searchableName: this.createSearchableName(resource.displayName)
-            };
-            
-            this.addDiscoverableItem(discoverableResource);
-        }
 
-        // UI state discovery items - for tracking UI state changes
-        const uiDiscoveryItems = [
-            { id: C.DISCOVERY_KEYWORDS_OVERFLOW, displayName: 'Keywords Overflow' }
-        ];
-        
-        for (const uiItem of uiDiscoveryItems) {
-            const discoverableUIItem: DiscoverableItem = {
-                id: uiItem.id,
-                type: 'ui_state',
-                originalItem: uiItem,
-                searchableName: this.createSearchableName(uiItem.displayName)
-            };
+    // UI state discovery items - for tracking UI state changes
+    const uiDiscoveryItems = [
+      { id: C.DISCOVERY_KEYWORDS_OVERFLOW, displayName: 'Keywords Overflow' }
+    ];
+    
+    for (const uiItem of uiDiscoveryItems) {
+      const discoverableUIItem: DiscoverableItem = {
+        id: uiItem.id,
+        type: 'ui_state',
+        originalItem: uiItem,
+        searchableName: this.createSearchableName(uiItem.displayName)
+      };
+      
+      this.addDiscoverableItem(discoverableUIItem);
+    }
+  }
+  
+  /**
+   * Adds a discoverable item to both indexes
+   */
+  private addDiscoverableItem(item: DiscoverableItem): void {
+    this._byId.set(item.id, item);
+    this._bySearchableName.set(item.searchableName, item);
+  }
+  
+  /**
+   * Creates a searchable name from a display name by cleaning and normalizing it
+   */
+  private createSearchableName(displayName: string): string {
+    return DiscoveryLib.getSearchableName(displayName);
+  }
+  
+  /**
+   * Verifies that no discoverable item name consists of more than 3 words (after removing '&')
+   * This is a startup verification as specified in the plan
+   */
+  private verifyNameWordCounts(): void {
+    const errors: string[] = [];
+    
+    for (const [id, item] of this._byId) {
+      const wordCount = item.searchableName.split(/\s+/).length;
+      if (wordCount > 3) {
+        const originalName = item.originalItem.displayName || item.originalItem.name || id;
+        errors.push(`Item "${id}" (${originalName}) has ${wordCount} words in searchable name: "${item.searchableName}"`);
+      }
+    }
+    
+    if (errors.length > 0) {
+      console.error('DiscoveryLib: Items with more than 3 words detected:');
+      errors.forEach(error => console.error('  ' + error));
+      throw new Error(`DiscoveryLib: ${errors.length} items violate the 3-word name limit. See console for details.`);
+    }
+  }
+  
+  /**
+   * Verifies that each skill and specialization has unique keywords within its own keywords array
+   */
+  private verifyKeywordUniqueness(): void {
+    const errors: string[] = [];
+    
+    for (const [id, item] of this._byId) {
+      if (item.type === 'skill' || item.type === 'skill_specialization') {
+        const keywords = item.keywords || [];
+        if (keywords.length > 0) {
+          // Flatten the keywords array since keywords are stored as string[][]
+          const flatKeywords = keywords.flat();
+          const uniqueKeywords = new Set(flatKeywords);
+          if (uniqueKeywords.size !== flatKeywords.length) {
+            const originalName = item.originalItem.displayName || item.originalItem.name || id;
+            const duplicates = flatKeywords.filter((keyword, index) => flatKeywords.indexOf(keyword) !== index);
+            errors.push(`${item.type} "${id}" (${originalName}) has duplicate keywords: [${duplicates.join(', ')}]`);
+          }
+        }
+      }
+    }
+    
+    if (errors.length > 0) {
+      console.error('DiscoveryLib: Skills/specializations with duplicate keywords detected:');
+      errors.forEach(error => console.error('  ' + error));
+      throw new Error(`DiscoveryLib: ${errors.length} skills/specializations have duplicate keywords. See console for details.`);
+    }
+  }
+  
+  /**
+   * Creates a keyword lookup map
+   */
+  private createKeywordLookup(): void {
+    for (const [id, item] of this._byId) {
+      if (item.keywords && item.keywords.length > 0) {
+        for (const keywordGroup of item.keywords) {
+          for (const keyword of keywordGroup) {
+            const lowerKeyword = keyword.toLowerCase();
             
-            this.addDiscoverableItem(discoverableUIItem);
-        }
-    }
-    
-    /**
-     * Adds a discoverable item to both indexes
-     */
-    private addDiscoverableItem(item: DiscoverableItem): void {
-        this._byId.set(item.id, item);
-        this._bySearchableName.set(item.searchableName, item);
-    }
-    
-    /**
-     * Creates a searchable name from a display name by cleaning and normalizing it
-     */
-    private createSearchableName(displayName: string): string {
-        return DiscoveryLib.getSearchableName(displayName);
-    }
-    
-    /**
-     * Verifies that no discoverable item name consists of more than 3 words (after removing '&')
-     * This is a startup verification as specified in the plan
-     */
-    private verifyNameWordCounts(): void {
-        const errors: string[] = [];
-        
-        for (const [id, item] of this._byId) {
-            const wordCount = item.searchableName.split(/\s+/).length;
-            if (wordCount > 3) {
-                const originalName = item.originalItem.displayName || item.originalItem.name || id;
-                errors.push(`Item "${id}" (${originalName}) has ${wordCount} words in searchable name: "${item.searchableName}"`);
+            if (!this._keywordLookup.has(lowerKeyword)) {
+              this._keywordLookup.set(lowerKeyword, []);
             }
-        }
-        
-        if (errors.length > 0) {
-            console.error('DiscoveryLib: Items with more than 3 words detected:');
-            errors.forEach(error => console.error('  ' + error));
-            throw new Error(`DiscoveryLib: ${errors.length} items violate the 3-word name limit. See console for details.`);
-        }
-    }
-    
-    /**
-     * Verifies that each skill and specialization has unique keywords within its own keywords array
-     */
-    private verifyKeywordUniqueness(): void {
-        const errors: string[] = [];
-        
-        for (const [id, item] of this._byId) {
-            if (item.type === 'skill' || item.type === 'skill_specialization') {
-                const keywords = item.keywords || [];
-                if (keywords.length > 0) {
-                    // Flatten the keywords array since keywords are stored as string[][]
-                    const flatKeywords = keywords.flat();
-                    const uniqueKeywords = new Set(flatKeywords);
-                    if (uniqueKeywords.size !== flatKeywords.length) {
-                        const originalName = item.originalItem.displayName || item.originalItem.name || id;
-                        const duplicates = flatKeywords.filter((keyword, index) => flatKeywords.indexOf(keyword) !== index);
-                        errors.push(`${item.type} "${id}" (${originalName}) has duplicate keywords: [${duplicates.join(', ')}]`);
-                    }
-                }
+            const keywordItems = this._keywordLookup.get(lowerKeyword);
+            if (keywordItems && !keywordItems.includes(id)) {
+              keywordItems.push(id);
             }
+          }
         }
-        
-        if (errors.length > 0) {
-            console.error('DiscoveryLib: Skills/specializations with duplicate keywords detected:');
-            errors.forEach(error => console.error('  ' + error));
-            throw new Error(`DiscoveryLib: ${errors.length} skills/specializations have duplicate keywords. See console for details.`);
-        }
+      }
     }
-    
-    /**
-     * Creates a keyword lookup map
-     */
-    private createKeywordLookup(): void {
-        for (const [id, item] of this._byId) {
-            if (item.keywords && item.keywords.length > 0) {
-                for (const keywordGroup of item.keywords) {
-                    for (const keyword of keywordGroup) {
-                        const lowerKeyword = keyword.toLowerCase();
-                        
-                        if (!this._keywordLookup.has(lowerKeyword)) {
-                            this._keywordLookup.set(lowerKeyword, []);
-                        }
-                        const keywordItems = this._keywordLookup.get(lowerKeyword);
-                        if (keywordItems && !keywordItems.includes(id)) {
-                            keywordItems.push(id);
-                        }
-                    }
-                }
-            }
-        }
-    }
+  }
 } 

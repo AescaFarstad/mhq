@@ -8,21 +8,21 @@ const gameState = inject<GameState>('gameState');
 
 const minigameState = computed(() => {
   if (gameState?.activeMinigame?.type === 'ClickCounter') {
-    return gameState.uiState.activeMinigameState as ClickCounterState | null;
+  return gameState.uiState.activeMinigameState as ClickCounterState | null;
   }
   return null;
 });
 
 const handleClick = () => {
   if (gameState && gameState.activeMinigame instanceof ClickCounterGame) {
-    gameState.activeMinigame.recordClick(gameState);
+  gameState.activeMinigame.recordClick(gameState);
   }
 };
 
 const buttonText = computed(() => {
   if (minigameState.value) {
-    const remaining = minigameState.value.clicksToWin - minigameState.value.clickCount;
-    return `Close (${remaining} more clicks)`;
+  const remaining = minigameState.value.clicksToWin - minigameState.value.clickCount;
+  return `Close (${remaining} more clicks)`;
   }
   return 'Close';
 });
@@ -31,12 +31,12 @@ const buttonText = computed(() => {
 
 <template>
   <div v-if="minigameState" class="click-counter-overlay">
-    <div class="click-counter-content">
-      <h2>Click Counter Minigame</h2>
-      <p>You have clicked {{ minigameState.clickCount }} times.</p>
-      <p>You need to click {{ minigameState.clicksToWin }} times to close this.</p>
-      <button @click="handleClick">{{ buttonText }}</button>
-    </div>
+  <div class="click-counter-content">
+    <h2>Click Counter Minigame</h2>
+    <p>You have clicked {{ minigameState.clickCount }} times.</p>
+    <p>You need to click {{ minigameState.clicksToWin }} times to close this.</p>
+    <button @click="handleClick">{{ buttonText }}</button>
+  </div>
   </div>
 </template>
 

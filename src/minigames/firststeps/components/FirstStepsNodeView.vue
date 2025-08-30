@@ -16,41 +16,41 @@ const choiceNode = computed(() => props.node as ChoiceDNode);
 const skillCheckNode = computed(() => props.node as SkillCheckNode);
 
 const madeChoice = computed(() => {
-    if (props.node.type !== 'choice') return undefined;
-    return choiceNode.value.choices.find(c => props.choicesMade.includes(c.id!));
+  if (props.node.type !== 'choice') return undefined;
+  return choiceNode.value.choices.find(c => props.choicesMade.includes(c.id!));
 });
 
 const handleChoiceClick = (choice: DialogChoice) => {
-    if (!gameState || !gameState.activeMinigame) {
-        return;
-    }
-    makeDialogChoice(gameState.activeMinigame.id, choice.id!, gameState);
+  if (!gameState || !gameState.activeMinigame) {
+    return;
+  }
+  makeDialogChoice(gameState.activeMinigame.id, choice.id!, gameState);
 };
 
 </script>
 
 <template>
   <div class="dialog-node-view">
-    <div v-if="node.type === 'message'" class="node-content message-node">
-      <p class="message-text">{{ messageNode.text }}</p>
-    </div>
-    <div v-else-if="node.type === 'choice'" class="node-content choice-node">
-      <ul class="choices-list">
-        <li v-for="choice in choiceNode.choices" :key="choice.id" class="choice-line">
-          <template v-if="!madeChoice">
-            <button class="choice-btn" @click="handleChoiceClick(choice)">{{ choice.text }}</button>
-          </template>
-          <template v-else>
-            <span v-if="madeChoice.id === choice.id" class="made-choice same-size">{{ madeChoice.text }}</span>
-            <span v-else class="choice-placeholder same-size">{{ choice.text }}</span>
-          </template>
-        </li>
-      </ul>
-    </div>
-    <div v-else-if="node.type === 'skill_check'" class="node-content skill-check-node">
-      <p class="message-text">{{ skillCheckNode.text }}</p>
-      <small>Skill check: {{ skillCheckNode.skillIds.join(', ') }}</small>
-    </div>
+  <div v-if="node.type === 'message'" class="node-content message-node">
+    <p class="message-text">{{ messageNode.text }}</p>
+  </div>
+  <div v-else-if="node.type === 'choice'" class="node-content choice-node">
+    <ul class="choices-list">
+    <li v-for="choice in choiceNode.choices" :key="choice.id" class="choice-line">
+      <template v-if="!madeChoice">
+      <button class="choice-btn" @click="handleChoiceClick(choice)">{{ choice.text }}</button>
+      </template>
+      <template v-else>
+      <span v-if="madeChoice.id === choice.id" class="made-choice same-size">{{ madeChoice.text }}</span>
+      <span v-else class="choice-placeholder same-size">{{ choice.text }}</span>
+      </template>
+    </li>
+    </ul>
+  </div>
+  <div v-else-if="node.type === 'skill_check'" class="node-content skill-check-node">
+    <p class="message-text">{{ skillCheckNode.text }}</p>
+    <small>Skill check: {{ skillCheckNode.skillIds.join(', ') }}</small>
+  </div>
   </div>
 </template>
 

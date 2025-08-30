@@ -31,229 +31,229 @@ handlersByName.set("CmdDialogChoice", handleDialogChoice);
  * @param gameState The current game state.
  */
 export function processInputs(gameState: GameState): void {
-    for (const command of globalInputQueue) { // Use globalInputQueue
-        const handler = handlersByName.get(command.name);
-        if (handler) {
-            handler(gameState, command);
-        } else {
-            console.error(`No handler registered for command: ${command.name}`);
-        }
+  for (const command of globalInputQueue) { // Use globalInputQueue
+    const handler = handlersByName.get(command.name);
+    if (handler) {
+      handler(gameState, command);
+    } else {
+      console.error(`No handler registered for command: ${command.name}`);
     }
-    globalInputQueue.length = 0; // Clear the globalInputQueue
+  }
+  globalInputQueue.length = 0; // Clear the globalInputQueue
 }
 
 
 // Handlers
 
 function handleCheatSkillUp(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdCheatSkillUp;
-    const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
+  const specificCommand = command as CmdCheatSkillUp;
+  const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
 
-    if (!character) {
-        console.error(`CmdCheatSkillUp: Character with ID '${specificCommand.characterId}' not found.`);
-        return;
-    }
+  if (!character) {
+    console.error(`CmdCheatSkillUp: Character with ID '${specificCommand.characterId}' not found.`);
+    return;
+  }
 
-    const skillStat = character.skills[specificCommand.skillId] as IndependentStat;
+  const skillStat = character.skills[specificCommand.skillId] as IndependentStat;
 
-    if (!skillStat) {
-        console.error(`CmdCheatSkillUp: Skill with ID '${specificCommand.skillId}' not found for character '${character.name}' (ID: ${character.characterId}).`);
-        return;
-    }
+  if (!skillStat) {
+    console.error(`CmdCheatSkillUp: Skill with ID '${specificCommand.skillId}' not found for character '${character.name}' (ID: ${character.characterId}).`);
+    return;
+  }
 
-    Stats.setIndependentStat(skillStat, skillStat.value + specificCommand.amount, gameState.connections);
+  Stats.setIndependentStat(skillStat, skillStat.value + specificCommand.amount, gameState.connections);
 }
 
 function handleConstructBuilding(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdConstructBuilding;
-    Building.addBuilding(gameState, specificCommand.buildingId);
+  const specificCommand = command as CmdConstructBuilding;
+  Building.addBuilding(gameState, specificCommand.buildingId);
 }
 
 function handleTimeScale(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdTimeScale;
-    if (gameState.timeScale.current === specificCommand.scale) {
-        gameState.swapTimeScale();
-    } else {
-        gameState.setTimeScale(specificCommand.scale);
-    }
+  const specificCommand = command as CmdTimeScale;
+  if (gameState.timeScale.current === specificCommand.scale) {
+    gameState.swapTimeScale();
+  } else {
+    gameState.setTimeScale(specificCommand.scale);
+  }
 }
 
 function handleTickOnce(gameState: GameState, _command: CmdInput): void {
-    gameState.allowedUpdates++;
-    // Pause the game by setting current time scale to 0 and storing the previous one
-    if (gameState.timeScale.current !== 0) { // Only update previous if not already paused
-        gameState.timeScale.previous = gameState.timeScale.current;
-    }
-    gameState.timeScale.current = 0;
+  gameState.allowedUpdates++;
+  // Pause the game by setting current time scale to 0 and storing the previous one
+  if (gameState.timeScale.current !== 0) { // Only update previous if not already paused
+    gameState.timeScale.previous = gameState.timeScale.current;
+  }
+  gameState.timeScale.current = 0;
 }
 
 function handleFireCharacter(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdFireCharacter;
-    const characterIndex = gameState.characters.findIndex(c => c.characterId === specificCommand.characterId);
+  const specificCommand = command as CmdFireCharacter;
+  const characterIndex = gameState.characters.findIndex(c => c.characterId === specificCommand.characterId);
 
-    if (characterIndex === -1) {
-        console.error(`CmdFireCharacter: Character with ID '${specificCommand.characterId}' not found.`);
-        return;
-    }
+  if (characterIndex === -1) {
+    console.error(`CmdFireCharacter: Character with ID '${specificCommand.characterId}' not found.`);
+    return;
+  }
 
-    const character = gameState.characters[characterIndex];
-    
-    // Manually subtract the character's upkeep from total upkeep
-    Stats.modifyParameterADD(gameState.totalCharacterUpkeep, -character.upkeep.value, gameState.connections);
-    
-    // Remove character from the array
-    gameState.characters.splice(characterIndex, 1);
-    
-    // Update UI state
-    import('../UIStateManager').then(({ updateCharacterUIData }) => {
-        updateCharacterUIData(gameState);
-    });
-    
-    console.log(`Character '${character.name}' (ID: ${character.characterId}) has been fired.`);
+  const character = gameState.characters[characterIndex];
+  
+  // Manually subtract the character's upkeep from total upkeep
+  Stats.modifyParameterADD(gameState.totalCharacterUpkeep, -character.upkeep.value, gameState.connections);
+  
+  // Remove character from the array
+  gameState.characters.splice(characterIndex, 1);
+  
+  // Update UI state
+  import('../UIStateManager').then(({ updateCharacterUIData }) => {
+    updateCharacterUIData(gameState);
+  });
+  
+  console.log(`Character '${character.name}' (ID: ${character.characterId}) has been fired.`);
 }
 
 function handleSpendAttributePoint(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdSpendAttributePoint;
-    const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
+  const specificCommand = command as CmdSpendAttributePoint;
+  const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
 
-    if (!character) {
-        console.error(`CmdSpendAttributePoint: Character with ID '${specificCommand.characterId}' not found.`);
-        return;
-    }
+  if (!character) {
+    console.error(`CmdSpendAttributePoint: Character with ID '${specificCommand.characterId}' not found.`);
+    return;
+  }
 
-    if (character.attributePoints.value <= 0) {
-        console.error(`CmdSpendAttributePoint: Character '${character.name}' has no attribute points to spend.`);
-        return;
-    }
+  if (character.attributePoints.value <= 0) {
+    console.error(`CmdSpendAttributePoint: Character '${character.name}' has no attribute points to spend.`);
+    return;
+  }
 
-    // Find the attribute stat by checking for the full stat ID
-    let attributeStat: IndependentStat | undefined = undefined;
-    for (const attrKey in character.attributes) {
-        if (attrKey.includes(specificCommand.attributeId)) {
-            attributeStat = character.attributes[attrKey] as IndependentStat;
-            break;
-        }
+  // Find the attribute stat by checking for the full stat ID
+  let attributeStat: IndependentStat | undefined = undefined;
+  for (const attrKey in character.attributes) {
+    if (attrKey.includes(specificCommand.attributeId)) {
+      attributeStat = character.attributes[attrKey] as IndependentStat;
+      break;
     }
-    if (!attributeStat) {
-        console.error(`CmdSpendAttributePoint: Attribute with ID '${specificCommand.attributeId}' not found for character '${character.name}'.`);
-        return;
-    }
+  }
+  if (!attributeStat) {
+    console.error(`CmdSpendAttributePoint: Attribute with ID '${specificCommand.attributeId}' not found for character '${character.name}'.`);
+    return;
+  }
 
-    // Increment attribute and decrement attribute points
-    Stats.setIndependentStat(attributeStat, attributeStat.value + 1, gameState.connections);
-    Stats.setIndependentStat(character.attributePoints, character.attributePoints.value - 1, gameState.connections);
+  // Increment attribute and decrement attribute points
+  Stats.setIndependentStat(attributeStat, attributeStat.value + 1, gameState.connections);
+  Stats.setIndependentStat(character.attributePoints, character.attributePoints.value - 1, gameState.connections);
 }
 
 function handleSpendSkillPoint(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdSpendSkillPoint;
-    const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
+  const specificCommand = command as CmdSpendSkillPoint;
+  const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
 
-    if (!character) {
-        console.error(`CmdSpendSkillPoint: Character with ID '${specificCommand.characterId}' not found.`);
-        return;
-    }
+  if (!character) {
+    console.error(`CmdSpendSkillPoint: Character with ID '${specificCommand.characterId}' not found.`);
+    return;
+  }
 
-    if (character.skillPoints.value <= 0) {
-        console.error(`CmdSpendSkillPoint: Character '${character.name}' has no skill points to spend.`);
-        return;
-    }
+  if (character.skillPoints.value <= 0) {
+    console.error(`CmdSpendSkillPoint: Character '${character.name}' has no skill points to spend.`);
+    return;
+  }
 
-    const skillStat = character.skills[specificCommand.skillId] as IndependentStat;
-    if (!skillStat) {
-        console.error(`CmdSpendSkillPoint: Skill with ID '${specificCommand.skillId}' not found for character '${character.name}'.`);
-        return;
-    }
+  const skillStat = character.skills[specificCommand.skillId] as IndependentStat;
+  if (!skillStat) {
+    console.error(`CmdSpendSkillPoint: Skill with ID '${specificCommand.skillId}' not found for character '${character.name}'.`);
+    return;
+  }
 
-    // Increment skill and decrement skill points
-    Stats.setIndependentStat(skillStat, skillStat.value + 1, gameState.connections);
-    Stats.setIndependentStat(character.skillPoints, character.skillPoints.value - 1, gameState.connections);
+  // Increment skill and decrement skill points
+  Stats.setIndependentStat(skillStat, skillStat.value + 1, gameState.connections);
+  Stats.setIndependentStat(character.skillPoints, character.skillPoints.value - 1, gameState.connections);
 }
 
 function handleSpendSpecPoint(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdSpendSpecPoint;
-    const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
+  const specificCommand = command as CmdSpendSpecPoint;
+  const character = gameState.characters.find(c => c.characterId === specificCommand.characterId);
 
-    if (!character) {
-        console.error(`CmdSpendSpecPoint: Character with ID '${specificCommand.characterId}' not found.`);
-        return;
-    }
+  if (!character) {
+    console.error(`CmdSpendSpecPoint: Character with ID '${specificCommand.characterId}' not found.`);
+    return;
+  }
 
-    if (character.specPoints.value <= 0) {
-        console.error(`CmdSpendSpecPoint: Character '${character.name}' has no specialization points to spend.`);
-        return;
-    }
+  if (character.specPoints.value <= 0) {
+    console.error(`CmdSpendSpecPoint: Character '${character.name}' has no specialization points to spend.`);
+    return;
+  }
 
-    const specStat = character.specializations[specificCommand.specId] as IndependentStat;
-    if (!specStat) {
-        console.error(`CmdSpendSpecPoint: Specialization with ID '${specificCommand.specId}' not found for character '${character.name}'.`);
-        return;
-    }
+  const specStat = character.specializations[specificCommand.specId] as IndependentStat;
+  if (!specStat) {
+    console.error(`CmdSpendSpecPoint: Specialization with ID '${specificCommand.specId}' not found for character '${character.name}'.`);
+    return;
+  }
 
-    // Increment specialization and decrement spec points
-    Stats.setIndependentStat(specStat, specStat.value + 1, gameState.connections);
-    Stats.setIndependentStat(character.specPoints, character.specPoints.value - 1, gameState.connections);
+  // Increment specialization and decrement spec points
+  Stats.setIndependentStat(specStat, specStat.value + 1, gameState.connections);
+  Stats.setIndependentStat(character.specPoints, character.specPoints.value - 1, gameState.connections);
 }
 
 function handleSubmitDiscovery(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdSubmitDiscovery;
-    processDiscoveryAttempt(specificCommand.input, gameState);
+  const specificCommand = command as CmdSubmitDiscovery;
+  processDiscoveryAttempt(specificCommand.input, gameState);
 }
 
 function handleRemoveCrystalWord(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdRemoveCrystalWord;
-    const wordIndex = gameState.crystalBallWords.indexOf(specificCommand.word);
-    if (wordIndex > -1) {
-        gameState.crystalBallWords.splice(wordIndex, 1);
-    }
+  const specificCommand = command as CmdRemoveCrystalWord;
+  const wordIndex = gameState.crystalBallWords.indexOf(specificCommand.word);
+  if (wordIndex > -1) {
+    gameState.crystalBallWords.splice(wordIndex, 1);
+  }
 }
 
 function handleDiscover(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdDiscover;
-    // Mark the identifier as discovered
-    gameState.discoveredItems.add(specificCommand.identifier);
-    
-    // Update UI state counters
-    gameState.uiState.discoveredItemsCount = gameState.discoveredItems.size;
-    
-    console.log(`Discovered UI element: ${specificCommand.identifier}`);
+  const specificCommand = command as CmdDiscover;
+  // Mark the identifier as discovered
+  gameState.discoveredItems.add(specificCommand.identifier);
+  
+  // Update UI state counters
+  gameState.uiState.discoveredItemsCount = gameState.discoveredItems.size;
+  
+  console.log(`Discovered UI element: ${specificCommand.identifier}`);
 }
 
 function handleInspirationChoice(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdInspirationChoice;
-    
-    if (gameState.inspirationCharges.value <= 0) {
-        console.warn('No inspiration charges available');
-        return;
-    }
-    
-    let newKeywords: string[] = [];
-    
-    switch (specificCommand.choiceType) {
-        case 'rarest':
-            newKeywords = getRarestKeywords(gameState, C.INSPIRATION_CHOICE_RAREST_COUNT);
-            break;
-        case 'juicy':
-            newKeywords = getJuicyKeywords(gameState, C.INSPIRATION_CHOICE_JUICY_COUNT);
-            break;
-        case 'random':
-            newKeywords = getRandomKeywords(gameState, C.INSPIRATION_CHOICE_RANDOM_COUNT);
-            break;
-    }
-    
-    // Add keywords to the beginning of crystalBallWords
-    for (let i = newKeywords.length - 1; i >= 0; i--) {
-        gameState.crystalBallWords.unshift(newKeywords[i]);
-    }
-    
-    // Consume one inspiration charge
-    Stats.modifyStat(gameState.inspirationCharges, -1, gameState.connections);
-    
-    console.log(`Inspiration choice '${specificCommand.choiceType}' granted ${newKeywords.length} keywords:`, newKeywords);
+  const specificCommand = command as CmdInspirationChoice;
+  
+  if (gameState.inspirationCharges.value <= 0) {
+    console.warn('No inspiration charges available');
+    return;
+  }
+  
+  let newKeywords: string[] = [];
+  
+  switch (specificCommand.choiceType) {
+    case 'rarest':
+      newKeywords = getRarestKeywords(gameState, C.INSPIRATION_CHOICE_RAREST_COUNT);
+      break;
+    case 'juicy':
+      newKeywords = getJuicyKeywords(gameState, C.INSPIRATION_CHOICE_JUICY_COUNT);
+      break;
+    case 'random':
+      newKeywords = getRandomKeywords(gameState, C.INSPIRATION_CHOICE_RANDOM_COUNT);
+      break;
+  }
+  
+  // Add keywords to the beginning of crystalBallWords
+  for (let i = newKeywords.length - 1; i >= 0; i--) {
+    gameState.crystalBallWords.unshift(newKeywords[i]);
+  }
+  
+  // Consume one inspiration charge
+  Stats.modifyStat(gameState.inspirationCharges, -1, gameState.connections);
+  
+  console.log(`Inspiration choice '${specificCommand.choiceType}' granted ${newKeywords.length} keywords:`, newKeywords);
 }
 
 function handleDialogChoice(gameState: GameState, command: CmdInput): void {
-    const specificCommand = command as CmdDialogChoice;
-    makeDialogChoice(specificCommand.dialogName, specificCommand.choiceId, gameState);
+  const specificCommand = command as CmdDialogChoice;
+  makeDialogChoice(specificCommand.dialogName, specificCommand.choiceId, gameState);
 }
 
 

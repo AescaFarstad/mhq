@@ -20,8 +20,8 @@ This is a standalone testing framework for the web game project that works indep
 
 ```
 tests/
-├── README.md           # This documentation
-├── testRunner.ts       # Main test entrance point
+├── README.md       # This documentation
+├── testRunner.ts     # Main test entrance point
 ├── stringObfuscation.test.ts  # String obfuscation system tests
 └── discovery.test.ts   # Discovery system tests
 ```
@@ -104,32 +104,32 @@ Create `tests/newSystem.test.ts`:
 import { TestSuite, TestResult } from './testRunner';
 
 export function createNewSystemTests(): TestSuite {
-    return {
-        name: 'New System Tests',
-        tests: [
-            {
-                name: 'Test Basic Functionality',
-                run: (): TestResult => {
-                    // Test implementation
-                    if (someCondition) {
-                        return { success: true };
-                    } else {
-                        return { 
-                            success: false, 
-                            message: 'Expected X but got Y' 
-                        };
-                    }
-                }
-            }
-        ]
-    };
+  return {
+    name: 'New System Tests',
+    tests: [
+      {
+        name: 'Test Basic Functionality',
+        run: (): TestResult => {
+          // Test implementation
+          if (someCondition) {
+            return { success: true };
+          } else {
+            return { 
+              success: false, 
+              message: 'Expected X but got Y' 
+            };
+          }
+        }
+      }
+    ]
+  };
 }
 
 // For standalone execution
 if (typeof window === 'undefined' && require.main === module) {
-    import('./testRunner').then(({ runTestSuite }) => {
-        runTestSuite(createNewSystemTests());
-    });
+  import('./testRunner').then(({ runTestSuite }) => {
+    runTestSuite(createNewSystemTests());
+  });
 }
 ```
 
@@ -142,9 +142,9 @@ import { createNewSystemTests } from './newSystem.test';
 
 // Add to test suites array
 const testSuites = [
-    createStringObfuscationTests(),
-    createDiscoveryTests(),
-    createNewSystemTests(), // Add here
+  createStringObfuscationTests(),
+  createDiscoveryTests(),
+  createNewSystemTests(), // Add here
 ];
 ```
 

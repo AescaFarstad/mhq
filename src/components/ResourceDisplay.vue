@@ -11,30 +11,30 @@ const resourceEntries = computed(() => {
   if (!gameState) return [];
   // Use the reactive uiState object
   return Object.entries(gameState.uiState.resources)
-    .filter(([key]) => gameState.isDiscovered(key));
+  .filter(([key]) => gameState.isDiscovered(key));
 });
 </script>
 
 <template>
   <div class="resource-panel">
-    <h2>Resources</h2>
-    <div v-if="!gameState">Loading resources...</div>
-    <div v-else-if="resourceEntries.length === 0">No resources defined or discovered.</div>
-    <div v-else>
-      <div v-for="[key, resource] in resourceEntries" :key="key" class="resource-item">
-        <span class="resource-name">{{ key.charAt(0).toUpperCase() + key.slice(1) }}:</span>
-        <div class="resource-amount-group">
-            <!-- Access properties directly from the reactive object -->
-            <span class="resource-current">{{ resource.current.toFixed(1) }}</span>
-            <span class="resource-separator">/</span>
-            <span class="resource-max">{{ resource.max.toFixed(0) }}</span>
-        </div>
-        <span class="resource-income">
-          <!-- Simplified income display -->
-          +{{ resource.income.toFixed(2) }}
-        </span>
-      </div>
+  <h2>Resources</h2>
+  <div v-if="!gameState">Loading resources...</div>
+  <div v-else-if="resourceEntries.length === 0">No resources defined or discovered.</div>
+  <div v-else>
+    <div v-for="[key, resource] in resourceEntries" :key="key" class="resource-item">
+    <span class="resource-name">{{ key.charAt(0).toUpperCase() + key.slice(1) }}:</span>
+    <div class="resource-amount-group">
+      <!-- Access properties directly from the reactive object -->
+      <span class="resource-current">{{ resource.current.toFixed(1) }}</span>
+      <span class="resource-separator">/</span>
+      <span class="resource-max">{{ resource.max.toFixed(0) }}</span>
     </div>
+    <span class="resource-income">
+      <!-- Simplified income display -->
+      +{{ resource.income.toFixed(2) }}
+    </span>
+    </div>
+  </div>
   </div>
 </template>
 

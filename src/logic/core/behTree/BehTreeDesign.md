@@ -29,8 +29,8 @@ The Behavior Tree (BehTree) system provides a flexible, event-driven approach to
    - Can subscribe to events or updates
 
 4. **IContainerNode** - An interface for nodes that contain other nodes (e.g., SequencerNode, BehTree). It:
-    - Implements the `report()` method to handle results from its children.
-    - Is responsible for orchestrating its children's lifecycle (`init`/`exit`).
+  - Implements the `report()` method to handle results from its children.
+  - Is responsible for orchestrating its children's lifecycle (`init`/`exit`).
 
 ### Integration Points
 
@@ -104,15 +104,15 @@ state.invoker.handleEvent(eventDef, state, context);
 1. **ExecNode** - Executes a lambda function immediately
    ```typescript
    new ExecNode((node, state) => {
-       state.startMinigame('Welcome');
+     state.startMinigame('Welcome');
    })
    ```
 
 2. **AwaitEventNode** - Waits for a specific game event
    ```typescript
    new AwaitEventNode('minigameComplete', (node, eventDef, state) => {
-       if (eventDef.name == 'Welcome')
-           state.startMinigame('Ingress');
+     if (eventDef.name == 'Welcome')
+       state.startMinigame('Ingress');
    })
    ```
 
@@ -122,29 +122,29 @@ state.invoker.handleEvent(eventDef, state, context);
    ```
 
 4. **SelectorNode** - Executes children in sequence, advancing to the next child if one fails. Succeeds as soon as a child succeeds, and fails only if all children have failed.
-    ```typescript
-    new SelectorNode('tryActions', [action1, action2, backupAction])
-    ```
+  ```typescript
+  new SelectorNode('tryActions', [action1, action2, backupAction])
+  ```
 
 5. **RepeatNode** - Executes its child sequence repeatedly. Fails if the child sequence ever fails. Often used as the root of a main loop.
-    ```typescript
-    new RepeatNode('mainLoop', [
-        // ... nodes to be repeated
-    ])
-    ```
+  ```typescript
+  new RepeatNode('mainLoop', [
+    // ... nodes to be repeated
+  ])
+  ```
 
 6. **AnySuccessAllFailureNode** - A parallel node that initializes all children simultaneously. Succeeds as soon as any child succeeds. Fails only when all children have failed.
-    ```typescript
-    new AnySuccessAllFailureNode('parallelTasks', [
-        new AwaitEventNode('playerInput'),
-        new TickerNode('timeout', (n, s) => s.time > 10)
-    ])
-    ```
+  ```typescript
+  new AnySuccessAllFailureNode('parallelTasks', [
+    new AwaitEventNode('playerInput'),
+    new TickerNode('timeout', (n, s) => s.time > 10)
+  ])
+  ```
 
 7. **TickerNode** - Waits for a condition to become true. It checks the condition on every game update tick, remaining in an implicit running state. Succeeds when the condition is met.
-    ```typescript
-    new TickerNode('waitForReady', (node, state) => state.player.isReady)
-    ```
+  ```typescript
+  new TickerNode('waitForReady', (node, state) => state.player.isReady)
+  ```
 
 8. **WaitNode** - Waits for a specified duration
    ```typescript
@@ -192,11 +192,11 @@ state.invoker.handleEvent(eventDef, state, context);
 ### Simple Sequence
 ```typescript
 const tutorialTree = new BehTree('tutorial', [
-    new ExecNode((n, s) => s.showDialog('welcome')),
-    new AwaitEventNode('dialogClosed'),
-    new ExecNode((n, s) => s.startMinigame('Tutorial')),
-    new AwaitEventNode('minigameComplete'),
-    new ExecNode((n, s) => s.unlockFeature('mainGame'))
+  new ExecNode((n, s) => s.showDialog('welcome')),
+  new AwaitEventNode('dialogClosed'),
+  new ExecNode((n, s) => s.startMinigame('Tutorial')),
+  new AwaitEventNode('minigameComplete'),
+  new ExecNode((n, s) => s.unlockFeature('mainGame'))
 ]);
 ```
 

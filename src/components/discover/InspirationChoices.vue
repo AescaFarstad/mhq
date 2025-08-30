@@ -1,45 +1,45 @@
 <template>
   <div v-if="inspirationCharges > 0" class="inspiration-section">
-    <div class="inspiration-charges">
-      Inspirations: {{ inspirationCharges }}
+  <div class="inspiration-charges">
+    Inspirations: {{ inspirationCharges }}
+  </div>
+  <div class="inspiration-choices">
+    <div 
+    class="inspiration-choice" 
+    @click="selectInspirationChoice('rarest')"
+    @mouseenter="showTooltip($event, rarestHint)"
+    @mouseleave="hideTooltip"
+    >
+    Rarest {{ C.INSPIRATION_CHOICE_RAREST_COUNT }}
     </div>
-    <div class="inspiration-choices">
-      <div 
-        class="inspiration-choice" 
-        @click="selectInspirationChoice('rarest')"
-        @mouseenter="showTooltip($event, rarestHint)"
-        @mouseleave="hideTooltip"
-      >
-        Rarest {{ C.INSPIRATION_CHOICE_RAREST_COUNT }}
-      </div>
-      <div 
-        class="inspiration-choice" 
-        @click="selectInspirationChoice('juicy')"
-        @mouseenter="showTooltip($event, juicyHint)"
-        @mouseleave="hideTooltip"
-      >
-        Juicy {{ C.INSPIRATION_CHOICE_JUICY_COUNT }}
-      </div>
-      <div 
-        class="inspiration-choice" 
-        @click="selectInspirationChoice('random')"
-        @mouseenter="showTooltip($event, randomHint)"
-        @mouseleave="hideTooltip"
-      >
-        Random {{ C.INSPIRATION_CHOICE_RANDOM_COUNT }}
-      </div>
+    <div 
+    class="inspiration-choice" 
+    @click="selectInspirationChoice('juicy')"
+    @mouseenter="showTooltip($event, juicyHint)"
+    @mouseleave="hideTooltip"
+    >
+    Juicy {{ C.INSPIRATION_CHOICE_JUICY_COUNT }}
     </div>
+    <div 
+    class="inspiration-choice" 
+    @click="selectInspirationChoice('random')"
+    @mouseenter="showTooltip($event, randomHint)"
+    @mouseleave="hideTooltip"
+    >
+    Random {{ C.INSPIRATION_CHOICE_RANDOM_COUNT }}
+    </div>
+  </div>
   </div>
   
   <!-- Tooltip -->
   <Teleport to="body">
-    <div 
-      v-if="tooltipVisible" 
-      class="inspiration-tooltip"
-      :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 'px' }"
-    >
-      {{ tooltipContent }}
-    </div>
+  <div 
+    v-if="tooltipVisible" 
+    class="inspiration-tooltip"
+    :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 'px' }"
+  >
+    {{ tooltipContent }}
+  </div>
   </Teleport>
 </template>
 
@@ -70,8 +70,8 @@ const selectInspirationChoice = (choiceType: "rarest" | "juicy" | "random") => {
   if (!gameState) return;
   
   const command: CmdInspirationChoice = {
-    name: "CmdInspirationChoice",
-    choiceType: choiceType
+  name: "CmdInspirationChoice",
+  choiceType: choiceType
   };
   
   globalInputQueue.push(command);
@@ -86,8 +86,8 @@ function showTooltip(event: MouseEvent, hint: string): void {
   tooltipContent.value = hint;
   
   tooltipPosition.value = {
-    x: event.clientX,
-    y: event.clientY
+  x: event.clientX,
+  y: event.clientY
   };
   tooltipVisible.value = true;
 }
@@ -102,7 +102,7 @@ function hideTooltip(): void {
 // Watch for inspiration charges and hide tooltip when they reach 0
 watch(inspirationCharges, (newCharges) => {
   if (newCharges === 0) {
-    tooltipVisible.value = false;
+  tooltipVisible.value = false;
   }
 });
 </script>

@@ -1,6 +1,6 @@
 export type Point2 = {
-    x: number;
-    y: number;
+  x: number;
+  y: number;
 };
 
 export interface Line {
@@ -9,20 +9,20 @@ export interface Line {
 }
 
 export function Point2(x: number, y: number): Point2 {
-    return { x, y };
+  return { x, y };
 }
 
 export function set(p: Point2, x: number, y: number): void {
-    p.x = x;
-    p.y = y;
+  p.x = x;
+  p.y = y;
 }
 export function set_(p: Point2, p1: Point2): void {
-    p.x = p1.x;
-    p.y = p1.y;
+  p.x = p1.x;
+  p.y = p1.y;
 }
 
 export function copy(p: Point2): Point2 {
-    return { x: p.x, y: p.y };
+  return { x: p.x, y: p.y };
 }
 
 export function subtract(p2: Point2, p1: Point2): Point2 {
@@ -30,73 +30,73 @@ export function subtract(p2: Point2, p1: Point2): Point2 {
 }
 
 export function subtract_(p: Point2, p1: Point2): void {
-    p.x -= p1.x;
-    p.y -= p1.y;
+  p.x -= p1.x;
+  p.y -= p1.y;
 }
 
 export function add(p1: Point2, p2: Point2): Point2 {
-    return { x: p1.x + p2.x, y: p1.y + p2.y };
+  return { x: p1.x + p2.x, y: p1.y + p2.y };
 }
 
 export function add_(p: Point2, p2: Point2): void {
-    p.x += p2.x;
-    p.y += p2.y;
+  p.x += p2.x;
+  p.y += p2.y;
 }
 
 export function scale(p: Point2, s: number): Point2 {
-    return { x: p.x * s, y: p.y * s };
+  return { x: p.x * s, y: p.y * s };
 }
 
 export function scale_(p: Point2, s: number): void {
-    p.x *= s;
-    p.y *= s;
+  p.x *= s;
+  p.y *= s;
 }
 
 export function normalize(p: Point2): Point2 {
-    const len = length(p);
-    if (len > 0) {
-        return { x: p.x / len, y: p.y / len };
-    }
-    return { x: 0, y: 0 };
+  const len = length(p);
+  if (len > 0) {
+    return { x: p.x / len, y: p.y / len };
+  }
+  return { x: 0, y: 0 };
 }
 
 export function normalize_(p: Point2): void {
-    const len = length(p);
-    if (len > 0) {
-        p.x /= len;
-        p.y /= len;
-    } else {
-        p.x = 0;
-        p.y = 0;
-    }
+  const len = length(p);
+  if (len > 0) {
+    p.x /= len;
+    p.y /= len;
+  } else {
+    p.x = 0;
+    p.y = 0;
+  }
 }
 
 export function length_sq(p: Point2): number {
-    return p.x * p.x + p.y * p.y;
+  return p.x * p.x + p.y * p.y;
 }
 
 export function length(p: Point2): number {
-    return Math.sqrt(p.x * p.x + p.y * p.y);
+  return Math.sqrt(p.x * p.x + p.y * p.y);
 }
 
 export function distance(p1: Point2, p2: Point2): number {
-    const dx = p1.x - p2.x;
-    const dy = p1.y - p2.y;
-    return Math.sqrt(dx * dx + dy * dy);
+  const dx = p1.x - p2.x;
+  const dy = p1.y - p2.y;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 export function distance_sq(p1: Point2, p2: Point2): number {
-    const dx = p1.x - p2.x;
-    const dy = p1.y - p2.y;
-    return dx * dx + dy * dy;
+  const dx = p1.x - p2.x;
+  const dy = p1.y - p2.y;
+  return dx * dx + dy * dy;
 }
 
 export function lerp(a: number, b: number, t: number): number {
-    return a + t * (b - a);
+  return a + t * (b - a);
 }
 
 export function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
+  return Math.min(Math.max(value, min), max);
 }
 
 export function cvt(value: number, inMin: number, inMax: number, outMin: number, outMax: number, clamp_v: boolean = false): number {
@@ -105,13 +105,13 @@ export function cvt(value: number, inMin: number, inMax: number, outMin: number,
 }
 
 export function cvtExp(value: number, inMin: number, inMax: number, outMin: number, outMax: number, clamp_v: boolean = false): number {
-    const v = clamp_v ? clamp(value, inMin, inMax) : value;
-    const t = (v - inMin) / (inMax - inMin);
-    if (outMin <= 0 || outMax <= 0) {
-        console.error("cvtExp requires outMin and outMax to be positive for exponential scaling.");
-        return cvt(value, inMin, inMax, outMin, outMax, clamp_v);
-    }
-    return outMin * Math.pow(outMax / outMin, t);
+  const v = clamp_v ? clamp(value, inMin, inMax) : value;
+  const t = (v - inMin) / (inMax - inMin);
+  if (outMin <= 0 || outMax <= 0) {
+    console.error("cvtExp requires outMin and outMax to be positive for exponential scaling.");
+    return cvt(value, inMin, inMax, outMin, outMax, clamp_v);
+  }
+  return outMin * Math.pow(outMax / outMin, t);
 }
 
 export function distancePointToSegment(p: Point2, a: Point2, b: Point2): number {
@@ -120,7 +120,7 @@ export function distancePointToSegment(p: Point2, a: Point2, b: Point2): number 
   const lenSq = ab.x * ab.x + ab.y * ab.y;
 
   if (lenSq === 0.0) {
-    return distance(p, a); // a and b are the same point
+  return distance(p, a); // a and b are the same point
   }
 
   // Projection of ap onto ab, normalized by length of ab
@@ -128,68 +128,68 @@ export function distancePointToSegment(p: Point2, a: Point2, b: Point2): number 
   
   // The closest point on the line segment
   const closestPoint = {
-    x: a.x + t * ab.x,
-    y: a.y + t * ab.y,
+  x: a.x + t * ab.x,
+  y: a.y + t * ab.y,
   };
   
   return distance(p, closestPoint);
 }
 
 export function dot(p1: Point2, p2: Point2): number {
-    return p1.x * p2.x + p1.y * p2.y;
+  return p1.x * p2.x + p1.y * p2.y;
 }
 
 export function cross(p1: Point2, p2: Point2): number {
-    return p1.x * p2.y - p1.y * p2.x;
+  return p1.x * p2.y - p1.y * p2.x;
 }
 
 export function isToRight(p1: Point2, p2: Point2, p3: Point2): boolean {
-    return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) < 0;
+  return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) < 0;
 }
 
 export function isPointInAABB(point: Point2, min: Point2, max: Point2): boolean {
-    return point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y;
+  return point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y;
 }
 
 export function lineSegmentIntersectionTest(p1: Point2, p2: Point2, p3: Point2, p4: Point2): boolean {
-    const EPSILON = 1e-10;
+  const EPSILON = 1e-10;
+  
+  const r = subtract(p2, p1);
+  const s = subtract(p4, p3);
+  const r_cross_s = cross(r, s);
+  const q_minus_p = subtract(p3, p1);
+  
+  // Lines are parallel (or nearly so)
+  if (Math.abs(r_cross_s) < EPSILON) {
+    const q_minus_p_cross_r = cross(q_minus_p, r);
     
-    const r = subtract(p2, p1);
-    const s = subtract(p4, p3);
-    const r_cross_s = cross(r, s);
-    const q_minus_p = subtract(p3, p1);
-    
-    // Lines are parallel (or nearly so)
-    if (Math.abs(r_cross_s) < EPSILON) {
-        const q_minus_p_cross_r = cross(q_minus_p, r);
-        
-        // Lines are collinear
-        if (Math.abs(q_minus_p_cross_r) < EPSILON) {
-            // Check if segments overlap on the collinear line
-            const t0 = dot(q_minus_p, r) / dot(r, r);
-            const t1 = t0 + dot(s, r) / dot(r, r);
-            
-            const tMin = Math.min(t0, t1);
-            const tMax = Math.max(t0, t1);
-            
-            // Segments overlap if they intersect the range [0, 1]
-            return tMax >= -EPSILON && tMin <= 1 + EPSILON;
-        }
-        
-        // Lines are parallel but not collinear, so no intersection
-        return false;
+    // Lines are collinear
+    if (Math.abs(q_minus_p_cross_r) < EPSILON) {
+      // Check if segments overlap on the collinear line
+      const t0 = dot(q_minus_p, r) / dot(r, r);
+      const t1 = t0 + dot(s, r) / dot(r, r);
+      
+      const tMin = Math.min(t0, t1);
+      const tMax = Math.max(t0, t1);
+      
+      // Segments overlap if they intersect the range [0, 1]
+      return tMax >= -EPSILON && tMin <= 1 + EPSILON;
     }
     
-    const t = cross(q_minus_p, s) / r_cross_s;
-    const u = cross(q_minus_p, r) / r_cross_s;
+    // Lines are parallel but not collinear, so no intersection
+    return false;
+  }
+  
+  const t = cross(q_minus_p, s) / r_cross_s;
+  const u = cross(q_minus_p, r) / r_cross_s;
 
-    // Check if intersection point lies within both line segments
-    return t >= -EPSILON && t <= 1 + EPSILON && u >= -EPSILON && u <= 1 + EPSILON;
+  // Check if intersection point lies within both line segments
+  return t >= -EPSILON && t <= 1 + EPSILON && u >= -EPSILON && u <= 1 + EPSILON;
 }
 
 // Fast broad-phase AABB vs AABB intersection test
 export function aabbIntersection(min1: Point2, max1: Point2, min2: Point2, max2: Point2): boolean {
-    return !(max1.x < min2.x || min1.x > max2.x || max1.y < min2.y || min1.y > max2.y);
+  return !(max1.x < min2.x || min1.x > max2.x || max1.y < min2.y || min1.y > max2.y);
 }
 
 
@@ -204,15 +204,15 @@ export function lineLineIntersection(line1: Line, line2: Line): Point2 | null {
   
   // Lines are parallel or collinear
   if (Math.abs(cross_product) < 1e-9) {
-    return null;
+  return null;
   }
 
   const dp = subtract(p2, p1);
   const t = cross(dp, v2) / cross_product;
 
   return {
-    x: p1.x + t * v1.x,
-    y: p1.y + t * v1.y,
+  x: p1.x + t * v1.x,
+  y: p1.y + t * v1.y,
   };
 }
 
@@ -220,7 +220,7 @@ export function lineLineIntersect(x1: number, y1: number, x2: number, y2: number
 ): Point2 | null {
   const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
   if (Math.abs(den) < 1e-9) {
-    return null;
+  return null;
   }
 
   const c1 = x1 * y2 - y1 * x2;
@@ -233,28 +233,28 @@ export function lineLineIntersect(x1: number, y1: number, x2: number, y2: number
 }
 
 export function getLineSegmentIntersectionPoint(p1: Point2, p2: Point2, p3: Point2, p4: Point2): Point2 | null {
-    const den = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-    if (den === 0) {
-        return null; // Lines are parallel
-    }
-    const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / den;
-    const u = -((p1.x - p2.x) * (p1.y - p3.y) - (p1.y - p2.y) * (p1.x - p3.x)) / den;
+  const den = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+  if (den === 0) {
+    return null; // Lines are parallel
+  }
+  const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / den;
+  const u = -((p1.x - p2.x) * (p1.y - p3.y) - (p1.y - p2.y) * (p1.x - p3.x)) / den;
 
-    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-        return {
-            x: p1.x + t * (p2.x - p1.x),
-            y: p1.y + t * (p2.y - p1.y),
-        };
-    }
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+    return {
+      x: p1.x + t * (p2.x - p1.x),
+      y: p1.y + t * (p2.y - p1.y),
+    };
+  }
 
-    return null;
+  return null;
 }
 
 export function pointLineSignedDistance(point: Point2, lineP1: Point2, lineDir: Point2): number {
-    const normal = { x: -lineDir.y, y: lineDir.x };
-    const pointVec = subtract(point, lineP1);
-    const dist = dot(pointVec, normal) / length(normal);
-    return dist;
+  const normal = { x: -lineDir.y, y: lineDir.x };
+  const pointVec = subtract(point, lineP1);
+  const dist = dot(pointVec, normal) / length(normal);
+  return dist;
 }
 
 // Re-export triangle math functions

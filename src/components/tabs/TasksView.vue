@@ -1,70 +1,70 @@
 <template>
   <div class="tasks-view-container">
-    <BuffBar />
-    
-    <!-- Fixed Header Row -->
-    <div class="task-headers">
-      <div class="task-header">Completed</div>
-      <div class="task-header">Active</div>
-      <div class="task-header">Queued</div>
-      <div class="task-header">Maintenance</div>
-      <div class="task-header">Opportunity</div>
-      <div class="task-header">Endeavour</div>
-      <div class="task-header">Quest</div>
+  <BuffBar />
+  
+  <!-- Fixed Header Row -->
+  <div class="task-headers">
+    <div class="task-header">Completed</div>
+    <div class="task-header">Active</div>
+    <div class="task-header">Queued</div>
+    <div class="task-header">Maintenance</div>
+    <div class="task-header">Opportunity</div>
+    <div class="task-header">Endeavour</div>
+    <div class="task-header">Quest</div>
+  </div>
+  
+  <!-- Scrollable Content Area -->
+  <div class="task-columns">
+    <div class="task-column">
+    <TaskCard
+      v-for="task in gameState?.uiState.uiCompletedTasks"
+      :key="task.uid"
+      :task="task"
+    />
     </div>
-    
-    <!-- Scrollable Content Area -->
-    <div class="task-columns">
-      <div class="task-column">
-        <TaskCard
-          v-for="task in gameState?.uiState.uiCompletedTasks"
-          :key="task.uid"
-          :task="task"
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard
-          v-for="task in gameState?.uiState.uiActiveTasks"
-          :key="task.uid"
-          :task="task"
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard 
-          v-for="task in gameState?.uiState.uiQueuedTasks" 
-          :key="task.uid" 
-          :task="task" 
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard
-          v-for="task in gameState?.uiState.uiMaintenanceTasks"
-          :key="task.uid"
-          :task="task"
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard
-          v-for="task in gameState?.uiState.uiOpportunityTasks"
-          :key="task.uid"
-          :task="task"
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard
-          v-for="task in gameState?.uiState.uiEndeavourTasks"
-          :key="task.uid"
-          :task="task"
-        />
-      </div>
-      <div class="task-column">
-        <TaskCard 
-          v-for="task in gameState?.uiState.uiQuestTasks" 
-          :key="task.uid" 
-          :task="task" 
-        />
-      </div>
+    <div class="task-column">
+    <TaskCard
+      v-for="task in gameState?.uiState.uiActiveTasks"
+      :key="task.uid"
+      :task="task"
+    />
     </div>
+    <div class="task-column">
+    <TaskCard 
+      v-for="task in gameState?.uiState.uiQueuedTasks" 
+      :key="task.uid" 
+      :task="task" 
+    />
+    </div>
+    <div class="task-column">
+    <TaskCard
+      v-for="task in gameState?.uiState.uiMaintenanceTasks"
+      :key="task.uid"
+      :task="task"
+    />
+    </div>
+    <div class="task-column">
+    <TaskCard
+      v-for="task in gameState?.uiState.uiOpportunityTasks"
+      :key="task.uid"
+      :task="task"
+    />
+    </div>
+    <div class="task-column">
+    <TaskCard
+      v-for="task in gameState?.uiState.uiEndeavourTasks"
+      :key="task.uid"
+      :task="task"
+    />
+    </div>
+    <div class="task-column">
+    <TaskCard 
+      v-for="task in gameState?.uiState.uiQuestTasks" 
+      :key="task.uid" 
+      :task="task" 
+    />
+    </div>
+  </div>
   </div>
 </template>
 

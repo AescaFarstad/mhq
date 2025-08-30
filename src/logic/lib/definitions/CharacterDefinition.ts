@@ -2,35 +2,35 @@
  * Defines the static data structure for a character loaded from JSON.
  */
 export interface CharacterDefinition {
-    id: string;
-    name: string;
-    epithets: string[];
-    archetype: string;
-    gender: string;
-    initialLevel: number;
-    baseUpkeep: number;
-    bio: string;
-    quote: string;
-    fullImage: string;
-    location: string;
-    portraitImage?: string; // Optional portrait image
-    keywords?: string[]; // Keywords for Ingress game, etc.
+  id: string;
+  name: string;
+  epithets: string[];
+  archetype: string;
+  gender: string;
+  initialLevel: number;
+  baseUpkeep: number;
+  bio: string;
+  quote: string;
+  fullImage: string;
+  location: string;
+  portraitImage?: string; // Optional portrait image
+  keywords?: string[]; // Keywords for Ingress game, etc.
 
-    // Initial attribute values for this character type (flat structure)
-    initialAttributes: Record<string, number>; // Changed to flat structure
-    
-    // Initial skills with nested specializations
-    initialSkills?: Record<string, CharacterSkill>;
+  // Initial attribute values for this character type (flat structure)
+  initialAttributes: Record<string, number>; // Changed to flat structure
+  
+  // Initial skills with nested specializations
+  initialSkills?: Record<string, CharacterSkill>;
 
-    triggerOnCreated?: string[]; // Optional array of event IDs
+  triggerOnCreated?: string[]; // Optional array of event IDs
 }
 
 /**
  * Represents a character's skill with level and specializations
  */
 export interface CharacterSkill {
-    level: number;
-    specializations?: Record<string, number>; // specialization ID to level mapping
+  level: number;
+  specializations?: Record<string, number>; // specialization ID to level mapping
 }
 
 // The Character class will now represent the instance with dynamic stats.

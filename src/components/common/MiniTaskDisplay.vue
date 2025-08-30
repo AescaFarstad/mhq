@@ -1,12 +1,12 @@
 <template>
   <div class="mini-task-display">
-    <div class="task-name">{{ task.name }}</div>
-    <EffortBar
-      :investedEffort="task.investedEffort"
-      :totalEffort="task.totalEffort"
-      :speed="task.speed"
-      :status="task.status"
-    />
+  <div class="task-name">{{ task.name }}</div>
+  <EffortBar
+    :investedEffort="task.investedEffort"
+    :totalEffort="task.totalEffort"
+    :speed="task.speed"
+    :status="task.status"
+  />
   </div>
 </template>
 
@@ -18,8 +18,8 @@ import EffortBar from "../shared/EffortBar.vue";
 
 defineProps({
   task: {
-    type: Object as PropType<GameTask>,
-    required: true,
+  type: Object as PropType<GameTask>,
+  required: true,
   },
 });
 

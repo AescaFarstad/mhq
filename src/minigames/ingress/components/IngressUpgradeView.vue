@@ -9,14 +9,14 @@ const gameState = inject<GameState>('gameState');
 
 const ingressState = computed(() => {
   if (gameState && gameState.activeMinigame?.type === INGRESS_TYPE && gameState.uiState.activeMinigameState) {
-    return gameState.uiState.activeMinigameState as IngressState;
+  return gameState.uiState.activeMinigameState as IngressState;
   }
   return null;
 });
 
 const ingressGame = computed(() => {
   if (gameState && gameState.activeMinigame?.type === INGRESS_TYPE) {
-    return gameState.activeMinigame as IngressGame;
+  return gameState.activeMinigame as IngressGame;
   }
   return null;
 });
@@ -27,150 +27,150 @@ const starTooltipVisible = ref(false);
 const starTooltipPosition = ref<{ x: number, y: number } | null>(null);
 
 const charactersExploredCount = computed(() => {
-    if (!ingressState.value) return 0;
-    return ingressState.value.characterOptions.filter(c => c.discoveryState === 'portrait_revealed').length;
+  if (!ingressState.value) return 0;
+  return ingressState.value.characterOptions.filter(c => c.discoveryState === 'portrait_revealed').length;
 });
 
 interface Upgrade {
-    id: IngressUpgradeId;
-    text: string;
-    cost: number;
-    stars: string;
+  id: IngressUpgradeId;
+  text: string;
+  cost: number;
+  stars: string;
 }
 
 const characterUpgrades: Upgrade[] = [
-    { id: 'char_attribute_point', text: '+1 Attribute point', cost: 15, stars: '☆☆☆☆☆ ☆☆☆☆☆ ☆☆☆☆☆' },
-    { id: 'char_skill_point', text: '+1 Skill point', cost: 10, stars: '☆☆☆☆☆ ☆☆☆☆☆' },
-    { id: 'char_spec_point', text: '+1 Specialization point', cost: 5, stars: '☆☆☆☆☆' },
-    { id: 'char_xp_boost', text: '+25% of next level XP', cost: 3, stars: '☆☆☆' },
+  { id: 'char_attribute_point', text: '+1 Attribute point', cost: 15, stars: '☆☆☆☆☆ ☆☆☆☆☆ ☆☆☆☆☆' },
+  { id: 'char_skill_point', text: '+1 Skill point', cost: 10, stars: '☆☆☆☆☆ ☆☆☆☆☆' },
+  { id: 'char_spec_point', text: '+1 Specialization point', cost: 5, stars: '☆☆☆☆☆' },
+  { id: 'char_xp_boost', text: '+25% of next level XP', cost: 3, stars: '☆☆☆' },
 ];
 
 const breachUpgrades: Upgrade[] = [
-    { id: 'breach_materialization_speed', text: '+100% Faster materialization rate', cost: 5, stars: '☆☆☆☆☆' },
-    { id: 'breach_word_bonus', text: '+1 from future \'substantive\' words', cost: 5, stars: '☆☆☆☆☆' },
-    { id: 'breach_typo_tolerance', text: '+1 typo tolerance *wink-wink*', cost: 2, stars: '☆☆' },
-    { id: 'breach_word_counter', text: 'Display remaining \'substantive\' words count', cost: 1, stars: '☆' },
+  { id: 'breach_materialization_speed', text: '+100% Faster materialization rate', cost: 5, stars: '☆☆☆☆☆' },
+  { id: 'breach_word_bonus', text: '+1 from future \'substantive\' words', cost: 5, stars: '☆☆☆☆☆' },
+  { id: 'breach_typo_tolerance', text: '+1 typo tolerance *wink-wink*', cost: 2, stars: '☆☆' },
+  { id: 'breach_word_counter', text: 'Display remaining \'substantive\' words count', cost: 1, stars: '☆' },
 ];
 
 const purchaseUpgrade = (upgradeId: IngressUpgradeId, cost: number) => {
-    if (ingressGame.value) {
-        ingressGame.value.purchaseUpgrade(upgradeId, cost);
-        recentlyPurchased.value.add(upgradeId);
-        setTimeout(() => {
-            recentlyPurchased.value.delete(upgradeId);
-        }, 3500); // Animation duration
-    }
+  if (ingressGame.value) {
+    ingressGame.value.purchaseUpgrade(upgradeId, cost);
+    recentlyPurchased.value.add(upgradeId);
+    setTimeout(() => {
+      recentlyPurchased.value.delete(upgradeId);
+    }, 3500); // Animation duration
+  }
 };
 
 const revealUpgrades = () => {
-    if (ingressGame.value) {
-        ingressGame.value.revealUpgrades();
-    }
+  if (ingressGame.value) {
+    ingressGame.value.revealUpgrades();
+  }
 };
 
 const handleStarTooltipShow = (event: MouseEvent) => {
-    starTooltipVisible.value = true;
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    starTooltipPosition.value = {
-        x: event.clientX,
-        y: rect.top
-    };
+  starTooltipVisible.value = true;
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  starTooltipPosition.value = {
+    x: event.clientX,
+    y: rect.top
+  };
 };
 
 const handleStarTooltipMove = (event: MouseEvent) => {
-    if (starTooltipVisible.value && starTooltipPosition.value) {
-        starTooltipPosition.value = {
-            x: event.clientX,
-            y: starTooltipPosition.value.y // Keep the same Y position
-        };
-    }
+  if (starTooltipVisible.value && starTooltipPosition.value) {
+    starTooltipPosition.value = {
+      x: event.clientX,
+      y: starTooltipPosition.value.y // Keep the same Y position
+    };
+  }
 };
 
 const handleStarTooltipHide = () => {
-    starTooltipVisible.value = false;
-    starTooltipPosition.value = null;
+  starTooltipVisible.value = false;
+  starTooltipPosition.value = null;
 };
 
 </script>
 
 <template>
   <div class="upgrade-view-panel" v-if="ingressState && charactersExploredCount >= 2">
-      <div class="view-header">
-          <h4>Global upgrades</h4>
-      </div>
-      <div class="upgrades-reveal-container" :class="{ 'hidden': ingressState.upgradesRevealed }">
-          <button 
-              @click="revealUpgrades" 
-              @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
-              @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
-              @mouseleave="handleStarTooltipHide"
-              class="explore-button" 
-              :disabled="ingressState.aspectPoints < 1"
-          >
-              Open <span class="cost-stars">☆</span>
+    <div class="view-header">
+      <h4>Global upgrades</h4>
+    </div>
+    <div class="upgrades-reveal-container" :class="{ 'hidden': ingressState.upgradesRevealed }">
+      <button 
+        @click="revealUpgrades" 
+        @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
+        @mousemove="ingressState.aspectPoints < 1 ? handleStarTooltipMove($event) : null"
+        @mouseleave="handleStarTooltipHide"
+        class="explore-button" 
+        :disabled="ingressState.aspectPoints < 1"
+      >
+        Open <span class="cost-stars">☆</span>
+      </button>
+    </div>
+    <div class="upgrade-content-wrapper" :class="{ 'revealed': ingressState.upgradesRevealed }">
+      <div class="upgrade-content">
+        <div class="column">
+          <h3>Any chosen character will gain:</h3>
+          <template v-for="upgrade in characterUpgrades" :key="upgrade.id">
+          <button
+            class="upgrade-button"
+            :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
+            :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
+            @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
+            @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
+            @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide">
+            <span>{{ upgrade.text }}</span>
+            <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
+            <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
           </button>
+          </template>
+        </div>
+        <div class="column">
+          <h3>Accelerate the descent:</h3>
+          <template v-for="upgrade in breachUpgrades" :key="upgrade.id">
+          <button
+            class="upgrade-button"
+            :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
+            :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
+            @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
+            @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
+            @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
+            @mouseleave="handleStarTooltipHide">
+            <span v-if="upgrade.id === 'breach_word_bonus'">+1 <span class="star-symbol">★</span> from future substantive words</span>
+            <span v-else>{{ upgrade.text }}</span>
+            <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
+            <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
+          </button>
+          </template>
+        </div>
       </div>
-      <div class="upgrade-content-wrapper" :class="{ 'revealed': ingressState.upgradesRevealed }">
-          <div class="upgrade-content">
-              <div class="column">
-                  <h3>Any chosen character will gain:</h3>
-                  <template v-for="upgrade in characterUpgrades" :key="upgrade.id">
-                    <button
-                        class="upgrade-button"
-                        :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
-                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
-                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
-                        @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
-                        @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide">
-                        <span>{{ upgrade.text }}</span>
-                        <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
-                        <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
-                    </button>
-                  </template>
-              </div>
-              <div class="column">
-                  <h3>Accelerate the descent:</h3>
-                  <template v-for="upgrade in breachUpgrades" :key="upgrade.id">
-                    <button
-                        class="upgrade-button"
-                        :class="{ 'purchased': ingressState.upgrades[upgrade.id] }"
-                        :disabled="ingressState.upgrades[upgrade.id] || ingressState.aspectPoints < upgrade.cost"
-                        @click="purchaseUpgrade(upgrade.id, upgrade.cost)"
-                        @mouseenter="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipShow($event) : null"
-                        @mousemove="(ingressState.aspectPoints < upgrade.cost && !ingressState.upgrades[upgrade.id]) ? handleStarTooltipMove($event) : null"
-                        @mouseleave="handleStarTooltipHide">
-                        <span v-if="upgrade.id === 'breach_word_bonus'">+1 <span class="star-symbol">★</span> from future substantive words</span>
-                        <span v-else>{{ upgrade.text }}</span>
-                        <span class="stars" :style="{ visibility: ingressState.upgrades[upgrade.id] ? 'hidden' : 'visible' }">{{ upgrade.stars }}</span>
-                        <div v-if="recentlyPurchased.has(upgrade.id)" class="purchase-flash"></div>
-                    </button>
-                  </template>
-              </div>
-          </div>
-      </div>
-      <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
+    </div>
+    <StarTooltip :show="starTooltipVisible" :position="starTooltipPosition" />
   </div>
 </template>
 
 <style scoped>
 .view-header {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 .view-header h4 {
-    display: inline-block;
-    padding: 2px 12px;
-    background-color: #2c3e50;
-    border-radius: 10px;
-    margin: 0;
-    font-size: 0.8rem;
-    color: #f1c40f;
-    font-weight: bold;
-    border: 2px solid #7f8c8d;
+  display: inline-block;
+  padding: 2px 12px;
+  background-color: #2c3e50;
+  border-radius: 10px;
+  margin: 0;
+  font-size: 0.8rem;
+  color: #f1c40f;
+  font-weight: bold;
+  border: 2px solid #7f8c8d;
 }
 .upgrade-view-panel {
   position: relative;
@@ -184,58 +184,58 @@ const handleStarTooltipHide = () => {
   gap: 15px;
 }
 .upgrades-reveal-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    overflow: hidden;
-    max-height: 100px; /* Generous height for content */
-    transition: all 0.7s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  overflow: hidden;
+  max-height: 100px; /* Generous height for content */
+  transition: all 0.7s ease-in-out;
 }
 .upgrades-reveal-container.hidden {
-    max-height: 0;
-    opacity: 0;
-    padding: 0;
-    margin: 0;
-    gap: 0;
-    pointer-events: none;
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  pointer-events: none;
 }
 .upgrade-content-wrapper {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.7s ease-in-out;
-    opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.7s ease-in-out;
+  opacity: 0;
 }
 .upgrade-content-wrapper.revealed {
-    max-height: 500px; /* Adjust to fit content */
-    opacity: 1;
-    padding-bottom: 15px;
+  max-height: 500px; /* Adjust to fit content */
+  opacity: 1;
+  padding-bottom: 15px;
 }
 .explore-button {
-    padding: 10px 15px;
-    background-color: #f1c40f;
-    color: #2c3e50;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 0.9em;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #f1c40f;
+  color: #2c3e50;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9em;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  margin-top: 10px;
 }
 .explore-button:hover:not(:disabled) {
-    background-color: #f39c12;
+  background-color: #f39c12;
 }
 .explore-button:disabled {
-    background-color: #7f8c8d;
-    cursor: not-allowed;
+  background-color: #7f8c8d;
+  cursor: not-allowed;
 }
 .cost-stars {
-    margin-left: 8px;
-    color: #2c3e50;
-    opacity: 0.8;
+  margin-left: 8px;
+  color: #2c3e50;
+  opacity: 0.8;
 }
 .upgrade-content {
   flex-grow: 1;
@@ -243,127 +243,127 @@ const handleStarTooltipHide = () => {
   gap: 40px;
 }
 .column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 .column h3 {
-    font-size: 1.1rem;
-    color: #f1c40f;
-    margin-bottom: 0px;
+  font-size: 1.1rem;
+  color: #f1c40f;
+  margin-bottom: 0px;
 }
 .upgrade-button {
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #7f8c8d;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: #34495e;
-    color: #ecf0f1;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1rem;
-    min-height: 50px;
-    box-sizing: border-box;
-    line-height: 1.2;
-    position: relative;
-    overflow: hidden;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #7f8c8d;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #34495e;
+  color: #ecf0f1;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  min-height: 50px;
+  box-sizing: border-box;
+  line-height: 1.2;
+  position: relative;
+  overflow: hidden;
 }
 .upgrade-button:hover {
-    background-color: #4a6572;
-    border-color: #95a5a6;
+  background-color: #4a6572;
+  border-color: #95a5a6;
 }
 .upgrade-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .upgrade-button:disabled:hover {
-    background-color: #34495e;
-    border-color: #7f8c8d;
+  background-color: #34495e;
+  border-color: #7f8c8d;
 }
 .upgrade-button.purchased {
-    background-color: transparent;
-    border: 1px solid transparent;
-    cursor: default;
-    opacity: 1;
-    min-height: 50px;
-    box-sizing: border-box;
-    line-height: 1.2;
-    pointer-events: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  cursor: default;
+  opacity: 1;
+  min-height: 50px;
+  box-sizing: border-box;
+  line-height: 1.2;
+  pointer-events: none;
 }
 .upgrade-button.purchased:hover {
-    background-color: transparent;
-    border-color: transparent;
+  background-color: transparent;
+  border-color: transparent;
 }
 .upgrade-button .stars {
-    color: #f1c40f;
-    font-size: 1.2em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  color: #f1c40f;
+  font-size: 1.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .star-symbol {
-    color: #f1c40f;
-    font-size: 1.2em;
+  color: #f1c40f;
+  font-size: 1.2em;
 }
 
 .purchase-flash {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #2ecc71;
-    opacity: 0;
-    animation: flash-animation 3.5s ease-out;
-    pointer-events: none;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #2ecc71;
+  opacity: 0;
+  animation: flash-animation 3.5s ease-out;
+  pointer-events: none;
+  z-index: 10;
 }
 
 @keyframes flash-animation {
-    0% {
-        opacity: 0.7;
-        transform: scale(1);
-    }
-    80% {
-        opacity: 0.1;
-        transform: scale(1.35);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(1.4);
-    }
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0.1;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
 }
 
 @media (max-height: 900px) {
-    .upgrade-view-panel {
-        padding: 15px;
-        padding-top: 0;
-        padding-bottom: 5px;
-        gap: 10px;
-    }
-    .upgrades-reveal-container {
-        padding-top: 15px;
-        gap: 10px;
-    }
-    .column h3 {
-        font-size: 1rem;
-        margin-top: 5px;
-    }
-    .upgrade-button {
-        padding: 10px;
-        min-height: 40px;
-        font-size: 0.9rem;
-    }
-    .column {
-        gap: 10px;
-    }
-    .upgrade-content {
-        gap: 20px;
-    }
+  .upgrade-view-panel {
+    padding: 15px;
+    padding-top: 0;
+    padding-bottom: 5px;
+    gap: 10px;
+  }
+  .upgrades-reveal-container {
+    padding-top: 15px;
+    gap: 10px;
+  }
+  .column h3 {
+    font-size: 1rem;
+    margin-top: 5px;
+  }
+  .upgrade-button {
+    padding: 10px;
+    min-height: 40px;
+    font-size: 0.9rem;
+  }
+  .column {
+    gap: 10px;
+  }
+  .upgrade-content {
+    gap: 20px;
+  }
 }
 </style> 

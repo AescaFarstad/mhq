@@ -1,80 +1,80 @@
 <template>
   <div class="task-card">
-    <!-- Task Name (Centered) -->
-    <div class="task-name">{{ task.name }}</div>
+  <!-- Task Name (Centered) -->
+  <div class="task-name">{{ task.name }}</div>
 
-    <!-- Current Step Text -->
-    <div v-if="!isCompleted && task.currentStepResolvedText" class="current-step-text">
-      {{ task.currentStepResolvedText }}
+  <!-- Current Step Text -->
+  <div v-if="!isCompleted && task.currentStepResolvedText" class="current-step-text">
+    {{ task.currentStepResolvedText }}
+  </div>
+
+  <!-- Progress Bar and Overlay -->
+  <EffortBar
+    v-if="!isCompleted"
+    :investedEffort="task.investedEffort"
+    :totalEffort="task.totalEffort"
+    :speed="task.speed"
+    :status="task.status"
+  />
+
+  <!-- Skills and Character Portrait Area -->
+  <div v-if="!isCompleted && task.resolvedDefinitionDetails.skills && task.resolvedDefinitionDetails.skills.length > 0"
+     class="skills-character-container"
+     :class="{ 'boxed-layout': assignedCharacterName }">
+
+    <!-- Character Portrait Area (Left) -->
+    <div v-if="assignedCharacterName" class="character-portrait-area">
+    P
     </div>
 
-    <!-- Progress Bar and Overlay -->
-    <EffortBar
-      v-if="!isCompleted"
-      :investedEffort="task.investedEffort"
-      :totalEffort="task.totalEffort"
-      :speed="task.speed"
-      :status="task.status"
-    />
-
-    <!-- Skills and Character Portrait Area -->
-    <div v-if="!isCompleted && task.resolvedDefinitionDetails.skills && task.resolvedDefinitionDetails.skills.length > 0"
-         class="skills-character-container"
-         :class="{ 'boxed-layout': assignedCharacterName }">
-
-      <!-- Character Portrait Area (Left) -->
-      <div v-if="assignedCharacterName" class="character-portrait-area">
-        P
-      </div>
-
-      <!-- Skills Area (Right or Full Width) -->
-      <div class="skills-area">
-        <div v-for="(skillName, index) in task.resolvedDefinitionDetails.skills" :key="skillName" class="skill-pill">
-          <span class="skill-pill-name">{{ getSkillDisplayName(skillName) }}</span>
-          <span class="skill-pill-value">
-            <template v-if="assignedCharacterName && task.assignedCharacterEffectiveScores && task.assignedCharacterEffectiveScores[skillName] !== undefined">
-              {{ task.assignedCharacterEffectiveScores[skillName].toFixed(1) }}
-            </template>
-            <template v-else-if="task.resolvedDefinitionDetails.skills">
-              x{{ (getSkillMultipliers(task.resolvedDefinitionDetails.skills.length)[index] || C.DEFAULT_LAST_SKILL_MULTIPLIER).toFixed(1) }}
-            </template>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Separator and Results -->
-    <template v-if="!isCompleted">
-        <div class="separator-container" v-if="(task.clutterReduction && task.clutterReduction < 0) || totalTaskXp > 0">
-            <hr class="separator-line">
-            <span class="separator-text">Results</span>
-            <hr class="separator-line">
-        </div>
-        <div v-if="task.clutterReduction && task.clutterReduction < 0" class="task-result-item">
-            Clutter Reduction: {{ (-task.clutterReduction).toFixed(1) }}
-        </div>
-        <div v-if="totalTaskXp > 0" class="task-result-item">
-            Total task XP: {{ Math.round(totalTaskXp) }}
-        </div>
-    </template>
-
-    <!-- Separator and Actions -->
-    <div v-if="!isCompleted" class="separator-container-actions">
-      <hr class="separator-line-full">
-    </div>
-
-    <div class="task-actions" v-if="!isCompleted">
-      <button v-if="isQueueable">Enqueue</button>
-      <button v-if="isActive">Put off</button>
-    </div>
-
-     <!-- Display for Completed Tasks -->
-    <div v-if="isCompleted" class="completed-task-info">
-      <span v-if="task.clutterReduction && task.clutterReduction < 0" class="completed-task-effect">
-        Clutter: {{ (task.clutterReduction).toFixed(1) }}
+    <!-- Skills Area (Right or Full Width) -->
+    <div class="skills-area">
+    <div v-for="(skillName, index) in task.resolvedDefinitionDetails.skills" :key="skillName" class="skill-pill">
+      <span class="skill-pill-name">{{ getSkillDisplayName(skillName) }}</span>
+      <span class="skill-pill-value">
+      <template v-if="assignedCharacterName && task.assignedCharacterEffectiveScores && task.assignedCharacterEffectiveScores[skillName] !== undefined">
+        {{ task.assignedCharacterEffectiveScores[skillName].toFixed(1) }}
+      </template>
+      <template v-else-if="task.resolvedDefinitionDetails.skills">
+        x{{ (getSkillMultipliers(task.resolvedDefinitionDetails.skills.length)[index] || C.DEFAULT_LAST_SKILL_MULTIPLIER).toFixed(1) }}
+      </template>
       </span>
-       <span v-else>Completed</span> <!-- Placeholder for completed tasks without clutter effect -->
     </div>
+    </div>
+  </div>
+
+  <!-- Separator and Results -->
+  <template v-if="!isCompleted">
+    <div class="separator-container" v-if="(task.clutterReduction && task.clutterReduction < 0) || totalTaskXp > 0">
+      <hr class="separator-line">
+      <span class="separator-text">Results</span>
+      <hr class="separator-line">
+    </div>
+    <div v-if="task.clutterReduction && task.clutterReduction < 0" class="task-result-item">
+      Clutter Reduction: {{ (-task.clutterReduction).toFixed(1) }}
+    </div>
+    <div v-if="totalTaskXp > 0" class="task-result-item">
+      Total task XP: {{ Math.round(totalTaskXp) }}
+    </div>
+  </template>
+
+  <!-- Separator and Actions -->
+  <div v-if="!isCompleted" class="separator-container-actions">
+    <hr class="separator-line-full">
+  </div>
+
+  <div class="task-actions" v-if="!isCompleted">
+    <button v-if="isQueueable">Enqueue</button>
+    <button v-if="isActive">Put off</button>
+  </div>
+
+   <!-- Display for Completed Tasks -->
+  <div v-if="isCompleted" class="completed-task-info">
+    <span v-if="task.clutterReduction && task.clutterReduction < 0" class="completed-task-effect">
+    Clutter: {{ (task.clutterReduction).toFixed(1) }}
+    </span>
+     <span v-else>Completed</span> <!-- Placeholder for completed tasks without clutter effect -->
+  </div>
 
   </div>
 </template>
@@ -91,8 +91,8 @@ import { C } from '../../logic/lib/C';
 
 const props = defineProps({
   task: {
-    type: Object as PropType<GameTask>,
-    required: true,
+  type: Object as PropType<GameTask>,
+  required: true,
   },
 });
 
@@ -100,12 +100,12 @@ const { gameState } = useGameState();
 
 const assignedCharacterName = computed(() => {
   if (!props.task.assignedCharacterIds || props.task.assignedCharacterIds.length === 0 || !gameState.value) {
-    return null;
+  return null;
   }
   const charId = props.task.assignedCharacterIds[0];
   const character = gameState.value.characters.find(c => c.characterId === charId);
   if (character) {
-      return character.name;
+    return character.name;
   }
   const characterDef = gameState.value.lib.characters.getCharacter(charId);
   return characterDef?.name || 'Unknown';
@@ -121,9 +121,9 @@ const isCompleted = computed(() => {
 
 const isQueueable = computed(() => {
   return [
-    GameTaskType.Opportunity,
-    GameTaskType.Endeavour,
-    GameTaskType.Quest,
+  GameTaskType.Opportunity,
+  GameTaskType.Endeavour,
+  GameTaskType.Quest,
   ].includes(props.task.type) && props.task.status === GameTaskStatus.Available;
 });
 
@@ -233,9 +233,9 @@ const getSkillDisplayName = (skillOrSpecKey: string): string => {
 }
 
 .separator-container-actions {
-    display: flex;
-    align-items: center;
-    margin: 3px 0;
+  display: flex;
+  align-items: center;
+  margin: 3px 0;
 }
 
 .separator-line {

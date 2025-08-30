@@ -1,32 +1,32 @@
 <template>
   <div class="castle-view-container">
-    <h3>Castle View</h3>
-    <div class="columns">
-      <div class="column">
-        <h4>Constructed Buildings</h4>
-        <div class="building-grid">
-          <BuildingDisplayItem
-            v-for="building in constructedBuildings"
-            :key="building.id"
-            :building="building"
-            :isConstructed="true"
-          />
-        </div>
-        <p v-if="constructedBuildings.length === 0">No buildings constructed yet.</p>
-      </div>
-      <div class="column">
-        <h4>Available Buildings</h4>
-        <div class="building-grid">
-          <BuildingDisplayItem
-            v-for="building in availableBuildings"
-            :key="building.id"
-            :building="building"
-            :isConstructed="false"
-          />
-        </div>
-        <p v-if="availableBuildings.length === 0">All available buildings have been constructed.</p>
-      </div>
+  <h3>Castle View</h3>
+  <div class="columns">
+    <div class="column">
+    <h4>Constructed Buildings</h4>
+    <div class="building-grid">
+      <BuildingDisplayItem
+      v-for="building in constructedBuildings"
+      :key="building.id"
+      :building="building"
+      :isConstructed="true"
+      />
     </div>
+    <p v-if="constructedBuildings.length === 0">No buildings constructed yet.</p>
+    </div>
+    <div class="column">
+    <h4>Available Buildings</h4>
+    <div class="building-grid">
+      <BuildingDisplayItem
+      v-for="building in availableBuildings"
+      :key="building.id"
+      :building="building"
+      :isConstructed="false"
+      />
+    </div>
+    <p v-if="availableBuildings.length === 0">All available buildings have been constructed.</p>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -41,27 +41,27 @@ const gameState = inject<GameState>('gameState');
 
 const allBuildingDefinitions = computed<BuildingDefinition[]>(() => {
   if (!gameState || !gameState.lib.buildings.isLoaded) {
-    return [];
+  return [];
   }
   return Array.from(gameState.lib.buildings.values());
 });
 
 const constructedBuildingIds = computed<Set<string>>(() => {
   if (!gameState || !gameState.uiState) {
-    return new Set();
+  return new Set();
   }
   return gameState.uiState.constructedBuildingIds;
 });
 
 const availableBuildings = computed<BuildingDefinition[]>(() => {
   return allBuildingDefinitions.value.filter(
-    (def) => !constructedBuildingIds.value.has(def.id)
+  (def) => !constructedBuildingIds.value.has(def.id)
   );
 });
 
 const constructedBuildings = computed<BuildingDefinition[]>(() => {
   return allBuildingDefinitions.value.filter(
-    (def) => constructedBuildingIds.value.has(def.id)
+  (def) => constructedBuildingIds.value.has(def.id)
   );
 });
 

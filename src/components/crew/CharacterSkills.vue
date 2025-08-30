@@ -16,22 +16,22 @@ const emit = defineEmits(['set-hint']);
 
 <template>
   <div class="skills-section">
-    
-    <div v-if="!props.skills || props.skills.length === 0" class="no-skills-data">
-      <span v-if="props.selectedAttribute">No {{ props.selectedAttribute }} skills available.</span>
-      <span v-else>No skills data available.</span>
-    </div>
-    <div v-else class="skill-list">
-      <SkillItem 
-        v-for="skill in props.skills" 
-        :key="skill.id" 
-        :skill="skill"
-        :characterId="props.characterId"
-        :skillPoints="props.skillPoints"
-        :specPoints="props.specPoints"
-        @set-hint="emit('set-hint', $event)"
-      />
-    </div>
+  
+  <div v-if="!props.skills || props.skills.length === 0" class="no-skills-data">
+    <span v-if="props.selectedAttribute">No {{ props.selectedAttribute }} skills available.</span>
+    <span v-else>No skills data available.</span>
+  </div>
+  <div v-else class="skill-list">
+    <SkillItem 
+    v-for="skill in props.skills" 
+    :key="skill.id" 
+    :skill="skill"
+    :characterId="props.characterId"
+    :skillPoints="props.skillPoints"
+    :specPoints="props.specPoints"
+    @set-hint="emit('set-hint', $event)"
+    />
+  </div>
   </div>
 </template>
 

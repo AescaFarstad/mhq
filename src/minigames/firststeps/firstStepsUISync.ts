@@ -10,26 +10,26 @@ import { DialogState } from '../../logic/dialog/Dialog';
  * For a blank scaffold, this function will be minimal.
  */
 export const syncFirstStepsUI: MinigameUISyncFn = (
-    gameState: GameState
+  gameState: GameState
 ): void => {
-    const logicState = gameState.activeMinigame?.state as FirstStepsState | undefined;
-    const uiState = gameState.uiState.activeMinigameState as FirstStepsState | undefined;
-    const dialogState = gameState.dialogs[gameState.activeMinigame!.id] as DialogState | undefined;
+  const logicState = gameState.activeMinigame?.state as FirstStepsState | undefined;
+  const uiState = gameState.uiState.activeMinigameState as FirstStepsState | undefined;
+  const dialogState = gameState.dialogs[gameState.activeMinigame!.id] as DialogState | undefined;
 
-    if (logicState && uiState && dialogState) {
-        if (!uiState.dialogState) {
-            uiState.dialogState = { nodes: [], choicesMade: [], definitionId: dialogState.definitionId } as any;
-        }
-        const uiDialog = uiState.dialogState as any;
-
-        if (JSON.stringify(uiDialog.nodes) !== JSON.stringify(dialogState.nodes)) {
-            uiDialog.nodes = [...dialogState.nodes];
-        }
-        if (JSON.stringify(uiDialog.choicesMade) !== JSON.stringify(dialogState.choicesMade)) {
-            uiDialog.choicesMade = [...dialogState.choicesMade];
-        }
-        if (uiDialog.definitionId !== dialogState.definitionId) {
-            uiDialog.definitionId = dialogState.definitionId;
-        }
+  if (logicState && uiState && dialogState) {
+    if (!uiState.dialogState) {
+      uiState.dialogState = { nodes: [], choicesMade: [], definitionId: dialogState.definitionId } as any;
     }
+    const uiDialog = uiState.dialogState as any;
+
+    if (JSON.stringify(uiDialog.nodes) !== JSON.stringify(dialogState.nodes)) {
+      uiDialog.nodes = [...dialogState.nodes];
+    }
+    if (JSON.stringify(uiDialog.choicesMade) !== JSON.stringify(dialogState.choicesMade)) {
+      uiDialog.choicesMade = [...dialogState.choicesMade];
+    }
+    if (uiDialog.definitionId !== dialogState.definitionId) {
+      uiDialog.definitionId = dialogState.definitionId;
+    }
+  }
 }; 

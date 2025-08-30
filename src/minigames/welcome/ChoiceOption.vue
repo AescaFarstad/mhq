@@ -1,40 +1,40 @@
 <template>
   <div class="choice-wrapper" 
-       @mouseover="handleMouseOver" 
-       @mouseleave="handleMouseLeave" 
-       :class="{ 'hovered': hovered, 'can-select': canBeSelected }" 
-       @click="selectOptionIfPossible">
-    <div class="choice-option">
-      <div class="card-header">
-        <img :src="'img/' + imageName" :alt="name" class="choice-image"/>
-        <div class="progress-bar-container" v-if="isExploring">
-          <div class="progress-bar" :style="{ width: (explorationProgress * 100) + '%' }"></div>
-        </div>
-        <h3>{{ name }}</h3>
-      </div>
-      <div class="details">
-        <div class="pros">
-          <h4 v-if="areProsConsTitlesVisible">Pros:</h4>
-          <ul v-if="areProsConsTitlesVisible">
-            <li v-for="(pro, index) in pros" :key="'pro-' + index">{{ pro }}</li>
-          </ul>
-        </div>
-        <div class="cons">
-          <h4 v-if="areProsConsTitlesVisible">Cons:</h4>
-          <ul v-if="areProsConsTitlesVisible">
-            <li v-for="(con, index) in cons" :key="'con-' + index">{{ con }}</li>
-          </ul>
-        </div>
-      </div>
+     @mouseover="handleMouseOver" 
+     @mouseleave="handleMouseLeave" 
+     :class="{ 'hovered': hovered, 'can-select': canBeSelected }" 
+     @click="selectOptionIfPossible">
+  <div class="choice-option">
+    <div class="card-header">
+    <img :src="'img/' + imageName" :alt="name" class="choice-image"/>
+    <div class="progress-bar-container" v-if="isExploring">
+      <div class="progress-bar" :style="{ width: (explorationProgress * 100) + '%' }"></div>
     </div>
-    <!-- New button container outside the card -->
-    <transition name="slide">
-      <div class="button-container" v-if="!canBeSelected && !isExploring">
-        <button @click.stop="emitExplore" class="explore-button">
-          Explore
-        </button>
-      </div>
-    </transition>
+    <h3>{{ name }}</h3>
+    </div>
+    <div class="details">
+    <div class="pros">
+      <h4 v-if="areProsConsTitlesVisible">Pros:</h4>
+      <ul v-if="areProsConsTitlesVisible">
+      <li v-for="(pro, index) in pros" :key="'pro-' + index">{{ pro }}</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4 v-if="areProsConsTitlesVisible">Cons:</h4>
+      <ul v-if="areProsConsTitlesVisible">
+      <li v-for="(con, index) in cons" :key="'con-' + index">{{ con }}</li>
+      </ul>
+    </div>
+    </div>
+  </div>
+  <!-- New button container outside the card -->
+  <transition name="slide">
+    <div class="button-container" v-if="!canBeSelected && !isExploring">
+    <button @click.stop="emitExplore" class="explore-button">
+      Explore
+    </button>
+    </div>
+  </transition>
   </div>
 </template>
 
@@ -61,7 +61,7 @@ const hovered = ref(false);
 
 const selectOptionIfPossible = () => {
   if (props.canBeSelected) {
-    emit('selected', props.id);
+  emit('selected', props.id);
   }
 };
 
@@ -209,7 +209,7 @@ const handleMouseLeave = () => {
   margin-top: 0;
   margin-bottom: 8px;
   font-size: 1.2em; /* Original font size */
-  color: #555;     /* Original color */
+  color: #555;   /* Original color */
   text-align: left;
 }
 
@@ -235,34 +235,34 @@ const handleMouseLeave = () => {
 
 @media (max-height: 870px) {
   .choice-option {
-    min-height: 410px;
+  min-height: 410px;
   }
   .card-header {
-    height: 200px;
+  height: 200px;
   }
   .card-header h3 {
-    font-size: 1.2em;
-    height: 48px;
+  font-size: 1.2em;
+  height: 48px;
   }
   .details {
-    padding: 10px;
+  padding: 10px;
   }
   .pros {
-    min-height: 80px;
+  min-height: 80px;
   }
   .cons {
-    min-height: 60px;
+  min-height: 60px;
   }
   .pros h4,
   .cons h4 {
-    font-size: 1em;
+  font-size: 1em;
   }
   .pros li,
   .cons li {
-    font-size: 0.9em;
+  font-size: 0.9em;
   }
   .card-header .progress-bar-container {
-    height: 48px;
+  height: 48px;
   }
 }
 

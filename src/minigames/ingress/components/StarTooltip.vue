@@ -11,15 +11,15 @@ const tooltipRef = ref<HTMLDivElement | null>(null);
 
 <template>
   <div 
-    v-if="show && position"
-    ref="tooltipRef"
-    class="star-tooltip"
-    :style="{
-      left: `${position.x}px`,
-      top: `${position.y}px`,
-    }"
+  v-if="show && position"
+  ref="tooltipRef"
+  class="star-tooltip"
+  :style="{
+    left: `${position.x}px`,
+    top: `${position.y}px`,
+  }"
   >
-    Need more ☆
+  Need more ☆
   </div>
 </template>
 

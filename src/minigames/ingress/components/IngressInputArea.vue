@@ -2,20 +2,20 @@
 import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps<{
-    showHint: boolean;
-    chargesBarRevealed: boolean;
-    engaged: boolean;
-    engagementProgress: number;
+  showHint: boolean;
+  chargesBarRevealed: boolean;
+  engaged: boolean;
+  engagementProgress: number;
 }>();
 
 const emit = defineEmits<{
-    (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
-    (e: 'engage-game'): void;
-    (e: 'engage-hover', payload: DOMRect | null): void;
-    (e: 'engagement-click'): void;
-    (e: 'engagement-mousedown'): void;
-    (e: 'engagement-mouseup'): void;
-    (e: 'engagement-mouseleave'): void;
+  (e: 'submit-word', payload: { word: string, inputRect: DOMRect | undefined }): void;
+  (e: 'engage-game'): void;
+  (e: 'engage-hover', payload: DOMRect | null): void;
+  (e: 'engagement-click'): void;
+  (e: 'engagement-mousedown'): void;
+  (e: 'engagement-mouseup'): void;
+  (e: 'engagement-mouseleave'): void;
 }>();
 
 const inputValue = ref('');
@@ -30,12 +30,12 @@ const reanimateHints = ref(false);
 const hasHoveredHint = ref(false);
 
 onMounted(() => {
-    setTimeout(() => {
-        isEngageButtonVisible.value = true;
-    }, 5000);
-    setTimeout(() => {
-        initialPromptsVisible.value = true;
-    }, 1000);
+  setTimeout(() => {
+    isEngageButtonVisible.value = true;
+  }, 5000);
+  setTimeout(() => {
+    initialPromptsVisible.value = true;
+  }, 1000);
 });
 
 // Constants for engage button fade behavior
@@ -43,12 +43,12 @@ const FADE_START_PERCENTAGE = 0;
 const OPACITY_EXPONENT = 4;
 
 const engageButtonStyle = computed(() => {
-    if (props.engagementProgress > FADE_START_PERCENTAGE) {
-        const progressRatio = (props.engagementProgress - FADE_START_PERCENTAGE) / (100 - FADE_START_PERCENTAGE);
-        const opacity = Math.pow(1 - progressRatio, OPACITY_EXPONENT);
-        return { opacity: Math.max(0, opacity) };
-    }
-    return {};
+  if (props.engagementProgress > FADE_START_PERCENTAGE) {
+    const progressRatio = (props.engagementProgress - FADE_START_PERCENTAGE) / (100 - FADE_START_PERCENTAGE);
+    const opacity = Math.pow(1 - progressRatio, OPACITY_EXPONENT);
+    return { opacity: Math.max(0, opacity) };
+  }
+  return {};
 });
 
 const inputInteractionState = ref<'default' | 'blank-error' | 'scored-points' | 'typing'>('default');
@@ -56,165 +56,165 @@ const inputInteractionState = ref<'default' | 'blank-error' | 'scored-points' | 
 const submitInput = () => {
   const word = inputValue.value.trim();
   if (word) {
-    const inputRect = inputElementRef.value?.getBoundingClientRect();
-    emit('submit-word', { word, inputRect });
+  const inputRect = inputElementRef.value?.getBoundingClientRect();
+  emit('submit-word', { word, inputRect });
   } else {
-    // If the input is blank, we'll just clear the visual state without submitting
-    inputValue.value = '';
-    inputInteractionState.value = 'default';
+  // If the input is blank, we'll just clear the visual state without submitting
+  inputValue.value = '';
+  inputInteractionState.value = 'default';
   }
 };
 
 // When user starts typing after a blank error, reset the visual state
 const onInputBoxInput = () => {
   if (inputInteractionState.value === 'blank-error' || inputInteractionState.value === 'scored-points') {
-    inputInteractionState.value = 'typing';
+  inputInteractionState.value = 'typing';
   }
 };
 
 const handleEngageClick = () => {
-    emit('engagement-click');
-    isEngagedClicked.value = true;
-    setTimeout(() => {
-        isEngagedClicked.value = false;
-    }, 800);
+  emit('engagement-click');
+  isEngagedClicked.value = true;
+  setTimeout(() => {
+    isEngagedClicked.value = false;
+  }, 800);
 };
 
 const stopHolding = () => {
-    emit('engage-hover', null);
-    emit('engagement-mouseup');
+  emit('engage-hover', null);
+  emit('engagement-mouseup');
 };
 
 const handleEngageMouseDown = () => {
-    emit('engage-hover', engageButtonRef.value?.getBoundingClientRect() ?? null);
-    emit('engagement-mousedown');
+  emit('engage-hover', engageButtonRef.value?.getBoundingClientRect() ?? null);
+  emit('engagement-mousedown');
 };
 
 const handleEngageMouseLeave = () => {
-    emit('engagement-mouseleave');
+  emit('engagement-mouseleave');
 };
 
 defineExpose({
   clearInput: () => {
-    inputValue.value = '';
+  inputValue.value = '';
   },
   selectInput: () => {
-    inputElementRef.value?.select();
+  inputElementRef.value?.select();
   },
   focusInput: () => {
-    inputElementRef.value?.focus();
+  inputElementRef.value?.focus();
   },
   showBlankError: () => {
-    inputInteractionState.value = 'blank-error';
-    // Re-animate hint prompts when wrong word is typed and charges bar is not revealed
-    if (!props.chargesBarRevealed) {
-      reanimateHints.value = true;
-      setTimeout(() => {
-        reanimateHints.value = false;
-      }, 1500);
-    }
+  inputInteractionState.value = 'blank-error';
+  // Re-animate hint prompts when wrong word is typed and charges bar is not revealed
+  if (!props.chargesBarRevealed) {
+    reanimateHints.value = true;
+    setTimeout(() => {
+    reanimateHints.value = false;
+    }, 1500);
+  }
   },
   showScoredPoints: () => {
-    inputInteractionState.value = 'scored-points';
-    setTimeout(() => {
-      // Transition back to default state after the animation
-      if (inputInteractionState.value === 'scored-points') {
-        inputInteractionState.value = 'default';
-      }
-    }, 500);
+  inputInteractionState.value = 'scored-points';
+  setTimeout(() => {
+    // Transition back to default state after the animation
+    if (inputInteractionState.value === 'scored-points') {
+    inputInteractionState.value = 'default';
+    }
+  }, 500);
   },
   resetState: () => {
-    inputInteractionState.value = 'default';
+  inputInteractionState.value = 'default';
   }
 });
 </script>
 
 <template>
   <div class="input-and-prompt-area-wrapper">
-    <div class="input-and-prompt-area">
-      <!-- Prompts shown before the game is engaged -->
-      <p v-if="!chargesBarRevealed" class="input-prompt large-prompt" :class="{ 'animate-prompt': initialPromptsVisible }">Now — the descent.</p>
-      <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break" :class="{ 'animate-prompt delay-0': initialPromptsVisible }">This process is mentally strenuous, stock up on coffee or tea.</p>
+  <div class="input-and-prompt-area">
+    <!-- Prompts shown before the game is engaged -->
+    <p v-if="!chargesBarRevealed" class="input-prompt large-prompt" :class="{ 'animate-prompt': initialPromptsVisible }">Now — the descent.</p>
+    <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break" :class="{ 'animate-prompt delay-0': initialPromptsVisible }">This process is mentally strenuous, stock up on coffee or tea.</p>
 
-      <div class="action-area">
-        <!-- Content shown when the game is engaged -->
-        <div class="engaged-content" :class="{ hidden: !engaged }">
-          <div class="input-wrapper">
-            <!-- Invisible spacer to balance the hint icon on the right -->
-            <div class="hint-spacer"></div>
-            <div
-              ref="inputAreaRef"
-              class="input-area"
-              :class="{
-                'shake-animation': inputInteractionState === 'blank-error',
-                'flash-green-animation': inputInteractionState === 'scored-points'
-              }"
-            >
-              <input
-                ref="inputElementRef"
-                type="text"
-                v-model="inputValue"
-                @keyup.enter="submitInput"
-                @input="onInputBoxInput"
-                placeholder="type a noun and hit Enter"
-                :class="{
-                  'input-blank-highlight': inputInteractionState === 'blank-error',
-                  'input-typing-highlight': inputInteractionState === 'typing'
-                }"
-              />
-              <button @click="submitInput">Enter</button>
-            </div>
-            <!-- Hint for input rules -->
-            <div
-              v-if="showHint"
-              class="input-hint-container"
-              @mouseenter="isInputHintVisible = true; hasHoveredHint = true"
-              @mouseleave="isInputHintVisible = false"
-            >
-              <span class="hint-icon" :class="{ 'glow-until-hovered': !hasHoveredHint }">?</span>
-              <div v-if="isInputHintVisible" class="hint-tooltip">
-                  <ul>
-                    <li>Nouns are substantive, while verbs are transformative. You need the former.</li>
-                    <li>Use simple, singular forms (i.e. 'farm' instead of 'farmer'). Trivial cases will be autocorrected.</li>
-                    <li>Descending requires you to think like a mortal. It's all on you, nobody can tell you what to type.</li>
-                    <li>There is no penalty for errors. Despair is your only undoing.</li>
-                  </ul>
-              </div>
-            </div>
-            <!-- Invisible spacer to balance when hint is not shown -->
-            <div v-if="!showHint" class="hint-spacer"></div>
-          </div>
-
-          <p
-            class="input-prompt"
-            :class="{
-              'animate-prompt delay-1': engaged,
-              'animate-prompt-again': reanimateHints
-            }"
-          >Type in <b>nouns</b> you believe may bring you closer to the human form.</p>
-          <p
-            class="input-prompt"
-            :class="{
-              'animate-prompt delay-2': engaged,
-              'animate-prompt-again': reanimateHints
-            }"
-          >The right words will accelerate the materialization of your mortal aspect.</p>
-        </div>
-        <!-- Engage Button -->
-        <button
-          ref="engageButtonRef"
-          :class="{ hidden: engaged || !isEngageButtonVisible, 'engage-button--clicked': isEngagedClicked }"
-          :style="engageButtonStyle"
-          @click="handleEngageClick"
-          @mousedown="handleEngageMouseDown"
-          @mouseup="stopHolding"
-          @mouseleave="handleEngageMouseLeave"
-          class="engage-button"
-        >
-          Dive
-        </button>
+    <div class="action-area">
+    <!-- Content shown when the game is engaged -->
+    <div class="engaged-content" :class="{ hidden: !engaged }">
+      <div class="input-wrapper">
+      <!-- Invisible spacer to balance the hint icon on the right -->
+      <div class="hint-spacer"></div>
+      <div
+        ref="inputAreaRef"
+        class="input-area"
+        :class="{
+        'shake-animation': inputInteractionState === 'blank-error',
+        'flash-green-animation': inputInteractionState === 'scored-points'
+        }"
+      >
+        <input
+        ref="inputElementRef"
+        type="text"
+        v-model="inputValue"
+        @keyup.enter="submitInput"
+        @input="onInputBoxInput"
+        placeholder="type a noun and hit Enter"
+        :class="{
+          'input-blank-highlight': inputInteractionState === 'blank-error',
+          'input-typing-highlight': inputInteractionState === 'typing'
+        }"
+        />
+        <button @click="submitInput">Enter</button>
       </div>
+      <!-- Hint for input rules -->
+      <div
+        v-if="showHint"
+        class="input-hint-container"
+        @mouseenter="isInputHintVisible = true; hasHoveredHint = true"
+        @mouseleave="isInputHintVisible = false"
+      >
+        <span class="hint-icon" :class="{ 'glow-until-hovered': !hasHoveredHint }">?</span>
+        <div v-if="isInputHintVisible" class="hint-tooltip">
+          <ul>
+          <li>Nouns are substantive, while verbs are transformative. You need the former.</li>
+          <li>Use simple, singular forms (i.e. 'farm' instead of 'farmer'). Trivial cases will be autocorrected.</li>
+          <li>Descending requires you to think like a mortal. It's all on you, nobody can tell you what to type.</li>
+          <li>There is no penalty for errors. Despair is your only undoing.</li>
+          </ul>
+        </div>
+      </div>
+      <!-- Invisible spacer to balance when hint is not shown -->
+      <div v-if="!showHint" class="hint-spacer"></div>
+      </div>
+
+      <p
+      class="input-prompt"
+      :class="{
+        'animate-prompt delay-1': engaged,
+        'animate-prompt-again': reanimateHints
+      }"
+      >Type in <b>nouns</b> you believe may bring you closer to the human form.</p>
+      <p
+      class="input-prompt"
+      :class="{
+        'animate-prompt delay-2': engaged,
+        'animate-prompt-again': reanimateHints
+      }"
+      >The right words will accelerate the materialization of your mortal aspect.</p>
     </div>
+    <!-- Engage Button -->
+    <button
+      ref="engageButtonRef"
+      :class="{ hidden: engaged || !isEngageButtonVisible, 'engage-button--clicked': isEngagedClicked }"
+      :style="engageButtonStyle"
+      @click="handleEngageClick"
+      @mousedown="handleEngageMouseDown"
+      @mouseup="stopHolding"
+      @mouseleave="handleEngageMouseLeave"
+      class="engage-button"
+    >
+      Dive
+    </button>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -399,7 +399,7 @@ defineExpose({
 
 .hint-icon.glow-until-hovered {
   animation: bouncy-hint-appear 1.8s 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both,
-             hint-glow 2s ease-in-out infinite 3.1s;
+       hint-glow 2s ease-in-out infinite 3.1s;
 }
 
 .hint-spacer {
@@ -442,36 +442,36 @@ defineExpose({
 
 /* Animations */
 @keyframes bouncy-hint-appear {
-    0% {
-        transform: scale(0.3);
-        opacity: 0;
-    }
-    30% {
-        transform: scale(1.3);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(0.85);
-    }
-    70% {
-        transform: scale(1.15);
-    }
-    85% {
-        transform: scale(0.95);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  85% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes hint-glow {
-    0%, 100% {
-        box-shadow: 0 0 2px #f39c12;
-    }
-    50% {
-        box-shadow: 0 0 4px #f39c12, 0 0 12px #f39c12;
-    }
+  0%, 100% {
+    box-shadow: 0 0 2px #f39c12;
+  }
+  50% {
+    box-shadow: 0 0 4px #f39c12, 0 0 12px #f39c12;
+  }
 }
 
 @keyframes shakeInput {
@@ -496,15 +496,15 @@ defineExpose({
 
 @keyframes engageClickEffect {
   0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7);
+  transform: scale(1);
+  box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7);
   }
   40% {
-    transform: scale(1.1);
+  transform: scale(1.1);
   }
   100% {
-    transform: scale(1);
-    box-shadow: 0 0 20px 30px rgba(241, 196, 15, 0);
+  transform: scale(1);
+  box-shadow: 0 0 20px 30px rgba(241, 196, 15, 0);
   }
 }
 
@@ -524,16 +524,16 @@ defineExpose({
 /* Animations */
 @keyframes fadeInAndFlash {
   0% {
-    opacity: 0;
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0);
+  opacity: 0;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0);
   }
   70% {
-    opacity: 1;
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.7);
+  opacity: 1;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 255, 255, 0.7);
   }
   100% {
-    opacity: 1;
-    text-shadow: none;
+  opacity: 1;
+  text-shadow: none;
   }
 }
 
@@ -543,13 +543,13 @@ defineExpose({
 
 @keyframes flashText {
   0% {
-    text-shadow: none;
+  text-shadow: none;
   }
   50% {
-    text-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 16px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 16px rgba(255, 255, 255, 0.8);
   }
   100% {
-    text-shadow: none;
+  text-shadow: none;
   }
 }
 </style> 

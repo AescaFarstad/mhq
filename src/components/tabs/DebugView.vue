@@ -1,45 +1,45 @@
 <template>
-    <div class="debug-view">
-      <!-- Tab Navigation -->
-      <div class="tab-navigation">
-        <button 
-          @click="setDebugTab('main')" 
-          :class="{ active: debugActiveTab === 'main' }" 
-          class="tab-btn"
-        >
-          Main
-        </button>
-        <button 
-          @click="setDebugTab('stats')" 
-          :class="{ active: debugActiveTab === 'stats' }" 
-          class="tab-btn"
-        >
-          Stats
-        </button>
-        <button 
-          @click="setDebugTab('discover')" 
-          :class="{ active: debugActiveTab === 'discover' }" 
-          class="tab-btn"
-        >
-          Discover
-        </button>
-        <button 
-          @click="setDebugTab('explore')" 
-          :class="{ active: debugActiveTab === 'explore' }" 
-          class="tab-btn"
-        >
-          Explore
-        </button>
-      </div>
-
-      <!-- Render active tab component -->
-      <div class="debug-tab-content">
-        <DebugMainTab v-if="debugActiveTab === 'main'" />
-        <DebugStatsTab v-if="debugActiveTab === 'stats'" :stats="stats" />
-        <DebugDiscoverTab v-if="debugActiveTab === 'discover'" />
-        <DebugExploreTab v-if="debugActiveTab === 'explore'" />
-      </div>
+  <div class="debug-view">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+    <button 
+      @click="setDebugTab('main')" 
+      :class="{ active: debugActiveTab === 'main' }" 
+      class="tab-btn"
+    >
+      Main
+    </button>
+    <button 
+      @click="setDebugTab('stats')" 
+      :class="{ active: debugActiveTab === 'stats' }" 
+      class="tab-btn"
+    >
+      Stats
+    </button>
+    <button 
+      @click="setDebugTab('discover')" 
+      :class="{ active: debugActiveTab === 'discover' }" 
+      class="tab-btn"
+    >
+      Discover
+    </button>
+    <button 
+      @click="setDebugTab('explore')" 
+      :class="{ active: debugActiveTab === 'explore' }" 
+      class="tab-btn"
+    >
+      Explore
+    </button>
     </div>
+
+    <!-- Render active tab component -->
+    <div class="debug-tab-content">
+    <DebugMainTab v-if="debugActiveTab === 'main'" />
+    <DebugStatsTab v-if="debugActiveTab === 'stats'" :stats="stats" />
+    <DebugDiscoverTab v-if="debugActiveTab === 'discover'" />
+    <DebugExploreTab v-if="debugActiveTab === 'explore'" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -55,8 +55,8 @@ import DebugExploreTab from './DebugExploreTab.vue';
 
 defineProps({
   stats: {
-    type: Object as PropType<Record<string, DebugStatInfo> | null | undefined>,
-    required: true,
+  type: Object as PropType<Record<string, DebugStatInfo> | null | undefined>,
+  required: true,
   },
 });
 
@@ -217,13 +217,13 @@ p {
 
 @keyframes pulse {
   0% {
-    transform: scale(1);
+  transform: scale(1);
   }
   50% {
-    transform: scale(1.05);
+  transform: scale(1.05);
   }
   100% {
-    transform: scale(1);
+  transform: scale(1);
   }
 }
 
@@ -238,10 +238,10 @@ p {
 }
 
 .filter-inputs {
-    display: flex;
-    align-items: center; /* Align items vertically */
-    gap: 10px; /* Add gap between input fields */
-    margin-bottom: 15px; /* Add some space below the filter section */
+  display: flex;
+  align-items: center; /* Align items vertically */
+  gap: 10px; /* Add gap between input fields */
+  margin-bottom: 15px; /* Add some space below the filter section */
 }
 
 .clear-btn {
@@ -256,9 +256,9 @@ p {
 }
 
 .clear-btn.clear-all-btn {
-    width: auto; /* Allow button to size to its content */
-    flex-shrink: 0; /* Prevent shrinking if space is tight */
-    margin-left: 5px; /* A bit of space from the last input */
+  width: auto; /* Allow button to size to its content */
+  flex-shrink: 0; /* Prevent shrinking if space is tight */
+  margin-left: 5px; /* A bit of space from the last input */
 }
 
 .clear-btn:hover {

@@ -1,22 +1,22 @@
 <template>
   <div 
-    :class="['character-item', { 'selected': isSelected }]"
-    @click="$emit('select')"
+  :class="['character-item', { 'selected': isSelected }]"
+  @click="$emit('select')"
   >
-    <!-- Character Info Section with padding -->
-    <div class="character-info">
-      <div class="char-name">{{ character.name }}</div>
-      <div class="char-stats">
-        <span class="char-level">Level {{ character.level }}</span>
-        <span class="char-upkeep">Upkeep: {{ character.upkeep.toFixed(1) }}</span>
-      </div>
+  <!-- Character Info Section with padding -->
+  <div class="character-info">
+    <div class="char-name">{{ character.name }}</div>
+    <div class="char-stats">
+    <span class="char-level">Level {{ character.level }}</span>
+    <span class="char-upkeep">Upkeep: {{ character.upkeep.toFixed(1) }}</span>
     </div>
-    
-    <!-- Task Section - full width minus 1px on each side -->
-    <div v-if="assignedTask" class="task-section">
-      <TaskCard v-if="isSelected" :task="assignedTask" />
-      <MiniTaskDisplay v-else :task="assignedTask" />
-    </div>
+  </div>
+  
+  <!-- Task Section - full width minus 1px on each side -->
+  <div v-if="assignedTask" class="task-section">
+    <TaskCard v-if="isSelected" :task="assignedTask" />
+    <MiniTaskDisplay v-else :task="assignedTask" />
+  </div>
   </div>
 </template>
 
@@ -31,12 +31,12 @@ import { useGameState } from '../../composables/useGameState';
 
 const props = defineProps({
   character: {
-    type: Object as PropType<SimpleCharacterInfo>,
-    required: true,
+  type: Object as PropType<SimpleCharacterInfo>,
+  required: true,
   },
   isSelected: {
-    type: Boolean,
-    default: false,
+  type: Boolean,
+  default: false,
   },
   // assignedTask: { // This will be replaced by a computed property
   //   type: Object as PropType<GameTask | null>,
@@ -52,13 +52,13 @@ const assignedTask = computed(() => {
   if (!gameState.value) return null;
 
   const taskInProgress = gameState.value.processingTasks.find(
-    (t) => t.assignedCharacterIds.includes(props.character.id)
+  (t) => t.assignedCharacterIds.includes(props.character.id)
   );
 
   if (taskInProgress) {
-    // Return a new object (shallow clone) using spread syntax.
-    // This ensures reactivity for child components when task properties change.
-    return { ...taskInProgress } as GameTask;
+  // Return a new object (shallow clone) using spread syntax.
+  // This ensures reactivity for child components when task properties change.
+  return { ...taskInProgress } as GameTask;
   }
   
   return null;

@@ -3,6 +3,6 @@ import type { MinigameState, MinigameType } from '../../logic/minigames/Minigame
 export const CLICK_COUNTER_TYPE: MinigameType = 'ClickCounter';
 
 export interface ClickCounterState extends MinigameState {
-    clickCount: number;
-    clicksToWin: number;
+  clickCount: number;
+  clicksToWin: number;
 } 

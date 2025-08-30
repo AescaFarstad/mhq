@@ -14,7 +14,7 @@ export function useGameState(): { gameState: ShallowRef<GameState | null> } {
   const gameState = shallowRef<GameState | null>(injectedState || null);
   
   if (!injectedState) {
-    console.warn(`[useGameState] GameState was not provided. Ensure an ancestor component calls app.provide('${GameStateKey}', yourGameStateInstance).`);
+  console.warn(`[useGameState] GameState was not provided. Ensure an ancestor component calls app.provide('${GameStateKey}', yourGameStateInstance).`);
   }
   
   return { gameState };

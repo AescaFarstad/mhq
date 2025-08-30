@@ -1,66 +1,66 @@
 <template>
   <div class="attributes-section">
-    <div v-if="!attributes || attributes.length === 0" class="no-attribute-data">
-      No attribute data available.
+  <div v-if="!attributes || attributes.length === 0" class="no-attribute-data">
+    No attribute data available.
+  </div>
+  <div v-else class="attribute-boxes">
+    <div 
+    v-for="category in attributes" 
+    :key="category.key" 
+    class="attribute-box"
+    :class="{ 
+      'selected': selectedTab === category.key,
+      [`attribute-box-${category.key.toLowerCase()}`]: true 
+    }"
+    @click="selectTab(category.key)"
+    >
+    <div 
+      class="box-header"
+      @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(category.key) ? category.definition.description || null : obfuscateString(category.definition.description || ''))"
+      @mouseleave="$emit('set-hint', null)"
+    >
+      <span class="box-name">{{ gameState && gameState.isDiscovered(category.key) ? category.definition.displayName : obfuscateString(category.definition.displayName) }}</span>
+      <span class="box-value">{{ category.stat.value }}</span>
     </div>
-    <div v-else class="attribute-boxes">
-      <div 
-        v-for="category in attributes" 
-        :key="category.key" 
-        class="attribute-box"
-        :class="{ 
-          'selected': selectedTab === category.key,
-          [`attribute-box-${category.key.toLowerCase()}`]: true 
-        }"
-        @click="selectTab(category.key)"
-      >
-        <div 
-          class="box-header"
-          @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(category.key) ? category.definition.description || null : obfuscateString(category.definition.description || ''))"
-          @mouseleave="$emit('set-hint', null)"
-        >
-          <span class="box-name">{{ gameState && gameState.isDiscovered(category.key) ? category.definition.displayName : obfuscateString(category.definition.displayName) }}</span>
-          <span class="box-value">{{ category.stat.value }}</span>
-        </div>
-        <div class="box-details">
-          <!-- Show affected summary as an overlay on affected tabs -->
-          <div v-if="hasAffected(category.key)" class="affected-summary-overlay">
-            <div v-if="affectedCountsByCategory[category.key].skills > 0">
-              <span class="affected-count">{{ affectedCountsByCategory[category.key].skills }}</span> skills
-            </div>
-            <div v-if="affectedCountsByCategory[category.key].specs > 0">
-              <span class="affected-count">{{ affectedCountsByCategory[category.key].specs }}</span> specializations
-            </div>
-            <div>are affected</div>
-          </div>
+    <div class="box-details">
+      <!-- Show affected summary as an overlay on affected tabs -->
+      <div v-if="hasAffected(category.key)" class="affected-summary-overlay">
+      <div v-if="affectedCountsByCategory[category.key].skills > 0">
+        <span class="affected-count">{{ affectedCountsByCategory[category.key].skills }}</span> skills
+      </div>
+      <div v-if="affectedCountsByCategory[category.key].specs > 0">
+        <span class="affected-count">{{ affectedCountsByCategory[category.key].specs }}</span> specializations
+      </div>
+      <div>are affected</div>
+      </div>
 
-          <!-- Default view: list of secondary attributes. -->
-          <div
-            v-for="attribute in category.attributes" 
-            :key="attribute.key" 
-            class="attribute-detail" 
-            :class="{ 
-              'highlighted': currentHint === attribute.definition.description || currentHint === obfuscateString(attribute.definition.description || ''),
-              'highlighted-by-skill': highlightedAttributes && highlightedAttributes.includes(attribute.key)
-            }"
-            @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(attribute.key) ? attribute.definition.description || null : obfuscateString(attribute.definition.description || ''))"
-            @mouseleave="$emit('set-hint', null)"
-          >
-            <span class="attribute-name">{{ gameState && gameState.isDiscovered(attribute.key) ? attribute.definition.displayName : obfuscateString(attribute.definition.displayName) }}</span>
-            <div class="attribute-value-container">
-              <SpendPointButton 
-                v-if="attributePoints > 0"
-                @click.stop="spendAttributePoint(attribute)"
-                @mouseenter="showHypothetical(attribute)"
-                @mouseleave="clearHypothetical()"
-                title="Spend attribute point"
-              />
-              <span class="attribute-value">{{ attribute.stat.value }}</span>
-            </div>
-          </div>
-        </div>
+      <!-- Default view: list of secondary attributes. -->
+      <div
+      v-for="attribute in category.attributes" 
+      :key="attribute.key" 
+      class="attribute-detail" 
+      :class="{ 
+        'highlighted': currentHint === attribute.definition.description || currentHint === obfuscateString(attribute.definition.description || ''),
+        'highlighted-by-skill': highlightedAttributes && highlightedAttributes.includes(attribute.key)
+      }"
+      @mouseenter="$emit('set-hint', gameState && gameState.isDiscovered(attribute.key) ? attribute.definition.description || null : obfuscateString(attribute.definition.description || ''))"
+      @mouseleave="$emit('set-hint', null)"
+      >
+      <span class="attribute-name">{{ gameState && gameState.isDiscovered(attribute.key) ? attribute.definition.displayName : obfuscateString(attribute.definition.displayName) }}</span>
+      <div class="attribute-value-container">
+        <SpendPointButton 
+        v-if="attributePoints > 0"
+        @click.stop="spendAttributePoint(attribute)"
+        @mouseenter="showHypothetical(attribute)"
+        @mouseleave="clearHypothetical()"
+        title="Spend attribute point"
+        />
+        <span class="attribute-value">{{ attribute.stat.value }}</span>
+      </div>
       </div>
     </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -82,24 +82,24 @@ const highlightedAttributes = computed(() => {
 
 const props = defineProps({
   attributes: {
-    type: Array as PropType<AttributeCategoryUIInfo[]>,
-    required: true
+  type: Array as PropType<AttributeCategoryUIInfo[]>,
+  required: true
   },
   currentHint: {
-    type: String as PropType<string | null>,
-    default: null
+  type: String as PropType<string | null>,
+  default: null
   },
   attributePoints: {
-    type: Number,
-    required: true
+  type: Number,
+  required: true
   },
   selectedTab: {
-    type: String,
-    required: true
+  type: String,
+  required: true
   },
   characterId: {
-    type: String,
-    required: true
+  type: String,
+  required: true
   }
 });
 
@@ -111,35 +111,35 @@ const selectTab = (tabKey: string) => {
 
 const spendAttributePoint = (attribute: AttributeUIInfo) => {
   if (props.attributePoints > 0) {
-    const willHavePointsAfterSpend = props.attributePoints > 1;
-    
-    // Clear hypothetical before spending point
-    clearHypothetical();
-    
-    const command: CmdSpendAttributePoint = {
-      name: "CmdSpendAttributePoint",
-      characterId: props.characterId,
-      attributeId: attribute.key,
-    };
-    globalInputQueue.push(command);
-    
-    // If we'll still have points after this spend, create a new hypothetical
-    // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
-    if (willHavePointsAfterSpend) {
-      Hypothetical.createHypotheticalForAttributeUpgrade(gameState!, attribute.stat, 2);
-    }
+  const willHavePointsAfterSpend = props.attributePoints > 1;
+  
+  // Clear hypothetical before spending point
+  clearHypothetical();
+  
+  const command: CmdSpendAttributePoint = {
+    name: "CmdSpendAttributePoint",
+    characterId: props.characterId,
+    attributeId: attribute.key,
+  };
+  globalInputQueue.push(command);
+  
+  // If we'll still have points after this spend, create a new hypothetical
+  // The upgrade is queued but hasn't happened yet, so show +2 (current +1 queued +1 next)
+  if (willHavePointsAfterSpend) {
+    Hypothetical.createHypotheticalForAttributeUpgrade(gameState!, attribute.stat, 2);
+  }
   }
 };
 
 const showHypothetical = (attribute: AttributeUIInfo) => {
   if (gameState && props.characterId && props.attributePoints > 0) {
-    Hypothetical.createHypotheticalForAttributeUpgrade(gameState, attribute.stat, 1);
+  Hypothetical.createHypotheticalForAttributeUpgrade(gameState, attribute.stat, 1);
   }
 };
 
 const clearHypothetical = () => {
   if (gameState) {
-    Hypothetical.clearHypothetical(gameState);
+  Hypothetical.clearHypothetical(gameState);
   }
 };
 
@@ -150,39 +150,39 @@ const affectedCountsByCategory = computed<Record<string, { skills: number; specs
   const result: Record<string, { skills: number; specs: number }> = {};
 
   if (!gameState || !(gameState.uiState as any).hypotheticalConnections) {
-    return result;
+  return result;
   }
 
   // Find the current character data in uiState to access its skills
   const charData = gameState.uiState.characters.find(c => c.id === props.characterId);
   if (!charData) {
-    return result;
+  return result;
   }
 
   const hypConn = (gameState.uiState as any).hypotheticalConnections;
 
   for (const skill of charData.skills) {
-    const catKey = skill.definition.attribute;
-    if (!catKey) continue;
+  const catKey = skill.definition.attribute;
+  if (!catKey) continue;
 
-    // Ensure entry exists
-    if (!result[catKey]) {
-      result[catKey] = { skills: 0, specs: 0 };
-    }
+  // Ensure entry exists
+  if (!result[catKey]) {
+    result[catKey] = { skills: 0, specs: 0 };
+  }
 
-    // Check skill proficiency change
-    const hypProf = Stats.getStat(skill.proficiencyStat.name, hypConn);
-    if (hypProf && Math.abs(hypProf.value - skill.proficiencyStat.value) > 0.05) {
-      result[catKey].skills += 1;
-    }
+  // Check skill proficiency change
+  const hypProf = Stats.getStat(skill.proficiencyStat.name, hypConn);
+  if (hypProf && Math.abs(hypProf.value - skill.proficiencyStat.value) > 0.05) {
+    result[catKey].skills += 1;
+  }
 
-    // Check specializations under this skill
-    for (const spec of skill.specializations) {
-      const hypSpecProf = Stats.getStat(spec.proficiencyStat.name, hypConn);
-      if (hypSpecProf && Math.abs(hypSpecProf.value - spec.proficiencyStat.value) > 0.05) {
-        result[catKey].specs += 1;
-      }
+  // Check specializations under this skill
+  for (const spec of skill.specializations) {
+    const hypSpecProf = Stats.getStat(spec.proficiencyStat.name, hypConn);
+    if (hypSpecProf && Math.abs(hypSpecProf.value - spec.proficiencyStat.value) > 0.05) {
+    result[catKey].specs += 1;
     }
+  }
   }
 
   return result;
@@ -216,8 +216,8 @@ const hasAffected = (catKey: string): boolean => {
 }
 
 .no-attribute-data {
-    color: #888;
-    font-style: italic;
+  color: #888;
+  font-style: italic;
 }
 
 .attribute-boxes {

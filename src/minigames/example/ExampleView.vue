@@ -6,7 +6,7 @@ const gameState = inject<GameState>('gameState');
 
 const exitMinigame = () => {
   if (gameState) { // gameState is already checked by inject, but good practice
-    gameState.endMinigame();
+  gameState.endMinigame();
   }
 };
 
@@ -14,16 +14,16 @@ const exitMinigame = () => {
 
 <template>
   <div class="example-view-container">
-    <h1>Example Minigame</h1>
-    <p>This is the Example minigame. Build your UI here!</p>
-    
-    <!-- Example: Displaying a piece of state (ensure 'score' exists in ExampleState if used) -->
-    <!-- <p v-if="exampleState">Score: {{ exampleState.score || 0 }}</p> -->
+  <h1>Example Minigame</h1>
+  <p>This is the Example minigame. Build your UI here!</p>
+  
+  <!-- Example: Displaying a piece of state (ensure 'score' exists in ExampleState if used) -->
+  <!-- <p v-if="exampleState">Score: {{ exampleState.score || 0 }}</p> -->
 
-    <!-- Example: Button to trigger a minigame action -->
-    <!-- <button @click="performExampleAction">Perform Action</button> -->
+  <!-- Example: Button to trigger a minigame action -->
+  <!-- <button @click="performExampleAction">Perform Action</button> -->
 
-    <button @click="exitMinigame">Exit Minigame</button>
+  <button @click="exitMinigame">Exit Minigame</button>
   </div>
 </template>
 

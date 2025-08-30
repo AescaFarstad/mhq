@@ -29,9 +29,9 @@ const fpsMetrics = inject('fpsMetrics', { currentFPS: 0, averageFPS: 0, maxFrame
 const activeTab = computed({
   get: () => gameState?.uiState.activeTabName || 'Castle',
   set: (value: string) => {
-    if (gameState) {
-      gameState.setActiveTab(value);
-    }
+  if (gameState) {
+    gameState.setActiveTab(value);
+  }
   }
 });
 
@@ -39,11 +39,11 @@ const displayedTabs = computed(() => {
   if (!gameState) return [];
   // Access discoveredItemsCount to make this computed reactive to discovery changes
   if (gameState.uiState.discoveredItemsCount > 0){
-    const tabs = C.ALL_TAB_IDS.filter((tabId: string) => {
-      const isDiscovered = gameState.isDiscovered(tabId);
-      return isDiscovered;
-    });
-    return tabs;
+  const tabs = C.ALL_TAB_IDS.filter((tabId: string) => {
+    const isDiscovered = gameState.isDiscovered(tabId);
+    return isDiscovered;
+  });
+  return tabs;
   }
   return [];
 });
@@ -76,7 +76,7 @@ const timeControlScales = [
 
 const currentTimeScaleDisplay = computed(() => {
   if (gameState) {
-    return gameState.uiState.currentTimeScale.toFixed(2);
+  return gameState.uiState.currentTimeScale.toFixed(2);
   }
   return '1.00'; // Default display if gameState is not yet available
 });
@@ -85,15 +85,15 @@ const currentTimeScaleDisplay = computed(() => {
 
 const queueTimeScaleCommand = (scale: number) => {
   if (gameState) {
-    const command: CmdTimeScale = { name: "CmdTimeScale", scale: scale };
-    globalInputQueue.push(command);
+  const command: CmdTimeScale = { name: "CmdTimeScale", scale: scale };
+  globalInputQueue.push(command);
   }
 };
 
 const queueTickOnceCommand = () => {
   if (gameState) {
-    const command: CmdTickOnce = { name: "CmdTickOnce" };
-    globalInputQueue.push(command);
+  const command: CmdTickOnce = { name: "CmdTickOnce" };
+  globalInputQueue.push(command);
   }
 };
 
@@ -118,34 +118,34 @@ let sequenceTimeout: number | undefined;
 
 const handleKeyDown = (event: KeyboardEvent) => {
   if (sequenceTimeout) {
-    clearTimeout(sequenceTimeout);
+  clearTimeout(sequenceTimeout);
   }
 
   sequenceTimeout = window.setTimeout(() => {
-    currentSequenceIndex = 0;
+  currentSequenceIndex = 0;
   }, 500); // Reset if keys are not pressed within 500ms
 
   if (event.key.toLowerCase() === targetSequence[currentSequenceIndex]) {
-    currentSequenceIndex++;
-    if (currentSequenceIndex === targetSequence.length) {
-      showDebugOverlay.value = !showDebugOverlay.value;
-      currentSequenceIndex = 0;
-      clearTimeout(sequenceTimeout);
-    }
-  } else {
+  currentSequenceIndex++;
+  if (currentSequenceIndex === targetSequence.length) {
+    showDebugOverlay.value = !showDebugOverlay.value;
     currentSequenceIndex = 0;
+    clearTimeout(sequenceTimeout);
+  }
+  } else {
+  currentSequenceIndex = 0;
   }
 };
 
 onMounted(() => {
   if (!gameState) {
-    console.error("GameState not injected or provided!");
-    return; // Stop setup if no game state
+  console.error("GameState not injected or provided!");
+  return; // Stop setup if no game state
   }
 
   // Set initial active tab in GameState if not already set
   if (gameState && !gameState.uiState.activeTabName) {
-    gameState.setActiveTab('Castle');
+  gameState.setActiveTab('Castle');
   }
 
   window.addEventListener('keydown', handleKeyDown);
@@ -154,7 +154,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
   if (sequenceTimeout) {
-    clearTimeout(sequenceTimeout);
+  clearTimeout(sequenceTimeout);
   }
 });
 
@@ -162,91 +162,91 @@ onUnmounted(() => {
 
 <template>
   <div class="app-container">
-    <!-- Main Game UI (conditionally hidden) -->
-    <template v-if="!shouldHideMainUI">
-      <!-- Left Sidebar for Resources -->
-      <div class="sidebar">
-        <!-- Use the ResourceDisplay component -->
-        <ResourceDisplay />
+  <!-- Main Game UI (conditionally hidden) -->
+  <template v-if="!shouldHideMainUI">
+    <!-- Left Sidebar for Resources -->
+    <div class="sidebar">
+    <!-- Use the ResourceDisplay component -->
+    <ResourceDisplay />
+    </div>
+
+    <!-- Right Main Content Area with Tabs -->
+    <div class="main-content">
+    <div class="tabs">
+      <button
+      v-for="tab in displayedTabs"
+      :key="tab"
+      @click="setActiveTab(tab)"
+      :class="{ active: activeTab === tab }"
+      >
+      {{ tab }}
+      </button>
+      <div class="time-controls">
+      <div class="fps-display">
+        <span class="fps-avg">{{ fpsMetrics.averageFPS }}</span>
+        <span class="fps-separator">|</span>
+        <span class="fps-frame-time">{{ fpsMetrics.maxFrameTime }}</span>
       </div>
-
-      <!-- Right Main Content Area with Tabs -->
-      <div class="main-content">
-        <div class="tabs">
-          <button
-            v-for="tab in displayedTabs"
-            :key="tab"
-            @click="setActiveTab(tab)"
-            :class="{ active: activeTab === tab }"
-          >
-            {{ tab }}
-          </button>
-          <div class="time-controls">
-            <div class="fps-display">
-              <span class="fps-avg">{{ fpsMetrics.averageFPS }}</span>
-              <span class="fps-separator">|</span>
-              <span class="fps-frame-time">{{ fpsMetrics.maxFrameTime }}</span>
-            </div>
-            <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
-            <button
-              v-for="control in timeControlScales"
-              :key="control.label"
-              @click="queueTimeScaleCommand(control.value)"
-              :class="{ active: gameState && gameState.uiState.currentTimeScale === control.value }"
-            >
-              {{ control.label }}
-            </button>
-            <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
-          </div>
-        </div>
-        <div class="tab-content">
-          <!-- Use the Tab components - apply refresh key selectively -->
-          <CastleView v-if="activeTab === 'Castle'" :key="`castle-${uiRefreshKey}`" />
-          <CrewView v-if="activeTab === 'Crew'" :key="`crew-${uiRefreshKey}`" />
-          <QuestsView v-if="activeTab === 'Quests'" :key="`quests-${uiRefreshKey}`" />
-          <TasksView v-if="activeTab === 'Tasks'" :key="`tasks-${uiRefreshKey}`" />
-          <!-- Discover tab does NOT get a refresh key to preserve component state -->
-          <DiscoverView v-if="activeTab === 'Discover'" />
-          <!-- Debug tab gets refresh key to show updated discovery data -->
-          <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" :key="`debug-${uiRefreshKey}`" />
-        </div>
-      </div>
-    </template>
-
-    <!-- Minigame Overlay Area -->
-    <div v-if="activeMinigameType === 'ClickCounter'" class="minigame-overlay-container">
-      <ClickCounterView />
-    </div>
-    <div v-else-if="activeMinigameType === 'Welcome'" class="minigame-overlay-container">
-      <WelcomeView />
-    </div>
-    <div v-else-if="activeMinigameType === 'Ingress'" class="minigame-overlay-container">
-      <IngressView />
-    </div>
-    <div v-else-if="activeMinigameType === 'Example'" class="minigame-overlay-container">
-      <ExampleView />
-    </div>
-    <div v-else-if="activeMinigameType === 'Intro'" class="minigame-overlay-container">
-      <IntroView />
-    </div>
-    <div v-else-if="activeMinigameType === 'FirstSteps'" class="minigame-overlay-container">
-      <FirstStepsView />
-    </div>
-    <!-- Add other minigame views here with v-else-if, wrapped in the overlay container -->
-
-    <!-- Overlay Dialog (Example, can be adapted or removed) -->
-    <div v-if="showDialog && !shouldHideMainUI" class="dialog-overlay">
-      <div class="dialog-content">
-        <h2>Dialog Title</h2>
-        <p>This is the dialog content. It appears on top of everything.</p>
-        <button @click="showDialog = false">Close</button>
+      <span class="current-timescale">{{ currentTimeScaleDisplay }}x</span>
+      <button
+        v-for="control in timeControlScales"
+        :key="control.label"
+        @click="queueTimeScaleCommand(control.value)"
+        :class="{ active: gameState && gameState.uiState.currentTimeScale === control.value }"
+      >
+        {{ control.label }}
+      </button>
+      <button @click="queueTickOnceCommand()" class="tick-button">Tick</button>
       </div>
     </div>
+    <div class="tab-content">
+      <!-- Use the Tab components - apply refresh key selectively -->
+      <CastleView v-if="activeTab === 'Castle'" :key="`castle-${uiRefreshKey}`" />
+      <CrewView v-if="activeTab === 'Crew'" :key="`crew-${uiRefreshKey}`" />
+      <QuestsView v-if="activeTab === 'Quests'" :key="`quests-${uiRefreshKey}`" />
+      <TasksView v-if="activeTab === 'Tasks'" :key="`tasks-${uiRefreshKey}`" />
+      <!-- Discover tab does NOT get a refresh key to preserve component state -->
+      <DiscoverView v-if="activeTab === 'Discover'" />
+      <!-- Debug tab gets refresh key to show updated discovery data -->
+      <DebugView v-if="activeTab === 'Debug' && gameState" :stats="gameState.uiState.debugStats" :key="`debug-${uiRefreshKey}`" />
+    </div>
+    </div>
+  </template>
 
-    <!-- Debug Overlay -->
-    <DebugOverlay v-if="showDebugOverlay" @close="closeDebugOverlay" />
+  <!-- Minigame Overlay Area -->
+  <div v-if="activeMinigameType === 'ClickCounter'" class="minigame-overlay-container">
+    <ClickCounterView />
+  </div>
+  <div v-else-if="activeMinigameType === 'Welcome'" class="minigame-overlay-container">
+    <WelcomeView />
+  </div>
+  <div v-else-if="activeMinigameType === 'Ingress'" class="minigame-overlay-container">
+    <IngressView />
+  </div>
+  <div v-else-if="activeMinigameType === 'Example'" class="minigame-overlay-container">
+    <ExampleView />
+  </div>
+  <div v-else-if="activeMinigameType === 'Intro'" class="minigame-overlay-container">
+    <IntroView />
+  </div>
+  <div v-else-if="activeMinigameType === 'FirstSteps'" class="minigame-overlay-container">
+    <FirstStepsView />
+  </div>
+  <!-- Add other minigame views here with v-else-if, wrapped in the overlay container -->
 
-    <VolumeControlButton />
+  <!-- Overlay Dialog (Example, can be adapted or removed) -->
+  <div v-if="showDialog && !shouldHideMainUI" class="dialog-overlay">
+    <div class="dialog-content">
+    <h2>Dialog Title</h2>
+    <p>This is the dialog content. It appears on top of everything.</p>
+    <button @click="showDialog = false">Close</button>
+    </div>
+  </div>
+
+  <!-- Debug Overlay -->
+  <DebugOverlay v-if="showDebugOverlay" @close="closeDebugOverlay" />
+
+  <VolumeControlButton />
 
   </div>
 </template>
@@ -405,12 +405,12 @@ onUnmounted(() => {
 }
 
 .dialog-content h2 {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .dialog-content button {
-    margin-top: 15px;
-    padding: 8px 15px;
-    cursor: pointer;
+  margin-top: 15px;
+  padding: 8px 15px;
+  cursor: pointer;
 }
 </style> 

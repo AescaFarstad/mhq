@@ -28,7 +28,7 @@ const formattedProgress = computed(() => {
 const displayRate = computed(() => {
   let rate = props.totalAspectPoints;
   if (props.upgrades?.breach_materialization_speed) {
-    rate *= 2;
+  rate *= 2;
   }
   return rate;
 });
@@ -40,58 +40,58 @@ const progressBarWidth = computed(() => {
 
 watch(() => props.charges, (newCharges, oldCharges) => {
   if (oldCharges === undefined) {
-    return;
+  return;
   }
   
   if (newCharges > oldCharges) {
-    materializationBarFlash.value = 'increase';
+  materializationBarFlash.value = 'increase';
   } else if (newCharges < oldCharges) {
-    materializationBarFlash.value = 'decrease';
+  materializationBarFlash.value = 'decrease';
   } else {
-    return;
+  return;
   }
 
   setTimeout(() => {
-    materializationBarFlash.value = 'default';
+  materializationBarFlash.value = 'default';
   }, 1.3 * 1000);
 });
 </script>
 
 <template>
   <div
-    class="aspect-points-bar"
-    :class="{
-      'flash-green-materialization': materializationBarFlash === 'increase',
-      'flash-dark-materialization': materializationBarFlash === 'decrease'
-    }"
+  class="aspect-points-bar"
+  :class="{
+    'flash-green-materialization': materializationBarFlash === 'increase',
+    'flash-dark-materialization': materializationBarFlash === 'decrease'
+  }"
   >
-    <div v-if="showProgress" class="progress-bar-fill" :style="{ width: progressBarWidth }"></div>
-    <div class="content-overlay">
-      <span class="aspect-points-label">Aspect points: </span>
-      <span class="stars">{{ aspectPointsDisplay }}</span>
-      <div v-if="showProgress" class="progress-text-container">
-        <span v-if="materializationProgress >= 100" class="materialization-ready">
-          Ready to Materialize
-        </span>
-        <span v-else class="materialization-progress">
-          Materialization progress: {{ formattedProgress }}%, rate: {{ displayRate }}x
-        </span>
-        <div
-          v-if="materializationProgress < 100"
-          class="input-hint-container"
-          @mouseenter="isHintVisible = true"
-          @mouseleave="isHintVisible = false"
-        >
-          <span class="hint-icon">?</span>
-          <div v-if="isHintVisible" class="hint-tooltip">
-              <ul>
-                <li>The rate is proportional to the total amount of<span class="stars">★</span> you've earned.</li>
-                <li>Spending points (☆) does not affect the rate, though you may feel an unfamiliar reluctance to part with them. This is greed—a mortal sensation.</li>
-              </ul>
-          </div>
-        </div>
+  <div v-if="showProgress" class="progress-bar-fill" :style="{ width: progressBarWidth }"></div>
+  <div class="content-overlay">
+    <span class="aspect-points-label">Aspect points: </span>
+    <span class="stars">{{ aspectPointsDisplay }}</span>
+    <div v-if="showProgress" class="progress-text-container">
+    <span v-if="materializationProgress >= 100" class="materialization-ready">
+      Ready to Materialize
+    </span>
+    <span v-else class="materialization-progress">
+      Materialization progress: {{ formattedProgress }}%, rate: {{ displayRate }}x
+    </span>
+    <div
+      v-if="materializationProgress < 100"
+      class="input-hint-container"
+      @mouseenter="isHintVisible = true"
+      @mouseleave="isHintVisible = false"
+    >
+      <span class="hint-icon">?</span>
+      <div v-if="isHintVisible" class="hint-tooltip">
+        <ul>
+        <li>The rate is proportional to the total amount of<span class="stars">★</span> you've earned.</li>
+        <li>Spending points (☆) does not affect the rate, though you may feel an unfamiliar reluctance to part with them. This is greed—a mortal sensation.</li>
+        </ul>
       </div>
     </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -183,15 +183,15 @@ watch(() => props.charges, (newCharges, oldCharges) => {
 
 @keyframes hint-appear {
   0% {
-    transform: scale(0.5);
-    opacity: 0;
+  transform: scale(0.5);
+  opacity: 0;
   }
   80% {
-    transform: scale(1.1);
+  transform: scale(1.1);
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+  transform: scale(1);
+  opacity: 1;
   }
 }
 
@@ -214,10 +214,10 @@ watch(() => props.charges, (newCharges, oldCharges) => {
   transition: all 0.2s ease;
 }
 .input-hint-container:hover .hint-icon {
-    border-color: #ecf0f1;
-    color: #ecf0f1;
-    transform: scale(1.2);
-    box-shadow: 0 0 10px #f1c40f;
+  border-color: #ecf0f1;
+  color: #ecf0f1;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px #f1c40f;
 }
 .hint-tooltip {
   position: absolute;

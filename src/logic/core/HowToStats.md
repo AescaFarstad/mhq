@@ -83,11 +83,11 @@ Stats.modifyParameterADD(maxHealth, 100, connections); // base value
 
 // Create a formula stat (experience needed = level^2 * 100)
 const xpNeeded = Stats.createFormulaStat('xpNeeded', 
-    (level) => level * level * 100, connections);
+  (level) => level * level * 100, connections);
 
 // Create a formula parameter (skill proficiency from multiple sources)
 const proficiency = Stats.createFormulaParameter('swordProficiency',
-    (inputs) => inputs.strength * 2 + inputs.skillLevel * 5, connections);
+  (inputs) => inputs.strength * 2 + inputs.skillLevel * 5, connections);
 ```
 
 ### Establishing Connections
@@ -211,7 +211,7 @@ const strength = Stats.createStat('strength', 10, connections);
 
 // Proficiency calculated from both
 const meleeProficiency = Stats.createFormulaParameter('meleeProficiency',
-    (inputs) => inputs.skill * 3 + inputs.attribute * 2, connections);
+  (inputs) => inputs.skill * 3 + inputs.attribute * 2, connections);
 
 // Connect the inputs
 Stats.connectStr('meleeSkill', 'meleeProficiency', ConnectionType.NAMED_INPUT, connections, 'skill');
