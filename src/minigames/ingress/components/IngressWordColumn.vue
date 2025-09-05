@@ -96,7 +96,8 @@ const onMouseLeave = () => {
   border-radius: 6px;
   box-sizing: border-box;
   color: white;
-  overflow: hidden; /* Hide overflow */
+  /* Let content overflow; container position is managed by parent */
+  overflow: visible;
 }
 
 .column-title {
@@ -112,7 +113,8 @@ const onMouseLeave = () => {
 }
 
 .word-list-container {
-  overflow-y: hidden; /* Hide overflow */
+  /* Allow list items to overflow past bottom of the page if needed */
+  overflow: visible;
   flex-grow: 1;
 }
 

@@ -33,10 +33,14 @@ defineEmits(['word-hover', 'word-leave']);
 .ingress-word-columns-container {
   display: flex;
   flex-direction: row;
-  height: 100%;
   gap: 15px; /* Space between columns */
-  flex-shrink: 0; /* Prevent from shrinking */
   box-sizing: border-box;
+  position: absolute; /* Do not affect layout height */
+  right: 0;
+  bottom: 0; /* Anchor to bottom; extra content may overflow below page */
+  height: 100%; /* Fill parent's height; allow overflow past bottom */
+  /* Allow the container to extend visually beyond parent without changing layout */
+  overflow: visible;
 }
 
 .word-column {

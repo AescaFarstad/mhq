@@ -294,7 +294,7 @@ export const behTreeDefinitions: TreeDefinitionRegistry = {
     }),
     new WaitNode({ durationMin: 0.1 }),
     new ExecNode('cheatWelcome', (_node, state: GameState) => {
-      effects.applyWelcomeResults(state, { locationId: "sequoiter" }); //aeiga_reika turfablie sequoiter
+      effects.applyWelcomeResults(state, { locationId: "aeiga_reika" }); //aeiga_reika turfablie sequoiter
       state.endMinigame();
     }),
     new WaitNode({ durationMin: 0.1 }),

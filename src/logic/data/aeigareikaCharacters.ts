@@ -13,8 +13,8 @@ const charactersData: CharacterData = {
     location: "aeiga_reika",
     initialLevel: 1,
     baseUpkeep: 0.0,
-    bio: "Seraphina once brokered secrets for Aeiga-Reika's powerful—a key player in the sulfur conspiracy. But a sensitive soul can only shake hands with murderers for so long. The coins, a thousand times touched, burned through her with the pain they witnessed. These days her Crystalline Parlor is closed. She reads the future still, but tells no one.",
-    keywords: ["crystal", "sphere", "orb", "vision", "future", "prophecy", "sight", "seer", "oracle", "divination", "psychometry", "touch", "memory", "secret", "whisper", "truth", "revelation", "parlor", "broker", "information", "conspiracy", "sulfur", "coin", "burn", "pain", "essence", "soul", "sensitive", "hand", "palm", "eye", "veil", "mirror", "fate", "fortune", "read", "glimpse", "echo", "imprint", "residue", "aura", "gift", "talent", "knowledge", "mystery", "shadow", "past", "tomorrow", "dream", "trance", "ritual", "candle", "incense", "cards", "tea", "leaves", "signs", "omens", "portent", "scrying", "gaze", "third", "hidden", "unseen", "beyond", "within"],
+    bio: "Seraphina once brokered secrets for Aeiga-Reika's most powerful—a key player in the sulfur conspiracy. But a sensitive soul can only shake hands with murderers for so long. The coins, a thousand times touched, burned through her with the pain they witnessed. These days her Crystalline Parlor is closed. She reads the future still, but tells no one.",
+    keywords: ["crystal", "sphere", "orb", "vision", "future", "prophecy", "sight", "seer", "oracle", "divination", "psychometry", "touch", "memory", "secret", "whisper", "truth", "revelation", "parlor", "broker", "information", "conspiracy", "sulfur", "coin", "burn", "pain", "essence", "soul", "sensitive", "hand", "palm", "eye", "veil", "mirror", "fate", "fortune", "read", "glimpse", "echo", "imprint", "residue", "aura", "gift", "talent", "knowledge", "mystery", "shadow", "past", "tomorrow", "dream", "trance", "ritual", "candle", "incense", "cards", "tea", "leaves", "sign", "omens", "portent", "scrying", "gaze", "third", "hidden", "unseen", "beyond", "within"],
     initialAttributes: {
       physique: 2, strength: 1, agility: 4, constitution: 2, senses: 4,
       spirit: 2, attunement: 3, channeling: 2, weaving: 3, resilience: 2,
@@ -78,7 +78,7 @@ const charactersData: CharacterData = {
     location: "aeiga_reika",
     initialLevel: 1,
     baseUpkeep: 0.0,
-    bio: "When the Coroner Pine escaped the guild's laboratory, only Gulder dared to approach. Rather than eradicate the plant, he protects it from the waves of Silica-Maw larvae the city council has been sending in ever since. Gulder magic accelerates their lifecycle and the majority turns into butterflies just before reaching the target.",
+    bio: "When the Coroner Pine escaped the guild's laboratory, only Gulder dared to approach. Rather than eradicate the plant, he protects it from the waves of Silica-Maw larvae the city council has been sending in ever since. Gulder's magic accelerates their lifecycle and the majority turns into butterflies just before reaching the target.",
     keywords: ["water", "bucket", "splash", "leaf", "green", "bloom", "root", "herb", "soil", "moss", "growth", "plant", "seed", "life", "stream", "fountain", "flow", "wave", "dew", "branch", "flora", "pulse", "drop", "light", "path", "vine", "sprout", "petal", "stem", "bud", "flower", "grass", "tree", "fern", "algae", "lichen", "fungus", "mushroom", "spore", "pollen", "nectar", "sap", "bark", "thorn", "berry", "fruit", "nut", "garden", "grove", "meadow", "spring", "pool", "pond", "rain", "mist", "fog", "spray", "cure", "balm", "tonic", "potion", "salve", "tea", "brew", "extract", "essence", "oil", "nature", "verdant", "foliage", "canopy", "undergrowth", "thicket", "hedge", "ivy", "weed", "irrigation", "oasis", "puddle", "droplet", "moisture", "humidity", "compost", "mulch", "fertilizer", "larvae", "butterfly", "coroner", "pine"],
     initialAttributes: {
       physique: 2, strength: 2, agility: 2, constitution: 3, senses: 3,
@@ -144,7 +144,7 @@ const charactersData: CharacterData = {
     location: "aeiga_reika",
     initialLevel: 1,
     baseUpkeep: 0.0,
-    bio: "Lyra worked at Assembly Hall since she was ten. They were happy to have someone who could climb inside the titan's hand to fine-tune the digits. But things came apart more often than they'd come together as Lyra's true passion was dismantling complex apparatus. When the Highlander Mages Collective fled from Aeiga-Reika due to labor riots, Lyra undid their locks and turned their office into automaton graveyard.",
+    bio: "Lyra worked at Grand Assembly Hall since she was ten. They were happy to have someone who could climb inside the titan's hand to fine-tune the digits. But things around her came apart more often than they'd come together as Lyra's true passion was dismantling complex apparatus. When the Highlander Mages Collective fled from Aeiga-Reika due to labor riots, Lyra undid their locks and turned their office into an automaton graveyard.",
     keywords: ["chaos", "entropy", "fragment", "scrap", "ruin", "piece", "spring", "cog", "gear", "wire", "bolt", "rivet", "brass", "copper", "rust", "oil", "grease", "digit", "finger", "hand", "joint", "hinge", "lock", "key", "puzzle", "mechanism", "automaton", "golem", "titan", "wreckage", "debris", "shard", "component", "circuit", "valve", "piston", "lever", "switch", "tool", "wrench", "screwdriver", "pliers", "workshop", "bench", "blueprint", "schematic", "void", "unmaking", "dissolution", "decay", "breakdown", "dismantling", "deconstruction", "undoing", "unraveling", "assembly", "factory", "foundry", "warehouse", "office", "sanctum", "graveyard", "heap", "pile", "collection", "marvel", "wonder", "apparatus", "device", "contraption", "machine", "engine", "motor", "bearing", "axle", "wheel", "chain", "pulley", "cable", "scaffold", "framework", "skeleton", "shell", "housing", "panel", "plate", "mesh", "grid", "lattice", "maze", "labyrinth", "tangle", "knot", "mess", "jumble", "clutter", "disorder", "havoc", "mayhem", "anarchy", "lair", "tinkerer", "clockwork", "clock"],
     initialAttributes: {
       physique: 2, strength: 1, agility: 4, constitution: 2, senses: 3,
@@ -353,7 +353,7 @@ const charactersData: CharacterData = {
     name: "Meadowlight",
     epithets:["The Soot-Spinner", "Lady Bloom"],
     archetype:"The Industrial Druid",
-    quote:"Ts-s, just watch!",
+    quote:"Sh-h, just watch!",
     gender: "female",
     fullImage: "ingress_char (8)",
     location: "aeiga_reika",

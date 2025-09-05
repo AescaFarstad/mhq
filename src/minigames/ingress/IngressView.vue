@@ -31,6 +31,16 @@ const showInputHint = computed(() => {
   return (ingressState.value.substantiveWords.length + ingressState.value.offensiveWords.length) >= 2;
 });
 
+// Reserve horizontal space equal to the columns width to avoid overlap
+const COLUMN_WIDTH = 220;
+const COLUMN_GAP = 15;
+const columnsReservedWidth = computed(() => {
+  if (!ingressState.value?.engaged) return 0;
+  const count = wordsColumns.value.length;
+  if (count <= 0) return 0;
+  return count * COLUMN_WIDTH + (count - 1) * COLUMN_GAP;
+});
+
 const animationState = ref<{
   wordId: string;
   from: { x: number; y: number };
@@ -243,7 +253,7 @@ const handleStarTooltipHide = () => {
     }"
   />
   <div class="game-content-wrapper">
-    <div class="game-content-below-bar" :class="{ 'engaged': ingressState?.engaged }">
+    <div class="game-content-below-bar" :class="{ 'engaged': ingressState?.engaged }" :style="{ paddingRight: (columnsReservedWidth || 0) + 'px' }">
     <div class="main-content-area">
       <AspectPointsBar
       v-if="ingressState && ingressState.chargesBarRevealed"
@@ -356,6 +366,7 @@ const handleStarTooltipHide = () => {
   justify-content: center; /* Center content horizontally */
   flex-grow: 1; 
   overflow: visible; /* Allow seeing animations outside bounds */
+  position: relative; /* Anchor absolutely-positioned columns */
   gap: 20px;
 }
 

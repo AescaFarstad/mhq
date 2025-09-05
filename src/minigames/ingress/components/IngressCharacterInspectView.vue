@@ -426,7 +426,7 @@ const handleStarTooltipHide = () => {
   padding: 15px;
   padding-top: 8px;
   overflow-y: auto;
-  font-family: 'Source Code Pro', Courier, monospace;
+  font-family: Verdana;
   font-size: 1.0rem;
   line-height: 1.6;
 }
