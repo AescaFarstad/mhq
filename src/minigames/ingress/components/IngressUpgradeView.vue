@@ -48,7 +48,7 @@ const characterUpgrades: Upgrade[] = [
 const breachUpgrades: Upgrade[] = [
   { id: 'breach_materialization_speed', text: '+100% Faster materialization rate', cost: 5, stars: '☆☆☆☆☆' },
   { id: 'breach_word_bonus', text: '+1 from future \'substantive\' words', cost: 5, stars: '☆☆☆☆☆' },
-  { id: 'breach_typo_tolerance', text: '+1 typo tolerance *wink-wink*', cost: 2, stars: '☆☆' },
+  { id: 'breach_typo_tolerance', text: 'Typo tolerance *wink-wink*', cost: 2, stars: '☆☆' },
   { id: 'breach_word_counter', text: 'Display remaining \'substantive\' words count', cost: 1, stars: '☆' },
 ];
 
@@ -99,6 +99,8 @@ const handleStarTooltipHide = () => {
       <h4>Global upgrades</h4>
     </div>
     <div class="upgrades-reveal-container" :class="{ 'hidden': ingressState.upgradesRevealed }">
+      <br></br>
+      <span class="upgrades-reveal-container-text">Upgrades that apply to all characters</span>
       <button 
         @click="revealUpgrades" 
         @mouseenter="ingressState.aspectPoints < 1 ? handleStarTooltipShow($event) : null"
@@ -190,7 +192,7 @@ const handleStarTooltipHide = () => {
   justify-content: center;
   gap: 15px;
   overflow: hidden;
-  max-height: 100px; /* Generous height for content */
+  max-height: 120px;
   transition: all 0.7s ease-in-out;
 }
 .upgrades-reveal-container.hidden {

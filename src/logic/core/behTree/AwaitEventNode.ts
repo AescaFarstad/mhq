@@ -26,9 +26,7 @@ export class AwaitEventNode extends BehNode {
       console.error(`[BehTree] ${this.getHierarchicalPath()} cannot listen for event without an invoker.`);
       this.parent?.report(NodeResult.FAILURE, state, this);
     }
-  }
-  
-  public exit(): void {
+  }  public exit(): void {
     this.root.invoker?.removeEventListener(this);
   }
 

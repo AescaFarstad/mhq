@@ -75,9 +75,7 @@ export function triangleAABBIntersectionWithBounds(
   // Broad phase: Quick AABB vs AABB test using pre-calculated bounds
   if (!aabbIntersection(triMin, triMax, cellMin, cellMax)) {
     return false;
-  }
-  
-  // If bounding boxes overlap, we need detailed intersection tests
+  }  // If bounding boxes overlap, we need detailed intersection tests
   return triangleAABBIntersectionDetailed(triPoints, cellMin, cellMax);
 }
 
@@ -128,25 +126,19 @@ function triangleAABBIntersectionDetailed(triPoints: Point2[], cellMin: Point2, 
   // Test if triangle and rectangle are separated by triangle edge normals
   for (let i = 0; i < 3; i++) {
     const edge = subtract(triPoints[(i + 1) % 3], triPoints[i]);
-    const normal = { x: -edge.y, y: edge.x }; // perpendicular to edge
-    
-    // Project triangle onto this axis
+    const normal = { x: -edge.y, y: edge.x }; // perpendicular to edge    // Project triangle onto this axis
     let triMin = Infinity, triMax = -Infinity;
     for (const p of triPoints) {
       const proj = p.x * normal.x + p.y * normal.y;
       triMin = Math.min(triMin, proj);
       triMax = Math.max(triMax, proj);
-    }
-    
-    // Project rectangle onto this axis
+    }    // Project rectangle onto this axis
     let rectMin = Infinity, rectMax = -Infinity;
     for (const corner of cellCorners) {
       const proj = corner.x * normal.x + corner.y * normal.y;
       rectMin = Math.min(rectMin, proj);
       rectMax = Math.max(rectMax, proj);
-    }
-    
-    // Check for separation on this axis
+    }    // Check for separation on this axis
     if (triMax < rectMin || rectMax < triMin) {
       return false; // Separated on this axis
     }
@@ -159,21 +151,15 @@ export function triangleAABBIntersection(triPoints: Point2[], cellMin: Point2, c
   // Broad phase: Quick AABB vs AABB test
   // Calculate triangle bounding box
   let triMinX = triPoints[0].x, triMinY = triPoints[0].y;
-  let triMaxX = triPoints[0].x, triMaxY = triPoints[0].y;
-  
-  for (let i = 1; i < 3; i++) {
+  let triMaxX = triPoints[0].x, triMaxY = triPoints[0].y;  for (let i = 1; i < 3; i++) {
     const p = triPoints[i];
     if (p.x < triMinX) triMinX = p.x;
     if (p.y < triMinY) triMinY = p.y;
     if (p.x > triMaxX) triMaxX = p.x;
     if (p.y > triMaxY) triMaxY = p.y;
-  }
-  
-  // Quick rejection: if bounding boxes don't overlap, triangle can't intersect cell
+  }  // Quick rejection: if bounding boxes don't overlap, triangle can't intersect cell
   if (!aabbIntersection({ x: triMinX, y: triMinY }, { x: triMaxX, y: triMaxY }, cellMin, cellMax)) {
     return false;
-  }
-  
-  // If bounding boxes overlap, we need detailed intersection tests
+  }  // If bounding boxes overlap, we need detailed intersection tests
   return triangleAABBIntersectionDetailed(triPoints, cellMin, cellMax);
 } 

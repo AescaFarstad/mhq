@@ -35,9 +35,7 @@ export class BehTree extends SequencerNode implements IBehTree {
   protected advance(state: GameState): boolean {
     if (this.currentIndex > -1) {
       this.children[this.currentIndex].exit();
-    }
-    
-    this.currentIndex++;
+    }    this.currentIndex++;
     if (this.currentIndex < this.children.length) {
       const child = this.children[this.currentIndex];
       child.init(state);

@@ -90,30 +90,20 @@ class OpenSimplex2F {
   constructor(seed: number = 0) {
     // Initialize gradients and lookup tables
     this.gradients2D = createGradients2D();
-    this.lookup2D = createLookup2D();
-    
-    // Initialize permutation arrays
+    this.lookup2D = createLookup2D();    // Initialize permutation arrays
     this.perm = new Array(PSIZE);
-    this.permGrad2 = new Array(PSIZE);
-    
-    // Create source array for shuffling
+    this.permGrad2 = new Array(PSIZE);    // Create source array for shuffling
     const source = new Array(PSIZE);
     for (let i = 0; i < PSIZE; i++) {
       source[i] = i;
-    }
-    
-    // Shuffle using seed (matching C implementation)
+    }    // Shuffle using seed (matching C implementation)
     let seedValue = seed;
     for (let i = PSIZE - 1; i >= 0; i--) {
       seedValue = seedValue * 6364136223846793005 + 1442695040888963407;
       // Handle JavaScript's 32-bit integer limitation
       seedValue = seedValue & 0xFFFFFFFF;
-      let r = Math.abs((seedValue + 31) % (i + 1));
-      
-      this.perm[i] = source[r];
-      this.permGrad2[i] = this.gradients2D[this.perm[i]];
-      
-      source[r] = source[i];
+      let r = Math.abs((seedValue + 31) % (i + 1));      this.perm[i] = source[r];
+      this.permGrad2[i] = this.gradients2D[this.perm[i]];      source[r] = source[i];
     }
   }
 
@@ -138,9 +128,7 @@ class OpenSimplex2F {
       const c = this.lookup2D[(index + i) % 4];
       const dx = xi + c.dx;
       const dy = yi + c.dy;
-      let attn = 0.5 - dx * dx - dy * dy;
-      
-      if (attn <= 0) continue;
+      let attn = 0.5 - dx * dx - dy * dy;      if (attn <= 0) continue;
 
       const pxm = (xsb + c.xsv) & PMASK;
       const pym = (ysb + c.ysv) & PMASK;
@@ -161,9 +149,7 @@ class OpenSimplex2F {
   noise2DXBeforeY(x: number, y: number): number {
     // Scale coordinates by 0.01 for more reasonable input values
     x *= 0.01;
-    y *= 0.01;
-    
-    // Skew transform and rotation baked into one
+    y *= 0.01;    // Skew transform and rotation baked into one
     const xx = x * 0.7071067811865476;
     const yy = y * 1.224744871380249;
     return this.noise2Base(yy + xx, yy - xx);
@@ -233,9 +219,7 @@ export function octaveOpenSimplex1D(
   let maxValue = 0;
 
   for (let i = 0; i < octaves; i++) {
-    value += openSimplex1D(x * frequency) * amplitude;
-    
-    maxValue += amplitude;
+    value += openSimplex1D(x * frequency) * amplitude;    maxValue += amplitude;
     amplitude *= persistence;
     frequency *= 2;
   }
@@ -265,9 +249,7 @@ export function octaveOpenSimplex2DXBeforeY(
   let maxValue = 0;
 
   for (let i = 0; i < octaves; i++) {
-    value += openSimplex2DXBeforeY(x * frequency, y * frequency) * amplitude;
-    
-    maxValue += amplitude;
+    value += openSimplex2DXBeforeY(x * frequency, y * frequency) * amplitude;    maxValue += amplitude;
     amplitude *= persistence;
     frequency *= 2;
   }

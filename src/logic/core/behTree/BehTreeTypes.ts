@@ -27,7 +27,6 @@ export interface IBehNode extends IEventListener {
   type: string; //coincides with the name of the class
   root: IBehTree;
   parent?: IContainerNode; //Root has no parent
-  
   wireTree(root: IBehTree, parent: IContainerNode | undefined): void;
   init(state: GameState): void;
   exit(): void;
@@ -47,13 +46,10 @@ export interface IInvoker {
   completedTrees: string[];
   eventListeners: Map<string, IEventListener[]>;
   updateListeners: IEventListener[];
-  
   update(deltaTime: number, state: GameState): void;
   handleEvent(eventDef: EventDefinition, state: GameState): void;
-  
   addTree(tree: IBehTree, state: GameState): void;
   reportTreeComplete(tree: IBehTree): void;
-  
   addEventListener(eventName: string, listener: IEventListener): void;
   removeEventListener(listener: IEventListener): void;
   addUpdateListener(listener: IEventListener): void;

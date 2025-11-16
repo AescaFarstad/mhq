@@ -8,15 +8,26 @@
     <button @click="$emit('close')">X</button>
   </div>
   <div class="content">
-    <p>Debug content here.</p>
-    <button @click="copyDialogsToClipboard">Copy Dialogs</button>
+    <p style="margin-top: 0;">Quick tools</p>
+    <div class="buttons-row">
+      <button @click="copyDialogsToClipboard">Copy Dialogs</button>
+    </div>
+
+    <p style="margin-top: 12px;">Skips</p>
+    <div class="buttons-row">
+      <button v-if="activeMinigameType === 'Intro'" @click="handleSkipIntro">Skip</button>
+      <button v-if="activeMinigameType === 'Welcome'" @click="handleExploreAllWelcome">Explore All</button>
+      <button v-if="activeMinigameType === 'Ingress' && !ingressEngaged" @click="handleIngressDive">Dive</button>
+      <button v-if="activeMinigameType === 'Ingress' && ingressEngaged" @click="handleCheatAllIngress">Cheat All</button>
+    </div>
   </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, onUnmounted, inject } from 'vue';
+import { reactive, computed, onUnmounted, inject } from 'vue';
 import type { GameState } from '../../logic/GameState';
+import * as effects from '../../logic/effects';
 
 defineEmits(['close']);
 
@@ -35,6 +46,39 @@ const copyDialogsToClipboard = () => {
   }).catch(err => {
     console.error('Failed to copy dialogs: ', err);
   });
+  }
+};
+
+const activeMinigameType = computed(() => gameState?.uiState.activeMinigameType || null);
+const ingressEngaged = computed(() => {
+  if (gameState?.activeMinigame?.type === 'Ingress') {
+    // Access defensively without strict typing
+    return (gameState.activeMinigame as any).state?.engaged === true;
+  }
+  return false;
+});
+
+const handleSkipIntro = () => {
+  if (gameState?.activeMinigame?.type === 'Intro') {
+    gameState.endMinigame();
+  }
+};
+
+const handleExploreAllWelcome = () => {
+  if (gameState?.activeMinigame?.type === 'Welcome') {
+    effects.exploreAllWelcome(gameState);
+  }
+};
+
+const handleIngressDive = () => {
+  if (gameState) {
+    effects.skipIngressEngagement(gameState);
+  }
+};
+
+const handleCheatAllIngress = () => {
+  if (gameState) {
+    effects.cheatIngressAll(gameState);
   }
 };
 
@@ -109,5 +153,20 @@ onUnmounted(() => {
 
 .content {
   padding: 12px;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.buttons-row button {
+  cursor: pointer;
+  background: #555;
+  border: 1px solid #777;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 10px;
 }
 </style> 

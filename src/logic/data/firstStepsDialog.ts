@@ -248,7 +248,7 @@ export const firstStepsDialogRaw = {
     {
       id: 'smell_success',
       type: MESSAGE,
-      text: "Smells sweet and homely. Sandalwood, propolis. They also used to deal with bitter myrrh in here. No alcohol. At least not on the first floor.",
+      text: "Smells sweet and homely. Sandalwood, propolis. A trace of bitter myrrh. No alcohol. At least not on the first floor.",
       leaf: true,
     },
     

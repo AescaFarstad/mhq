@@ -141,22 +141,16 @@ export namespace Stats {
 
     if (!connections.establishedConnections.has(fromName)) {
       connections.establishedConnections.set(fromName, []);
-    }
-    
-    // Check if this exact connection already exists to prevent duplicates
+    }    // Check if this exact connection already exists to prevent duplicates
     const existingConnections = connections.establishedConnections.get(fromName)!;
     const connectionExists = existingConnections.some(conn => 
       conn.target === toName && 
       conn.type === type && 
       conn.inputName === inputName
-    );
-    
-    if (connectionExists) {
+    );    if (connectionExists) {
       console.warn(`Connection already exists: ${fromName} -> ${toName} (type: ${type})`);
       return; // Don't create duplicate connection
-    }
-    
-    const connection = new Connection(toName, type, inputName); // Pass inputName here
+    }    const connection = new Connection(toName, type, inputName); // Pass inputName here
     connections.establishedConnections.get(fromName)!.push(connection);
 
     if (type === ConnectionType.MULTY) {
@@ -353,12 +347,8 @@ export namespace Stats {
    */
   function recalculateEventDispatcherParameterValue(stat: EventDispatcherParameter, connections: Connections): void {
     const combinedValue = stat.baseValue + stat.inputValue;
-    const shouldTrigger = stat.isAboveThreshold === (combinedValue >= stat.threshold);
-    
-    if (shouldTrigger) {
-      setStat(stat, stat.inputValue, connections);
-      
-      // Add to event dispatcher queue if not already queued
+    const shouldTrigger = stat.isAboveThreshold === (combinedValue >= stat.threshold);    if (shouldTrigger) {
+      setStat(stat, stat.inputValue, connections);      // Add to event dispatcher queue if not already queued
       if (!stat.isQueued) {
         connections.eventDispatcherQueue.push(stat);
         stat.isQueued = true;
@@ -545,9 +535,7 @@ export namespace Stats {
   export function processEventDispatcherQueue(connections: Connections, gameState: any): void {
     while (connections.eventDispatcherQueue.length > 0) {
       const stat = connections.eventDispatcherQueue.shift()!;
-      stat.isQueued = false;
-      
-      try {
+      stat.isQueued = false;      try {
         stat.lambda(stat, gameState);
       } catch (error) {
         console.error(`Error processing EventDispatcherParameter ${stat.name}:`, error);

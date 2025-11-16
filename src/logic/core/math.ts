@@ -124,15 +124,11 @@ export function distancePointToSegment(p: Point2, a: Point2, b: Point2): number 
   }
 
   // Projection of ap onto ab, normalized by length of ab
-  const t = Math.max(0, Math.min(1, dot(ap, ab) / lenSq));
-  
-  // The closest point on the line segment
+  const t = Math.max(0, Math.min(1, dot(ap, ab) / lenSq));  // The closest point on the line segment
   const closestPoint = {
   x: a.x + t * ab.x,
   y: a.y + t * ab.y,
-  };
-  
-  return distance(p, closestPoint);
+  };  return distance(p, closestPoint);
 }
 
 export function dot(p1: Point2, p2: Point2): number {
@@ -152,35 +148,21 @@ export function isPointInAABB(point: Point2, min: Point2, max: Point2): boolean 
 }
 
 export function lineSegmentIntersectionTest(p1: Point2, p2: Point2, p3: Point2, p4: Point2): boolean {
-  const EPSILON = 1e-10;
-  
-  const r = subtract(p2, p1);
+  const EPSILON = 1e-10;  const r = subtract(p2, p1);
   const s = subtract(p4, p3);
   const r_cross_s = cross(r, s);
-  const q_minus_p = subtract(p3, p1);
-  
-  // Lines are parallel (or nearly so)
+  const q_minus_p = subtract(p3, p1);  // Lines are parallel (or nearly so)
   if (Math.abs(r_cross_s) < EPSILON) {
-    const q_minus_p_cross_r = cross(q_minus_p, r);
-    
-    // Lines are collinear
+    const q_minus_p_cross_r = cross(q_minus_p, r);    // Lines are collinear
     if (Math.abs(q_minus_p_cross_r) < EPSILON) {
       // Check if segments overlap on the collinear line
       const t0 = dot(q_minus_p, r) / dot(r, r);
-      const t1 = t0 + dot(s, r) / dot(r, r);
-      
-      const tMin = Math.min(t0, t1);
-      const tMax = Math.max(t0, t1);
-      
-      // Segments overlap if they intersect the range [0, 1]
+      const t1 = t0 + dot(s, r) / dot(r, r);      const tMin = Math.min(t0, t1);
+      const tMax = Math.max(t0, t1);      // Segments overlap if they intersect the range [0, 1]
       return tMax >= -EPSILON && tMin <= 1 + EPSILON;
-    }
-    
-    // Lines are parallel but not collinear, so no intersection
+    }    // Lines are parallel but not collinear, so no intersection
     return false;
-  }
-  
-  const t = cross(q_minus_p, s) / r_cross_s;
+  }  const t = cross(q_minus_p, s) / r_cross_s;
   const u = cross(q_minus_p, r) / r_cross_s;
 
   // Check if intersection point lies within both line segments
@@ -200,9 +182,7 @@ export function lineLineIntersection(line1: Line, line2: Line): Point2 | null {
   const p2 = line2.point;
   const v2 = line2.direction;
 
-  const cross_product = cross(v1, v2);
-  
-  // Lines are parallel or collinear
+  const cross_product = cross(v1, v2);  // Lines are parallel or collinear
   if (Math.abs(cross_product) < 1e-9) {
   return null;
   }
@@ -255,6 +235,24 @@ export function pointLineSignedDistance(point: Point2, lineP1: Point2, lineDir: 
   const pointVec = subtract(point, lineP1);
   const dist = dot(pointVec, normal) / length(normal);
   return dist;
+}
+
+export function rotateTo(out: Point2, p: Point2, angle: number): void {
+  const c = Math.cos(angle), s = Math.sin(angle);
+  const x = p.x, y = p.y;
+  out.x = x * c - y * s;
+  out.y = x * s + y * c;
+}
+
+export function rotate_(p: Point2, angle: number): void {
+  const c = Math.cos(angle), s = Math.sin(angle);
+  const x = p.x, y = p.y;
+  p.x = x * c - y * s;
+  p.y = x * s + y * c;
+}
+
+export function rotate(p: Point2, angle: number): Point2 {
+  return { x: p.x * Math.cos(angle) - p.y * Math.sin(angle), y: p.x * Math.sin(angle) + p.y * Math.cos(angle) };
 }
 
 // Re-export triangle math functions

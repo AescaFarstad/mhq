@@ -54,9 +54,7 @@ export class AwaitAndProcessEventNode extends BehNode {
     }
 
     // Process the event using the lambda
-    const success = this.processLambda(eventDef, this, state);
-    
-    if (C.BEH_LOG_VERBOSE) {
+    const success = this.processLambda(eventDef, this, state);    if (C.BEH_LOG_VERBOSE) {
       console.log(`[BehTree] ${this.getHierarchicalPath()} event processing ${success ? 'succeeded' : 'failed'}.`);
     }
 

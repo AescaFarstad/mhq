@@ -35,9 +35,7 @@ export namespace Hypothetical {
     Stats.setIndependentStat(clonedStat, clonedStat.value + amount, newConnections);
 
     gameState.hypothetical = { key, connections: newConnections };
-  }
-  
-  export function createHypotheticalForSpecUpgrade(gameState: GameState, specStat: IndependentStat, amount: number = 1): void {
+  }  export function createHypotheticalForSpecUpgrade(gameState: GameState, specStat: IndependentStat, amount: number = 1): void {
     const key = `spec_${specStat.name}_${amount}`;
     if (gameState.hypothetical?.key === key) {
       return;

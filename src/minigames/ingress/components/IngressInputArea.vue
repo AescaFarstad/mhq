@@ -134,7 +134,7 @@ defineExpose({
   <div class="input-and-prompt-area">
     <!-- Prompts shown before the game is engaged -->
     <p v-if="!chargesBarRevealed" class="input-prompt large-prompt" :class="{ 'animate-prompt': initialPromptsVisible }">Now — the descent.</p>
-    <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break" :class="{ 'animate-prompt delay-0': initialPromptsVisible }">This process is mentally strenuous, stock up on coffee or tea.</p>
+    <p v-if="!chargesBarRevealed" class="input-prompt prompt-with-a-break" :class="{ 'animate-prompt delay-0': initialPromptsVisible }">This process is mentally strenuous, stock up on tea or coffee.</p>
 
     <div class="action-area">
     <!-- Content shown when the game is engaged -->

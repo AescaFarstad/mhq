@@ -27,6 +27,8 @@ import { FirstStepsGame } from '../minigames/firststeps/FirstStepsGame';
 import { EventProcessor } from './Event';
 import { discoverItem } from './Discovery';
 import { C } from './lib/C';
+import type { WelcomeState } from '../minigames/welcome/WelcomeGame';
+import type { IngressState } from '../minigames/ingress/IngressTypes';
 
 
 export function giveResource(state: GameState, params: ModifyResourceParams): void {
@@ -324,6 +326,66 @@ export function skipIngressEngagement(state: GameState): void {
   } else {
     console.warn('Effect skipIngressEngagement: No active Ingress minigame found.');
   }
+}
+
+/**
+ * Debug helper: fully explore all Welcome choices while keeping normal selection flow.
+ */
+export function exploreAllWelcome(state: GameState): void {
+  if (C.DEBUG_EFFECTS) {
+    console.log(`E 'exploreAllWelcome':`, {});
+  }
+
+  if (state.activeMinigame?.type !== 'Welcome') {
+    console.warn('Effect exploreAllWelcome: No active Welcome minigame found.');
+    return;
+  }
+
+  const welcomeGame = state.activeMinigame as WelcomeGame;
+  const wState = welcomeGame.state as WelcomeState;
+
+  for (const choice of wState.explorableChoices) {
+    // Reveal everything and allow selection, but do not auto-finish
+    (choice as any).explorationProgress = 1;
+    (choice as any).isExploring = false;
+    (choice as any).nameObfuscationPercentage = 0;
+    (choice as any).isDescriptionVisible = true;
+    (choice as any).descriptionObfuscationPercentage = 0;
+    (choice as any).areProsConsTitlesVisible = true;
+    (choice as any).revealedProsCount = choice.pros?.length || 0;
+    (choice as any).revealedConsCount = choice.cons?.length || 0;
+    (choice as any).canBeSelected = true;
+  }
+}
+
+/**
+ * Debug helper: after Ingress is engaged, grant 200 stars and complete materialization.
+ * This sets up a valid character and finalizes via normal commit flow.
+ */
+export function cheatIngressAll(state: GameState): void {
+  if (C.DEBUG_EFFECTS) {
+    console.log(`E 'cheatIngressAll':`, {});
+  }
+
+  if (state.activeMinigame?.type !== 'Ingress') {
+    console.warn('Effect cheatIngressAll: No active Ingress minigame found.');
+    return;
+  }
+
+  const ingressGame = state.activeMinigame as IngressGame;
+  const iState = ingressGame.state as IngressState;
+
+  // Ensure diving/engagement is done
+  if (!iState.engaged) {
+    ingressGame.engage();
+  }
+
+  // Grant stars and complete materialization progress, but do NOT end the game
+  iState.chargesBarRevealed = true;
+  iState.aspectPoints += 200;
+  iState.totalAspectPoints += 200;
+  iState.materializationProgress = 100;
+  // Leave envision/explore/commit to the player; do not auto-finish
 }
 
 export function switchToTab(state: GameState, params: { tabName: string }): void {

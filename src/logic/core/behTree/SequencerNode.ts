@@ -48,9 +48,7 @@ export class SequencerNode extends BehNode implements IContainerNode {
 
     if (result === NodeResult.SUCCESS) {
       // Exit the completed child
-      child.exit();
-      
-      this.currentIndex++;
+      child.exit();      this.currentIndex++;
       if (this.currentIndex < this.children.length) {
         // If there are more children, initialize the next one.
         const nextChild = this.children[this.currentIndex];

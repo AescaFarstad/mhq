@@ -24,12 +24,8 @@ function pcgStateToOutput(state: bigint): number {
   // Ensure 64-bit state parity with C++
   state = state & 0xFFFFFFFFFFFFFFFFn;
   // Extract rotation count from high bits (bits 63-59)
-  const count = Number(state >> 59n) & 31;
-  
-  // Apply XOR-shift: x ^= x >> 18 (18 = (64 - 27)/2)
-  let x = state ^ (state >> 18n);
-  
-  // Extract middle bits (bits 58-27) and apply rotation
+  const count = Number(state >> 59n) & 31;  // Apply XOR-shift: x ^= x >> 18 (18 = (64 - 27)/2)
+  let x = state ^ (state >> 18n);  // Extract middle bits (bits 58-27) and apply rotation
   const middle32 = Number((x >> 27n) & 0xFFFFFFFFn);
   return rotr32(middle32, count);
 }
@@ -42,12 +38,8 @@ function pcgStateToOutput(state: bigint): number {
  */
 export function advanceSeed(seed: number): number {
   // Convert seed to proper 64-bit state
-  let state = seedToState(seed);
-  
-  // Apply PCG state advancement: state = state * multiplier + increment
-  state = (state * PCG_MULTIPLIER + PCG_INCREMENT) & 0xFFFFFFFFFFFFFFFFn;
-  
-  // Convert back to number (using the high 32 bits to avoid loss of entropy)
+  let state = seedToState(seed);  // Apply PCG state advancement: state = state * multiplier + increment
+  state = (state * PCG_MULTIPLIER + PCG_INCREMENT) & 0xFFFFFFFFFFFFFFFFn;  // Convert back to number (using the high 32 bits to avoid loss of entropy)
   return Number(state >> 32n);
 }
 
@@ -59,12 +51,8 @@ export function advanceSeed(seed: number): number {
  */
 export function seedToRandom(seed: number): number {
   // Convert seed to proper 64-bit state
-  const state = seedToState(seed);
-  
-  // Generate PCG output
-  const output = pcgStateToOutput(state);
-  
-  // Convert 32-bit output to [0, 1) range
+  const state = seedToState(seed);  // Generate PCG output
+  const output = pcgStateToOutput(state);  // Convert 32-bit output to [0, 1) range
   return output / 0x100000000; // Divide by 2^32
 }
 
@@ -76,9 +64,7 @@ export function seedToRandom(seed: number): number {
 function seedToState(seed: number): bigint {
   // Use a better mixing function to convert 32-bit-ish seeds to 64-bit states
   // This ensures different seeds produce significantly different states
-  const s = BigInt(Math.abs(seed)) & 0xFFFFFFFFn; // Ensure 32-bit range
-  
-  // Mix the seed to create a 64-bit state with good distribution
+  const s = BigInt(Math.abs(seed)) & 0xFFFFFFFFn; // Ensure 32-bit range  // Mix the seed to create a 64-bit state with good distribution
   // This is similar to SplitMix64 hash function
   let state = ((s ^ 0x9E3779B97F4A7C15n) * 0xBF58476D1CE4E5B9n) & 0xFFFFFFFFFFFFFFFFn;
   state = ((state ^ (state >> 30n)) * 0x94D049BB133111EBn) & 0xFFFFFFFFFFFFFFFFn;
@@ -93,17 +79,11 @@ function seedToState(seed: number): bigint {
  */
 export function seededRandom(seed: number): { value: number; newSeed: number } {
   // Convert seed to proper 64-bit state
-  let state = seedToState(seed);
-  
-  // Generate output from current state
+  let state = seedToState(seed);  // Generate output from current state
   const output = pcgStateToOutput(state);
-  const value = output / 0x100000000; // Convert to [0, 1)
-  
-  // Advance state for next iteration
+  const value = output / 0x100000000; // Convert to [0, 1)  // Advance state for next iteration
   state = (state * PCG_MULTIPLIER + PCG_INCREMENT) & 0xFFFFFFFFFFFFFFFFn;
-  const newSeed = Number(state >> 32n);
-  
-  return { value, newSeed };
+  const newSeed = Number(state >> 32n);  return { value, newSeed };
 }
 
 /**

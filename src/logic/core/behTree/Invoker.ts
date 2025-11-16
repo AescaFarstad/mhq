@@ -28,9 +28,7 @@ export class Invoker implements IInvoker {
     if (!this.completedTrees.includes(tree.name)) {
       this.completedTrees.push(tree.name);
     }
-  }
-  
-  public update(deltaTime: number, state: GameState): void {
+  }  public update(deltaTime: number, state: GameState): void {
     const initialMutationCount = this.listenersMutationCount;
     const listenersToUpdate = [...this.updateListeners];
 
@@ -56,9 +54,7 @@ export class Invoker implements IInvoker {
 
     if (C.BEH_LOG_VERBOSE) {
       console.log(`[Invoker] Handling event: ${eventDef.id} for ${listenersForEvent.length} listeners.`);
-    }
-    
-    const initialMutationCount = this.listenersMutationCount;
+    }    const initialMutationCount = this.listenersMutationCount;
     const listenersToProcess = [...listenersForEvent];
 
     for (const listener of listenersToProcess) {

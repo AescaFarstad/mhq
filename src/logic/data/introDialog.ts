@@ -51,14 +51,14 @@ export const introDialogRaw = {
       id: 'player_response_2',
       type: CHOICE,
       choices: [
-        { text: "Me? But... shouldn't people build it themselves to be worthy to ascend?", next: 'deity_worthiness_response' }
+        { text: "Me? But... shouldn't people build it themselves to become worthy of ascending?", next: 'deity_worthiness_response' }
       ]
     },
     
     {
       id: 'deity_worthiness_response',
       type: MESSAGE,
-      text: 'I prefer they accomplish spiritual feats instead of spending their lives building the impossible.',
+      text: 'I\'d prefer they accomplish spiritual feats instead of spending their lives building the impossible.',
       speakerId: 'deity',
       data: {
         delay: 3.1

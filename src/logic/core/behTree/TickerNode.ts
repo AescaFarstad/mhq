@@ -52,9 +52,7 @@ export class TickerNode extends BehNode {
     if (!this.hasLoggedUpdate) {
       console.log(`[BehTree] ${this.getHierarchicalPath()} is being updated.`);
       this.hasLoggedUpdate = true;
-    }
-    
-    if (!this.hasLoggedCondition) {
+    }    if (!this.hasLoggedCondition) {
       console.log(`[BehTree] ${this.getHierarchicalPath()} checking condition: gameTime=${state.gameTime}, canAddNodeAt=${this.root.blackboard.canAddNodeAt}`);
       this.hasLoggedCondition = true;
     }
