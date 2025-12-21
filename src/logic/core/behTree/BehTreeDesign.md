@@ -137,7 +137,7 @@ state.invoker.handleEvent(eventDef, state, context);
   ```typescript
   new AnySuccessAllFailureNode('parallelTasks', [
     new AwaitEventNode('playerInput'),
-    new TickerNode('timeout', (n, s) => s.time > 10)
+    new TickerNode('timeout', (n, s) => s.gameTime > 10)
   ])
   ```
 

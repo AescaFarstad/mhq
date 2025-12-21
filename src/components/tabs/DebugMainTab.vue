@@ -16,6 +16,7 @@
     <button @click="copyCharacterNamesAndBios($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'characterNamesAndBios' }">Character Names & Bios</button>
     <button @click="copyCharactersByLocation($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'charactersByLocation' }">Characters by Location</button>
     <button @click="findSharedKeywordPairs($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'sharedKeywordPairs' }">Find 5 Shared Keywords</button>
+    <button @click="copyGameTexts($event)" class="action-btn" :class="{ 'copy-success': copyAnimationButton === 'gameTexts' }">Game Texts</button>
     <button @click="showNoiseVisualizer" class="action-btn visualizer-btn">Show Noise Visualizer</button>
   </div>
   
@@ -37,6 +38,8 @@ import { ref, inject } from 'vue';
 import { GameState } from '../../logic/GameState';
 import { CharacterLib } from '../../logic/lib/CharacterLib';
 import NoiseVisualizer from '../NoiseVisualizer.vue';
+import { introDialogRaw } from '../../logic/data/introDialog';
+import { connectionLocationDefinitions } from '../../minigames/welcome/data/welcomeLocations';
 
 const gameState = inject<GameState>('gameState');
 
@@ -662,6 +665,104 @@ const findSharedKeywordPairs = (_event?: Event) => {
     displayContent(clipboardText.trim(), 'Shared Keyword Analysis');
   })
   .catch((err) => console.error('Failed to copy shared keyword analysis to clipboard:', err));
+};
+
+// Copy game texts: intro dialog, locations, and characters by location
+const copyGameTexts = (_event?: Event) => {
+  let clipboardText = '';
+  
+  // ===== INTRO DIALOG =====
+  clipboardText += '=== INTRO DIALOG ===\n\n';
+  
+  for (const node of introDialogRaw.nodes) {
+    if (node.type === 'message') {
+      // Strip HTML tags for plain text
+      const plainText = (node.text || '').replace(/<[^>]*>/g, '');
+      const speaker = node.speakerId === 'deity' ? 'DEITY' : 'NARRATOR';
+      clipboardText += `[${speaker}]: ${plainText}\n`;
+    } else if (node.type === 'choice' && node.choices) {
+      clipboardText += '[PLAYER CHOICES]:\n';
+      for (const choice of node.choices) {
+        clipboardText += `  - "${choice.text}"\n`;
+      }
+    }
+  }
+  
+  clipboardText += '\n\n';
+  
+  // ===== LOCATIONS =====
+  clipboardText += '=== LOCATIONS ===\n\n';
+  
+  for (const [id, loc] of Object.entries(connectionLocationDefinitions)) {
+    clipboardText += `${loc.name} (${id})\n`;
+    clipboardText += `Description: ${loc.description}\n`;
+    clipboardText += `Pros:\n`;
+    for (const pro of loc.pros || []) {
+      clipboardText += `  + ${pro}\n`;
+    }
+    clipboardText += `Cons:\n`;
+    for (const con of loc.cons || []) {
+      clipboardText += `  - ${con}\n`;
+    }
+    clipboardText += '\n';
+  }
+  
+  clipboardText += '\n';
+  
+  // ===== CHARACTERS BY LOCATION =====
+  clipboardText += '=== CHARACTERS BY LOCATION ===\n\n';
+  
+  if (!gameState || !gameState.lib?.characters) {
+    clipboardText += '(Character data not available)\n';
+  } else {
+    const characterLib: CharacterLib = gameState.lib.characters;
+    
+    // Group characters by location
+    const charactersByLocation: Record<string, any[]> = {};
+    for (const c of characterLib.values()) {
+      const location = c.location || 'Unknown Location';
+      if (!charactersByLocation[location]) {
+        charactersByLocation[location] = [];
+      }
+      charactersByLocation[location].push(c);
+    }
+    
+    // Sort locations
+    const sortedLocations = Object.keys(charactersByLocation).sort();
+    
+    for (const location of sortedLocations) {
+      // Get location display name if available
+      const locDef = connectionLocationDefinitions[location as keyof typeof connectionLocationDefinitions];
+      const locationName = locDef?.name || location;
+      
+      clipboardText += `--- ${locationName} ---\n\n`;
+      
+      // Sort characters within location by name
+      const sortedCharacters = charactersByLocation[location].sort((a, b) => a.name.localeCompare(b.name));
+      
+      for (const character of sortedCharacters) {
+        clipboardText += `Name: ${character.name}\n`;
+        if (character.epithets?.length) {
+          clipboardText += `Epithets: ${character.epithets.join(', ')}\n`;
+        }
+        if (character.quote) {
+          clipboardText += `Quote: "${character.quote}"\n`;
+        }
+        clipboardText += `Bio: ${character.bio || 'N/A'}\n`;
+        clipboardText += '\n';
+      }
+    }
+  }
+  
+  const finalText = clipboardText.trim();
+  navigator.clipboard.writeText(finalText)
+    .then(() => {
+      triggerCopyAnimation('gameTexts');
+      displayContent(finalText, 'Game Texts');
+    })
+    .catch((err) => {
+      console.error('Failed to copy game texts to clipboard:', err);
+    });
 };
 
 </script>

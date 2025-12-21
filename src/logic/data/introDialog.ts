@@ -128,7 +128,7 @@ export const introDialogRaw = {
     
     {
       type: MESSAGE,
-      text: "You will have to start as a hermit, nobody will know you. This avoids altering people's memories to fit you in. But I will put you in charge of an abandoned mages guild.",
+      text: "You will have to start as a hermit, nobody will know you. This avoids altering people's memories. But I will put you in charge of an abandoned mages guild.",
       speakerId: 'deity',
     },
     
@@ -153,7 +153,7 @@ export const introDialogRaw = {
       id: 'player_response_4',
       type: CHOICE,
       choices: [
-        { text: "Where shall I be descending?" }
+        { text: "Where shall I be arriving?" }
       ]
     },
   ]

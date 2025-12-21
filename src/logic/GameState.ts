@@ -28,6 +28,7 @@ import { markExistingDiscoveredItemsAsEncountered, handleInspirationLevelUp } fr
 // import { GameEvent } from './Event';
 
 import { C } from './lib/C';
+import { SeededRandom } from './core/SeededRandom';
 
 export const maintenanceSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.MAINTENANCE_SLOW_TICK_INTERVAL, "maintenance_task_gen");
 export const assignmentSlowTickGlobal = new SlowTick(C.DEFAULT_MIN_DELTA_TIME, C.ASSIGNMENT_SLOW_TICK_INTERVAL, "task_assignment_process");
@@ -73,7 +74,7 @@ export class GameState {
   public gameTime: number = 0;
   public tick: number = 0;
 
-  public rngSeed: number = 12345;
+  public random: SeededRandom = new SeededRandom(12345);
 
   public locationId: string = "turfablie";
 

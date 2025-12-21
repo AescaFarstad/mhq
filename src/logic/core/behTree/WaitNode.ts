@@ -1,7 +1,6 @@
 import { BehNode } from './BehNode';
 import { NodeResult } from './BehTreeTypes';
 import { GameState } from '../../GameState';
-import { seededRandom } from '../mathUtils';
 
 export interface WaitNodeParams {
   durationMin: number;
@@ -38,8 +37,7 @@ export class WaitNode extends BehNode {
 
   init(state: GameState): void {    
     if (this._durationMax !== undefined && this._durationMax > this._durationMin) {
-      const { value, newSeed } = seededRandom(state.rngSeed);
-      state.rngSeed = newSeed;
+      const value = state.random.get();
       this._timer = value * (this._durationMax - this._durationMin) + this._durationMin;
     } else {
       this._timer = this._durationMin;

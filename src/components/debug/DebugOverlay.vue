@@ -19,6 +19,7 @@
       <button v-if="activeMinigameType === 'Welcome'" @click="handleExploreAllWelcome">Explore All</button>
       <button v-if="activeMinigameType === 'Ingress' && !ingressEngaged" @click="handleIngressDive">Dive</button>
       <button v-if="activeMinigameType === 'Ingress' && ingressEngaged" @click="handleCheatAllIngress">Cheat All</button>
+      <button v-if="activeMinigameType === 'FirstSteps'" @click="handleSkipFirstSteps">Skip Guild Exploration</button>
     </div>
   </div>
   </div>
@@ -81,6 +82,13 @@ const handleCheatAllIngress = () => {
     effects.cheatIngressAll(gameState);
   }
 };
+
+const handleSkipFirstSteps = () => {
+  if (gameState?.activeMinigame?.type === 'FirstSteps') {
+    gameState.endMinigame();
+  }
+};
+
 
 const startDrag = (event: MouseEvent) => {
   // Only allow dragging with the left mouse button.
