@@ -17,15 +17,15 @@ export const introDialogRaw = {
       id: 'player_response_1',
       type: CHOICE,
       choices: [
-        { text: "It's an honor.", next: 'deity_explanation_yes' },
-        { text: "Have I done wrong?", next: 'deity_explanation_no' }
+        { text: "It would be an honor.", next: 'deity_explanation_yes' },
+        { text: "Have I done something wrong?", next: 'deity_explanation_no' }
       ]
     },
     
     {
       id: 'deity_explanation_yes',
       type: MESSAGE,
-      text: 'I need you to come into the mortal world to build <strong>a stairway to the Heavens</strong>.',
+      text: 'I need you to go to the mortal world to build <strong>a stairway to the Heavens</strong>.',
       speakerId: 'deity',
       next: 'player_response_2',
       data: {
@@ -37,7 +37,7 @@ export const introDialogRaw = {
     {
       id: 'deity_explanation_no',
       type: MESSAGE,
-      text: 'No, not at all. I need you to come into the mortal world to build <strong>a stairway to the Heavens</strong>.',
+      text: 'No, not at all. I need you to go to the mortal world to build <strong>a stairway to the Heavens</strong>.',
       speakerId: 'deity',
       next: 'player_response_2',
       data: {
@@ -67,7 +67,7 @@ export const introDialogRaw = {
     
     {
       type: MESSAGE,
-      text: 'Heroes—there are plenty.',
+      text: 'And achieve such feats they did.',
       speakerId: 'deity',
       data: {
         delay: 0.5
